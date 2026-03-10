@@ -105,10 +105,15 @@ export default function TaskForm() {
 
     setSaving(true);
     try {
+      let result;
       if (isEdit && id) {
-        await updateTask(parseInt(id), submitData);
+        result = await updateTask(parseInt(id), submitData);
       } else {
-        await createTask(submitData);
+        result = await createTask(submitData);
+      }
+      
+      if (result === 1 || result?.code === 1 || result?.code === undefined) {
+        alert(isEdit ? '更新成功' : '创建成功');
       }
       navigate('/tasks');
     } catch (error) {

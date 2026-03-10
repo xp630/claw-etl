@@ -113,10 +113,15 @@ export default function DataSourceForm() {
 
     setSaving(true);
     try {
+      let result;
       if (isEdit && id) {
-        await updateDataSource(parseInt(id), formData);
+        result = await updateDataSource(parseInt(id), formData);
       } else {
-        await createDataSource(formData);
+        result = await createDataSource(formData);
+      }
+      
+      if (result === 1 || result?.code === 1 || result?.code === undefined) {
+        alert(isEdit ? '更新成功' : '创建成功');
       }
       navigate('/datasources');
     } catch (error) {
