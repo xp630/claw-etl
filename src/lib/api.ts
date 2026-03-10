@@ -67,9 +67,27 @@ export async function getDataSources(): Promise<DataSource[]> {
 // 获取单个数据源
 export async function getDataSource(id: number): Promise<DataSource | undefined> {
   try {
-    const res = await api.get('/etl-admin/simple/getById', { params: { id } });
-    return res.data?.data;
+    const res = await api.post('/etl-admin/dataSourceManager/dbSourceDetail', { id: String(id) });
+    const data = res.data?.data;
+    if (data) {
+      return {
+        id: data.id,
+        name: data.dbName,
+        type: data.dbType?.toLowerCase() || 'mysql',
+        host: data.dbUrl?.match(/:\/\/([^:]+):/)?.[1] || '',
+        port: parseInt(data.dbUrl?.match(/:(\d+)\//)?.[1]) || 3306,
+        username: data.dbAccount,
+        password: data.dbPassword,
+        database_name: data.realDataBaseName || data.dbName,
+        description: data.comment,
+        status: data.dbState === '启用' ? 1 : 0,
+        created_at: data.createTime,
+        updated_at: data.updateTime,
+      };
+    }
+    return undefined;
   } catch (error) {
+    console.error('Failed to load datasource:', error);
     return MOCK_DATASOURCES.find(ds => ds.id === id);
   }
 }
