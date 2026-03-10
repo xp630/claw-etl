@@ -1,8 +1,8 @@
 import axios from 'axios';
 import type { DataSource, Task } from '../types';
 
-// 后端API基础URL
-const API_BASE = 'http://139.9.200.56:8090';
+// 后端API基础URL（开发模式用空，通过Vite代理；生产模式需要配置）
+const API_BASE = '';
 
 // 创建axios实例
 const api = axios.create({
@@ -15,8 +15,8 @@ const api = axios.create({
 
 // 拦截器：打印每个请求的curl命令
 api.interceptors.request.use((config) => {
-  const baseURL = API_BASE;
-  const fullURL = baseURL + config.url;
+  // 开发模式显示实际后端地址，方便调试
+  const fullURL = 'http://139.9.200.56:8090' + config.url;
   const method = config.method?.toUpperCase() || 'GET';
   
   let curl = `curl -X ${method} '${fullURL}'`;
