@@ -239,8 +239,30 @@ export async function getTasks(): Promise<Task[]> {
 // 获取单个任务
 export async function getTask(id: number): Promise<Task | undefined> {
   try {
-    const res = await api.get('/etl-admin/simple/getById', { params: { id } });
-    return res.data?.data;
+    const res = await api.post('/etl-admin/simple/getById', { id: String(id) });
+    const data = res.data?.data;
+    if (data) {
+      return {
+        id: data.id,
+        name: data.taskName,
+        source_id: 0,
+        source_name: data.sourceDb,
+        query_sql: data.querySql,
+        target_id: 0,
+        target_name: data.targetDb,
+        target_table: data.targetTable,
+        columns: data.columns,
+        dynamic_sql: data.dynamicParam,
+        window_value: data.taskCronTime || 1,
+        window_unit: data.taskCronTimeUnit?.toLowerCase() === 'hours' ? 'hours' : 
+                     data.taskCronTimeUnit?.toLowerCase() === 'days' ? 'days' : 'minutes',
+        status: data.status,
+        last_run_time: data.lastRunTime,
+        created_at: data.createTime || '',
+        updated_at: data.updateTime || '',
+      };
+    }
+    return undefined;
   } catch (error) {
     return MOCK_TASKS.find(t => t.id === id);
   }
