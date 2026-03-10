@@ -134,7 +134,7 @@ export async function createDataSource(data: Partial<DataSource>): Promise<DataS
       : '';
     
     // 转换字段名以匹配后端格式
-    const postData = {
+    const postData: any = {
       dbName: data.name,
       dbUrl,
       dbAccount: data.username,
@@ -145,12 +145,15 @@ export async function createDataSource(data: Partial<DataSource>): Promise<DataS
       comment: data.description,
       dataType: data.dataType || 'source',
       categoryId: 5683,
-      maxConnections: data.maxConnections,
-      minIdle: data.minIdle,
-      initialConnections: data.initialConnections,
-      maxIdle: data.maxIdle,
-      extraParams: data.extraParams,
     };
+    
+    // 确保数值类型字段一定传递
+    if (data.maxConnections !== undefined) postData.maxConnections = data.maxConnections;
+    if (data.minIdle !== undefined) postData.minIdle = data.minIdle;
+    if (data.initialConnections !== undefined) postData.initialConnections = data.initialConnections;
+    if (data.maxIdle !== undefined) postData.maxIdle = data.maxIdle;
+    if (data.extraParams !== undefined) postData.extraParams = data.extraParams;
+    
     const res = await api.post('/etl-admin/dataSourceManager/addDataSource', postData);
     return res.data;
   } catch (error) {
@@ -174,7 +177,7 @@ export async function updateDataSource(id: number, data: Partial<DataSource>): P
       ? `jdbc:mysql://${data.host}:${data.port}/${data.database_name}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai`
       : '';
     
-    const postData = {
+    const postData: any = {
       id,
       dbName: data.name,
       dbUrl,
@@ -186,12 +189,15 @@ export async function updateDataSource(id: number, data: Partial<DataSource>): P
       comment: data.description,
       dataType: data.dataType || 'source',
       categoryId: 5683,
-      maxConnections: data.maxConnections,
-      minIdle: data.minIdle,
-      initialConnections: data.initialConnections,
-      maxIdle: data.maxIdle,
-      extraParams: data.extraParams,
     };
+    
+    // 确保数值类型字段一定传递
+    if (data.maxConnections !== undefined) postData.maxConnections = data.maxConnections;
+    if (data.minIdle !== undefined) postData.minIdle = data.minIdle;
+    if (data.initialConnections !== undefined) postData.initialConnections = data.initialConnections;
+    if (data.maxIdle !== undefined) postData.maxIdle = data.maxIdle;
+    if (data.extraParams !== undefined) postData.extraParams = data.extraParams;
+    
     const res = await api.post('/etl-admin/dataSourceManager/addDataSource', postData);
     return res.data;
   } catch (error) {
