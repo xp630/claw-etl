@@ -56,8 +56,8 @@ api.interceptors.response.use(
 // 获取数据源列表
 export async function getDataSources(): Promise<DataSource[]> {
   try {
-    // 调用后端数据源列表接口
-    const res = await api.post('/etl-admin/dataSourceManager/dataSourceList', { dataType: 'source', limit: 20, page: 1, categoryId: 1 });
+    // 调用后端数据源列表接口，查询所有类型的数据源
+    const res = await api.post('/etl-admin/dataSourceManager/dataSourceList', { limit: 100, page: 1 });
     if (res.data && res.data.list) {
       return res.data.list.map((item: any) => ({
         id: item.id,
