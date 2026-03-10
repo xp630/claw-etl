@@ -34,6 +34,23 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// 响应拦截器：统一判断code
+api.interceptors.response.use(
+  (response) => {
+    const { data } = response;
+    // code为0或1表示成功，其他表示失败
+    if (data.code !== 0 && data.code !== 1) {
+      console.error('❌ API Error:', data.msg || '请求失败');
+      return Promise.reject(new Error(data.msg || '请求失败'));
+    }
+    return response;
+  },
+  (error) => {
+    console.error('❌ Network Error:', error.message);
+    return Promise.reject(error);
+  }
+);
+
 // ========== 数据源 API ==========
 
 // 获取数据源列表
