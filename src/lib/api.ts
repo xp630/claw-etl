@@ -117,15 +117,10 @@ export async function getDataSource(id: number): Promise<DataSource | undefined>
 // 新增数据源
 export async function createDataSource(data: Partial<DataSource>): Promise<DataSource> {
   try {
-    // 构建扩展参数
-    let dbUrl = '';
-    if (data.host && data.port) {
-      let params = 'useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai';
-      if (data.extraParams) {
-        params += '&' + data.extraParams;
-      }
-      dbUrl = `jdbc:mysql://${data.host}:${data.port}/${data.database_name}?${params}`;
-    }
+    // 构建JDBC URL
+    const dbUrl = data.host && data.port 
+      ? `jdbc:mysql://${data.host}:${data.port}/${data.database_name}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai`
+      : '';
     
     // 转换字段名以匹配后端格式
     const postData = {
@@ -143,6 +138,7 @@ export async function createDataSource(data: Partial<DataSource>): Promise<DataS
       minIdle: data.minIdle,
       initialConnections: data.initialConnections,
       maxIdle: data.maxIdle,
+      extraParams: data.extraParams,
     };
     const res = await api.post('/etl-admin/dataSourceManager/addDataSource', postData);
     return res.data;
@@ -162,15 +158,10 @@ export async function createDataSource(data: Partial<DataSource>): Promise<DataS
 // 更新数据源
 export async function updateDataSource(id: number, data: Partial<DataSource>): Promise<DataSource> {
   try {
-    // 构建扩展参数
-    let dbUrl = '';
-    if (data.host && data.port) {
-      let params = 'useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai';
-      if (data.extraParams) {
-        params += '&' + data.extraParams;
-      }
-      dbUrl = `jdbc:mysql://${data.host}:${data.port}/${data.database_name}?${params}`;
-    }
+    // 构建JDBC URL
+    const dbUrl = data.host && data.port 
+      ? `jdbc:mysql://${data.host}:${data.port}/${data.database_name}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai`
+      : '';
     
     const postData = {
       id,
@@ -188,6 +179,7 @@ export async function updateDataSource(id: number, data: Partial<DataSource>): P
       minIdle: data.minIdle,
       initialConnections: data.initialConnections,
       maxIdle: data.maxIdle,
+      extraParams: data.extraParams,
     };
     const res = await api.post('/etl-admin/dataSourceManager/addDataSource', postData);
     return res.data;
