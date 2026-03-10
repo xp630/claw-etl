@@ -271,7 +271,20 @@ export async function getTask(id: number): Promise<Task | undefined> {
 // 新增任务
 export async function createTask(data: Partial<Task>): Promise<Task> {
   try {
-    const res = await api.post('/etl-admin/simple/saveTaskData', data);
+    // 转换为驼峰命名
+    const camelData = {
+      taskName: data.name,
+      sourceDbId: data.source_id,
+      querySql: data.query_sql,
+      targetDbId: data.target_id,
+      targetTable: data.target_table,
+      columns: data.columns,
+      dynamicParam: data.dynamic_sql,
+      taskCronTime: data.window_value,
+      taskCronTimeUnit: data.window_unit,
+      status: data.status,
+    };
+    const res = await api.post('/etl-admin/simple/saveTaskData', camelData);
     return res.data;
   } catch (error) {
     const newTask: Task = {
@@ -289,7 +302,21 @@ export async function createTask(data: Partial<Task>): Promise<Task> {
 // 更新任务
 export async function updateTask(id: number, data: Partial<Task>): Promise<Task> {
   try {
-    const res = await api.post('/etl-admin/simple/saveTaskData', { id, ...data });
+    // 转换为驼峰命名
+    const camelData = {
+      id,
+      taskName: data.name,
+      sourceDbId: data.source_id,
+      querySql: data.query_sql,
+      targetDbId: data.target_id,
+      targetTable: data.target_table,
+      columns: data.columns,
+      dynamicParam: data.dynamic_sql,
+      taskCronTime: data.window_value,
+      taskCronTimeUnit: data.window_unit,
+      status: data.status,
+    };
+    const res = await api.post('/etl-admin/simple/saveTaskData', camelData);
     return res.data;
   } catch (error) {
     const index = MOCK_TASKS.findIndex(t => t.id === id);
