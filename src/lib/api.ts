@@ -95,7 +95,20 @@ export async function getDataSource(id: number): Promise<DataSource | undefined>
 // 新增数据源
 export async function createDataSource(data: Partial<DataSource>): Promise<DataSource> {
   try {
-    const res = await api.post('/etl-admin/dataSourceManager/checkUrl', data);
+    // 转换字段名以匹配后端格式
+    const postData = {
+      dbName: data.name,
+      dbUrl: data.host && data.port ? `jdbc:mysql://${data.host}:${data.port}/${data.database_name}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai` : '',
+      dbAccount: data.username,
+      dbPassword: data.password,
+      dbState: data.status === 1 ? '启用' : '禁用',
+      driverClass: 'com.mysql.cj.jdbc.Driver',
+      dbType: data.type?.toUpperCase() || 'MYSQL',
+      comment: data.description,
+      dataType: 'source',
+      categoryId: 5683,
+    };
+    const res = await api.post('/etl-admin/dataSourceManager/addDataSource', postData);
     return res.data;
   } catch (error) {
     const newDS: DataSource = {
@@ -113,7 +126,20 @@ export async function createDataSource(data: Partial<DataSource>): Promise<DataS
 // 更新数据源
 export async function updateDataSource(id: number, data: Partial<DataSource>): Promise<DataSource> {
   try {
-    const res = await api.post('/etl-admin/simple/updateStatus', { id, ...data });
+    const postData = {
+      id,
+      dbName: data.name,
+      dbUrl: data.host && data.port ? `jdbc:mysql://${data.host}:${data.port}/${data.database_name}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai` : '',
+      dbAccount: data.username,
+      dbPassword: data.password,
+      dbState: data.status === 1 ? '启用' : '禁用',
+      driverClass: 'com.mysql.cj.jdbc.Driver',
+      dbType: data.type?.toUpperCase() || 'MYSQL',
+      comment: data.description,
+      dataType: 'source',
+      categoryId: 5683,
+    };
+    const res = await api.post('/etl-admin/dataSourceManager/addDataSource', postData);
     return res.data;
   } catch (error) {
     const index = MOCK_DATASOURCES.findIndex(ds => ds.id === id);
