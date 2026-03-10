@@ -86,6 +86,9 @@ export default function TaskForm() {
   };
 
   const handleAutoGetColumns = async () => {
+    console.log('formData:', formData);
+    console.log('datasources:', datasources);
+    
     if (!formData.query_sql) {
       alert('请先填写查询语句');
       return;
@@ -96,6 +99,8 @@ export default function TaskForm() {
     }
 
     const sourceDs = datasources.find(ds => ds.id === formData.source_id);
+    console.log('sourceDs:', sourceDs);
+    
     if (!sourceDs) {
       alert('源数据库不存在');
       return;
@@ -103,13 +108,16 @@ export default function TaskForm() {
 
     setAutoLoading(true);
     try {
+      console.log('Calling API with:', formData.query_sql, sourceDs.name);
       const columns = await generateTargetColumns(formData.query_sql, sourceDs.name);
+      console.log('columns:', columns);
       if (columns.length > 0) {
         setFormData({ ...formData, columns: columns.join(',') });
       } else {
         alert('未能获取到列信息');
       }
     } catch (error) {
+      console.error('Auto get columns error:', error);
       alert('获取列信息失败');
     } finally {
       setAutoLoading(false);
