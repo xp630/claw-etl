@@ -31,6 +31,7 @@ export default function DataSourceForm() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
+  const [dataLoaded, setDataLoaded] = useState(false);
   const [formData, setFormData] = useState<Partial<DataSource>>({
     name: '',
     type: 'mysql',
@@ -49,10 +50,11 @@ export default function DataSourceForm() {
   });
 
   useEffect(() => {
-    if (isEdit && id) {
+    if (isEdit && id && !dataLoaded) {
+      setDataLoaded(true);
       loadDataSource(parseInt(id));
     }
-  }, [id]);
+  }, [id, dataLoaded]);
 
   const loadDataSource = async (dsId: number) => {
     setLoading(true);
