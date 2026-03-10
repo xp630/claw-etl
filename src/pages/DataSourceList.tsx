@@ -10,6 +10,7 @@ export default function DataSourceList() {
   const [loading, setLoading] = useState(true);
   const [searchName, setSearchName] = useState('');
   const [searchType, setSearchType] = useState('');
+  const [searchDataType, setSearchDataType] = useState('');
 
   useEffect(() => {
     loadData();
@@ -18,7 +19,7 @@ export default function DataSourceList() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const data = await getDataSources();
+      const data = await getDataSources(searchDataType || undefined);
       setDatasources(data);
     } catch (error) {
       console.error('Failed to load datasources:', error);
@@ -42,7 +43,8 @@ export default function DataSourceList() {
   const filteredDatasources = datasources.filter(ds => {
     const matchName = !searchName || ds.name.toLowerCase().includes(searchName.toLowerCase());
     const matchType = !searchType || ds.type === searchType;
-    return matchName && matchType;
+    const matchDataType = !searchDataType || ds.dataType === searchDataType;
+    return matchName && matchType && matchDataType;
   });
 
   const getTypeLabel = (type: string) => {
@@ -100,6 +102,15 @@ export default function DataSourceList() {
             <option value="oracle">Oracle</option>
             <option value="sqlserver">SQL Server</option>
           </select>
+          <select
+            value={searchDataType}
+            onChange={(e) => setSearchDataType(e.target.value)}
+            className="px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-sm text-slate-200"
+          >
+            <option value="">全部用途</option>
+            <option value="source">源数据库</option>
+            <option value="target">目标数据库</option>
+          </select>
           <button
             onClick={loadData}
             className="px-4 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
@@ -116,6 +127,7 @@ export default function DataSourceList() {
             <tr>
               <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">ID</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">数据源名称</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">用途</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">类型</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">主机地址</th>
               <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">端口</th>
@@ -142,6 +154,11 @@ export default function DataSourceList() {
                 <tr key={ds.id} className="hover:bg-slate-800/30 transition-colors">
                   <td className="px-4 py-3 text-slate-400">{ds.id}</td>
                   <td className="px-4 py-3 text-white font-medium">{ds.name}</td>
+                  <td className="px-4 py-3">
+                    <span className={`px-2 py-1 rounded text-xs ${ds.dataType === 'source' ? 'bg-purple-500/20 text-purple-400' : 'bg-orange-500/20 text-orange-400'}`}>
+                      {ds.dataType === 'source' ? '源数据库' : '目标数据库'}
+                    </span>
+                  </td>
                   <td className="px-4 py-3">
                     <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded text-xs">
                       {getTypeLabel(ds.type)}

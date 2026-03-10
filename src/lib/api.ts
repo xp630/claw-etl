@@ -54,15 +54,20 @@ api.interceptors.response.use(
 // ========== 数据源 API ==========
 
 // 获取数据源列表
-export async function getDataSources(): Promise<DataSource[]> {
+export async function getDataSources(dataType?: string): Promise<DataSource[]> {
   try {
-    // 调用后端数据源列表接口，查询所有类型的数据源
-    const res = await api.post('/etl-admin/dataSourceManager/dataSourceList', { limit: 100, page: 1 });
+    // 调用后端数据源列表接口
+    const params: any = { limit: 100, page: 1 };
+    if (dataType) {
+      params.dataType = dataType;
+    }
+    const res = await api.post('/etl-admin/dataSourceManager/dataSourceList', params);
     if (res.data && res.data.list) {
       return res.data.list.map((item: any) => ({
         id: item.id,
         name: item.dbName,
         type: item.dbType?.toLowerCase() || 'mysql',
+        dataType: item.dataType || 'source',
         host: item.dbUrl?.match(/:\/\/([^:]+):/)?.[1] || '',
         port: parseInt(item.dbUrl?.match(/:(\d+)\//)?.[1]) || 3306,
         username: item.dbAccount,
@@ -122,7 +127,7 @@ export async function createDataSource(data: Partial<DataSource>): Promise<DataS
       driverClass: 'com.mysql.cj.jdbc.Driver',
       dbType: data.type?.toUpperCase() || 'MYSQL',
       comment: data.description,
-      dataType: 'source',
+      dataType: data.dataType || 'source',
       categoryId: 5683,
     };
     const res = await api.post('/etl-admin/dataSourceManager/addDataSource', postData);
@@ -153,7 +158,7 @@ export async function updateDataSource(id: number, data: Partial<DataSource>): P
       driverClass: 'com.mysql.cj.jdbc.Driver',
       dbType: data.type?.toUpperCase() || 'MYSQL',
       comment: data.description,
-      dataType: 'source',
+      dataType: data.dataType || 'source',
       categoryId: 5683,
     };
     const res = await api.post('/etl-admin/dataSourceManager/addDataSource', postData);

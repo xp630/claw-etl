@@ -11,6 +11,11 @@ const DB_TYPES = [
   { value: 'sqlserver', label: 'SQL Server' },
 ];
 
+const DATA_TYPES = [
+  { value: 'source', label: '源数据库' },
+  { value: 'target', label: '目标数据库' },
+];
+
 const DEFAULT_PORTS: Record<string, number> = {
   mysql: 3306,
   postgresql: 5432,
@@ -29,6 +34,7 @@ export default function DataSourceForm() {
   const [formData, setFormData] = useState<Partial<DataSource>>({
     name: '',
     type: 'mysql',
+    dataType: 'source',
     host: '',
     port: 3306,
     username: '',
@@ -153,6 +159,24 @@ export default function DataSourceForm() {
                 placeholder="请输入"
                 className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
               />
+            </div>
+
+            {/* 用途 */}
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                用途 <span className="text-red-400">*</span>
+              </label>
+              <select
+                value={formData.dataType}
+                onChange={(e) => setFormData({ ...formData, dataType: e.target.value as 'source' | 'target' })}
+                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white"
+              >
+                {DATA_TYPES.map((dt) => (
+                  <option key={dt.value} value={dt.value}>
+                    {dt.label}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* 数据源类型 */}

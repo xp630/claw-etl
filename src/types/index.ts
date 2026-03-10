@@ -2,6 +2,7 @@ export interface DataSource {
   id: number;
   name: string;
   type: 'mysql' | 'postgresql' | 'oracle' | 'sqlserver';
+  dataType?: 'source' | 'target';  // 数据源类型：source=源库，target=目标库
   host: string;
   port: number;
   username: string;
