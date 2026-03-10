@@ -18,6 +18,7 @@ export default function TaskForm() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [datasources, setDatasources] = useState<DataSource[]>([]);
+  const [taskLoaded, setTaskLoaded] = useState(false);
 
   const [formData, setFormData] = useState<Partial<Task>>({
     name: '',
@@ -33,10 +34,14 @@ export default function TaskForm() {
 
   useEffect(() => {
     loadDatasources();
-    if (isEdit && id) {
+  }, []);
+
+  useEffect(() => {
+    if (isEdit && id && datasources.length > 0 && !taskLoaded) {
+      setTaskLoaded(true);
       loadTask(parseInt(id));
     }
-  }, [id]);
+  }, [id, datasources]);
 
   const loadDatasources = async () => {
     try {
@@ -52,7 +57,25 @@ export default function TaskForm() {
     try {
       const data = await getTask(taskId);
       if (data) {
-        setFormData(data);
+        // 根据 source_name/target_name 查找对应的 ID
+        let sourceId = data.source_id;
+        let targetId = data.target_id;
+        
+        // 如果 source_id 为 0（未设置），尝试通过名称查找
+        if ((!sourceId || sourceId === 0) && data.source_name && datasources.length > 0) {
+          const found = datasources.find(ds => ds.name === data.source_name);
+          if (found) sourceId = found.id;
+        }
+        if ((!targetId || targetId === 0) && data.target_name && datasources.length > 0) {
+          const found = datasources.find(ds => ds.name === data.target_name);
+          if (found) targetId = found.id;
+        }
+        
+        setFormData({
+          ...data,
+          source_id: sourceId || undefined,
+          target_id: targetId || undefined,
+        });
       }
     } catch (error) {
       console.error('Failed to load task:', error);
