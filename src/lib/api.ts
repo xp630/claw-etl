@@ -164,7 +164,7 @@ export async function testDataSource(id: number): Promise<{ success: boolean; me
 // 获取任务列表
 export async function getTasks(): Promise<Task[]> {
   try {
-    const res = await api.get('/etl-admin/simple/queryTaskListPage', { params: { current: 1, size: 100 } });
+    const res = await api.post('/etl-admin/simple/queryTaskListPage', { page: 1, limit: 20 });
     if (res.data?.data?.records) {
       return res.data.data.records;
     }
