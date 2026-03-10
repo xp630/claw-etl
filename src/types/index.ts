@@ -8,6 +8,11 @@ export interface DataSource {
   username: string;
   password: string;
   database_name: string;
+  maxConnections?: number;     // 最大连接数
+  minIdle?: number;            // 最小空闲连接数
+  initialConnections?: number; // 初始化连接数
+  maxIdle?: number;            // 最大空闲数
+  extraParams?: string;        // 扩展参数
   description?: string;
   status: number;
   created_at: string;

@@ -40,6 +40,11 @@ export default function DataSourceForm() {
     username: '',
     password: '',
     database_name: '',
+    maxConnections: 10,
+    minIdle: 5,
+    initialConnections: 5,
+    maxIdle: 10,
+    extraParams: '',
     description: '',
   });
 
@@ -262,6 +267,76 @@ export default function DataSourceForm() {
                 value={formData.database_name}
                 onChange={(e) => setFormData({ ...formData, database_name: e.target.value })}
                 placeholder="请输入"
+                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
+              />
+            </div>
+
+            {/* 最大连接数 */}
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                最大连接数
+              </label>
+              <input
+                type="number"
+                value={formData.maxConnections || ''}
+                onChange={(e) => setFormData({ ...formData, maxConnections: parseInt(e.target.value) || undefined })}
+                placeholder="10"
+                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
+              />
+            </div>
+
+            {/* 初始化连接数 */}
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                初始化连接数
+              </label>
+              <input
+                type="number"
+                value={formData.initialConnections || ''}
+                onChange={(e) => setFormData({ ...formData, initialConnections: parseInt(e.target.value) || undefined })}
+                placeholder="5"
+                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
+              />
+            </div>
+
+            {/* 最小空闲连接数 */}
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                最小空闲连接数
+              </label>
+              <input
+                type="number"
+                value={formData.minIdle || ''}
+                onChange={(e) => setFormData({ ...formData, minIdle: parseInt(e.target.value) || undefined })}
+                placeholder="5"
+                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
+              />
+            </div>
+
+            {/* 最大空闲数 */}
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                最大空闲数
+              </label>
+              <input
+                type="number"
+                value={formData.maxIdle || ''}
+                onChange={(e) => setFormData({ ...formData, maxIdle: parseInt(e.target.value) || undefined })}
+                placeholder="10"
+                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
+              />
+            </div>
+
+            {/* 扩展参数 */}
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                扩展参数
+              </label>
+              <input
+                type="text"
+                value={formData.extraParams || ''}
+                onChange={(e) => setFormData({ ...formData, extraParams: e.target.value })}
+                placeholder="例如: useSSL=false&serverTimezone=UTC"
                 className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
               />
             </div>

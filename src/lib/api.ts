@@ -117,10 +117,20 @@ export async function getDataSource(id: number): Promise<DataSource | undefined>
 // 新增数据源
 export async function createDataSource(data: Partial<DataSource>): Promise<DataSource> {
   try {
+    // 构建扩展参数
+    let dbUrl = '';
+    if (data.host && data.port) {
+      let params = 'useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai';
+      if (data.extraParams) {
+        params += '&' + data.extraParams;
+      }
+      dbUrl = `jdbc:mysql://${data.host}:${data.port}/${data.database_name}?${params}`;
+    }
+    
     // 转换字段名以匹配后端格式
     const postData = {
       dbName: data.name,
-      dbUrl: data.host && data.port ? `jdbc:mysql://${data.host}:${data.port}/${data.database_name}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai` : '',
+      dbUrl,
       dbAccount: data.username,
       dbPassword: data.password,
       dbState: data.status === 1 ? '启用' : '禁用',
@@ -129,6 +139,10 @@ export async function createDataSource(data: Partial<DataSource>): Promise<DataS
       comment: data.description,
       dataType: data.dataType || 'source',
       categoryId: 5683,
+      maxConnections: data.maxConnections,
+      minIdle: data.minIdle,
+      initialConnections: data.initialConnections,
+      maxIdle: data.maxIdle,
     };
     const res = await api.post('/etl-admin/dataSourceManager/addDataSource', postData);
     return res.data;
@@ -148,10 +162,20 @@ export async function createDataSource(data: Partial<DataSource>): Promise<DataS
 // 更新数据源
 export async function updateDataSource(id: number, data: Partial<DataSource>): Promise<DataSource> {
   try {
+    // 构建扩展参数
+    let dbUrl = '';
+    if (data.host && data.port) {
+      let params = 'useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai';
+      if (data.extraParams) {
+        params += '&' + data.extraParams;
+      }
+      dbUrl = `jdbc:mysql://${data.host}:${data.port}/${data.database_name}?${params}`;
+    }
+    
     const postData = {
       id,
       dbName: data.name,
-      dbUrl: data.host && data.port ? `jdbc:mysql://${data.host}:${data.port}/${data.database_name}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai` : '',
+      dbUrl,
       dbAccount: data.username,
       dbPassword: data.password,
       dbState: data.status === 1 ? '启用' : '禁用',
@@ -160,6 +184,10 @@ export async function updateDataSource(id: number, data: Partial<DataSource>): P
       comment: data.description,
       dataType: data.dataType || 'source',
       categoryId: 5683,
+      maxConnections: data.maxConnections,
+      minIdle: data.minIdle,
+      initialConnections: data.initialConnections,
+      maxIdle: data.maxIdle,
     };
     const res = await api.post('/etl-admin/dataSourceManager/addDataSource', postData);
     return res.data;
