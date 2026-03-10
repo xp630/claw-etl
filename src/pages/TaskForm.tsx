@@ -93,12 +93,22 @@ export default function TaskForm() {
       return;
     }
 
+    // 根据 ID 查找数据库名称
+    const sourceDs = datasources.find(ds => ds.id === formData.source_id);
+    const targetDs = datasources.find(ds => ds.id === formData.target_id);
+
+    const submitData = {
+      ...formData,
+      source_name: sourceDs?.name,
+      target_name: targetDs?.name,
+    };
+
     setSaving(true);
     try {
       if (isEdit && id) {
-        await updateTask(parseInt(id), formData);
+        await updateTask(parseInt(id), submitData);
       } else {
-        await createTask(formData);
+        await createTask(submitData);
       }
       navigate('/tasks');
     } catch (error) {

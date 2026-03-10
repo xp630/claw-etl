@@ -307,18 +307,26 @@ export async function getTask(id: number): Promise<Task | undefined> {
 // 新增任务
 export async function createTask(data: Partial<Task>): Promise<Task> {
   try {
+    // 根据 window_unit 推断 taskCronType
+    const taskCronTypeMap: Record<string, string> = {
+      minutes: 'MINUTES',
+      hours: 'HOURS',
+      days: 'DAYS',
+    };
+    
     // 转换为驼峰命名
     const camelData = {
       taskName: data.name,
-      sourceDbId: data.source_id,
+      sourceDb: data.source_name,
+      targetDb: data.target_name,
       querySql: data.query_sql,
-      targetDbId: data.target_id,
       targetTable: data.target_table,
       columns: data.columns,
       dynamicParam: data.dynamic_sql,
       taskCronTime: data.window_value,
-      taskCronTimeUnit: data.window_unit,
-      status: data.status,
+      taskCronTimeUnit: data.window_unit?.toUpperCase() || 'HOURS',
+      taskCronType: taskCronTypeMap[data.window_unit || 'hours'],
+      status: data.status ?? 1,
     };
     const res = await api.post('/etl-admin/simple/saveTaskData', camelData);
     return res.data;
@@ -338,18 +346,26 @@ export async function createTask(data: Partial<Task>): Promise<Task> {
 // 更新任务
 export async function updateTask(id: number, data: Partial<Task>): Promise<Task> {
   try {
+    // 根据 window_unit 推断 taskCronType
+    const taskCronTypeMap: Record<string, string> = {
+      minutes: 'MINUTES',
+      hours: 'HOURS',
+      days: 'DAYS',
+    };
+    
     // 转换为驼峰命名
     const camelData = {
       id,
       taskName: data.name,
-      sourceDbId: data.source_id,
+      sourceDb: data.source_name,
+      targetDb: data.target_name,
       querySql: data.query_sql,
-      targetDbId: data.target_id,
       targetTable: data.target_table,
       columns: data.columns,
       dynamicParam: data.dynamic_sql,
       taskCronTime: data.window_value,
-      taskCronTimeUnit: data.window_unit,
+      taskCronTimeUnit: data.window_unit?.toUpperCase() || 'HOURS',
+      taskCronType: taskCronTypeMap[data.window_unit || 'hours'],
       status: data.status,
     };
     const res = await api.post('/etl-admin/simple/saveTaskData', camelData);
