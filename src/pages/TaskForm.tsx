@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Save, Zap, Database, Table, Download } from 'lucide-react';
-import { getTask, createTask, updateTask, getDataSources } from '../lib/api';
+import { getTask, createTask, updateTask, getDataSources, generateTargetColumns } from '../lib/api';
 import type { Task, DataSource } from '../types';
 
 const WINDOW_UNITS = [
@@ -17,6 +17,7 @@ export default function TaskForm() {
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [autoLoading, setAutoLoading] = useState(false);
   const [datasources, setDatasources] = useState<DataSource[]>([]);
   const [taskLoaded, setTaskLoaded] = useState(false);
 
@@ -81,6 +82,37 @@ export default function TaskForm() {
       console.error('Failed to load task:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAutoGetColumns = async () => {
+    if (!formData.query_sql) {
+      alert('请先填写查询语句');
+      return;
+    }
+    if (!formData.source_id) {
+      alert('请先选择源数据库');
+      return;
+    }
+
+    const sourceDs = datasources.find(ds => ds.id === formData.source_id);
+    if (!sourceDs) {
+      alert('源数据库不存在');
+      return;
+    }
+
+    setAutoLoading(true);
+    try {
+      const columns = await generateTargetColumns(formData.query_sql, sourceDs.name);
+      if (columns.length > 0) {
+        setFormData({ ...formData, columns: columns.join(',') });
+      } else {
+        alert('未能获取到列信息');
+      }
+    } catch (error) {
+      alert('获取列信息失败');
+    } finally {
+      setAutoLoading(false);
     }
   };
 
@@ -253,10 +285,12 @@ export default function TaskForm() {
                 />
                 <button
                   type="button"
-                  className="px-4 py-2.5 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 transition-colors flex items-center gap-2"
+                  onClick={handleAutoGetColumns}
+                  disabled={autoLoading || !formData.query_sql || !formData.source_id}
+                  className="px-4 py-2.5 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 transition-colors flex items-center gap-2 disabled:opacity-50"
                 >
                   <Download className="w-4 h-4" />
-                  自动获取
+                  {autoLoading ? '获取中...' : '自动获取'}
                 </button>
               </div>
             </div>

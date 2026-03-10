@@ -410,9 +410,9 @@ export async function toggleTask(id: number): Promise<Task> {
 }
 
 // 根据 querySql 生成目标字段
-export async function generateTargetColumns(querySql: string): Promise<string[]> {
+export async function generateTargetColumns(querySql: string, sourceDb: string): Promise<string[]> {
   try {
-    const res = await api.post('/etl-admin/simple/generateTargetColumns', { querySql });
+    const res = await api.post('/etl-admin/simple/generateTargetColumns', { querySql, sourceDb });
     return res.data?.data || [];
   } catch (error) {
     console.error('Failed to generate columns:', error);
