@@ -41,20 +41,20 @@ export async function getDataSources(): Promise<DataSource[]> {
   try {
     // 调用后端数据源列表接口
     const res = await api.post('/etl-admin/dataSourceManager/dataSourceList', { dataType: 'source', limit: 20, page: 1, categoryId: 1 });
-    if (res.data && res.data.data) {
-      return res.data.data.map((item: any, index: number) => ({
-        id: parseInt(item.id) || index + 1,
-        name: item.title,
-        type: 'mysql',
-        host: '',
-        port: 3306,
-        username: '',
-        password: '',
-        database_name: item.comment || item.title,
+    if (res.data && res.data.list) {
+      return res.data.list.map((item: any) => ({
+        id: item.id,
+        name: item.dbName,
+        type: item.dbType?.toLowerCase() || 'mysql',
+        host: item.dbUrl?.match(/:\/\/([^:]+):/)?.[1] || '',
+        port: parseInt(item.dbUrl?.match(/:(\d+)\//)?.[1]) || 3306,
+        username: item.dbAccount,
+        password: item.dbPassword,
+        database_name: item.realDataBaseName || item.dbName,
         description: item.comment,
-        status: item.disabled ? 0 : 1,
-        created_at: '',
-        updated_at: '',
+        status: item.dbState === '启用' ? 1 : 0,
+        created_at: item.createTime,
+        updated_at: item.updateTime,
       }));
     }
     return [];
