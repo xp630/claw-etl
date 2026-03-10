@@ -208,8 +208,26 @@ export async function testDataSource(id: number): Promise<{ success: boolean; me
 export async function getTasks(): Promise<Task[]> {
   try {
     const res = await api.post('/etl-admin/simple/queryTaskListPage', { page: 1, limit: 20 });
-    if (res.data?.data?.records) {
-      return res.data.data.records;
+    if (res.data?.list) {
+      return res.data.list.map((item: any) => ({
+        id: item.id,
+        name: item.taskName,
+        source_id: 0,
+        source_name: item.sourceDb,
+        query_sql: item.querySql,
+        target_id: 0,
+        target_name: item.targetDb,
+        target_table: item.targetTable,
+        columns: item.columns,
+        dynamic_sql: item.dynamicParam,
+        window_value: item.taskCronTime || 1,
+        window_unit: item.taskCronTimeUnit?.toLowerCase() === 'hours' ? 'hours' : 
+                     item.taskCronTimeUnit?.toLowerCase() === 'days' ? 'days' : 'minutes',
+        status: item.status,
+        last_run_time: item.lastRunTime,
+        created_at: item.createTime || '',
+        updated_at: item.updateTime || '',
+      }));
     }
     return [];
   } catch (error) {
