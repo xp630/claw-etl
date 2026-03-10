@@ -132,7 +132,7 @@ export default function TaskList() {
               filteredTasks.map((task) => (
                 <tr key={task.id} className="hover:bg-slate-800/30 transition-colors">
                   <td className="px-4 py-3 text-white font-medium">{task.name}</td>
-                  <td className="px-4 py-3 text-slate-400">{task.source_id}</td>
+                  <td className="px-4 py-3 text-slate-400">{task.source_name}</td>
                   <td className="px-4 py-3 text-slate-300">{task.target_name || 'nr_data'}</td>
                   <td className="px-4 py-3 text-cyan-400 font-mono text-sm truncate max-w-[200px]">
                     {task.target_table}
