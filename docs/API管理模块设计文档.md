@@ -377,3 +377,77 @@ t_api_config (API配置)
 | 5 | `/etl-admin/apiManager/grantApi` | POST | API授权 | apiId, appId, allowIps, rateLimit |
 | 6 | `/etl-admin/apiManager/apiGrants` | POST | 获取API授权列表 | apiId |
 
+
+## 八、API访问日志模块
+
+### 8.1 功能清单
+- 访问日志列表展示
+- 按时间、API、应用、状态筛选
+- 查看日志详情（请求参数、响应数据、错误信息）
+- 导出日志
+
+### 8.2 接口汇总
+
+| 序号 | 接口路径 | 方法 | 功能 | 关键输入 |
+|------|---------|------|------|---------|
+| 1 | `/etl-admin/apiManager/accessLog/list` | POST | 访问日志列表 | page, limit, apiId, appId, startTime, endTime, responseStatus |
+| 2 | `/etl-admin/apiManager/accessLog/export` | POST | 导出访问日志 | 筛选条件 |
+
+### 8.3 SQL表
+
+```sql
+CREATE TABLE IF NOT EXISTS `t_api_access_log` (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '日志ID',
+  `apiId` bigint NOT NULL COMMENT 'API配置ID',
+  `apiName` varchar(100) DEFAULT NULL COMMENT 'API名称',
+  `apiPath` varchar(200) DEFAULT NULL COMMENT 'API路径',
+  `appId` bigint DEFAULT NULL COMMENT '调用应用ID',
+  `appName` varchar(100) DEFAULT NULL COMMENT '调用应用名称',
+  `accessTime` datetime DEFAULT NULL COMMENT '访问时间',
+  `requestMethod` varchar(10) DEFAULT NULL COMMENT '请求方法',
+  `requestParams` text COMMENT '请求参数',
+  `responseStatus` int DEFAULT NULL COMMENT '响应状态码',
+  `responseTime` int DEFAULT NULL COMMENT '响应时间(毫秒)',
+  `responseData` longtext COMMENT '响应数据',
+  `errorMsg` text COMMENT '错误信息',
+  `clientIp` varchar(50) DEFAULT NULL COMMENT '客户端IP',
+  `userAgent` varchar(500) DEFAULT NULL COMMENT '用户代理',
+  PRIMARY KEY (`id`),
+  KEY `idx_apiId` (`apiId`),
+  KEY `idx_accessTime` (`accessTime`),
+  KEY `idx_appId` (`appId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='API访问日志表';
+```
+
+## 九、创建API流程（优化版）
+
+### 9.1 流程说明
+1. **基本信息** - 选择数据源（只显示启用）、表、API名称、路径
+2. **参数配置** - 自动生成所有字段作为请求参数，支持批量删除、全选、清空默认值
+3. **SQL配置** - 基于参数自动生成MyBatis XML格式SQL
+4. **Mock配置** - 根据字段生成Mock数据
+
+### 9.2 SQL生成规则
+- 查询字段：selectedFields.join(', ')
+- WHERE条件：遍历参数，生成<if test="param != null"> AND column = #{param} </if>
+- 支持分页：<if test="page != null and pageSize != null"> LIMIT #pageSize OFFSET #page </if>
+
+### 9.3 SQL示例
+```xml
+<select id="用户查询" parameterType="map" resultType="map">
+  SELECT id, username, email, phone, status
+  FROM t_users
+  <where>
+    <if test="username != null and username != ''">
+      AND username LIKE CONCAT('%', #{username}, '%')
+    </if>
+    <if test="status != null">
+      AND status = #{status}
+    </if>
+  </where>
+  <if test="page != null and pageSize != null">
+    LIMIT #{pageSize}
+    OFFSET #{page}
+  </if>
+</select>
+```
