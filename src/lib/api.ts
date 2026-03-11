@@ -594,21 +594,19 @@ export async function getTableList(database: string): Promise<TableInfo[]> {
 }
 
 // 获取表字段信息
-export async function getTableColumns(dbName: string, tableName: string): Promise<ColumnInfo[]> {
+export async function getTableColumns(database: string, table: string): Promise<ColumnInfo[]> {
   try {
-    const res = await api.post('/etl-admin/sqlManager/findTableFieldDetail', {
-      dbName,
-      tableName
+    const res = await api.get('/etl-admin/sqlManager/findMetaTable', {
+      params: { database, table }
     });
     if (res.data?.data) {
-      // 转换为驼峰命名
       return res.data.data.map((item: any) => ({
-        columnName: item.column_name,
-        columnType: item.column_type,
-        dataType: item.data_type,
-        isPrimary: item.is_primary,
-        isNullable: item.is_nullable,
-        columnComment: item.column_comment
+        columnName: item.fieldName || item.COLUMN_NAME || '',
+        columnType: item.fieldType || item.COLUMN_TYPE || '',
+        dataType: mapColumnType(item.fieldType || item.COLUMN_TYPE || ''),
+        isPrimary: item.isKey === 'YES',
+        isNullable: item.nullable === 'YES',
+        columnComment: item.fieldComment || item.COLUMN_COMMENT || ''
       }));
     }
     return [];
@@ -616,6 +614,17 @@ export async function getTableColumns(dbName: string, tableName: string): Promis
     console.error('Failed to load columns:', error);
     return [];
   }
+}
+
+// 映射SQL类型
+function mapColumnType(sqlType: string): string {
+  const type = (sqlType || '').toLowerCase();
+  if (type.includes('int') || type.includes('bigint')) return 'integer';
+  if (type.includes('decimal') || type.includes('float') || type.includes('double')) return 'decimal';
+  if (type.includes('date') && !type.includes('time')) return 'date';
+  if (type.includes('time')) return 'datetime';
+  if (type.includes('bool')) return 'boolean';
+  return 'string';
 }
 
 // 获取API列表

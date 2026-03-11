@@ -108,19 +108,27 @@ export default function ApiForm() {
   };
 
   const autoGenerateParams = (cols: ColumnInfo[]) => {
-    const inputs: ApiInputParam[] = cols.map(col => ({
+    const inputs: ApiInputParam[] = [];
+    
+    // 先添加分页参数（如果启用分页）
+    if (formData.paginationEnabled) {
+      inputs.push(
+        { paramName: 'pageNum', paramType: 'integer', required: 0, defaultValue: '1', columnName: '', description: '页码' },
+        { paramName: 'pageSize', paramType: 'integer', required: 0, defaultValue: '10', columnName: '', description: '每页条数' }
+      );
+    }
+    
+    // 添加表字段作为参数
+    const fieldInputs = cols.map(col => ({
       paramName: col.columnName,
       columnName: col.columnName,
-      paramType: mapDataType(col.dataType),
+      paramType: col.dataType,
       required: 0,
       defaultValue: '',
       description: col.columnComment || '',
     }));
-    inputs.push(
-      { paramName: 'page', paramType: 'integer', required: 0, defaultValue: '1', description: '页码' },
-      { paramName: 'pageSize', paramType: 'integer', required: 0, defaultValue: '10', description: '每页条数' }
-    );
-    setInputParams(inputs);
+    
+    setInputParams([...inputs, ...fieldInputs]);
     setSelectedFields(cols.map((c: ColumnInfo) => c.columnName));
   };
 
@@ -350,6 +358,12 @@ ${whereConditions || '    1=1'}
                   </div>
                   <div><label className="block text-sm text-slate-400 mb-2">API名称 *</label><input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="例如：用户查询" className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-500" /></div>
                   <div><label className="block text-sm text-slate-400 mb-2">API路径 *</label><input type="text" value={formData.path} onChange={(e) => setFormData({ ...formData, path: e.target.value })} placeholder="例如：/api/user/list" className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-500" /></div>
+                  <div className="flex items-center gap-6">
+                    <label className="flex items-center gap-2 text-white">
+                      <input type="checkbox" checked={formData.paginationEnabled === 1} onChange={(e) => { setFormData({ ...formData, paginationEnabled: e.target.checked ? 1 : 0 }); if (columns.length > 0) autoGenerateParams(columns); }} className="accent-purple-500" />
+                      启用分页
+                    </label>
+                  </div>
                   <div><label className="block text-sm text-slate-400 mb-2">描述</label><textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={3} className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-500" /></div>
                 </div>
               </div>
