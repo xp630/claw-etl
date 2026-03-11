@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Save, RefreshCw, Plus, Trash2 } from 'lucide-react';
 import { getDataSources, getTableList, getTableColumns, saveApi, getApiDetail } from '../lib/api';
-import type { DataSource, ApiConfig, ApiInputParam, ApiOutputParam, TableInfo, ColumnInfo } from '../types';
+import type { DataSource, ApiConfig, ApiInputParam, TableInfo, ColumnInfo } from '../types';
 
 const STEPS = ['基本信息', '参数配置', 'SQL配置', 'Mock配置'];
 
@@ -163,13 +163,7 @@ export default function ApiForm() {
 
   const handleTableChange = (tableName: string) => {
     setFormData(prev => ({ ...prev, tableName }));
-  };
-
-  // 批量删除参数
-  const batchDeleteParams = (indices: number[]) => {
-    const newParams = inputParams.filter((_, index) => !indices.includes(index));
-    setInputParams(newParams);
-  };
+  ({ ...prev, };
 
   // 全选/取消全选
   const toggleAllParams = (checked: boolean) => {
@@ -180,6 +174,12 @@ export default function ApiForm() {
     }
   };
 
+  // 批量设置默认值
+  const batchSetDefault = (defaultValue: string) => {
+    const newParams = inputParams.map(p => ({ ...p, defaultValue }));
+    setInputParams(newParams);
+  };
+
   // 更新参数
   const updateInputParam = (index: number, field: keyof ApiInputParam, value: any) => {
     const newParams = [...inputParams];
@@ -187,10 +187,17 @@ export default function ApiForm() {
     setInputParams(newParams);
   };
 
-  // 批量设置默认值
-  const batchSetDefault = (defaultValue: string) => {
-    const newParams = inputParams.map(p => ({ ...p, defaultValue }));
-    setInputParams(newParams);
+  // 删除参数
+  const removeInputParam = (index: number) => {
+    setInputParams(inputParams.filter((_, i) => i !== index));
+  };
+
+  // 获取运算符
+  const getOperator = (paramType: string): string => {
+    switch (paramType) {
+      case 'string': return 'LIKE';
+      default: return '=';
+    }
   };
 
   // 生成SQL
@@ -203,10 +210,17 @@ export default function ApiForm() {
     
     // 构建WHERE条件
     const whereConditions = inputParams
-      .filter(p => p.columnName) // 有对应字段的参数才作为map(p => {
-        const test条件
-      .Expr = getTestExpression(p.paramName, p.paramType);
-        return `    <if test="${p.paramName} != null and ${p.paramName} != ''">\n      AND ${p.columnName} ${getOperator(p.paramType)} #{${p.paramName}}\n    </if>`;
+      .filter(p => p.columnName)
+      .map(p => {
+        const operator = getOperator(p.paramType);
+        if (p.paramType === 'string') {
+          return `    <if test="${p.paramName} != null and ${p.paramName} != ''">
+      AND ${p.columnName} LIKE CONCAT('%', #{${p.paramName}}, '%')
+    </if>`;
+        }
+        return `    <if test="${p.paramName} != null">
+      AND ${p.columnName} ${operator} #{${p.paramName}}
+    </if>`;
       })
       .join('\n');
 
@@ -223,20 +237,6 @@ ${whereConditions || '    1=1'}
 </select>`;
 
     setGeneratedSql(sql);
-  };
-
-  const getTestExpression = (paramName: string, paramType: string): string => {
-    if (paramType === 'string') {
-      return `${paramName} != null and ${paramName} != ''`;
-    }
-    return `${paramName} != null`;
-  };
-
-  const getOperator = (paramType: string): string => {
-    switch (paramType) {
-      case 'string': return 'LIKE';
-      default: return '=';
-    }
   };
 
   // 自动生成Mock数据
@@ -476,7 +476,7 @@ ${whereConditions || '    1=1'}
                               <input type="text" value={param.description || ''} onChange={(e) => updateInputParam(index, 'description', e.target.value)} className="px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-sm" />
                             </td>
                             <td className="px-4 py-2">
-                              <button onClick={() => batchDeleteParams([index])} className="p-1 text-red-400 hover:text-red-300"><Trash2 className="w-4 h-4" /></button>
+                              <button onClick={() => removeInputParam(index)} className="p-1 text-red-400 hover:text-red-300"><Trash2 className="w-4 h-4" /></button>
                             </td>
                           </tr>
                         ))}
