@@ -1,5 +1,5 @@
 import { Outlet, NavLink } from 'react-router-dom';
-import { Database, ListTodo, LogOut, Globe, Key } from 'lucide-react';
+import { Database, ListTodo, LogOut, Globe, Key, Eye } from 'lucide-react';
 
 export default function Layout() {
   return (
@@ -52,6 +52,18 @@ export default function Layout() {
           >
             <Globe className="w-5 h-5" />
             <span>API管理</span>
+          </NavLink>
+
+          <NavLink
+            to="/apis/log"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                isActive ? 'bg-cyan-500/20 text-cyan-400' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+              }`
+            }
+          >
+            <Eye className="w-5 h-5" />
+            <span>API日志</span>
           </NavLink>
 
           <NavLink

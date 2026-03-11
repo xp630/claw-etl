@@ -10,6 +10,7 @@ import ApiList from './pages/ApiList';
 import ApiForm from './pages/ApiForm';
 import AppList from './pages/AppList';
 import AppForm from './pages/AppForm';
+import ApiAccessLog from './pages/ApiAccessLog';
 
 function App() {
   // 从localStorage检查登录状态
@@ -19,12 +20,6 @@ function App() {
 
   const handleLogin = () => {
     setIsLoggedIn(true);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('loginTime');
-    setIsLoggedIn(false);
   };
 
   return (
@@ -44,6 +39,7 @@ function App() {
           <Route path="apis" element={<ApiList />} />
           <Route path="apis/new" element={<ApiForm />} />
           <Route path="apis/:id" element={<ApiForm />} />
+          <Route path="apis/log" element={<ApiAccessLog />} />
           <Route path="apps" element={<AppList />} />
           <Route path="apps/new" element={<AppForm />} />
           <Route path="apps/:id" element={<AppForm />} />
