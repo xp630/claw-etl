@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Save, Plug } from 'lucide-react';
 import { getDataSource, createDataSource, updateDataSource, testDataSource } from '../lib/api';
+import { useToast } from '../components/Toast';
 import type { DataSource } from '../types';
 
 const DB_TYPES = [
@@ -27,6 +28,7 @@ export default function DataSourceForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = Boolean(id);
+  const { showToast } = useToast();
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -95,9 +97,9 @@ export default function DataSourceForm() {
         dsId = newDS.id;
       }
       const result = await testDataSource(dsId);
-      alert(result.message);
-    } catch (error) {
-      alert('测试连接失败');
+      showToast(result.message, result.success ? 'success' : 'error');
+    } catch (error: any) {
+      showToast(error?.message || '测试连接失败', 'error');
     } finally {
       setTesting(false);
     }
@@ -107,7 +109,7 @@ export default function DataSourceForm() {
     e.preventDefault();
     
     if (!formData.name || !formData.host || !formData.username || !formData.database_name) {
-      alert('请填写必填项');
+      showToast('请填写必填项', 'error');
       return;
     }
 
@@ -121,11 +123,13 @@ export default function DataSourceForm() {
       }
       
       if (result === 1 || result?.code === 1 || result?.code === undefined) {
-        alert(isEdit ? '更新成功' : '创建成功');
+        showToast(isEdit ? '更新成功' : '创建成功', 'success');
+      } else {
+        showToast(result?.msg || '保存失败', 'error');
       }
       navigate('/datasources');
-    } catch (error) {
-      alert('保存失败');
+    } catch (error: any) {
+      showToast(error?.message || '保存失败', 'error');
     } finally {
       setSaving(false);
     }

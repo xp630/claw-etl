@@ -136,12 +136,17 @@ export async function createDataSource(data: Partial<DataSource>): Promise<DataS
     const dbUrl = data.host && data.port 
       ? `jdbc:mysql://${data.host}:${data.port}/${data.database_name}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai`
       : '';
+    // 简单的检查URL（不带额外参数）
+    const checkUrl = data.host && data.port && data.database_name
+      ? `jdbc:mysql://${data.host}:${data.port}/${data.database_name}`
+      : 'select 1';
     
     // 转换字段名以匹配后端格式
     const postData: any = {
       id: data.id,  // 编辑时需要传ID
       dbName: data.name,
       dbUrl,
+      checkUrl,  // 检查用URL
       dbAccount: data.username,
       dbPassword: data.password,
       dbState: data.status === 1 ? '启用' : '禁用',
@@ -183,11 +188,16 @@ export async function updateDataSource(id: number, data: Partial<DataSource>): P
     const dbUrl = data.host && data.port 
       ? `jdbc:mysql://${data.host}:${data.port}/${data.database_name}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai`
       : '';
+    // 简单的检查URL（不带额外参数）
+    const checkUrl = data.host && data.port && data.database_name
+      ? `jdbc:mysql://${data.host}:${data.port}/${data.database_name}`
+      : 'select 1';
     
     const postData: any = {
       id,
       dbName: data.name,
       dbUrl,
+      checkUrl,  // 检查用URL
       dbAccount: data.username,
       dbPassword: data.password,
       dbState: data.status === 1 ? '启用' : '禁用',
