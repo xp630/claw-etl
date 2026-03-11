@@ -204,27 +204,22 @@ export default function ApiForm() {
       .map(p => {
         const operator = getOperator(p.paramType);
         if (p.paramType === 'string') {
-          return `    <if test="${p.paramName} != null and ${p.paramName} != ''">
-      AND ${p.columnName} LIKE CONCAT('%', #{${p.paramName}}, '%')
-    </if>`;
+          return `  <if test="${p.paramName} != null and ${p.paramName} != ''">
+    AND ${p.columnName} LIKE CONCAT('%', #{${p.paramName}}, '%')
+  </if>`;
         }
-        return `    <if test="${p.paramName} != null">
-      AND ${p.columnName} ${operator} #{${p.paramName}}
-    </if>`;
+        return `  <if test="${p.paramName} != null">
+    AND ${p.columnName} ${operator} #{${p.paramName}}
+  </if>`;
       })
       .join('\n');
 
-    const sql = `<select id="${formData.name || 'query'}" parameterType="map" resultType="map">
-  SELECT ${queryFields}
-  FROM ${tableName}
-  <where>
-${whereConditions || '    1=1'}
-  </where>
-  <if test="page != null and pageSize != null">
-    LIMIT #{pageSize}
-    OFFSET #{page}
-  </if>
-</select>`;
+    const sql = `SELECT ${queryFields}
+FROM ${tableName}
+<where>
+${whereConditions || '  1=1'}
+</where>
+${formData.paginationEnabled ? '<if test="pageNum != null and pageSize != null">\n  LIMIT #{pageSize}\n  OFFSET #{pageNum}\n</if>' : ''}`;
 
     setGeneratedSql(sql);
   };
@@ -373,8 +368,9 @@ ${whereConditions || '    1=1'}
               <div className="space-y-6">
                 <div className="bg-[#1e293b]/60 rounded-xl border border-slate-700/50 p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-white font-medium">请求参数（自动生成，可批量删除）</h3>
+                    <h3 className="text-white font-medium">请求参数（自动生成，可手动新增/删除）</h3>
                     <div className="flex gap-2">
+                      <button onClick={() => setInputParams([...inputParams, { paramName: '', columnName: '', paramType: 'string', required: 0, defaultValue: '', description: '' }])} className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm">+ 手动新增</button>
                       <button onClick={() => toggleAllParams(true)} className="px-3 py-1 bg-slate-700 text-white rounded-lg text-sm">全选</button>
                       <button onClick={() => toggleAllParams(false)} className="px-3 py-1 bg-slate-700 text-white rounded-lg text-sm">取消全选</button>
                       <button onClick={() => batchSetDefault('')} className="px-3 py-1 bg-slate-700 text-white rounded-lg text-sm">清空默认值</button>
