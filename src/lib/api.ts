@@ -74,8 +74,10 @@ export async function getDataSources(dataType?: string): Promise<DataSource[]> {
         password: item.dbPassword,
         database_name: item.realDataBaseName || item.dbName,
         maxConnections: item.maxConnections,
+        maxActive: item.maxActive,
         minIdle: item.minIdle,
         initialConnections: item.initialConnections,
+        initialSize: item.initialSize,
         maxIdle: item.maxIdle,
         extraParams: item.extraParams,
         description: item.comment,
@@ -108,8 +110,10 @@ export async function getDataSource(id: number): Promise<DataSource | undefined>
         password: data.dbPassword,
         database_name: data.realDataBaseName || data.dbName,
         maxConnections: data.maxConnections,
+        maxActive: data.maxActive,
         minIdle: data.minIdle,
         initialConnections: data.initialConnections,
+        initialSize: data.initialSize,
         maxIdle: data.maxIdle,
         extraParams: data.extraParams,
         description: data.comment,
@@ -149,8 +153,10 @@ export async function createDataSource(data: Partial<DataSource>): Promise<DataS
       realDataBaseName: data.database_name,
       // 连接池参数 - 确保始终传递
       maxConnections: data.maxConnections ?? 10,
+      maxActive: data.maxActive ?? 10,
       minIdle: data.minIdle ?? 5,
       initialConnections: data.initialConnections ?? 5,
+      initialSize: data.initialSize ?? 5,
       maxIdle: data.maxIdle ?? 10,
       extraParams: data.extraParams || '',
     };
@@ -193,8 +199,10 @@ export async function updateDataSource(id: number, data: Partial<DataSource>): P
       realDataBaseName: data.database_name,
       // 连接池参数 - 确保始终传递，空值给默认值
       maxConnections: data.maxConnections ?? 10,
+      maxActive: data.maxActive ?? 10,
       minIdle: data.minIdle ?? 5,
       initialConnections: data.initialConnections ?? 5,
+      initialSize: data.initialSize ?? 5,
       maxIdle: data.maxIdle ?? 10,
       extraParams: data.extraParams || '',
     };
