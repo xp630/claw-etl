@@ -599,14 +599,14 @@ export async function getTableColumns(database: string, table: string): Promise<
     const res = await api.get('/etl-admin/sqlManager/findMetaTable', {
       params: { database, table }
     });
-    if (res.data?.data) {
-      return res.data.data.map((item: any) => ({
-        columnName: item.fieldName || item.COLUMN_NAME || '',
-        columnType: item.fieldType || item.COLUMN_TYPE || '',
-        dataType: mapColumnType(item.fieldType || item.COLUMN_TYPE || ''),
-        isPrimary: item.isKey === 'YES',
+    if (res.data?.data?.tablesMetaList) {
+      return res.data.data.tablesMetaList.map((item: any) => ({
+        columnName: item.columnName || '',
+        columnType: item.typeName || '',
+        dataType: mapColumnType(item.typeName || ''),
+        isPrimary: item.keySeq != null && item.keySeq > 0,
         isNullable: item.nullable === 'YES',
-        columnComment: item.fieldComment || item.COLUMN_COMMENT || ''
+        columnComment: item.comment || ''
       }));
     }
     return [];
