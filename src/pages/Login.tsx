@@ -9,6 +9,12 @@ interface LoginProps {
 const VALID_USERNAME = 'admin';
 const VALID_PASSWORD = 'admin123';
 
+// 保存登录状态到localStorage
+const saveLoginState = () => {
+  localStorage.setItem('isLoggedIn', 'true');
+  localStorage.setItem('loginTime', new Date().toISOString());
+};
+
 export default function Login({ onLogin }: LoginProps) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -17,6 +23,7 @@ export default function Login({ onLogin }: LoginProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (username === VALID_USERNAME && password === VALID_PASSWORD) {
+      saveLoginState();
       onLogin();
     } else {
       setError('用户名或密码错误');

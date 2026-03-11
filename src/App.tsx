@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from './components/Layout';
 import Login from './pages/Login';
 import DataSourceList from './pages/DataSourceList';
@@ -12,13 +12,26 @@ import AppList from './pages/AppList';
 import AppForm from './pages/AppForm';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // 从localStorage检查登录状态
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem('isLoggedIn') === 'true';
+  });
+
+  const handleLogin = () => {
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('loginTime');
+    setIsLoggedIn(false);
+  };
 
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={
-          isLoggedIn ? <Navigate to="/" /> : <Login onLogin={() => setIsLoggedIn(true)} />
+          isLoggedIn ? <Navigate to="/" /> : <Login onLogin={handleLogin} />
         } />
         <Route path="/" element={isLoggedIn ? <Layout /> : <Navigate to="/login" />}>
           <Route index element={<Navigate to="/datasources" />} />
