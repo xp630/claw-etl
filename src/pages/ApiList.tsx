@@ -45,9 +45,11 @@ export default function ApiList() {
   const loadDataSources = async () => {
     try {
       const data = await getDataSources();
-      setDatasources(data);
+      // 只显示启用的数据源
+      const activeDataSources = data.filter((ds: any) => ds.status === 1 || ds.dbState === '启用');
+      setDatasources(activeDataSources);
       // 构建树形结构
-      const tree = data.map(ds => ({
+      const tree = activeDataSources.map((ds: any) => ({
         id: `ds_${ds.id}`,
         name: ds.name,
         type: 'datasource' as const,
