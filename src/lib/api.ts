@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { DataSource, Task } from '../types';
+import type { DataSource, Task, ApiConfig, ApiInputParam, ApiOutputParam, TableInfo, ColumnInfo } from '../types';
 
 // 后端API基础URL（开发模式用空，通过Vite代理；生产模式需要配置）
 const API_BASE = '';
@@ -72,7 +72,7 @@ export async function getDataSources(dataType?: string): Promise<DataSource[]> {
         port: parseInt(item.dbUrl?.match(/:(\d+)\//)?.[1]) || 3306,
         username: item.dbAccount,
         password: item.dbPassword,
-        database_name: item.realDataBaseName || item.dbName,
+        databaseName: item.realDataBaseName || item.dbName,
         maxConnections: item.maxConnections,
         maxActive: item.maxActive,
         minIdle: item.minIdle,
@@ -82,8 +82,8 @@ export async function getDataSources(dataType?: string): Promise<DataSource[]> {
         extraParams: item.extraParams,
         description: item.comment,
         status: item.dbState === '启用' ? 1 : 0,
-        created_at: item.createTime,
-        updated_at: item.updateTime,
+        createdAt: item.createTime,
+        updatedAt: item.updateTime,
       }));
     }
     return [];
@@ -548,5 +548,242 @@ let MOCK_TASKS: Task[] = [
     last_run_time: 'Invalid Date',
     created_at: '2026-01-07 10:00:00',
     updated_at: '2026-01-07 10:00:00',
+  },
+];
+
+// ========== API管理 API ==========
+
+// 获取数据源树形结构（按层级）
+export async function getDataSourceTree(): Promise<any[]> {
+  try {
+    // 先获取数据源列表
+    const datasources = await getDataSources();
+    // 转换格式
+    return datasources.map(ds => ({
+      id: ds.id,
+      name: ds.name,
+      type: 'datasource',
+      dataType: ds.dataType,
+      databaseName: ds.databaseName,
+      children: []
+    }));
+  } catch (error) {
+    console.error('Failed to load datasource tree:', error);
+    return [];
+  }
+}
+
+// 获取表列表
+export async function getTableList(database: string): Promise<TableInfo[]> {
+  try {
+    const res = await api.get('/etl-admin/sqlManager/findTable', {
+      params: { database }
+    });
+    if (res.data?.data) {
+      // 转换为驼峰命名
+      return res.data.data.map((item: any) => ({
+        tableName: item.TABLE_NAME,
+        tableComment: item.TABLE_COMMENT
+      }));
+    }
+    return [];
+  } catch (error) {
+    console.error('Failed to load tables:', error);
+    return [];
+  }
+}
+
+// 获取表字段信息
+export async function getTableColumns(dbName: string, tableName: string): Promise<ColumnInfo[]> {
+  try {
+    const res = await api.post('/etl-admin/sqlManager/findTableFieldDetail', {
+      dbName,
+      tableName
+    });
+    if (res.data?.data) {
+      // 转换为驼峰命名
+      return res.data.data.map((item: any) => ({
+        columnName: item.column_name,
+        columnType: item.column_type,
+        dataType: item.data_type,
+        isPrimary: item.is_primary,
+        isNullable: item.is_nullable,
+        columnComment: item.column_comment
+      }));
+    }
+    return [];
+  } catch (error) {
+    console.error('Failed to load columns:', error);
+    return [];
+  }
+}
+
+// 获取API列表
+export async function getApiList(params: {
+  page?: number;
+  limit?: number;
+  datasourceId?: number;
+  tableName?: string;
+  keyword?: string;
+}): Promise<{ list: ApiConfig[]; total: number }> {
+  try {
+    const res = await api.post('/etl-admin/apiManager/list', params);
+    if (res.data?.data) {
+      return {
+        list: res.data.data.list || [],
+        total: res.data.data.total || 0
+      };
+    }
+    return { list: [], total: 0 };
+  } catch (error) {
+    console.error('Failed to load API list:', error);
+    return MOCK_API_LIST;
+  }
+}
+
+// 获取API详情
+export async function getApiDetail(id: number): Promise<ApiConfig | undefined> {
+  try {
+    const res = await api.post('/etl-admin/apiManager/detail', { id });
+    if (res.data?.data) {
+      return res.data.data;
+    }
+    return undefined;
+  } catch (error) {
+    console.error('Failed to load API detail:', error);
+    return undefined;
+  }
+}
+
+// 保存API
+export async function saveApi(data: Partial<ApiConfig>): Promise<ApiConfig> {
+  try {
+    const res = await api.post('/etl-admin/apiManager/save', data);
+    return res.data;
+  } catch (error) {
+    console.error('Failed to save API:', error);
+    throw error;
+  }
+}
+
+// 删除API
+export async function deleteApi(id: number): Promise<void> {
+  try {
+    await api.post('/etl-admin/apiManager/delete', { id });
+  } catch (error) {
+    console.error('Failed to delete API:', error);
+    throw error;
+  }
+}
+
+// 切换API状态
+export async function toggleApi(id: number, status: number): Promise<void> {
+  try {
+    await api.post('/etl-admin/apiManager/toggle', { id, status });
+  } catch (error) {
+    console.error('Failed to toggle API:', error);
+    throw error;
+  }
+}
+
+// 测试API
+export async function testApi(id: number, testParams: Record<string, any>): Promise<any> {
+  try {
+    const res = await api.post('/etl-admin/apiManager/test', {
+      id,
+      testParams
+    });
+    return res.data;
+  } catch (error) {
+    console.error('Failed to test API:', error);
+    throw error;
+  }
+}
+
+// 复制API
+export async function copyApi(id: number, newName: string): Promise<any> {
+  try {
+    const res = await api.post('/etl-admin/apiManager/copy', { id, newName });
+    return res.data;
+  } catch (error) {
+    console.error('Failed to copy API:', error);
+    throw error;
+  }
+}
+
+// 获取输入参数
+export async function getApiInputParams(apiId: number): Promise<ApiInputParam[]> {
+  try {
+    // 这里需要后端提供接口，暂时返回空
+    return [];
+  } catch (error) {
+    return [];
+  }
+}
+
+// 保存输入参数
+export async function saveApiInputParams(apiId: number, params: ApiInputParam[]): Promise<void> {
+  try {
+    // 这里需要后端提供接口
+  } catch (error) {
+    console.error('Failed to save input params:', error);
+  }
+}
+
+// 获取输出参数
+export async function getApiOutputParams(apiId: number): Promise<ApiOutputParam[]> {
+  try {
+    // 这里需要后端提供接口，暂时返回空
+    return [];
+  } catch (error) {
+    return [];
+  }
+}
+
+// 保存输出参数
+export async function saveApiOutputParams(apiId: number, params: ApiOutputParam[]): Promise<void> {
+  try {
+    // 这里需要后端提供接口
+  } catch (error) {
+    console.error('Failed to save output params:', error);
+  }
+}
+
+// ========== 演示数据 ==========
+let MOCK_API_LIST: ApiConfig[] = [
+  {
+    id: 1,
+    name: '用户查询',
+    path: '/api/user/list',
+    method: 'POST',
+    datasourceId: 1,
+    datasourceName: 'WMS源库',
+    databaseName: 'wms_db',
+    tableName: 't_users',
+    description: '查询用户列表',
+    queryFields: 'id,username,email,phone,status',
+    paginationEnabled: 1,
+    mockEnabled: 1,
+    mockData: '{"code":1,"data":{"list":[]},"msg":"success"}',
+    status: 1,
+    createdAt: '2026-03-01 10:00:00',
+    updatedAt: '2026-03-01 10:00:00',
+  },
+  {
+    id: 2,
+    name: '订单查询',
+    path: '/api/order/list',
+    method: 'POST',
+    datasourceId: 1,
+    datasourceName: 'WMS源库',
+    databaseName: 'wms_db',
+    tableName: 't_orders',
+    description: '查询订单列表',
+    queryFields: 'order_id,order_no,amount,status',
+    paginationEnabled: 1,
+    mockEnabled: 0,
+    status: 1,
+    createdAt: '2026-03-02 10:00:00',
+    updatedAt: '2026-03-02 10:00:00',
   },
 ];

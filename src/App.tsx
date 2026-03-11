@@ -6,6 +6,10 @@ import DataSourceList from './pages/DataSourceList';
 import DataSourceForm from './pages/DataSourceForm';
 import TaskList from './pages/TaskList';
 import TaskForm from './pages/TaskForm';
+import ApiList from './pages/ApiList';
+import ApiForm from './pages/ApiForm';
+import AppList from './pages/AppList';
+import AppForm from './pages/AppForm';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -24,6 +28,12 @@ function App() {
           <Route path="tasks" element={<TaskList />} />
           <Route path="tasks/new" element={<TaskForm />} />
           <Route path="tasks/:id" element={<TaskForm />} />
+          <Route path="apis" element={<ApiList />} />
+          <Route path="apis/new" element={<ApiForm />} />
+          <Route path="apis/:id" element={<ApiForm />} />
+          <Route path="apps" element={<AppList />} />
+          <Route path="apps/new" element={<AppForm />} />
+          <Route path="apps/:id" element={<AppForm />} />
         </Route>
       </Routes>
     </BrowserRouter>

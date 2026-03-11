@@ -2,40 +2,120 @@ export interface DataSource {
   id: number;
   name: string;
   type: 'mysql' | 'postgresql' | 'oracle' | 'sqlserver';
-  dataType?: 'source' | 'target';  // 数据源类型：source=源库，target=目标库
+  dataType?: 'source' | 'target';
   host: string;
   port: number;
   username: string;
   password: string;
-  database_name: string;
-  maxConnections?: number;     // 最大连接数
-  maxActive?: number;         // 最大活跃连接数
-  minIdle?: number;           // 最小空闲连接数
-  initialConnections?: number;// 初始化连接数
-  initialSize?: number;       // 初始连接数
-  maxIdle?: number;           // 最大空闲数
-  extraParams?: string;       // 扩展参数
+  databaseName: string;
+  maxConnections?: number;
+  maxActive?: number;
+  minIdle?: number;
+  initialConnections?: number;
+  initialSize?: number;
+  maxIdle?: number;
+  extraParams?: string;
   description?: string;
   status: number;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface Task {
   id: number;
   name: string;
-  source_id: number;
-  source_name?: string;
-  query_sql: string;
-  target_id: number;
-  target_name?: string;
-  target_table: string;
+  sourceId: number;
+  sourceName?: string;
+  querySql: string;
+  targetId: number;
+  targetName?: string;
+  targetTable: string;
   columns?: string;
-  dynamic_sql?: string;
-  window_value: number;
-  window_unit: 'minutes' | 'hours' | 'days';
+  dynamicSql?: string;
+  windowValue: number;
+  windowUnit: 'minutes' | 'hours' | 'days';
   status: number;
-  last_run_time?: string;
-  created_at: string;
-  updated_at: string;
+  lastRunTime?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ========== API管理相关类型 ==========
+
+export interface ApiConfig {
+  id?: number;
+  name: string;
+  path: string;
+  method: 'GET' | 'POST';
+  datasourceId: number;
+  datasourceName?: string;
+  databaseName: string;
+  tableName: string;
+  description?: string;
+  queryFields?: string;
+  paginationEnabled?: number;
+  mockEnabled?: number;
+  mockData?: string;
+  status?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ApiInputParam {
+  id?: number;
+  apiId?: number;
+  paramName: string;
+  columnName?: string;
+  paramType: string;
+  required?: number;
+  defaultValue?: string;
+  description?: string;
+}
+
+export interface ApiOutputParam {
+  id?: number;
+  apiId?: number;
+  columnName: string;
+  alias?: string;
+  dataType?: string;
+  description?: string;
+}
+
+export interface ApiApp {
+  id?: number;
+  appName: string;
+  appKey?: string;
+  appSecret?: string;
+  appType?: string;
+  description?: string;
+  expireTime?: string;
+  status?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ApiGrant {
+  id?: number;
+  apiId: number;
+  appId: number;
+  allowIps?: string;
+  rateLimit?: number;
+  status?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+// 树形结构
+export interface TableInfo {
+  tableName: string;
+  tableComment: string;
+}
+
+export interface ColumnInfo {
+  columnName: string;
+  columnType: string;
+  dataType: string;
+  isPrimary?: boolean;
+  isNullable?: boolean;
+  columnComment?: string;
 }

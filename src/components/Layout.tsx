@@ -1,5 +1,5 @@
 import { Outlet, NavLink } from 'react-router-dom';
-import { Database, ListTodo, LogOut } from 'lucide-react';
+import { Database, ListTodo, LogOut, Api, Key } from 'lucide-react';
 
 export default function Layout() {
   return (
@@ -47,6 +47,34 @@ export default function Layout() {
           >
             <ListTodo className="w-5 h-5" />
             <span>任务管理</span>
+          </NavLink>
+
+          <NavLink
+            to="/apis"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                isActive
+                  ? 'bg-purple-500/20 text-purple-400'
+                  : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+              }`
+            }
+          >
+            <Api className="w-5 h-5" />
+            <span>API管理</span>
+          </NavLink>
+
+          <NavLink
+            to="/apps"
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                isActive
+                  ? 'bg-yellow-500/20 text-yellow-400'
+                  : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+              }`
+            }
+          >
+            <Key className="w-5 h-5" />
+            <span>应用管理</span>
           </NavLink>
         </nav>
 
