@@ -1,14 +1,25 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Save, RefreshCw, Trash2 } from 'lucide-react';
 import { getDataSources, getTableList, getTableColumns, saveApi, getApiDetail } from '../lib/api';
 import type { DataSource, ApiConfig, ApiInputParam, TableInfo, ColumnInfo } from '../types';
 
 const STEPS = ['基本信息', '参数配置', 'SQL配置', 'Mock配置'];
 
+// 生成随机16位字符串
+const generateRandomString = (length: number = 16): string => {
+  const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+};
+
 export default function ApiForm() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const isEdit = !!id;
 
   const [currentStep, setCurrentStep] = useState(0);
