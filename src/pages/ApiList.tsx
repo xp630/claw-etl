@@ -22,7 +22,8 @@ export default function ApiList() {
   const [datasources, setDatasources] = useState<DataSource[]>([]);
   const [apiList, setApiList] = useState<ApiConfig[]>([]);
   const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [selectedDs, setSelectedDs] = useState<number | null>(null);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const [searchKeyword, setSearchKeyword] = useState('');
@@ -31,10 +32,12 @@ export default function ApiList() {
   const [treeData, setTreeData] = useState<TreeNode[]>([]);
   const [expandedKeys, setExpandedKeys] = useState<Set<string>>(new Set());
 
+  // 初始化加载数据源
   useEffect(() => {
     loadDataSources();
   }, []);
 
+  // 当筛选条件变化时重新加载列表
   useEffect(() => {
     loadApiList();
   }, [selectedDs, selectedTable, searchKeyword]);
@@ -56,11 +59,13 @@ export default function ApiList() {
       setTreeData(tree);
     } catch (error) {
       console.error('Failed to load datasources:', error);
+      setError('加载数据源失败');
     }
   };
 
   const loadApiList = async () => {
     setLoading(true);
+    setError(null);
     try {
       const params: any = { page: 1, limit: 20 };
       if (selectedDs) params.datasourceId = selectedDs;
@@ -68,10 +73,13 @@ export default function ApiList() {
       if (searchKeyword) params.keyword = searchKeyword;
       
       const result = await getApiList(params);
-      setApiList(result.list);
-      setTotal(result.total);
+      setApiList(result.list || []);
+      setTotal(result.total || 0);
     } catch (error) {
       console.error('Failed to load API list:', error);
+      setError('加载API列表失败，请稍后重试');
+      setApiList([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
@@ -133,6 +141,19 @@ export default function ApiList() {
         setTreeData(prev => updateTreeWithTables(prev));
       } catch (error) {
         console.error('Failed to load tables:', error);
+        // 加载失败时不更新树，保持原状
+        const updateTreeError = (nodes: TreeNode[]): TreeNode[] => {
+          return nodes.map(n => {
+            if (n.id === key) {
+              return { ...n, isLoading: false };
+            }
+            if (n.children) {
+              return { ...n, children: updateTreeError(n.children) };
+            }
+            return n;
+          });
+        };
+        setTreeData(prev => updateTreeError(prev));
       }
     }
   };
@@ -169,15 +190,23 @@ export default function ApiList() {
 
   const handleDelete = async (id: number) => {
     if (confirm('确定要删除该API吗？')) {
-      await deleteApi(id);
-      loadApiList();
+      try {
+        await deleteApi(id);
+        loadApiList();
+      } catch (error) {
+        alert('删除失败');
+      }
     }
   };
 
   const handleToggle = async (api: ApiConfig) => {
-    const newStatus = api.status === 1 ? 0 : 1;
-    await toggleApi(api.id!, newStatus);
-    loadApiList();
+    try {
+      const newStatus = api.status === 1 ? 0 : 1;
+      await toggleApi(api.id!, newStatus);
+      loadApiList();
+    } catch (error) {
+      alert('操作失败');
+    }
   };
 
   const handleTest = async (id: number) => {
@@ -190,7 +219,6 @@ export default function ApiList() {
   };
 
   const handleCopy = (api: ApiConfig) => {
-    // TODO: 复制功能
     alert('复制功能开发中');
   };
 
@@ -248,7 +276,11 @@ export default function ApiList() {
           </div>
         </div>
         <div className="flex-1 overflow-auto p-2">
-          {treeData.map(node => renderTreeNode(node))}
+          {treeData.length === 0 ? (
+            <div className="text-slate-500 text-sm p-4">暂无数据源</div>
+          ) : (
+            treeData.map(node => renderTreeNode(node))
+          )}
         </div>
       </div>
 
@@ -297,6 +329,13 @@ export default function ApiList() {
             </button>
           </div>
         </div>
+
+        {/* 错误提示 */}
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6 text-red-400">
+            {error}
+          </div>
+        )}
 
         {/* 表格 */}
         <div className="bg-[#1e293b]/60 backdrop-blur-xl rounded-xl border border-slate-700/50 overflow-hidden">
@@ -368,11 +407,11 @@ export default function ApiList() {
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
-                          onClick={() => handleToggle(api)}
-                          className="p-2 hover:bg-yellow-500/10 rounded-lg text-yellow-400 transition-colors"
-                          title={api.status === 1 ? '禁用' : '启用'}
+                          onClick={() => handleDelete(api.id!)}
+                          className="p-2 hover:bg-red-500/10 rounded-lg text-red-400 transition-colors"
+                          title="删除"
                         >
-                          {api.status === 1 ? <Trash2 className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </td>
