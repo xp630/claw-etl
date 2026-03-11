@@ -135,6 +135,7 @@ export async function createDataSource(data: Partial<DataSource>): Promise<DataS
     
     // 转换字段名以匹配后端格式
     const postData: any = {
+      id: data.id,  // 编辑时需要传ID
       dbName: data.name,
       dbUrl,
       dbAccount: data.username,
@@ -145,14 +146,14 @@ export async function createDataSource(data: Partial<DataSource>): Promise<DataS
       comment: data.description,
       dataType: data.dataType || 'source',
       categoryId: 5683,
+      realDataBaseName: data.database_name,
+      // 连接池参数 - 确保始终传递
+      maxConnections: data.maxConnections ?? 10,
+      minIdle: data.minIdle ?? 5,
+      initialConnections: data.initialConnections ?? 5,
+      maxIdle: data.maxIdle ?? 10,
+      extraParams: data.extraParams || '',
     };
-    
-    // 确保数值类型字段一定传递
-    if (data.maxConnections !== undefined) postData.maxConnections = data.maxConnections;
-    if (data.minIdle !== undefined) postData.minIdle = data.minIdle;
-    if (data.initialConnections !== undefined) postData.initialConnections = data.initialConnections;
-    if (data.maxIdle !== undefined) postData.maxIdle = data.maxIdle;
-    if (data.extraParams !== undefined) postData.extraParams = data.extraParams;
     
     const res = await api.post('/etl-admin/dataSourceManager/addDataSource', postData);
     return res.data;
@@ -189,14 +190,14 @@ export async function updateDataSource(id: number, data: Partial<DataSource>): P
       comment: data.description,
       dataType: data.dataType || 'source',
       categoryId: 5683,
+      realDataBaseName: data.database_name,
+      // 连接池参数 - 确保始终传递，空值给默认值
+      maxConnections: data.maxConnections ?? 10,
+      minIdle: data.minIdle ?? 5,
+      initialConnections: data.initialConnections ?? 5,
+      maxIdle: data.maxIdle ?? 10,
+      extraParams: data.extraParams || '',
     };
-    
-    // 确保数值类型字段一定传递
-    if (data.maxConnections !== undefined) postData.maxConnections = data.maxConnections;
-    if (data.minIdle !== undefined) postData.minIdle = data.minIdle;
-    if (data.initialConnections !== undefined) postData.initialConnections = data.initialConnections;
-    if (data.maxIdle !== undefined) postData.maxIdle = data.maxIdle;
-    if (data.extraParams !== undefined) postData.extraParams = data.extraParams;
     
     const res = await api.post('/etl-admin/dataSourceManager/addDataSource', postData);
     return res.data;
@@ -323,8 +324,10 @@ export async function createTask(data: Partial<Task>): Promise<Task> {
     // 转换为驼峰命名
     const camelData = {
       taskName: data.name,
-      sourceDb: data.source_name,
-      targetDb: data.target_name,
+      sourceDb: data.source_name,  // 数据库名称
+      sourceDbId: data.source_id,  // 数据源ID
+      targetDb: data.target_name,   // 数据库名称
+      targetDbId: data.target_id,  // 数据源ID
       querySql: data.query_sql,
       targetTable: data.target_table,
       columns: data.columns,
@@ -363,8 +366,10 @@ export async function updateTask(id: number, data: Partial<Task>): Promise<Task>
     const camelData = {
       id,
       taskName: data.name,
-      sourceDb: data.source_name,
-      targetDb: data.target_name,
+      sourceDb: data.source_name,  // 数据库名称
+      sourceDbId: data.source_id,  // 数据源ID
+      targetDb: data.target_name,   // 数据库名称
+      targetDbId: data.target_id,  // 数据源ID
       querySql: data.query_sql,
       targetTable: data.target_table,
       columns: data.columns,
