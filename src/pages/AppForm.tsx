@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Save, RefreshCw, Copy } from 'lucide-react';
+import { ArrowLeft, Save, Copy } from 'lucide-react';
 
 interface ApiApp {
   appName: string;
@@ -128,8 +128,8 @@ export default function AppForm() {
                 onChange={(e) => setFormData({ ...formData, appType: e.target.value })}
                 className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white"
               >
-                <option value="web">Web应用</option value="app">>
-                <option移动App</option>
+                <option value="web">Web应用</option>
+                <option value="app">移动App</option>
                 <option value="other">其他</option>
               </select>
             </div>
@@ -140,7 +140,7 @@ export default function AppForm() {
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
-               -full px-4 py-2.5 bg-slate className="w-800/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-500"
+                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-500"
               />
             </div>
 
