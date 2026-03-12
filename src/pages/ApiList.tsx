@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Plus, RefreshCw, Edit, Trash2, Play, Copy, Search, ChevronRight, ChevronDown, Database, Table } from 'lucide-react';
 import { getDataSources, getTableList, getApiList, deleteApi, toggleApi, testApi } from '../lib/api';
@@ -41,6 +41,24 @@ export default function ApiList() {
   useEffect(() => {
     loadApiList();
   }, [selectedDs, selectedTable, searchKeyword]);
+
+  // 生成新增API的URL，包含选中的数据源和表
+  const newApiUrl = useMemo(() => {
+    console.log('===== 生成URL =====');
+    console.log('selectedDs:', selectedDs, 'selectedTable:', selectedTable);
+    if (selectedDs) {
+      const params = new URLSearchParams();
+      params.set('datasourceId', String(selectedDs));
+      if (selectedTable) {
+        params.set('tableName', selectedTable);
+      }
+      const url = `/apis/new?${params.toString()}`;
+      console.log('生成的URL:', url);
+      return url;
+    }
+    console.log('生成的URL: /apis/new');
+    return '/apis/new';
+  }, [selectedDs, selectedTable]);
 
   const loadDataSources = async () => {
     try {
@@ -163,17 +181,20 @@ export default function ApiList() {
   // 选择节点
   const handleSelect = (node: TreeNode) => {
     if (node.type === 'datasource') {
-      const ds = datasources.find(d => d.id === parseInt(node.id.replace('ds_', '')));
+      const dsId = parseInt(node.id.replace('ds_', ''));
+      const ds = datasources.find(d => d.id === dsId);
       if (ds) {
         setSelectedDs(ds.id);
         setSelectedTable(null);
       }
     } else if (node.type === 'table') {
-      // 找到父节点的数据源
-      const parentId = node.id.split('_').slice(0, 2).join('_');
-      const dsId = parseInt(parentId.replace('ds_', ''));
-      setSelectedDs(dsId);
-      setSelectedTable(node.tableName || null);
+      // 从表节点id中提取数据源ID，格式: table_ds_1_tablename
+      const match = node.id.match(/ds_(\d+)/);
+      const dsId = match ? parseInt(match[1]) : null;
+      if (dsId) {
+        setSelectedDs(dsId);
+        setSelectedTable(node.tableName || null);
+      }
     }
   };
 
@@ -302,7 +323,7 @@ export default function ApiList() {
             </div>
           </div>
           <Link
-            to="/apis/new"
+            to={newApiUrl}
             className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl hover:opacity-90 transition-opacity"
           >
             <Plus className="w-4 h-4" />

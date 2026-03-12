@@ -80,17 +80,52 @@ export default function ApiForm() {
       const data = await getDataSources();
       const activeDatasources = data.filter((ds: DataSource) => ds.status === 1);
       setDatasources(activeDatasources);
+
+      // 数据源加载完成后，检查URL参数并初始化表单
+      const datasourceId = searchParams.get('datasourceId');
+      const tableName = searchParams.get('tableName');
+
+      if (datasourceId) {
+        const dsId = parseInt(datasourceId);
+        const ds = activeDatasources.find((d: DataSource) => d.id === dsId);
+        if (ds) {
+          setFormData(prev => ({
+            ...prev,
+            datasourceId: ds.id,
+            datasourceName: ds.name,
+            databaseName: ds.databaseName,
+            tableName: tableName || '',
+          }));
+          // 如果有表名，需要加载表和字段，并生成API名称和路径
+          if (tableName) {
+            loadTables(ds.databaseName).then((tableList) => {
+              loadColumns(ds.databaseName, tableName);
+              // 从表列表中获取表注释，生成API名称和路径
+              const currentTable = tableList.find((t: TableInfo) => t.tableName === tableName);
+              const tableComment = currentTable?.tableComment || tableName;
+              const random5 = generateRandomString(5);
+              setFormData(prev => ({
+                ...prev,
+                name: `${tableComment}_${random5}`,
+                path: `/api/${tableName}/${random5}`,
+              }));
+            });
+          }
+        }
+      }
     } catch (error) {
       console.error('Failed to load datasources:', error);
     }
   };
 
-  const loadTables = async (database: string) => {
+  const loadTables = async (database: string): Promise<TableInfo[]> => {
     try {
       const data = await getTableList(database);
       setTables(data);
+      return data;
     } catch (error) {
       console.error('Failed to load tables:', error);
+      return [];
     }
   };
 
