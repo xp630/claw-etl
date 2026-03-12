@@ -51,6 +51,7 @@ export interface ApiConfig {
   datasourceName?: string;
   databaseName: string;
   tableName: string;
+  apiType?: 'public' | 'private'; // 权限类型：public-公有, private-私有
   description?: string;
   queryFields?: string;
   paginationEnabled?: number;

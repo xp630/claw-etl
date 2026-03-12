@@ -38,9 +38,10 @@ export default function ApiForm() {
     datasourceName: '',
     databaseName: '',
     tableName: '',
+    apiType: 'private', // 默认为私有
     description: '',
     queryFields: '',
-    
+
     mockEnabled: 1,
     mockData: '',
     status: 1,
@@ -390,6 +391,33 @@ ${whereConditions || '  1=1'}
                   </div>
                   <div><label className="block text-sm text-slate-400 mb-2">API名称 *</label><input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="例如：用户查询" className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-500" /></div>
                   <div><label className="block text-sm text-slate-400 mb-2">API路径 *</label><input type="text" value={formData.path} onChange={(e) => setFormData({ ...formData, path: e.target.value })} placeholder="例如：/api/user/list" className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-500" /></div>
+                  <div>
+                    <label className="block text-sm text-slate-400 mb-2">权限类型</label>
+                    <div className="flex gap-6">
+                      <label className="flex items-center gap-2 text-white">
+                        <input
+                          type="radio"
+                          name="apiType"
+                          checked={formData.apiType === 'private'}
+                          onChange={() => setFormData({ ...formData, apiType: 'private' })}
+                          className="accent-purple-500"
+                        />
+                        私有
+                        <span className="text-xs text-slate-500 ml-1">(需授权)</span>
+                      </label>
+                      <label className="flex items-center gap-2 text-white">
+                        <input
+                          type="radio"
+                          name="apiType"
+                          checked={formData.apiType === 'public'}
+                          onChange={() => setFormData({ ...formData, apiType: 'public' })}
+                          className="accent-purple-500"
+                        />
+                        公有
+                        <span className="text-xs text-slate-500 ml-1">(无需授权)</span>
+                      </label>
+                    </div>
+                  </div>
                   <div><label className="block text-sm text-slate-400 mb-2">描述</label><textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={3} className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-500" /></div>
                 </div>
               </div>
