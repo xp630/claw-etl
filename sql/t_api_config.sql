@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS `t_api_config` (
   `datasourceName` varchar(100) DEFAULT NULL COMMENT '数据源名称',
   `databaseName` varchar(100) NOT NULL COMMENT '数据库名',
   `tableName` varchar(100) NOT NULL COMMENT '表名',
+  `apiType` varchar(20) NOT NULL DEFAULT 'private' COMMENT '权限类型：public-公有(无需授权) private-私有(需授权)',
   `description` varchar(500) DEFAULT NULL COMMENT '描述',
   
   -- SQL配置

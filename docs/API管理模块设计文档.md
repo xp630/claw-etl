@@ -181,6 +181,7 @@ CREATE TABLE IF NOT EXISTS `t_api_config` (
   `datasourceName` varchar(100) DEFAULT NULL COMMENT '数据源名称',
   `databaseName` varchar(100) NOT NULL COMMENT '数据库名',
   `tableName` varchar(100) NOT NULL COMMENT '表名',
+  `apiType` varchar(20) NOT NULL DEFAULT 'private' COMMENT '权限类型：public-公有(无需授权) private-私有(需授权)',
   `description` varchar(500) DEFAULT NULL COMMENT '描述',
   
   -- SQL配置
@@ -301,6 +302,7 @@ t_api_config (API配置)
 | t_api_config | datasourceName | varchar(100) | 数据源名称 |
 | t_api_config | databaseName | varchar(100) | 数据库名 |
 | t_api_config | tableName | varchar(100) | 表名 |
+| t_api_config | apiType | varchar(20) | 权限类型：public-公有(无需授权) private-私有(需授权) |
 | t_api_config | description | varchar(500) | 描述 |
 | t_api_config | queryFields | text | 查询字段 |
 | t_api_config | paginationEnabled | tinyint | 是否支持分页 |
@@ -422,7 +424,7 @@ CREATE TABLE IF NOT EXISTS `t_api_access_log` (
 ## 九、创建API流程（优化版）
 
 ### 9.1 流程说明
-1. **基本信息** - 选择数据源（只显示启用）、表、API名称、路径
+1. **基本信息** - 选择数据源（只显示启用）、表、API名称、路径、权限类型（公有/私有）
 2. **参数配置** - 自动生成所有字段作为请求参数，支持批量删除、全选、清空默认值
 3. **SQL配置** - 基于参数自动生成MyBatis XML格式SQL
 4. **Mock配置** - 根据字段生成Mock数据
