@@ -454,10 +454,15 @@ export default function Layout() {
   // 加载用户信息
   const loadUserInfo = () => {
     const userStr = localStorage.getItem('user');
+    console.log('localStorage user:', userStr);
     if (userStr) {
       try {
         const user = JSON.parse(userStr);
-        setCurrentUser({ name: user.name || user.employeeNo, employeeNo: user.employeeNo });
+        console.log('parsed user:', user);
+        // 尝试多个可能的字段名
+        const name = user.name || user.userName || user.username || user.nickname || user.employeeNo || '未知用户';
+        const empNo = user.employeeNo || user.empNo || user.emp_no || '';
+        setCurrentUser({ name, employeeNo: empNo });
       } catch (e) {
         console.error('Failed to parse user info:', e);
       }
