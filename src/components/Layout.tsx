@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { useTheme } from '../contexts/ThemeContext';
 import {
   Database, ListTodo, LogOut, Globe, Key, ChevronRight, ChevronDown, PanelLeftClose, PanelLeft,
   Layout as LayoutIcon, X, Users, Menu as MenuIcon, Settings, Home, FileText, Folder, Bell,
@@ -309,6 +310,7 @@ function renderPage(path: string, resourceId?: string) {
 export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { theme, setTheme } = useTheme();
   const [expandedMenus, setExpandedMenus] = useState<Set<string>>(new Set(['api']));
   const [collapsed, setCollapsed] = useState(false);
   const [serverMenus, setServerMenus] = useState<MenuItem[]>([]);
@@ -476,6 +478,18 @@ export default function Layout() {
         {/* Logo */}
         <div className="h-16 flex items-center justify-center border-b border-slate-700/50">
           {!collapsed && <span className="text-lg font-bold">{systemName}</span>}
+          {!collapsed && (
+            <select
+              value={theme}
+              onChange={(e) => setTheme(e.target.value as 'dark' | 'light')}
+              className="ml-3 px-2 py-1 rounded border text-xs cursor-pointer
+                bg-[var(--bg-secondary)] text-[var(--text-primary)] border-[var(--border)]
+                hover:border-[var(--accent)] transition-colors"
+            >
+              <option value="dark">🌙 深色</option>
+              <option value="light">☀️ 浅色</option>
+            </select>
+          )}
           <button
             onClick={() => setCollapsed(!collapsed)}
             className="p-2 hover:bg-slate-700/50 rounded-lg"
