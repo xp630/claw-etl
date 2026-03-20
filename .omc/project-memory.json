@@ -193,28 +193,28 @@
   },
   "hotPaths": [
     {
+      "path": "src/components/Layout.tsx",
+      "accessCount": 61,
+      "lastAccessed": 1773984170160,
+      "type": "file"
+    },
+    {
       "path": "src/pages/ApiList.tsx",
       "accessCount": 48,
       "lastAccessed": 1773982814004,
       "type": "file"
     },
     {
+      "path": "src/pages/Login.tsx",
+      "accessCount": 28,
+      "lastAccessed": 1773983616812,
+      "type": "directory"
+    },
+    {
       "path": "",
       "accessCount": 26,
       "lastAccessed": 1773982790373,
       "type": "directory"
-    },
-    {
-      "path": "src/pages/Login.tsx",
-      "accessCount": 24,
-      "lastAccessed": 1773982813812,
-      "type": "directory"
-    },
-    {
-      "path": "src/components/Layout.tsx",
-      "accessCount": 24,
-      "lastAccessed": 1773982951458,
-      "type": "file"
     },
     {
       "path": "docs/superpowers/specs/2026-03-20-theme-switching-design.md",
@@ -355,6 +355,12 @@
       "type": "file"
     },
     {
+      "path": "src/lib/api.ts",
+      "accessCount": 4,
+      "lastAccessed": 1773984069641,
+      "type": "file"
+    },
+    {
       "path": "src/pages/DictList.tsx",
       "accessCount": 3,
       "lastAccessed": 1773982366847,
@@ -406,6 +412,24 @@
       "path": "tailwind.config.js",
       "accessCount": 1,
       "lastAccessed": 1773979173642,
+      "type": "file"
+    },
+    {
+      "path": "src/lib",
+      "accessCount": 1,
+      "lastAccessed": 1773984003978,
+      "type": "directory"
+    },
+    {
+      "path": "src/lib/crypto.ts",
+      "accessCount": 1,
+      "lastAccessed": 1773984041157,
+      "type": "file"
+    },
+    {
+      "path": "src/components/ChangePasswordModal.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1773984094876,
       "type": "file"
     }
   ],

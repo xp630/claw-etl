@@ -21,6 +21,7 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { getMenuTree, getSystemConfigByCode } from '../lib/api';
 import type { SysMenu } from '../types';
+import ChangePasswordModal from './ChangePasswordModal';
 import DataSourceList from '../pages/DataSourceList';
 import DataSourceForm from '../pages/DataSourceForm';
 import TaskList from '../pages/TaskList';
@@ -318,6 +319,7 @@ export default function Layout() {
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string>('');
   const [currentUser, setCurrentUser] = useState<{ name: string; employeeNo: string } | null>(null);
+  const [showChangePassword, setShowChangePassword] = useState(false);
   const prevPathRef = useRef<string>('');
 
   // 当 URL 显著变化时（不是 tab 切换触发的），同步 tab
@@ -564,6 +566,13 @@ export default function Layout() {
               {/* 下拉菜单 */}
               <div className="absolute right-0 top-full mt-1 w-40 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
                 <button
+                  onClick={() => setShowChangePassword(true)}
+                  className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] rounded-lg"
+                >
+                  <Lock className="w-4 h-4" />
+                  <span>修改密码</span>
+                </button>
+                <button
                   onClick={() => {
                     localStorage.removeItem('isLoggedIn');
                     window.location.reload();
@@ -583,6 +592,13 @@ export default function Layout() {
           {activeTab ? renderPage(activeTab.path, activeTab.resourceId) : <Outlet />}
         </div>
       </div>
+
+      {/* 修改密码弹窗 */}
+      <ChangePasswordModal
+        visible={showChangePassword}
+        onClose={() => setShowChangePassword(false)}
+        employeeNo={currentUser?.employeeNo || ''}
+      />
     </div>
   );
 

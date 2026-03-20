@@ -1367,6 +1367,23 @@ export async function userLogin(employeeNo: string, password: string): Promise<{
   }
 }
 
+export async function changePassword(employeeNo: string, oldPassword: string, newPassword: string): Promise<{ success: boolean; message: string }> {
+  try {
+    const res = await api.post('/etl-admin/sysUser/changePassword', {
+      employeeNo,
+      oldPassword,
+      newPassword,
+    });
+    if (res.data?.success) {
+      return { success: true, message: res.data?.message || '密码修改成功' };
+    }
+    return { success: false, message: res.data?.message || '密码修改失败' };
+  } catch (error) {
+    console.error('Failed to change password:', error);
+    return { success: false, message: '密码修改异常' };
+  }
+}
+
 // ========== 菜单管理 API ==========
 
 export async function getMenus(params?: { name?: string; code?: string; page?: number; limit?: number }): Promise<{ list: SysMenu[]; total: number }> {
