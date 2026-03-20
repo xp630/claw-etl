@@ -56,15 +56,23 @@
 
 ```css
 [data-theme="dark"] {
-  --bg-primary: #0f172a;      /* 页面背景 */
-  --bg-secondary: #1e293b;    /* 卡片/侧边栏背景 */
-  --bg-tertiary: #334155;     /* hover/active 背景 */
-  --text-primary: #f1f5f9;    /* 主文字 */
-  --text-secondary: #94a3b8;  /* 次要文字 */
-  --text-muted: #64748b;      /* 占位符/禁用文字 */
-  --border: #334155;          /* 边框 */
-  --accent: #a855f7;          /* 紫色强调色 */
-  --accent-hover: #9333ea;    /* 强调色 hover */
+  --bg-primary: #0f172a;           /* 页面背景 */
+  --bg-secondary: #1e293b;        /* 卡片/侧边栏背景 */
+  --bg-tertiary: #334155;         /* hover/active 背景 */
+  --bg-hover: rgba(51, 65, 85, 0.5); /* hover 悬浮背景 */
+  --bg-hover-light: rgba(51, 65, 85, 0.2); /* hover 浅色 */
+  --bg-table-header: rgba(30, 41, 59, 0.3); /* 表格表头背景 */
+  --bg-table-stripe: rgba(30, 41, 59, 0.5); /* 表格斑马纹 */
+  --text-primary: #f1f5f9;        /* 主文字 */
+  --text-secondary: #94a3b8;      /* 次要文字 */
+  --text-muted: #64748b;         /* 占位符/禁用文字 */
+  --text-input: #e2e8f0;         /* 输入框文字 */
+  --border: #334155;             /* 边框 */
+  --border-light: rgba(51, 65, 85, 0.5); /* 浅色边框 */
+  --input-bg: #1e293b;           /* 输入框背景 */
+  --input-border: #334155;       /* 输入框边框 */
+  --accent: #a855f7;             /* 紫色强调色 */
+  --accent-hover: #9333ea;       /* 强调色 hover */
   --accent-light: rgba(168, 85, 247, 0.2); /* 强调色浅色背景 */
   --success: #22c55e;
   --warning: #f59e0b;
@@ -80,10 +88,18 @@
   --bg-primary: #ffffff;
   --bg-secondary: #f8fafc;
   --bg-tertiary: #e2e8f0;
+  --bg-hover: rgba(226, 232, 240, 0.6);
+  --bg-hover-light: rgba(226, 232, 240, 0.4);
+  --bg-table-header: rgba(241, 245, 249, 0.8);
+  --bg-table-stripe: rgba(241, 245, 249, 0.5);
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --text-muted: #94a3b8;
+  --text-input: #1e293b;
   --border: #e2e8f0;
+  --border-light: rgba(226, 232, 240, 0.8);
+  --input-bg: #f1f5f9;
+  --input-border: #cbd5e1;
   --accent: #7c3aed;
   --accent-hover: #6d28d9;
   --accent-light: rgba(124, 58, 237, 0.15);
@@ -132,14 +148,29 @@ interface ThemeContextValue {
 |----------|----------|
 | `bg-slate-900` | `bg-[var(--bg-primary)]` |
 | `bg-slate-800` | `bg-[var(--bg-secondary)]` |
-| `bg-slate-700/50` | `bg-[var(--bg-tertiary)]` |
+| `bg-slate-800/50` | `bg-[var(--bg-hover-light)]` |
+| `bg-slate-800/30` | `bg-[var(--bg-table-header)]` |
+| `bg-slate-700/50` | `bg-[var(--bg-hover)]` |
+| `bg-slate-700/20` | `bg-[var(--bg-hover-light)]` |
+| `hover:bg-slate-700/50` | `hover:bg-[var(--bg-hover)]` |
+| `hover:bg-slate-800/50` | `hover:bg-[var(--bg-hover-light)]` |
 | `text-slate-100` | `text-[var(--text-primary)]` |
+| `text-slate-200` | `text-[var(--text-input)]` |
 | `text-slate-300` | `text-[var(--text-secondary)]` |
 | `text-slate-400` | `text-[var(--text-muted)]` |
+| `placeholder-slate-400` | `placeholder:text-[var(--text-muted)]` |
+| `placeholder-slate-600` | `placeholder:text-[var(--text-muted)]` |
 | `text-purple-400` | `text-[var(--accent)]` |
+| `text-purple-500` | `text-[var(--accent)]` |
 | `bg-purple-500` | `bg-[var(--accent)]` |
 | `bg-purple-500/20` | `bg-[var(--accent-light)]` |
+| `hover:bg-purple-500/10` | `hover:bg-[var(--accent-light)]` |
 | `border-slate-700` | `border-[var(--border)]` |
+| `border-slate-700/50` | `border-[var(--border-light)]` |
+| `focus:ring-purple-500/30` | `focus:ring-[var(--accent-light)]` |
+| `focus:border-purple-500/50` | `focus:border-[var(--accent-light)]` |
+| `bg-[#0f172a]` (inline style) | `bg-[var(--bg-primary)]` |
+| `bg-[#1e293b]` (inline style) | `bg-[var(--bg-secondary)]` |
 
 ---
 
@@ -182,6 +213,8 @@ interface ThemeContextValue {
 | `src/pages/Login.tsx` | 全局颜色变量化 |
 | `src/components/Toast.tsx` | 全局颜色变量化 |
 | `src/pages/DynamicDataGrid.tsx` | 全局颜色变量化 |
+| `src/pages/ApiAccessLog.tsx` | 全局颜色变量化 |
+| `src/pages/MenuFormModal.tsx` | 全局颜色变量化 |
 
 ---
 
@@ -223,5 +256,6 @@ interface ThemeContextValue {
 ## 9. 风险与注意事项
 
 1. **改造量大**：涉及 20+ 文件的颜色替换，需要细心避免遗漏
-2. **部分特殊颜色**：部分组件可能有硬编码的 hex 颜色，需要额外处理
-3. **第三方组件**：如有引入第三方 UI 库，需单独处理主题适配
+2. **硬编码颜色**：代码中存在 `bg-[#0f172a]` 等 inline 样式，需统一改为 CSS 变量
+3. **第三方组件**：当前项目仅使用 lucide-react 图标库，不涉及第三方 UI 组件，暂无适配问题
+4. **登录页特殊处理**：Login.tsx 作为未登录状态的页面，主题切换不影响其深色风格（保持与 Layout 一致的深色背景）
