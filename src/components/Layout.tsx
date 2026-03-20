@@ -317,6 +317,7 @@ export default function Layout() {
   const [systemName, setSystemName] = useState<string>('CodeMS');
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string>('');
+  const [currentUser, setCurrentUser] = useState<{ name: string; employeeNo: string } | null>(null);
   const prevPathRef = useRef<string>('');
 
   // 当 URL 显著变化时（不是 tab 切换触发的），同步 tab
@@ -447,7 +448,21 @@ export default function Layout() {
   useEffect(() => {
     loadServerMenus();
     loadSystemName();
+    loadUserInfo();
   }, []);
+
+  // 加载用户信息
+  const loadUserInfo = () => {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        setCurrentUser({ name: user.name || user.employeeNo, employeeNo: user.employeeNo });
+      } catch (e) {
+        console.error('Failed to parse user info:', e);
+      }
+    }
+  };
 
   const loadSystemName = async () => {
     const config = await getSystemConfigByCode('systemName');
@@ -537,7 +552,7 @@ export default function Layout() {
             {/* 用户信息 */}
             <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
               <User className="w-4 h-4" />
-              <span>Admin</span>
+              <span>{currentUser?.name || '未登录'}</span>
             </div>
 
             {/* 主题切换 */}
