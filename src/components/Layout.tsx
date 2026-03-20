@@ -496,12 +496,6 @@ export default function Layout() {
         {/* Logo */}
         <div className="h-16 flex items-center justify-center border-b border-[var(--border-light)]">
           {!collapsed && <span className="text-lg font-bold">{systemName}</span>}
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="p-2 hover:bg-[var(--bg-hover)] rounded-lg"
-          >
-            {collapsed ? <PanelLeft className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
-          </button>
         </div>
 
         {/* 菜单 */}
@@ -509,17 +503,14 @@ export default function Layout() {
           {serverMenus.map((item) => renderMenuItem(item, 0))}
         </div>
 
-        {/* 退出登录 */}
+        {/* 折叠按钮 */}
         <div className="p-4 border-t border-[var(--border-light)]">
           <button
-            onClick={() => {
-              localStorage.removeItem('isLoggedIn');
-              window.location.reload();
-            }}
+            onClick={() => setCollapsed(!collapsed)}
             className="flex items-center gap-2 w-full px-3 py-2 hover:bg-[var(--bg-hover)] rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)]"
           >
-            <LogOut className="w-5 h-5" />
-            {!collapsed && <span>退出登录</span>}
+            {collapsed ? <PanelLeft className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
+            {!collapsed && <span>收起菜单</span>}
           </button>
         </div>
       </div>
@@ -552,12 +543,6 @@ export default function Layout() {
 
           {/* 右侧：用户信息 + 主题切换 */}
           <div className="flex items-center gap-3 px-4 shrink-0">
-            {/* 用户信息 */}
-            <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
-              <User className="w-4 h-4" />
-              <span>{currentUser?.name || '未登录'}</span>
-            </div>
-
             {/* 主题切换 */}
             <select
               value={theme}
@@ -569,6 +554,27 @@ export default function Layout() {
               <option value="dark">🌙</option>
               <option value="light">☀️</option>
             </select>
+
+            {/* 用户信息 + 下拉菜单 */}
+            <div className="relative group">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg hover:bg-[var(--bg-hover)] cursor-pointer text-sm text-[var(--text-secondary)]">
+                <User className="w-4 h-4" />
+                <span>{currentUser?.name || '未登录'}</span>
+              </div>
+              {/* 下拉菜单 */}
+              <div className="absolute right-0 top-full mt-1 w-40 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50">
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('isLoggedIn');
+                    window.location.reload();
+                  }}
+                  className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] rounded-lg"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>退出登录</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
