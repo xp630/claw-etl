@@ -75,29 +75,29 @@ export default function AppForm({ overrideId }: { overrideId?: string }) {
   return (
     <div className="flex flex-col h-full">
       {/* 头部 */}
-      <div className="flex items-center justify-between p-4 border-b border-slate-700/50">
+      <div className="flex items-center justify-between p-4 border-b border-[var(--border-light)]">
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate('/apps')}
-            className="p-2 hover:bg-slate-700 rounded-lg text-slate-400"
+            className="p-2 hover:bg-[var(--bg-hover)] rounded-lg text-[var(--text-muted)]"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-lg font-bold text-white">
+          <h1 className="text-lg font-bold text-[var(--text-primary)]">
             {isEdit ? '编辑应用' : '创建应用'}
           </h1>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => navigate('/apps')}
-            className="px-4 py-2 text-slate-400 hover:text-white"
+            className="px-4 py-2 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
           >
             取消
           </button>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-[var(--text-primary)] rounded-lg hover:bg-yellow-600 disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
             {saving ? '保存中...' : '保存'}
@@ -108,26 +108,26 @@ export default function AppForm({ overrideId }: { overrideId?: string }) {
       {/* 内容 */}
       <div className="flex-1 overflow-auto p-6">
         <div className="max-w-2xl space-y-6">
-          <div className="bg-[#1e293b]/60 rounded-xl border border-slate-700/50 p-6 space-y-4">
-            <h3 className="text-white font-medium">基本信息</h3>
-            
+          <div className="bg-[var(--bg-secondary)]/60 rounded-xl border border-[var(--border-light)] p-6 space-y-4">
+            <h3 className="text-[var(--text-primary)] font-medium">基本信息</h3>
+
             <div>
-              <label className="block text-sm text-slate-400 mb-2">应用名称 *</label>
+              <label className="block text-sm text-[var(--text-muted)] mb-2">应用名称 *</label>
               <input
                 type="text"
                 value={formData.appName}
                 onChange={(e) => setFormData({ ...formData, appName: e.target.value })}
                 placeholder="例如：我的Web应用"
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-500"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
               />
             </div>
 
             <div>
-              <label className="block text-sm text-slate-400 mb-2">应用类型</label>
+              <label className="block text-sm text-[var(--text-muted)] mb-2">应用类型</label>
               <select
                 value={formData.appType}
                 onChange={(e) => setFormData({ ...formData, appType: e.target.value })}
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)]"
               >
                 <option value="web">Web应用</option>
                 <option value="app">移动App</option>
@@ -136,49 +136,49 @@ export default function AppForm({ overrideId }: { overrideId?: string }) {
             </div>
 
             <div>
-              <label className="block text-sm text-slate-400 mb-2">描述</label>
+              <label className="block text-sm text-[var(--text-muted)] mb-2">描述</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-500"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
               />
             </div>
 
             <div>
-              <label className="block text-sm text-slate-400 mb-2">过期时间</label>
+              <label className="block text-sm text-[var(--text-muted)] mb-2">过期时间</label>
               <input
                 type="datetime-local"
                 value={formData.expireTime}
                 onChange={(e) => setFormData({ ...formData, expireTime: e.target.value })}
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)]"
               />
             </div>
           </div>
 
-          <div className="bg-[#1e293b]/60 rounded-xl border border-slate-700/50 p-6 space-y-4">
-            <h3 className="text-white font-medium">密钥配置</h3>
-            
+          <div className="bg-[var(--bg-secondary)]/60 rounded-xl border border-[var(--border-light)] p-6 space-y-4">
+            <h3 className="text-[var(--text-primary)] font-medium">密钥配置</h3>
+
             <div>
-              <label className="block text-sm text-slate-400 mb-2">AppKey</label>
+              <label className="block text-sm text-[var(--text-muted)] mb-2">AppKey</label>
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={formData.appKey}
                   readOnly
                   placeholder="点击生成"
-                  className="flex-1 px-4 py-2.5 bg-slate-800/30 border border-slate-700/50 rounded-lg text-white font-mono"
+                  className="flex-1 px-4 py-2.5 bg-[var(--bg-table-header)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] font-mono"
                 />
                 <button
                   onClick={generateAppKey}
-                  className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
+                  className="px-4 py-2 bg-yellow-500 text-[var(--text-primary)] rounded-lg hover:bg-yellow-600"
                 >
                   生成
                 </button>
                 {formData.appKey && (
                   <button
                     onClick={() => handleCopy(formData.appKey || '')}
-                    className="p-2 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600"
+                    className="p-2 bg-[var(--bg-secondary)] text-[var(--text-secondary)] rounded-lg hover:bg-[var(--bg-hover)]"
                   >
                     <Copy className="w-4 h-4" />
                   </button>
@@ -187,31 +187,31 @@ export default function AppForm({ overrideId }: { overrideId?: string }) {
             </div>
 
             <div>
-              <label className="block text-sm text-slate-400 mb-2">AppSecret</label>
+              <label className="block text-sm text-[var(--text-muted)] mb-2">AppSecret</label>
               <div className="flex gap-2">
                 <input
                   type="password"
                   value={formData.appSecret}
                   readOnly
                   placeholder="点击生成"
-                  className="flex-1 px-4 py-2.5 bg-slate-800/30 border border-slate-700/50 rounded-lg text-white font-mono"
+                  className="flex-1 px-4 py-2.5 bg-[var(--bg-table-header)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] font-mono"
                 />
                 <button
                   onClick={generateAppSecret}
-                  className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
+                  className="px-4 py-2 bg-yellow-500 text-[var(--text-primary)] rounded-lg hover:bg-yellow-600"
                 >
                   生成
                 </button>
                 {formData.appSecret && (
                   <button
                     onClick={() => handleCopy(formData.appSecret || '')}
-                    className="p-2 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600"
+                    className="p-2 bg-[var(--bg-secondary)] text-[var(--text-secondary)] rounded-lg hover:bg-[var(--bg-hover)]"
                   >
                     <Copy className="w-4 h-4" />
                   </button>
                 )}
               </div>
-              <p className="mt-2 text-xs text-slate-500">
+              <p className="mt-2 text-xs text-[var(--text-muted)]">
                 * AppSecret只会显示一次，请妥善保存
               </p>
             </div>

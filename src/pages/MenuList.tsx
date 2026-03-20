@@ -354,7 +354,7 @@ export default function MenuList() {
     return menuList.map(menu => (
       <div key={menu.id}>
         <div
-          className={`flex items-center gap-2 py-2 px-3 hover:bg-slate-700/30 rounded cursor-pointer group transition-colors ${selectedKey === menu.id ? 'bg-purple-500/20 border border-purple-500/30' : ''}`}
+          className={`flex items-center gap-2 py-2 px-3 hover:bg-[var(--bg-table-header)] rounded cursor-pointer group transition-colors ${selectedKey === menu.id ? 'bg-[var(--accent)]/20 border border-[var(--accent-light)]' : ''}`}
           style={{ paddingLeft: `${level * 20 + 12}px` }}
           onClick={() => selectMenu(menu)}
         >
@@ -364,7 +364,7 @@ export default function MenuList() {
                 e.stopPropagation();
                 toggleExpand(menu.id!);
               }}
-              className="text-slate-400 hover:text-white"
+              className="text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             >
               {expandedKeys.has(menu.id!) ? (
                 <ChevronDown className="w-4 h-4" />
@@ -375,7 +375,7 @@ export default function MenuList() {
           ) : (
             <span className="w-4" />
           )}
-          <span className="text-white font-medium">{menu.name}</span>
+          <span className="text-[var(--text-primary)] font-medium">{menu.name}</span>
           <span className={`px-2 py-0.5 rounded text-xs ${
             menu.type === 'menu' ? 'bg-blue-500/20 text-blue-400' : 'bg-orange-500/20 text-orange-400'
           }`}>
@@ -388,7 +388,7 @@ export default function MenuList() {
                 e.stopPropagation();
                 handleCreate(menu.id!);
               }}
-              className="p-1.5 hover:bg-slate-600 rounded text-slate-400 hover:text-green-400 transition-colors"
+              className="p-1.5 hover:bg-[var(--bg-hover)] rounded text-[var(--text-muted)] hover:text-green-400 transition-colors"
               title="添加子节点"
             >
               <Plus className="w-4 h-4" />
@@ -399,7 +399,7 @@ export default function MenuList() {
                 setDeleteId(menu.id!);
                 setShowDeleteConfirm(true);
               }}
-              className="p-1.5 hover:bg-slate-600 rounded text-slate-400 hover:text-red-400 transition-colors"
+              className="p-1.5 hover:bg-[var(--bg-hover)] rounded text-[var(--text-muted)] hover:text-red-400 transition-colors"
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -417,12 +417,12 @@ export default function MenuList() {
       {/* 页面标题 */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <MenuIcon className="w-6 h-6 text-purple-400" />
-          <h1 className="text-2xl font-bold text-white">菜单管理</h1>
+          <MenuIcon className="w-6 h-6 text-[var(--accent)]" />
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">菜单管理</h1>
         </div>
         <button
           onClick={() => handleCreate(null)}
-          className="flex items-center gap-2 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent)] text-[var(--text-primary)] rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
           新增菜单
@@ -432,17 +432,17 @@ export default function MenuList() {
       {/* 主体区域：左右分栏 */}
       <div className="flex-1 flex gap-6 min-h-0">
         {/* 左侧：菜单树 */}
-        <div className="w-96 flex flex-col bg-slate-800/30 rounded-xl border border-slate-700/50 overflow-hidden">
+        <div className="w-96 flex flex-col bg-[var(--bg-table-header)] rounded-xl border border-[var(--border-light)] overflow-hidden">
           {/* 搜索栏 */}
-          <div className="p-3 border-b border-slate-700/50">
+          <div className="p-3 border-b border-[var(--border-light)]">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
               <input
                 type="text"
                 placeholder="搜索菜单..."
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm placeholder-slate-400 focus:outline-none focus:border-purple-500/50"
+                className="w-full pl-9 pr-3 py-2 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] text-sm placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-light)]"
               />
             </div>
           </div>
@@ -450,9 +450,9 @@ export default function MenuList() {
           {/* 树形列表 */}
           <div className="flex-1 overflow-y-auto p-2">
             {loading ? (
-              <div className="px-4 py-8 text-center text-slate-400">加载中...</div>
+              <div className="px-4 py-8 text-center text-[var(--text-muted)]">加载中...</div>
             ) : menuTree.length === 0 ? (
-              <div className="px-4 py-8 text-center text-slate-400">暂无数据</div>
+              <div className="px-4 py-8 text-center text-[var(--text-muted)]">暂无数据</div>
             ) : (
               renderMenuTree(menuTree)
             )}
@@ -460,31 +460,31 @@ export default function MenuList() {
         </div>
 
         {/* 右侧：编辑区域 */}
-        <div className="flex-1 bg-slate-800/30 rounded-xl border border-slate-700/50 overflow-hidden">
+        <div className="flex-1 bg-[var(--bg-table-header)] rounded-xl border border-[var(--border-light)] overflow-hidden">
           {isEditing ? (
             <div className="h-full flex flex-col">
               {/* 表单头部 */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/50">
-                <h2 className="text-lg font-semibold text-white">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-light)]">
+                <h2 className="text-lg font-semibold text-[var(--text-primary)]">
                   {editMode === 'edit' ? '编辑菜单' : '新增菜单'}
                 </h2>
                 <button
                   onClick={closeForm}
                   className="p-1.5 hover:bg-slate-700 rounded-lg transition-colors"
                 >
-                  <X className="w-5 h-5 text-slate-400" />
+                  <X className="w-5 h-5 text-[var(--text-muted)]" />
                 </button>
               </div>
 
               {/* 表单内容 */}
               <div className="flex-1 overflow-y-auto p-6">
                 {formLoading ? (
-                  <div className="text-center py-8 text-slate-400">加载中...</div>
+                  <div className="text-center py-8 text-[var(--text-muted)]">加载中...</div>
                 ) : (
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-2">
+                        <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">
                           菜单名称 <span className="text-red-400">*</span>
                         </label>
                         <input
@@ -492,7 +492,7 @@ export default function MenuList() {
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                           required
-                          className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white focus:outline-none focus:border-purple-500/50"
+                          className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-light)]"
                           placeholder="请输入菜单名称"
                         />
                       </div>
@@ -500,8 +500,8 @@ export default function MenuList() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-2">图标</label>
-                        <div className="grid grid-cols-8 gap-1 p-3 bg-slate-900/50 border border-slate-700/50 rounded-lg max-h-48 overflow-y-auto">
+                        <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">图标</label>
+                        <div className="grid grid-cols-8 gap-1 p-3 bg-[var(--bg-primary)] border border-[var(--border-light)] rounded-lg max-h-48 overflow-y-auto">
                           {iconList.map(icon => {
                             const IconComp = icon.Icon;
                             const isSelected = formData.icon === icon.name;
@@ -512,8 +512,8 @@ export default function MenuList() {
                                 onClick={() => setFormData({ ...formData, icon: icon.name })}
                                 className={`p-2 rounded-lg flex items-center justify-center transition-colors ${
                                   isSelected
-                                    ? 'bg-purple-500 text-white'
-                                    : 'hover:bg-slate-700 text-slate-400 hover:text-white'
+                                    ? 'bg-[var(--accent)] text-[var(--text-primary)]'
+                                    : 'hover:bg-slate-700 text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                                 }`}
                                 title={icon.label}
                               >
@@ -525,12 +525,12 @@ export default function MenuList() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-2">路由路径</label>
+                        <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">路由路径</label>
                         {formData.menuFrom === 'dynamic' ? (
                           <select
                             value={formData.path || ''}
                             onChange={(e) => setFormData({ ...formData, path: e.target.value })}
-                            className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white focus:outline-none focus:border-purple-500/50"
+                            className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-light)]"
                           >
                             <option value="">请选择功能</option>
                             {featureList.map(f => (
@@ -544,7 +544,7 @@ export default function MenuList() {
                             type="text"
                             value={formData.path || ''}
                             onChange={(e) => setFormData({ ...formData, path: e.target.value })}
-                            className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white focus:outline-none focus:border-purple-500/50"
+                            className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-light)]"
                             placeholder="请输入路由路径"
                           />
                         )}
@@ -553,11 +553,11 @@ export default function MenuList() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-2">父菜单</label>
+                        <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">父菜单</label>
                         <select
                           value={formData.parentId || 0}
                           onChange={(e) => setFormData({ ...formData, parentId: parseInt(e.target.value) || 0 })}
-                          className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white focus:outline-none focus:border-purple-500/50"
+                          className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-light)]"
                         >
                           <option value={0}>顶级菜单</option>
                           {renderParentOptions(parentMenusTree)}
@@ -565,12 +565,12 @@ export default function MenuList() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-2">排序号</label>
+                        <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">排序号</label>
                         <input
                           type="number"
                           value={formData.orderNum || 0}
                           onChange={(e) => setFormData({ ...formData, orderNum: parseInt(e.target.value) || 0 })}
-                          className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white focus:outline-none focus:border-purple-500/50"
+                          className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-light)]"
                           placeholder="数字越小越靠前"
                         />
                       </div>
@@ -578,11 +578,11 @@ export default function MenuList() {
 
                     <div className="grid grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-2">类型</label>
+                        <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">类型</label>
                         <select
                           value={formData.type || 'menu'}
                           onChange={(e) => setFormData({ ...formData, type: e.target.value as 'menu' | 'button' })}
-                          className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white focus:outline-none focus:border-purple-500/50"
+                          className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-light)]"
                         >
                           <option value="menu">菜单</option>
                           <option value="button">按钮</option>
@@ -590,7 +590,7 @@ export default function MenuList() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-2">菜单来源</label>
+                        <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">菜单来源</label>
                         <select
                           value={formData.menuFrom || 'static'}
                           onChange={(e) => {
@@ -600,7 +600,7 @@ export default function MenuList() {
                               loadMenuFeatures();
                             }
                           }}
-                          className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white focus:outline-none focus:border-purple-500/50"
+                          className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-light)]"
                         >
                           <option value="static">静态菜单</option>
                           <option value="dynamic">动态菜单</option>
@@ -608,11 +608,11 @@ export default function MenuList() {
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-slate-400 mb-2">状态</label>
+                        <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">状态</label>
                         <select
                           value={formData.status || 1}
                           onChange={(e) => setFormData({ ...formData, status: parseInt(e.target.value) })}
-                          className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white focus:outline-none focus:border-purple-500/50"
+                          className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-light)]"
                         >
                           <option value={1}>启用</option>
                           <option value={0}>禁用</option>
@@ -624,17 +624,17 @@ export default function MenuList() {
               </div>
 
               {/* 底部按钮 */}
-              <div className="flex justify-end gap-3 px-6 py-4 border-t border-slate-700/50 bg-slate-800/50">
+              <div className="flex justify-end gap-3 px-6 py-4 border-t border-[var(--border-light)] bg-[var(--bg-hover-light)]">
                 <button
                   onClick={closeForm}
-                  className="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+                  className="px-6 py-2.5 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors"
                 >
                   取消
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={saving}
-                  className="px-6 py-2.5 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors disabled:opacity-50"
+                  className="px-6 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent)] text-[var(--text-primary)] rounded-lg transition-colors disabled:opacity-50"
                 >
                   {saving ? '保存中...' : '保存'}
                 </button>
@@ -655,18 +655,18 @@ export default function MenuList() {
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-slate-800 rounded-xl border border-slate-700 p-6 w-full max-w-sm">
-            <h3 className="text-lg font-semibold text-white mb-4">确认删除</h3>
-            <p className="text-slate-400 mb-6">确定要删除该菜单吗？子菜单也会被删除。此操作不可撤销。</p>
+            <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">确认删除</h3>
+            <p className="text-[var(--text-muted)] mb-6">确定要删除该菜单吗？子菜单也会被删除。此操作不可撤销。</p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+                className="px-4 py-2 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors"
               >
                 取消
               </button>
               <button
                 onClick={() => deleteId && handleDelete(deleteId)}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-[var(--text-primary)] rounded-lg transition-colors"
               >
                 删除
               </button>

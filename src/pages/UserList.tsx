@@ -48,12 +48,12 @@ export default function UserList() {
       {/* 页面标题 */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <UserIcon className="w-6 h-6 text-purple-400" />
-          <h1 className="text-2xl font-bold text-white">用户管理</h1>
+          <UserIcon className="w-6 h-6 text-[var(--accent)]" />
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">用户管理</h1>
         </div>
         <button
           onClick={() => window.layoutOpenTab({ id: `user-new-${Date.now()}`, title: '新增用户', path: '/users/new' })}
-          className="flex items-center gap-2 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent)] text-[var(--text-primary)] rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
           新增用户
@@ -62,7 +62,7 @@ export default function UserList() {
 
       {/* 搜索栏 */}
       <div className="mb-6 relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-muted)]" />
         <input
           type="text"
           placeholder="搜索用户姓名..."
@@ -72,41 +72,41 @@ export default function UserList() {
             setPage(1);
           }}
           onKeyDown={(e) => e.key === 'Enter' && setPage(1)}
-          className="w-full pl-10 pr-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:border-purple-500/50"
+          className="w-full pl-10 pr-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-light)]"
         />
       </div>
 
       {/* 列表 */}
-      <div className="bg-slate-800/30 rounded-xl border border-slate-700/50 overflow-hidden">
+      <div className="bg-[var(--bg-table-header)] rounded-xl border border-[var(--border-light)] overflow-hidden">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-slate-700/50">
-              <th className="px-4 py-3 text-left text-sm font-medium text-slate-400">姓名</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-slate-400">工号</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-slate-400">手机号</th>
-              <th className="px-4 py-3 text-center text-sm font-medium text-slate-400">状态</th>
-              <th className="px-4 py-3 text-center text-sm font-medium text-slate-400">操作</th>
+            <tr className="border-b border-[var(--border-light)]">
+              <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-muted)]">姓名</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-muted)]">工号</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-muted)]">手机号</th>
+              <th className="px-4 py-3 text-center text-sm font-medium text-[var(--text-muted)]">状态</th>
+              <th className="px-4 py-3 text-center text-sm font-medium text-[var(--text-muted)]">操作</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={5} className="px-4 py-12 text-center text-slate-400">
+                <td colSpan={5} className="px-4 py-12 text-center text-[var(--text-muted)]">
                   加载中...
                 </td>
               </tr>
             ) : users.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-12 text-center text-slate-400">
+                <td colSpan={5} className="px-4 py-12 text-center text-[var(--text-muted)]">
                   暂无数据
                 </td>
               </tr>
             ) : (
               users.map((user) => (
-                <tr key={user.id} className="border-b border-slate-700/30 hover:bg-slate-700/20">
-                  <td className="px-4 py-3 text-sm text-white">{user.name}</td>
-                  <td className="px-4 py-3 text-sm text-slate-400">{user.employeeNo}</td>
-                  <td className="px-4 py-3 text-sm text-slate-400">{user.phone}</td>
+                <tr key={user.id} className="border-b border-[var(--border-light)] hover:bg-[var(--bg-hover-light)]">
+                  <td className="px-4 py-3 text-sm text-[var(--text-primary)]">{user.name}</td>
+                  <td className="px-4 py-3 text-sm text-[var(--text-muted)]">{user.employeeNo}</td>
+                  <td className="px-4 py-3 text-sm text-[var(--text-muted)]">{user.phone}</td>
                   <td className="px-4 py-3 text-center">
                     <span className={`px-2 py-0.5 rounded text-xs ${
                       user.status === 1 ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
@@ -118,7 +118,7 @@ export default function UserList() {
                     <div className="flex items-center justify-center gap-2">
                       <button
                         onClick={() => window.layoutOpenTab({ id: `user-${user.id}`, title: '编辑用户', path: `/users/${user.id}` })}
-                        className="p-1.5 hover:bg-slate-700 rounded text-slate-400 hover:text-white transition-colors"
+                        className="p-1.5 hover:bg-slate-700 rounded text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
@@ -127,7 +127,7 @@ export default function UserList() {
                           setDeleteId(user.id!);
                           setShowDeleteConfirm(true);
                         }}
-                        className="p-1.5 hover:bg-slate-700 rounded text-slate-400 hover:text-red-400 transition-colors"
+                        className="p-1.5 hover:bg-slate-700 rounded text-[var(--text-muted)] hover:text-red-400 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -143,7 +143,7 @@ export default function UserList() {
       {/* 分页 */}
       {total > 0 && (
         <div className="mt-4 flex items-center justify-between">
-          <div className="text-sm text-slate-400">
+          <div className="text-sm text-[var(--text-muted)]">
             共 {total} 条记录
           </div>
           <div className="flex items-center gap-4">
@@ -153,7 +153,7 @@ export default function UserList() {
                 setLimit(Number(e.target.value));
                 setPage(1);
               }}
-              className="px-3 py-1 bg-slate-700 text-white rounded-lg focus:outline-none"
+              className="px-3 py-1 bg-slate-700 text-[var(--text-primary)] rounded-lg focus:outline-none"
             >
               <option value={10}>10条/页</option>
               <option value={20}>20条/页</option>
@@ -163,17 +163,17 @@ export default function UserList() {
               <button
                 onClick={() => setPage(page - 1)}
                 disabled={page <= 1}
-                className="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors disabled:opacity-50"
+                className="px-3 py-1 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors disabled:opacity-50"
               >
                 上一页
               </button>
-              <span className="px-3 py-1 text-white">
+              <span className="px-3 py-1 text-[var(--text-primary)]">
                 第 {page} / {totalPages} 页
               </span>
               <button
                 onClick={() => setPage(page + 1)}
                 disabled={page >= totalPages}
-                className="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors disabled:opacity-50"
+                className="px-3 py-1 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors disabled:opacity-50"
               >
                 下一页
               </button>
@@ -186,18 +186,18 @@ export default function UserList() {
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-slate-800 rounded-xl border border-slate-700 p-6 w-full max-w-sm">
-            <h3 className="text-lg font-semibold text-white mb-4">确认删除</h3>
-            <p className="text-slate-400 mb-6">确定要删除该用户吗？此操作不可撤销。</p>
+            <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">确认删除</h3>
+            <p className="text-[var(--text-muted)] mb-6">确定要删除该用户吗？此操作不可撤销。</p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+                className="px-4 py-2 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors"
               >
                 取消
               </button>
               <button
                 onClick={() => deleteId && handleDelete(deleteId)}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-[var(--text-primary)] rounded-lg transition-colors"
               >
                 删除
               </button>

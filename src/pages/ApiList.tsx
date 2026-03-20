@@ -472,8 +472,8 @@ export default function ApiList() {
     return (
       <div key={node.id}>
         <div
-          className={`flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-slate-700/50 ${
-            isSelected ? 'bg-blue-500/20 text-blue-400' : 'text-slate-300'
+          className={`flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-[var(--bg-hover)] ${
+            isSelected ? 'bg-blue-500/20 text-blue-400' : 'text-[var(--text-secondary)]'
           }`}
           style={{ paddingLeft: `${level * 16 + 12}px` }}
           onClick={() => handleSelect(node)}
@@ -484,7 +484,7 @@ export default function ApiList() {
                 e.stopPropagation();
                 handleExpand(node);
               }}
-              className="p-0.5 hover:bg-slate-600 rounded"
+              className="p-0.5 hover:bg-[var(--bg-secondary)] rounded"
             >
               {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
             </button>
@@ -509,16 +509,16 @@ export default function ApiList() {
   return (
     <div className="flex h-full">
       {/* 左侧树 */}
-      <div className="w-64 bg-[#1e293b]/60 border-r border-slate-700/50 flex flex-col">
-        <div className="p-4 border-b border-slate-700/50">
-          <div className="flex items-center gap-2 text-slate-400">
+      <div className="w-64 bg-[var(--bg-secondary)]/60 border-r border-[var(--border-light)] flex flex-col">
+        <div className="p-4 border-b border-[var(--border-light)]">
+          <div className="flex items-center gap-2 text-[var(--text-muted)]">
             <Database className="w-4 h-4" />
             <span className="text-sm font-medium">数据源与表</span>
           </div>
         </div>
         <div className="flex-1 overflow-auto p-2">
           {treeData.length === 0 ? (
-            <div className="text-slate-500 text-sm p-4">暂无数据源</div>
+            <div className="text-[var(--text-muted)] text-sm p-4">暂无数据源</div>
           ) : (
             treeData.map(node => renderTreeNode(node))
           )}
@@ -530,19 +530,19 @@ export default function ApiList() {
         {/* 标题 */}
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center border border-purple-500/20">
-              <Table className="w-5 h-5 text-purple-400" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--accent-light)] to-pink-500/20 flex items-center justify-center border border-[var(--accent-light)]">
+              <Table className="w-5 h-5 text-[var(--accent)]" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-white">API管理</h1>
-              <p className="text-xs text-slate-500">
+              <h1 className="text-xl font-bold text-[var(--text-primary)]">API管理</h1>
+              <p className="text-xs text-[var(--text-muted)]">
                 {getSelectedNodeInfo() || '全部API'}
               </p>
             </div>
           </div>
           <Link
             to={newApiUrl}
-            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[var(--accent)] to-pink-600 text-[var(--text-primary)] rounded-xl hover:opacity-90 transition-opacity"
           >
             <Plus className="w-4 h-4" />
             新增API
@@ -550,22 +550,22 @@ export default function ApiList() {
         </div>
 
         {/* 搜索筛选 */}
-        <div className="bg-[#1e293b]/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-4 mb-6">
+        <div className="bg-[var(--bg-secondary)]/60 backdrop-blur-xl rounded-xl border border-[var(--border-light)] p-4 mb-6">
           <div className="flex gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
               <input
                 type="text"
                 value={searchKeyword}
                 onChange={(e) => setSearchKeyword(e.target.value)}
                 placeholder="搜索API名称或路径"
-                className="w-full pl-10 pr-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/30 text-sm text-slate-200 placeholder-slate-600"
+                className="w-full pl-10 pr-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-light)] text-sm text-[var(--text-input)] placeholder:text-[var(--text-muted)]"
               />
             </div>
             <select
               value={sourceFilter}
               onChange={(e) => setSourceFilter(e.target.value)}
-              className="px-3 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-sm text-slate-200"
+              className="px-3 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-sm text-[var(--text-input)]"
             >
               <option value="">全部来源</option>
               <option value="manual">手动添加</option>
@@ -573,7 +573,7 @@ export default function ApiList() {
             </select>
             <button
               onClick={loadApiList}
-              className="px-4 py-2.5 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
+              className="px-4 py-2.5 bg-[var(--accent)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--accent)] transition-colors"
             >
               <RefreshCw className="w-4 h-4" />
             </button>
@@ -588,38 +588,38 @@ export default function ApiList() {
         )}
 
         {/* 表格 */}
-        <div className="bg-[#1e293b]/60 backdrop-blur-xl rounded-xl border border-slate-700/50 overflow-hidden">
+        <div className="bg-[var(--bg-secondary)]/60 backdrop-blur-xl rounded-xl border border-[var(--border-light)] overflow-hidden">
           <table className="w-full">
-            <thead className="bg-slate-800/30">
+            <thead className="bg-[var(--bg-table-header)]">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">API名称</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">路径</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">方法</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">数据源</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">表</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">状态</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">来源</th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-slate-400 uppercase">操作</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase">API名称</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase">路径</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase">方法</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase">数据源</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase">表</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase">状态</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase">来源</th>
+                <th className="px-4 py-3 text-center text-xs font-medium text-[var(--text-muted)] uppercase">操作</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-700/50">
+            <tbody className="divide-y divide-[var(--border-light)]">
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-slate-400">
+                  <td colSpan={8} className="px-4 py-8 text-center text-[var(--text-muted)]">
                     加载中...
                   </td>
                 </tr>
               ) : apiList.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-slate-400">
+                  <td colSpan={8} className="px-4 py-8 text-center text-[var(--text-muted)]">
                     暂无数据
                   </td>
                 </tr>
               ) : (
                 apiList.map((api) => (
-                  <tr key={api.id} className="hover:bg-slate-800/30 transition-colors">
-                    <td className="px-4 py-3 text-white font-medium">{api.name}</td>
-                    <td className="px-4 py-3 text-slate-300 font-mono text-sm">{api.path}</td>
+                  <tr key={api.id} className="hover:bg-[var(--bg-table-header)] transition-colors">
+                    <td className="px-4 py-3 text-[var(--text-primary)] font-medium">{api.name}</td>
+                    <td className="px-4 py-3 text-[var(--text-secondary)] font-mono text-sm">{api.path}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-1 rounded text-xs ${
                         api.method === 'GET' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'
@@ -627,8 +627,8 @@ export default function ApiList() {
                         {api.method}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-slate-300">{api.datasourceName}</td>
-                    <td className="px-4 py-3 text-slate-300">{api.tableName}</td>
+                    <td className="px-4 py-3 text-[var(--text-secondary)]">{api.datasourceName}</td>
+                    <td className="px-4 py-3 text-[var(--text-secondary)]">{api.tableName}</td>
                     <td className="px-4 py-3">
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input
@@ -637,14 +637,14 @@ export default function ApiList() {
                           onChange={() => handleToggle(api)}
                           className="sr-only peer"
                         />
-                        <div className="w-11 h-6 bg-slate-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                        <div className="w-11 h-6 bg-[var(--bg-secondary)] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[var(--accent-light)] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
                       </label>
                     </td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-1 text-xs rounded-full ${
                         api.source === 'auto'
-                          ? 'bg-purple-500/20 text-purple-400'
-                          : 'bg-slate-500/20 text-slate-400'
+                          ? 'bg-[var(--accent-light)] text-[var(--accent)]'
+                          : 'bg-slate-500/20 text-[var(--text-muted)]'
                       }`}>
                         {api.source === 'auto' ? '自动' : '手动'}
                       </span>
@@ -660,7 +660,7 @@ export default function ApiList() {
                         </button>
                         <button
                           onClick={() => handleCopy(api)}
-                          className="p-2 hover:bg-purple-500/10 rounded-lg text-purple-400 transition-colors"
+                          className="p-2 hover:bg-[var(--accent-light)] rounded-lg text-[var(--accent)] transition-colors"
                           title="复制"
                         >
                           <Copy className="w-4 h-4" />
@@ -689,16 +689,16 @@ export default function ApiList() {
 
           {/* 分页组件 */}
           {total > 0 && (
-            <div className="flex items-center justify-between px-4 py-3 border-t border-slate-700/50">
+            <div className="flex items-center justify-between px-4 py-3 border-t border-[var(--border-light)]">
               <div className="flex items-center gap-4">
-                <span className="text-sm text-slate-400">共 {total} 条记录</span>
+                <span className="text-sm text-[var(--text-muted)]">共 {total} 条记录</span>
                 <select
                   value={limit}
                   onChange={(e) => {
                     setLimit(Number(e.target.value));
                     setPage(1);
                   }}
-                  className="px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-sm text-white"
+                  className="px-2 py-1 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded text-sm text-[var(--text-primary)]"
                 >
                   <option value={5}>5条/页</option>
                   <option value={10}>10条/页</option>
@@ -710,15 +710,15 @@ export default function ApiList() {
                 <button
                   onClick={() => setPage(page - 1)}
                   disabled={page <= 1}
-                  className="p-1.5 rounded hover:bg-slate-700 text-slate-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="p-1.5 rounded hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
-                <span className="text-sm text-white px-2">{page} / {Math.ceil(total / limit)}</span>
+                <span className="text-sm text-[var(--text-primary)] px-2">{page} / {Math.ceil(total / limit)}</span>
                 <button
                   onClick={() => setPage(page + 1)}
                   disabled={page >= Math.ceil(total / limit)}
-                  className="p-1.5 rounded hover:bg-slate-700 text-slate-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="p-1.5 rounded hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -731,16 +731,16 @@ export default function ApiList() {
       {/* 测试弹窗 */}
       {testDialogVisible && testApiConfig && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-[#1e293b] rounded-xl border border-slate-700/50 w-[95%] max-w-[1400px] max-h-[95vh] overflow-hidden">
+          <div className="bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-light)] w-[95%] max-w-[1400px] max-h-[95vh] overflow-hidden">
             {/* 弹窗头部 */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700/50">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border-light)]">
               <div className="flex items-center gap-3">
-                <h3 className="text-lg font-medium text-white">API Test</h3>
-                <span className="text-purple-400 font-mono text-sm">{testApiConfig.method} {testApiConfig.path}</span>
+                <h3 className="text-lg font-medium text-[var(--text-primary)]">API Test</h3>
+                <span className="text-[var(--accent)] font-mono text-sm">{testApiConfig.method} {testApiConfig.path}</span>
               </div>
               <button
                 onClick={() => setTestDialogVisible(false)}
-                className="p-1 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white"
+                className="p-1 hover:bg-[var(--bg-hover)] rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -749,10 +749,10 @@ export default function ApiList() {
             {/* 弹窗内容 - 左右两栏 */}
             <div className="flex h-[800px]">
               {/* 左侧 - 请求 + 响应上下布局 */}
-              <div className="w-1/2 border-r border-slate-700/50 flex flex-col">
+              <div className="w-1/2 border-r border-[var(--border-light)] flex flex-col">
                 {/* Request 请求 */}
-                <div className="h-[35%] flex flex-col border-b border-slate-700/50 p-4 overflow-hidden">
-                  <h4 className="text-sm font-medium text-slate-300 mb-3 flex items-center gap-2">
+                <div className="h-[35%] flex flex-col border-b border-[var(--border-light)] p-4 overflow-hidden">
+                  <h4 className="text-sm font-medium text-[var(--text-secondary)] mb-3 flex items-center gap-2">
                     <span className="w-1 h-4 bg-blue-500 rounded-full"></span>
                     Request 请求
                   </h4>
@@ -761,8 +761,8 @@ export default function ApiList() {
                   <div className="flex-1 overflow-auto">
                     {testApiConfig.inputParams && testApiConfig.inputParams.length > 0 ? (
                       <table className="w-full text-sm">
-                        <thead className="sticky top-0 bg-[#1e293b]">
-                          <tr className="text-left text-slate-500">
+                        <thead className="sticky top-0 bg-[var(--bg-secondary)]">
+                          <tr className="text-left text-[var(--text-muted)]">
                             <th className="py-2 px-3 font-medium">参数名称</th>
                             <th className="py-2 px-3 font-medium">参数值</th>
                             <th className="py-2 px-3 font-medium">类型</th>
@@ -772,10 +772,10 @@ export default function ApiList() {
                         </thead>
                         <tbody>
                           {testApiConfig.inputParams.map((param: ApiInputParam, index: number) => (
-                            <tr key={index} className="border-t border-slate-700/50">
+                            <tr key={index} className="border-t border-[var(--border-light)]">
                               <td className="py-2 px-3">
                                 <div className="flex items-center gap-2">
-                                  <span className="text-white">{param.paramName}</span>
+                                  <span className="text-[var(--text-primary)]">{param.paramName}</span>
                                   {param.required === 1 && <span className="text-red-400 text-xs">*</span>}
                                 </div>
                               </td>
@@ -785,20 +785,20 @@ export default function ApiList() {
                                     type="date"
                                     value={testParams[param.paramName] || ''}
                                     onChange={(e) => setTestParams({ ...testParams, [param.paramName]: e.target.value })}
-                                    className="w-full px-2 py-1.5 bg-slate-800/50 border border-slate-700/50 rounded text-white text-sm"
+                                    className="w-full px-2 py-1.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded text-[var(--text-primary)] text-sm"
                                   />
                                 ) : param.paramType === 'datetime' ? (
                                   <input
                                     type="datetime-local"
                                     value={testParams[param.paramName] || ''}
                                     onChange={(e) => setTestParams({ ...testParams, [param.paramName]: e.target.value })}
-                                    className="w-full px-2 py-1.5 bg-slate-800/50 border border-slate-700/50 rounded text-white text-sm"
+                                    className="w-full px-2 py-1.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded text-[var(--text-primary)] text-sm"
                                   />
                                 ) : param.paramType === 'boolean' ? (
                                   <select
                                     value={testParams[param.paramName] || ''}
                                     onChange={(e) => setTestParams({ ...testParams, [param.paramName]: e.target.value })}
-                                    className="w-full px-2 py-1.5 bg-slate-800/50 border border-slate-700/50 rounded text-white text-sm"
+                                    className="w-full px-2 py-1.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded text-[var(--text-primary)] text-sm"
                                   >
                                     <option value="">请选择</option>
                                     <option value="true">true</option>
@@ -810,18 +810,18 @@ export default function ApiList() {
                                     value={testParams[param.paramName] || ''}
                                     onChange={(e) => setTestParams({ ...testParams, [param.paramName]: e.target.value })}
                                     placeholder={param.defaultValue || ''}
-                                    className="w-full px-2 py-1.5 bg-slate-800/50 border border-slate-700/50 rounded text-white text-sm placeholder-slate-600"
+                                    className="w-full px-2 py-1.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded text-[var(--text-primary)] text-sm placeholder:text-[var(--text-muted)]"
                                   />
                                 )}
                               </td>
                               <td className="py-2 px-3">
-                                <span className="text-xs px-2 py-0.5 bg-slate-700 text-slate-400 rounded">{param.paramType}</span>
+                                <span className="text-xs px-2 py-0.5 bg-[var(--bg-hover)] text-[var(--text-muted)] rounded">{param.paramType}</span>
                               </td>
                               <td className="py-2 px-3">
                                 {param.required === 1 ? (
                                   <span className="text-xs px-2 py-0.5 bg-red-500/20 text-red-400 rounded">是</span>
                                 ) : (
-                                  <span className="text-xs px-2 py-0.5 bg-slate-700/50 text-slate-500 rounded">否</span>
+                                  <span className="text-xs px-2 py-0.5 bg-[var(--border-light)] text-[var(--text-muted)] rounded">否</span>
                                 )}
                               </td>
                               <td className="py-2 px-2">
@@ -831,7 +831,7 @@ export default function ApiList() {
                                     delete newParams[param.paramName];
                                     setTestParams(newParams);
                                   }}
-                                  className="p-1 text-slate-500 hover:text-red-400"
+                                  className="p-1 text-[var(--text-muted)] hover:text-red-400"
                                 >
                                   <X className="w-3.5 h-3.5" />
                                 </button>
@@ -841,7 +841,7 @@ export default function ApiList() {
                         </tbody>
                       </table>
                     ) : (
-                      <div className="text-center py-8 text-slate-500">暂无请求参数</div>
+                      <div className="text-center py-8 text-[var(--text-muted)]">暂无请求参数</div>
                     )}
                   </div>
 
@@ -850,7 +850,7 @@ export default function ApiList() {
                     <button
                       onClick={handleExecuteTest}
                       disabled={testLoading}
-                      className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:opacity-50 transition-colors"
+                      className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-orange-500 text-[var(--text-primary)] rounded-lg hover:bg-orange-600 disabled:opacity-50 transition-colors"
                     >
                       <Play className="w-4 h-4" />
                       {testLoading ? '执行中...' : 'Execute 执行'}
@@ -860,37 +860,37 @@ export default function ApiList() {
 
                 {/* Response 响应 */}
                 <div className="flex-1 flex flex-col p-4 overflow-hidden">
-                  <h4 className="text-sm font-medium text-slate-300 mb-3 flex items-center gap-2">
+                  <h4 className="text-sm font-medium text-[var(--text-secondary)] mb-3 flex items-center gap-2">
                     <span className="w-1 h-4 bg-green-500 rounded-full"></span>
                     Response 响应
                   </h4>
 
                   {/* 响应状态 */}
-                  <div className="flex items-center gap-4 mb-2 pb-2 border-b border-slate-700/50">
+                  <div className="flex items-center gap-4 mb-2 pb-2 border-b border-[var(--border-light)]">
                     {testResult ? (
                       <>
                         <div className="flex items-center gap-2">
                           <span className="w-2 h-2 rounded-full bg-green-500"></span>
-                          <span className="text-sm text-white">Status: 200 OK</span>
+                          <span className="text-sm text-[var(--text-primary)]">Status: 200 OK</span>
                         </div>
-                        <span className="text-sm text-slate-500">Time: {testLoading ? '...' : '123ms'}</span>
-                        <span className="text-sm text-slate-500">Size: {testResult.data ? (JSON.stringify(testResult.data).length / 1024).toFixed(2) : '0'} KB</span>
+                        <span className="text-sm text-[var(--text-muted)]">Time: {testLoading ? '...' : '123ms'}</span>
+                        <span className="text-sm text-[var(--text-muted)]">Size: {testResult.data ? (JSON.stringify(testResult.data).length / 1024).toFixed(2) : '0'} KB</span>
                       </>
                     ) : (
-                      <span className="text-sm text-slate-500">点击执行发送请求</span>
+                      <span className="text-sm text-[var(--text-muted)]">点击执行发送请求</span>
                     )}
                   </div>
 
                   {/* 响应内容 */}
-                  <div className="flex-1 overflow-auto bg-slate-900/50 rounded-lg">
+                  <div className="flex-1 overflow-auto bg-[var(--bg-primary)]/50 rounded-lg">
                     {!testResult ? (
-                      <div className="h-full flex items-center justify-center text-slate-500 text-sm">
+                      <div className="h-full flex items-center justify-center text-[var(--text-muted)] text-sm">
                         点击"执行"按钮获取响应结果
                       </div>
                     ) : testResult.error ? (
                       <div className="p-4 text-red-400 text-sm">{testResult.error}</div>
                     ) : testResult.code === '1' || testResult.code === 1 ? (
-                      <pre className="p-4 text-xs text-slate-300 whitespace-pre-wrap">
+                      <pre className="p-4 text-xs text-[var(--text-secondary)] whitespace-pre-wrap">
                         {JSON.stringify(testResult, null, 2)}
                       </pre>
                     ) : (
@@ -903,13 +903,13 @@ export default function ApiList() {
               {/* 右侧 - 调用参考 */}
               <div className="w-1/2 flex flex-col">
                 {/* Tab 切换 */}
-                <div className="flex border-b border-slate-700/50">
+                <div className="flex border-b border-[var(--border-light)]">
                   <button
                     onClick={() => setTestRightTab('reference')}
                     className={`px-4 py-3 text-sm font-medium transition-colors ${
                       testRightTab === 'reference'
                         ? 'text-blue-400 border-b-2 border-blue-400'
-                        : 'text-slate-400 hover:text-white'
+                        : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                     }`}
                   >
                     调用参考
@@ -919,7 +919,7 @@ export default function ApiList() {
                     className={`px-4 py-3 text-sm font-medium transition-colors ${
                       testRightTab === 'headers'
                         ? 'text-blue-400 border-b-2 border-blue-400'
-                        : 'text-slate-400 hover:text-white'
+                        : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                     }`}
                   >
                     请求示例
@@ -929,7 +929,7 @@ export default function ApiList() {
                     className={`px-4 py-3 text-sm font-medium transition-colors ${
                       testRightTab === 'example'
                         ? 'text-blue-400 border-b-2 border-blue-400'
-                        : 'text-slate-400 hover:text-white'
+                        : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                     }`}
                   >
                     Headers
@@ -941,38 +941,38 @@ export default function ApiList() {
                   {testRightTab === 'reference' ? (
                     <div className="space-y-4">
                       <div>
-                        <h5 className="text-sm font-medium text-slate-300 mb-2">API 信息</h5>
-                        <div className="bg-slate-800/30 rounded-lg p-3 space-y-2 text-sm">
+                        <h5 className="text-sm font-medium text-[var(--text-secondary)] mb-2">API 信息</h5>
+                        <div className="bg-[var(--bg-table-header)] rounded-lg p-3 space-y-2 text-sm">
                           <div className="flex justify-between">
-                            <span className="text-slate-500">API名称</span>
-                            <span className="text-white">{testApiConfig.name}</span>
+                            <span className="text-[var(--text-muted)]">API名称</span>
+                            <span className="text-[var(--text-primary)]">{testApiConfig.name}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-slate-500">请求方法</span>
-                            <span className="text-purple-400">{testApiConfig.method}</span>
+                            <span className="text-[var(--text-muted)]">请求方法</span>
+                            <span className="text-[var(--accent)]">{testApiConfig.method}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-slate-500">请求路径</span>
+                            <span className="text-[var(--text-muted)]">请求路径</span>
                             <span className="text-green-400 font-mono text-xs">{testApiConfig.path}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-slate-500">数据源</span>
-                            <span className="text-white">{testApiConfig.databaseName}</span>
+                            <span className="text-[var(--text-muted)]">数据源</span>
+                            <span className="text-[var(--text-primary)]">{testApiConfig.databaseName}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-slate-500">数据表</span>
-                            <span className="text-white">{testApiConfig.tableName}</span>
+                            <span className="text-[var(--text-muted)]">数据表</span>
+                            <span className="text-[var(--text-primary)]">{testApiConfig.tableName}</span>
                           </div>
                         </div>
                       </div>
 
                       {testApiConfig.outputParams && testApiConfig.outputParams.length > 0 && (
                         <div>
-                          <h5 className="text-sm font-medium text-slate-300 mb-2">输出参数</h5>
-                          <div className="bg-slate-800/30 rounded-lg overflow-hidden">
+                          <h5 className="text-sm font-medium text-[var(--text-secondary)] mb-2">输出参数</h5>
+                          <div className="bg-[var(--bg-table-header)] rounded-lg overflow-hidden">
                             <table className="w-full text-sm">
-                              <thead className="bg-slate-800/50">
-                                <tr className="text-left text-slate-500">
+                              <thead className="bg-[var(--bg-hover-light)]">
+                                <tr className="text-left text-[var(--text-muted)]">
                                   <th className="py-2 px-3 font-medium">字段名</th>
                                   <th className="py-2 px-3 font-medium">别名</th>
                                   <th className="py-2 px-3 font-medium">类型</th>
@@ -980,10 +980,10 @@ export default function ApiList() {
                               </thead>
                               <tbody>
                                 {testApiConfig.outputParams.map((param: any, index: number) => (
-                                  <tr key={index} className="border-t border-slate-700/50">
-                                    <td className="py-2 px-3 text-white">{param.columnName}</td>
-                                    <td className="py-2 px-3 text-slate-300">{param.alias || '-'}</td>
-                                    <td className="py-2 px-3 text-slate-400">{param.dataType}</td>
+                                  <tr key={index} className="border-t border-[var(--border-light)]">
+                                    <td className="py-2 px-3 text-[var(--text-primary)]">{param.columnName}</td>
+                                    <td className="py-2 px-3 text-[var(--text-secondary)]">{param.alias || '-'}</td>
+                                    <td className="py-2 px-3 text-[var(--text-muted)]">{param.dataType}</td>
                                   </tr>
                                 ))}
                               </tbody>
@@ -994,30 +994,30 @@ export default function ApiList() {
 
                       {testApiConfig.description && (
                         <div>
-                          <h5 className="text-sm font-medium text-slate-300 mb-2">API 描述</h5>
-                          <p className="text-slate-400 text-sm bg-slate-800/30 rounded-lg p-3">{testApiConfig.description}</p>
+                          <h5 className="text-sm font-medium text-[var(--text-secondary)] mb-2">API 描述</h5>
+                          <p className="text-[var(--text-muted)] text-sm bg-[var(--bg-table-header)] rounded-lg p-3">{testApiConfig.description}</p>
                         </div>
                       )}
                     </div>
                   ) : testRightTab === 'example' ? (
                     <div className="space-y-2">
-                      <div className="text-sm text-slate-400 bg-slate-800/30 rounded-lg p-3 font-mono">
+                      <div className="text-sm text-[var(--text-muted)] bg-[var(--bg-table-header)] rounded-lg p-3 font-mono">
                         <div className="flex justify-between py-1">
-                          <span className="text-slate-500">Content-Type</span>
-                          <span className="text-white">application/json</span>
+                          <span className="text-[var(--text-muted)]">Content-Type</span>
+                          <span className="text-[var(--text-primary)]">application/json</span>
                         </div>
                         <div className="flex justify-between py-1">
-                          <span className="text-slate-500">Accept</span>
-                          <span className="text-white">application/json</span>
+                          <span className="text-[var(--text-muted)]">Accept</span>
+                          <span className="text-[var(--text-primary)]">application/json</span>
                         </div>
                       </div>
                     </div>
                   ) : (
                     <div className="space-y-3">
                       {/* cURL */}
-                      <div className="bg-slate-900/50 rounded-lg overflow-hidden">
-                        <div className="flex items-center justify-between px-3 py-2 bg-slate-800/50 border-b border-slate-700/50">
-                          <span className="text-xs text-slate-400">cURL</span>
+                      <div className="bg-[var(--bg-primary)]/50 rounded-lg overflow-hidden">
+                        <div className="flex items-center justify-between px-3 py-2 bg-[var(--bg-hover-light)] border-b border-[var(--border-light)]">
+                          <span className="text-xs text-[var(--text-muted)]">cURL</span>
                           <button
                             onClick={() => {
                               const example = generateCurlExample(testApiConfig, testParams);
@@ -1028,14 +1028,14 @@ export default function ApiList() {
                             复制
                           </button>
                         </div>
-                        <pre className="p-3 text-xs text-slate-300 overflow-x-auto whitespace-pre-wrap font-mono">
+                        <pre className="p-3 text-xs text-[var(--text-secondary)] overflow-x-auto whitespace-pre-wrap font-mono">
 {generateCurlExample(testApiConfig, testParams)}
                         </pre>
                       </div>
                       {/* JavaScript */}
-                      <div className="bg-slate-900/50 rounded-lg overflow-hidden">
-                        <div className="flex items-center justify-between px-3 py-2 bg-slate-800/50 border-b border-slate-700/50">
-                          <span className="text-xs text-slate-400">JavaScript</span>
+                      <div className="bg-[var(--bg-primary)]/50 rounded-lg overflow-hidden">
+                        <div className="flex items-center justify-between px-3 py-2 bg-[var(--bg-hover-light)] border-b border-[var(--border-light)]">
+                          <span className="text-xs text-[var(--text-muted)]">JavaScript</span>
                           <button
                             onClick={() => {
                               const example = generateJsExample(testApiConfig, testParams);
@@ -1046,14 +1046,14 @@ export default function ApiList() {
                             复制
                           </button>
                         </div>
-                        <pre className="p-3 text-xs text-slate-300 overflow-x-auto whitespace-pre-wrap font-mono">
+                        <pre className="p-3 text-xs text-[var(--text-secondary)] overflow-x-auto whitespace-pre-wrap font-mono">
 {generateJsExample(testApiConfig, testParams)}
                         </pre>
                       </div>
                       {/* Python */}
-                      <div className="bg-slate-900/50 rounded-lg overflow-hidden">
-                        <div className="flex items-center justify-between px-3 py-2 bg-slate-800/50 border-b border-slate-700/50">
-                          <span className="text-xs text-slate-400">Python</span>
+                      <div className="bg-[var(--bg-primary)]/50 rounded-lg overflow-hidden">
+                        <div className="flex items-center justify-between px-3 py-2 bg-[var(--bg-hover-light)] border-b border-[var(--border-light)]">
+                          <span className="text-xs text-[var(--text-muted)]">Python</span>
                           <button
                             onClick={() => {
                               const example = generatePythonExample(testApiConfig, testParams);
@@ -1064,14 +1064,14 @@ export default function ApiList() {
                             复制
                           </button>
                         </div>
-                        <pre className="p-3 text-xs text-slate-300 overflow-x-auto whitespace-pre-wrap font-mono">
+                        <pre className="p-3 text-xs text-[var(--text-secondary)] overflow-x-auto whitespace-pre-wrap font-mono">
 {generatePythonExample(testApiConfig, testParams)}
                         </pre>
                       </div>
                       {/* Java */}
-                      <div className="bg-slate-900/50 rounded-lg overflow-hidden">
-                        <div className="flex items-center justify-between px-3 py-2 bg-slate-800/50 border-b border-slate-700/50">
-                          <span className="text-xs text-slate-400">Java</span>
+                      <div className="bg-[var(--bg-primary)]/50 rounded-lg overflow-hidden">
+                        <div className="flex items-center justify-between px-3 py-2 bg-[var(--bg-hover-light)] border-b border-[var(--border-light)]">
+                          <span className="text-xs text-[var(--text-muted)]">Java</span>
                           <button
                             onClick={() => {
                               const example = generateJavaExample(testApiConfig, testParams);
@@ -1082,7 +1082,7 @@ export default function ApiList() {
                             复制
                           </button>
                         </div>
-                        <pre className="p-3 text-xs text-slate-300 overflow-x-auto whitespace-pre-wrap font-mono">
+                        <pre className="p-3 text-xs text-[var(--text-secondary)] overflow-x-auto whitespace-pre-wrap font-mono">
 {generateJavaExample(testApiConfig, testParams)}
                         </pre>
                       </div>

@@ -106,8 +106,8 @@ export default function RoleForm() {
     return menus.map(menu => (
       <div key={menu.id}>
         <div
-          className={`flex items-center gap-2 py-2 px-3 hover:bg-slate-700/50 rounded cursor-pointer ${
-            selectedMenuIds.includes(menu.id!) ? 'bg-purple-500/20' : ''
+          className={`flex items-center gap-2 py-2 px-3 hover:bg-[var(--bg-hover)] rounded cursor-pointer ${
+            selectedMenuIds.includes(menu.id!) ? 'bg-[var(--accent)]/20' : ''
           }`}
           style={{ paddingLeft: `${level * 20 + 12}px` }}
         >
@@ -122,7 +122,7 @@ export default function RoleForm() {
                 }
                 setExpandedKeys(newKeys);
               }}
-              className="text-slate-400 hover:text-white"
+              className="text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             >
               {expandedKeys.has(menu.id!) ? '▼' : '▶'}
             </button>
@@ -131,9 +131,9 @@ export default function RoleForm() {
             type="checkbox"
             checked={selectedMenuIds.includes(menu.id!)}
             onChange={() => toggleMenuSelection(menu.id!)}
-            className="w-4 h-4 rounded border-slate-600 text-purple-500 focus:ring-purple-500"
+            className="w-4 h-4 rounded border-slate-600 text-[var(--accent)] focus:ring-purple-500"
           />
-          <span className="text-white">{menu.name}</span>
+          <span className="text-[var(--text-primary)]">{menu.name}</span>
           <span className="text-slate-500 text-sm">({menu.code})</span>
         </div>
         {menu.children && menu.children.length > 0 && expandedKeys.has(menu.id!) && (
@@ -151,20 +151,20 @@ export default function RoleForm() {
           onClick={() => navigate(-1)}
           className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
         >
-          <ChevronLeft className="w-5 h-5 text-white" />
+          <ChevronLeft className="w-5 h-5 text-[var(--text-primary)]" />
         </button>
         <div className="flex items-center gap-3">
-          <Users className="w-6 h-6 text-purple-400" />
-          <h1 className="text-2xl font-bold text-white">{isEdit ? '编辑角色' : '新增角色'}</h1>
+          <Users className="w-6 h-6 text-[var(--accent)]" />
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">{isEdit ? '编辑角色' : '新增角色'}</h1>
         </div>
       </div>
 
       {/* 表单 */}
-      <div className="bg-slate-800/30 rounded-xl border border-slate-700/50 p-6">
+      <div className="bg-[var(--bg-table-header)] rounded-xl border border-[var(--border-light)] p-6">
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-400 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">
                 角色标识 <span className="text-red-400">*</span>
               </label>
               <input
@@ -173,40 +173,40 @@ export default function RoleForm() {
                 onChange={(e) => setRole({ ...role, role: e.target.value })}
                 required
                 disabled={isEdit}
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white disabled:opacity-50"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] disabled:opacity-50"
                 placeholder="请输入角色标识，如 admin"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-400 mb-2">描述</label>
+              <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">描述</label>
               <input
                 type="text"
                 value={role.description || ''}
                 onChange={(e) => setRole({ ...role, description: e.target.value })}
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)]"
                 placeholder="请输入角色描述"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-400 mb-2">备注</label>
+              <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">备注</label>
               <textarea
                 value={role.remark || ''}
                 onChange={(e) => setRole({ ...role, remark: e.target.value })}
                 rows={3}
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white resize-none"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] resize-none"
                 placeholder="请输入备注信息"
               />
             </div>
 
             {isEdit && (
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">
+                <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">
                   <button
                     type="button"
                     onClick={() => setShowMenuSelect(!showMenuSelect)}
-                    className="flex items-center gap-2 hover:text-purple-400 transition-colors"
+                    className="flex items-center gap-2 hover:text-[var(--accent)] transition-colors"
                   >
                     <Check className="w-4 h-4" />
                     分配菜单
@@ -215,10 +215,10 @@ export default function RoleForm() {
                 </label>
 
                 {showMenuSelect && (
-                  <div className="mt-2 bg-slate-800/50 border border-slate-700/50 rounded-lg p-4 max-h-80 overflow-y-auto">
+                  <div className="mt-2 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg p-4 max-h-80 overflow-y-auto">
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm text-slate-400">
-                        <button type="button" onClick={toggleExpandAll} className="hover:text-purple-400">
+                      <span className="text-sm text-[var(--text-muted)]">
+                        <button type="button" onClick={toggleExpandAll} className="hover:text-[var(--accent)]">
                           {expandedKeys.size === 0 ? '展开全部' : '收起全部'}
                         </button>
                       </span>
@@ -237,14 +237,14 @@ export default function RoleForm() {
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+              className="px-6 py-2.5 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors"
             >
               取消
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="px-6 py-2.5 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors disabled:opacity-50"
+              className="px-6 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent)] text-[var(--text-primary)] rounded-lg transition-colors disabled:opacity-50"
             >
               {saving ? '保存中...' : '保存'}
             </button>

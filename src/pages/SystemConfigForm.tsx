@@ -60,7 +60,7 @@ export default function SystemConfigForm({ overrideId }: { overrideId?: string }
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-slate-400">加载中...</div>
+        <div className="text-[var(--text-muted)]">加载中...</div>
       </div>
     );
   }
@@ -70,54 +70,54 @@ export default function SystemConfigForm({ overrideId }: { overrideId?: string }
       <div className="flex items-center gap-4 mb-4">
         <button
           onClick={() => navigate('/config')}
-          className="p-2 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white transition-colors"
+          className="p-2 hover:bg-slate-700 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
-        <h1 className="text-xl font-bold text-white">
+        <h1 className="text-xl font-bold text-[var(--text-primary)]">
           {isEdit ? '编辑参数' : '新增参数'}
         </h1>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl">
-        <div className="bg-slate-800/30 rounded-lg border border-slate-700/50 p-4">
+        <div className="bg-[var(--bg-table-header)] rounded-lg border border-[var(--border-light)] p-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-slate-400 mb-1">参数编码</label>
+              <label className="block text-sm text-[var(--text-muted)] mb-1">参数编码</label>
               <input
                 type="text"
                 value={formData.code || ''}
                 onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm font-mono focus:outline-none focus:border-purple-500/50"
+                className="w-full px-3 py-2 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] text-sm font-mono focus:outline-none focus:border-[var(--accent-light)]"
                 placeholder="如: system.name"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm text-slate-400 mb-1">参数名称</label>
+              <label className="block text-sm text-[var(--text-muted)] mb-1">参数名称</label>
               <input
                 type="text"
                 value={formData.name || ''}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500/50"
+                className="w-full px-3 py-2 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--accent-light)]"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm text-slate-400 mb-1">参数值</label>
+              <label className="block text-sm text-[var(--text-muted)] mb-1">参数值</label>
               <input
                 type="text"
                 value={formData.value || ''}
                 onChange={(e) => setFormData({ ...formData, value: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm font-mono focus:outline-none focus:border-purple-500/50"
+                className="w-full px-3 py-2 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] text-sm font-mono focus:outline-none focus:border-[var(--accent-light)]"
               />
             </div>
             <div>
-              <label className="block text-sm text-slate-400 mb-1">类型</label>
+              <label className="block text-sm text-[var(--text-muted)] mb-1">类型</label>
               <select
                 value={formData.type || 'string'}
                 onChange={(e) => setFormData({ ...formData, type: e.target.value as 'string' | 'number' | 'boolean' })}
-                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500/50"
+                className="w-full px-3 py-2 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--accent-light)]"
               >
                 <option value="string">字符串</option>
                 <option value="number">数字</option>
@@ -125,33 +125,33 @@ export default function SystemConfigForm({ overrideId }: { overrideId?: string }
               </select>
             </div>
             <div>
-              <label className="block text-sm text-slate-400 mb-1">参数分组</label>
+              <label className="block text-sm text-[var(--text-muted)] mb-1">参数分组</label>
               <input
                 type="text"
                 value={formData.groupName || ''}
                 onChange={(e) => setFormData({ ...formData, groupName: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500/50"
+                className="w-full px-3 py-2 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--accent-light)]"
                 placeholder="如: 系统配置"
               />
             </div>
             <div>
-              <label className="block text-sm text-slate-400 mb-1">状态</label>
+              <label className="block text-sm text-[var(--text-muted)] mb-1">状态</label>
               <select
                 value={formData.status || 1}
                 onChange={(e) => setFormData({ ...formData, status: parseInt(e.target.value) })}
-                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500/50"
+                className="w-full px-3 py-2 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--accent-light)]"
               >
                 <option value={1}>启用</option>
                 <option value={0}>禁用</option>
               </select>
             </div>
             <div className="col-span-2">
-              <label className="block text-sm text-slate-400 mb-1">描述</label>
+              <label className="block text-sm text-[var(--text-muted)] mb-1">描述</label>
               <textarea
                 value={formData.description || ''}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={2}
-                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500/50"
+                className="w-full px-3 py-2 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--accent-light)]"
               />
             </div>
           </div>
@@ -161,14 +161,14 @@ export default function SystemConfigForm({ overrideId }: { overrideId?: string }
           <button
             type="button"
             onClick={() => navigate('/config')}
-            className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors text-sm"
+            className="px-4 py-2 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors text-sm"
           >
             取消
           </button>
           <button
             type="submit"
             disabled={saving}
-            className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors text-sm disabled:opacity-50"
+            className="px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent)] text-[var(--text-primary)] rounded-lg transition-colors text-sm disabled:opacity-50"
           >
             {saving ? '保存中...' : '保存'}
           </button>

@@ -178,34 +178,34 @@ export default function TaskForm({ overrideId }: { overrideId?: string }) {
       <div className="flex items-center gap-3 mb-6">
         <button
           onClick={() => navigate('/tasks')}
-          className="p-2 hover:bg-slate-800/50 rounded-lg text-slate-400 hover:text-white transition-colors"
+          className="p-2 hover:bg-[var(--bg-hover-light)] rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
-          <h1 className="text-xl font-bold text-white">{isEdit ? '编辑任务' : '新增任务'}</h1>
-          <p className="text-xs text-slate-500">配置数据同步任务</p>
+          <h1 className="text-xl font-bold text-[var(--text-primary)]">{isEdit ? '编辑任务' : '新增任务'}</h1>
+          <p className="text-xs text-[var(--text-muted)]">配置数据同步任务</p>
         </div>
       </div>
 
       {/* 表单 */}
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* 源数据 */}
-        <div className="bg-[#1e293b]/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6">
+        <div className="bg-[var(--bg-secondary)]/60 backdrop-blur-xl rounded-xl border border-[var(--border-light)] p-6">
           <div className="flex items-center gap-2 mb-4">
             <Database className="w-5 h-5 text-blue-400" />
-            <h2 className="text-lg font-medium text-white">源数据</h2>
+            <h2 className="text-lg font-medium text-[var(--text-primary)]">源数据</h2>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 源数据库 <span className="text-red-400">*</span>
               </label>
               <select
                 value={formData.source_id || ''}
                 onChange={(e) => setFormData({ ...formData, source_id: parseInt(e.target.value) })}
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-[var(--text-primary)]"
               >
                 <option value="">请选择</option>
                 {datasources.map((ds) => (
@@ -215,7 +215,7 @@ export default function TaskForm({ overrideId }: { overrideId?: string }) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 任务名称 <span className="text-red-400">*</span>
               </label>
               <input
@@ -223,12 +223,12 @@ export default function TaskForm({ overrideId }: { overrideId?: string }) {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="请输入"
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
               />
             </div>
 
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 查询语句 <span className="text-red-400">*</span>
               </label>
               <textarea
@@ -236,28 +236,28 @@ export default function TaskForm({ overrideId }: { overrideId?: string }) {
                 onChange={(e) => setFormData({ ...formData, query_sql: e.target.value })}
                 placeholder="请输入"
                 rows={4}
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600 resize-none font-mono text-sm"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] resize-none font-mono text-sm"
               />
             </div>
           </div>
         </div>
 
         {/* 目标数据 */}
-        <div className="bg-[#1e293b]/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6">
+        <div className="bg-[var(--bg-secondary)]/60 backdrop-blur-xl rounded-xl border border-[var(--border-light)] p-6">
           <div className="flex items-center gap-2 mb-4">
             <Table className="w-5 h-5 text-green-400" />
-            <h2 className="text-lg font-medium text-white">目标数据</h2>
+            <h2 className="text-lg font-medium text-[var(--text-primary)]">目标数据</h2>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 目标数据库 <span className="text-red-400">*</span>
               </label>
               <select
                 value={formData.target_id || ''}
                 onChange={(e) => setFormData({ ...formData, target_id: parseInt(e.target.value) })}
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-[var(--text-primary)]"
               >
                 <option value="">请选择</option>
                 {datasources.map((ds) => (
@@ -267,7 +267,7 @@ export default function TaskForm({ overrideId }: { overrideId?: string }) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 目标表名 <span className="text-red-400">*</span>
               </label>
               <input
@@ -275,14 +275,14 @@ export default function TaskForm({ overrideId }: { overrideId?: string }) {
                 value={formData.target_table}
                 onChange={(e) => setFormData({ ...formData, target_table: e.target.value })}
                 placeholder="请输入"
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
               />
             </div>
 
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 列名 <span className="text-red-400">*</span>
-                <span className="text-slate-500 font-normal ml-2">用英文,多个时用英文逗号隔开</span>
+                <span className="text-[var(--text-muted)] font-normal ml-2">用英文,多个时用英文逗号隔开</span>
               </label>
               <div className="flex gap-2">
                 <input
@@ -290,7 +290,7 @@ export default function TaskForm({ overrideId }: { overrideId?: string }) {
                   value={formData.columns}
                   onChange={(e) => setFormData({ ...formData, columns: e.target.value })}
                   placeholder="id,name,price,create_time"
-                  className="flex-1 px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
+                  className="flex-1 px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
                 />
                 <button
                   type="button"
@@ -305,38 +305,38 @@ export default function TaskForm({ overrideId }: { overrideId?: string }) {
             </div>
 
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 动态参数SQL
-                <span className="text-slate-500 font-normal ml-2">请参考:select ifnull({'{timeColumn}'},' default') as dynamicParam from {'{table}'}</span>
+                <span className="text-[var(--text-muted)] font-normal ml-2">请参考:select ifnull({'{timeColumn}'},' default') as dynamicParam from {'{table}'}</span>
               </label>
               <input
                 type="text"
                 value={formData.dynamic_sql}
                 onChange={(e) => setFormData({ ...formData, dynamic_sql: e.target.value })}
                 placeholder="请输入"
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600 font-mono text-sm"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] font-mono text-sm"
               />
             </div>
           </div>
         </div>
 
         {/* 执行周期 */}
-        <div className="bg-[#1e293b]/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6">
+        <div className="bg-[var(--bg-secondary)]/60 backdrop-blur-xl rounded-xl border border-[var(--border-light)] p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Zap className="w-5 h-5 text-purple-400" />
-            <h2 className="text-lg font-medium text-white">执行周期</h2>
+            <Zap className="w-5 h-5 text-[var(--accent)]" />
+            <h2 className="text-lg font-medium text-[var(--text-primary)]">执行周期</h2>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 执行窗口时长 <span className="text-red-400">*</span>
               </label>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, window_value: Math.max(1, (formData.window_value || 1) - 1) })}
-                  className="w-10 h-10 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white hover:bg-slate-700/50"
+                  className="w-10 h-10 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
                 >
                   -
                 </button>
@@ -344,12 +344,12 @@ export default function TaskForm({ overrideId }: { overrideId?: string }) {
                   type="number"
                   value={formData.window_value}
                   onChange={(e) => setFormData({ ...formData, window_value: parseInt(e.target.value) })}
-                  className="w-20 px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white text-center"
+                  className="w-20 px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-[var(--text-primary)] text-center"
                 />
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, window_value: (formData.window_value || 1) + 1 })}
-                  className="w-10 h-10 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white hover:bg-slate-700/50"
+                  className="w-10 h-10 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] hover:bg-[var(--bg-hover)]"
                 >
                   +
                 </button>
@@ -357,13 +357,13 @@ export default function TaskForm({ overrideId }: { overrideId?: string }) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 执行窗口单位 <span className="text-red-400">*</span>
               </label>
               <select
                 value={formData.window_unit}
                 onChange={(e) => setFormData({ ...formData, window_unit: e.target.value as Task['window_unit'] })}
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-[var(--text-primary)]"
               >
                 {WINDOW_UNITS.map((unit) => (
                   <option key={unit.value} value={unit.value}>{unit.label}</option>
@@ -378,14 +378,14 @@ export default function TaskForm({ overrideId }: { overrideId?: string }) {
           <button
             type="button"
             onClick={() => navigate('/tasks')}
-            className="px-6 py-2.5 bg-white text-slate-900 rounded-lg hover:bg-slate-100 transition-colors"
+            className="px-6 py-2.5 bg-[var(--text-primary)] text-[var(--bg-primary)] rounded-lg hover:bg-[var(--text-secondary)] transition-colors"
           >
             返回
           </button>
           <button
             type="submit"
             disabled={saving}
-            className="flex items-center gap-2 px-6 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-6 py-2.5 bg-blue-500 text-[var(--text-primary)] rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
             {saving ? '保存中...' : '保存'}

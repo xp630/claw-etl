@@ -87,12 +87,12 @@ export default function DataSourceList() {
             <Plug className="w-5 h-5 text-blue-400" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">数据源管理</h1>
+            <h1 className="text-xl font-bold text-[var(--text-primary)]">数据源管理</h1>
           </div>
         </div>
         <Link
           to="/datasources/new"
-          className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:opacity-90 transition-opacity"
+          className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-[var(--text-primary)] rounded-xl hover:opacity-90 transition-opacity"
         >
           <Plus className="w-4 h-4" />
           新增数据源
@@ -100,7 +100,7 @@ export default function DataSourceList() {
       </div>
 
       {/* 搜索筛选 */}
-      <div className="bg-[#1e293b]/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-4 mb-6">
+      <div className="bg-[var(--bg-secondary)]/60 backdrop-blur-xl rounded-xl border border-[var(--border-light)] p-4 mb-6">
         <div className="flex gap-4">
           <div className="flex-1">
             <input
@@ -109,13 +109,13 @@ export default function DataSourceList() {
               onChange={(e) => setSearchName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               placeholder="支持数据源名称查询"
-              className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-sm text-slate-200 placeholder-slate-600"
+              className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-sm text-[var(--text-input)] placeholder:text-[var(--text-muted)]"
             />
           </div>
           <select
             value={searchType}
             onChange={(e) => setSearchType(e.target.value)}
-            className="px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-sm text-slate-200"
+            className="px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-sm text-[var(--text-input)]"
           >
             <option value="">全部类型</option>
             <option value="mysql">MySQL</option>
@@ -126,7 +126,7 @@ export default function DataSourceList() {
           <select
             value={searchDataType}
             onChange={(e) => setSearchDataType(e.target.value)}
-            className="px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-sm text-slate-200"
+            className="px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-sm text-[var(--text-input)]"
           >
             <option value="">全部用途</option>
             <option value="source">源数据库</option>
@@ -135,7 +135,7 @@ export default function DataSourceList() {
           <select
             value={searchStatus}
             onChange={(e) => setSearchStatus(e.target.value)}
-            className="px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-sm text-slate-200"
+            className="px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-sm text-[var(--text-input)]"
           >
             <option value="">全部状态</option>
             <option value="启用">启用</option>
@@ -151,41 +151,41 @@ export default function DataSourceList() {
       </div>
 
       {/* 表格 */}
-      <div className="bg-[#1e293b]/60 backdrop-blur-xl rounded-xl border border-slate-700/50 overflow-hidden">
+      <div className="bg-[var(--bg-secondary)]/60 backdrop-blur-xl rounded-xl border border-[var(--border-light)] overflow-hidden">
         <table className="w-full">
-          <thead className="bg-slate-800/30">
+          <thead className="bg-[var(--bg-table-header)]">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">ID</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">数据源名称</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">用途</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">类型</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">主机地址</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">端口</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">数据库</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">状态</th>
-              <th className="px-4 py-3 text-center text-xs font-medium text-slate-400 uppercase">操作</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase">ID</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase">数据源名称</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase">用途</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase">类型</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase">主机地址</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase">端口</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase">数据库</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase">状态</th>
+              <th className="px-4 py-3 text-center text-xs font-medium text-[var(--text-muted)] uppercase">操作</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-700/50">
+          <tbody className="divide-y divide-[var(--border-light)]">
             {loading ? (
               <tr>
-                <td colSpan={9} className="px-4 py-8 text-center text-slate-400">
+                <td colSpan={9} className="px-4 py-8 text-center text-[var(--text-muted)]">
                   加载中...
                 </td>
               </tr>
             ) : datasources.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-4 py-8 text-center text-slate-400">
+                <td colSpan={9} className="px-4 py-8 text-center text-[var(--text-muted)]">
                   暂无数据
                 </td>
               </tr>
             ) : (
               datasources.map((ds) => (
-                <tr key={ds.id} className="hover:bg-slate-800/30 transition-colors">
-                  <td className="px-4 py-3 text-slate-400">{ds.id}</td>
-                  <td className="px-4 py-3 text-white font-medium">{ds.name}</td>
+                <tr key={ds.id} className="hover:bg-[var(--bg-table-header)] transition-colors">
+                  <td className="px-4 py-3 text-[var(--text-muted)]">{ds.id}</td>
+                  <td className="px-4 py-3 text-[var(--text-primary)] font-medium">{ds.name}</td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-1 rounded text-xs ${ds.dataType === 'source' ? 'bg-purple-500/20 text-purple-400' : 'bg-orange-500/20 text-orange-400'}`}>
+                    <span className={`px-2 py-1 rounded text-xs ${ds.dataType === 'source' ? 'bg-[var(--accent-light)] text-[var(--accent)]' : 'bg-orange-500/20 text-orange-400'}`}>
                       {ds.dataType === 'source' ? '源数据库' : '目标数据库'}
                     </span>
                   </td>
@@ -194,9 +194,9 @@ export default function DataSourceList() {
                       {getTypeLabel(ds.type)}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-slate-300 font-mono text-sm">{ds.host}</td>
-                  <td className="px-4 py-3 text-slate-400">{ds.port}</td>
-                  <td className="px-4 py-3 text-slate-300">{ds.database_name}</td>
+                  <td className="px-4 py-3 text-[var(--text-secondary)] font-mono text-sm">{ds.host}</td>
+                  <td className="px-4 py-3 text-[var(--text-muted)]">{ds.port}</td>
+                  <td className="px-4 py-3 text-[var(--text-secondary)]">{ds.database_name}</td>
                   <td className="px-4 py-3">
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
@@ -205,7 +205,7 @@ export default function DataSourceList() {
                         onChange={() => handleStatusChange(ds.id, ds.dbState)}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-slate-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                      <div className="w-11 h-6 bg-[var(--bg-secondary)] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
                     </label>
                   </td>
                   <td className="px-4 py-3">
@@ -244,14 +244,14 @@ export default function DataSourceList() {
       {total > 0 && (
         <div className="flex items-center justify-between mt-4 px-2">
           <div className="flex items-center gap-4">
-            <span className="text-sm text-slate-400">共 {total} 条记录</span>
+            <span className="text-sm text-[var(--text-muted)]">共 {total} 条记录</span>
             <select
               value={limit}
               onChange={(e) => {
                 setLimit(Number(e.target.value));
                 setPage(1);
               }}
-              className="px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-sm text-white"
+              className="px-2 py-1 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded text-sm text-[var(--text-primary)]"
             >
               <option value={5}>5条/页</option>
               <option value={10}>10条/页</option>
@@ -263,17 +263,17 @@ export default function DataSourceList() {
             <button
               onClick={() => setPage(page - 1)}
               disabled={page <= 1}
-              className="p-1.5 rounded hover:bg-slate-700 text-slate-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 rounded hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="text-sm text-white px-2">
+            <span className="text-sm text-[var(--text-primary)] px-2">
               {page} / {totalPages}
             </span>
             <button
               onClick={() => setPage(page + 1)}
               disabled={page >= totalPages}
-              className="p-1.5 rounded hover:bg-slate-700 text-slate-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 rounded hover:bg-[var(--bg-hover)] text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronRight className="w-4 h-4" />
             </button>

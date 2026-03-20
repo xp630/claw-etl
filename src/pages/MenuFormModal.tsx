@@ -121,27 +121,27 @@ export default function MenuFormModal({ open, onClose, onSuccess, menuId, parent
       <div className="bg-slate-800 rounded-xl border border-slate-700 w-full max-w-2xl max-h-[90vh] overflow-hidden">
         {/* 头部 */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700">
-          <h2 className="text-lg font-semibold text-white">
+          <h2 className="text-lg font-semibold text-[var(--text-primary)]">
             {mode === 'edit' ? '编辑菜单' : parentId ? '新增子菜单' : '新增菜单'}
           </h2>
           <button
             onClick={onClose}
             className="p-1.5 hover:bg-slate-700 rounded-lg transition-colors"
           >
-            <X className="w-5 h-5 text-slate-400" />
+            <X className="w-5 h-5 text-[var(--text-muted)]" />
           </button>
         </div>
 
         {/* 表单内容 */}
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-130px)]">
           {loading ? (
-            <div className="text-center py-8 text-slate-400">加载中...</div>
+            <div className="text-center py-8 text-[var(--text-muted)]">加载中...</div>
           ) : (
             <form onSubmit={handleSubmit}>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-400 mb-2">
+                    <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">
                       菜单名称 <span className="text-red-400">*</span>
                     </label>
                     <input
@@ -149,13 +149,13 @@ export default function MenuFormModal({ open, onClose, onSuccess, menuId, parent
                       value={menu.name}
                       onChange={(e) => setMenu({ ...menu, name: e.target.value })}
                       required
-                      className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white focus:outline-none focus:border-purple-500/50"
+                      className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-light)]"
                       placeholder="请输入菜单名称"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-400 mb-2">
+                    <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">
                       菜单编码 <span className="text-red-400">*</span>
                     </label>
                     <input
@@ -164,7 +164,7 @@ export default function MenuFormModal({ open, onClose, onSuccess, menuId, parent
                       onChange={(e) => setMenu({ ...menu, code: e.target.value })}
                       required
                       disabled={mode === 'edit'}
-                      className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white disabled:opacity-50 focus:outline-none focus:border-purple-500/50"
+                      className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] disabled:opacity-50 focus:outline-none focus:border-[var(--accent-light)]"
                       placeholder="请输入菜单编码"
                     />
                   </div>
@@ -172,23 +172,23 @@ export default function MenuFormModal({ open, onClose, onSuccess, menuId, parent
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-400 mb-2">图标</label>
+                    <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">图标</label>
                     <input
                       type="text"
                       value={menu.icon || ''}
                       onChange={(e) => setMenu({ ...menu, icon: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white focus:outline-none focus:border-purple-500/50"
+                      className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-light)]"
                       placeholder="请输入图标名称，如 Settings"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-400 mb-2">路由路径</label>
+                    <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">路由路径</label>
                     <input
                       type="text"
                       value={menu.path || ''}
                       onChange={(e) => setMenu({ ...menu, path: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white focus:outline-none focus:border-purple-500/50"
+                      className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-light)]"
                       placeholder="请输入路由路径，如 /settings"
                     />
                   </div>
@@ -196,11 +196,11 @@ export default function MenuFormModal({ open, onClose, onSuccess, menuId, parent
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-400 mb-2">父菜单</label>
+                    <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">父菜单</label>
                     <select
                       value={menu.parentId || 0}
                       onChange={(e) => setMenu({ ...menu, parentId: parseInt(e.target.value) || 0 })}
-                      className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white focus:outline-none focus:border-purple-500/50"
+                      className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-light)]"
                     >
                       <option value={0}>顶级菜单</option>
                       {renderParentOptions(parentMenus)}
@@ -208,12 +208,12 @@ export default function MenuFormModal({ open, onClose, onSuccess, menuId, parent
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-400 mb-2">排序号</label>
+                    <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">排序号</label>
                     <input
                       type="number"
                       value={menu.orderNum || 0}
                       onChange={(e) => setMenu({ ...menu, orderNum: parseInt(e.target.value) || 0 })}
-                      className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white focus:outline-none focus:border-purple-500/50"
+                      className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-light)]"
                       placeholder="数字越小越靠前"
                     />
                   </div>
@@ -221,11 +221,11 @@ export default function MenuFormModal({ open, onClose, onSuccess, menuId, parent
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-400 mb-2">类型</label>
+                    <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">类型</label>
                     <select
                       value={menu.type || 'menu'}
                       onChange={(e) => setMenu({ ...menu, type: e.target.value as 'menu' | 'button' })}
-                      className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white focus:outline-none focus:border-purple-500/50"
+                      className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-light)]"
                     >
                       <option value="menu">菜单</option>
                       <option value="button">按钮</option>
@@ -233,11 +233,11 @@ export default function MenuFormModal({ open, onClose, onSuccess, menuId, parent
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-slate-400 mb-2">状态</label>
+                    <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">状态</label>
                     <select
                       value={menu.status || 1}
                       onChange={(e) => setMenu({ ...menu, status: parseInt(e.target.value) })}
-                      className="w-full px-4 py-2.5 bg-slate-900/50 border border-slate-700/50 rounded-lg text-white focus:outline-none focus:border-purple-500/50"
+                      className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-light)]"
                     >
                       <option value={1}>启用</option>
                       <option value={0}>禁用</option>
@@ -250,18 +250,18 @@ export default function MenuFormModal({ open, onClose, onSuccess, menuId, parent
         </div>
 
         {/* 底部按钮 */}
-        <div className="flex justify-end gap-3 px-6 py-4 border-t border-slate-700 bg-slate-800/50">
+        <div className="flex justify-end gap-3 px-6 py-4 border-t border-slate-700 bg-[var(--bg-hover-light)]">
           <button
             type="button"
             onClick={onClose}
-            className="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+            className="px-6 py-2.5 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors"
           >
             取消
           </button>
           <button
             onClick={handleSubmit}
             disabled={saving}
-            className="px-6 py-2.5 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors disabled:opacity-50"
+            className="px-6 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent)] text-[var(--text-primary)] rounded-lg transition-colors disabled:opacity-50"
           >
             {saving ? '保存中...' : '保存'}
           </button>

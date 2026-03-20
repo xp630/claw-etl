@@ -272,24 +272,24 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
     <div className="p-4 h-full overflow-auto">
       {/* Loading overlay */}
       {initialLoading && (
-        <div className="fixed inset-0 bg-slate-900/80 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-[var(--bg-primary)] flex items-center justify-center z-50">
           <div className="flex flex-col items-center gap-3">
             <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-            <span className="text-slate-400 text-sm">加载中...</span>
+            <span className="text-[var(--text-muted)] text-sm">加载中...</span>
           </div>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-3 min-w-max">
         {/* 表单配置 */}
-        <div className="bg-slate-800/30 rounded-lg border border-slate-700/50 p-4">
+        <div className="bg-[var(--bg-table-header)] rounded-lg border border-[var(--border-light)] p-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm text-slate-400 mb-1">数据源</label>
+              <label className="block text-sm text-[var(--text-muted)] mb-1">数据源</label>
               <select
                 value={formData.datasourceId || ''}
                 onChange={(e) => handleDataSourceChange(parseInt(e.target.value))}
-                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500/50"
+                className="w-full px-3 py-2 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--accent-light)]"
               >
                 <option value="">请选择数据源</option>
                 {dataSources.map(ds => (
@@ -300,11 +300,11 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
               </select>
             </div>
             <div>
-              <label className="block text-sm text-slate-400 mb-1">表名</label>
+              <label className="block text-sm text-[var(--text-muted)] mb-1">表名</label>
               <select
                 value={formData.tableName || ''}
                 onChange={(e) => handleTableChange(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500/50"
+                className="w-full px-3 py-2 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--accent-light)]"
                 disabled={!formData.datasourceId}
               >
                 <option value="">请选择表</option>
@@ -319,46 +319,46 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
         </div>
 
         {/* 基本信息 */}
-        <div className="bg-slate-800/30 rounded-lg border border-slate-700/50 p-4">
+        <div className="bg-[var(--bg-table-header)] rounded-lg border border-[var(--border-light)] p-4">
           <div className="grid grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm text-slate-400 mb-1">功能名称</label>
+              <label className="block text-sm text-[var(--text-muted)] mb-1">功能名称</label>
               <input
                 type="text"
                 value={formData.name || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500/50"
+                className="w-full px-3 py-2 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--accent-light)]"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm text-slate-400 mb-1">功能编码</label>
+              <label className="block text-sm text-[var(--text-muted)] mb-1">功能编码</label>
               <input
                 type="text"
                 value={formData.code || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, code: e.target.value }))}
-                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm font-mono focus:outline-none focus:border-purple-500/50"
+                className="w-full px-3 py-2 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] text-sm font-mono focus:outline-none focus:border-[var(--accent-light)]"
                 placeholder="如: goods"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm text-slate-400 mb-1">功能类型</label>
+              <label className="block text-sm text-[var(--text-muted)] mb-1">功能类型</label>
               <select
                 value={formData.type || 'list'}
                 onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as 'list' | 'form' }))}
-                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500/50"
+                className="w-full px-3 py-2 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--accent-light)]"
               >
                 <option value="list">列表页</option>
                 <option value="form">表单页</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm text-slate-400 mb-1">状态</label>
+              <label className="block text-sm text-[var(--text-muted)] mb-1">状态</label>
               <select
                 value={formData.status || 1}
                 onChange={(e) => setFormData(prev => ({ ...prev, status: parseInt(e.target.value) }))}
-                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500/50"
+                className="w-full px-3 py-2 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--accent-light)]"
               >
                 <option value={1}>启用</option>
                 <option value={0}>禁用</option>
@@ -368,84 +368,84 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
         </div>
 
         {/* API配置 */}
-        <div className="bg-slate-800/30 rounded-lg border border-slate-700/50 p-4">
+        <div className="bg-[var(--bg-table-header)] rounded-lg border border-[var(--border-light)] p-4">
           {formData.queryApiId ? (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-slate-700/50">
-                    <th className="px-2 py-1.5 text-left text-xs font-medium text-slate-400">操作</th>
-                    <th className="px-2 py-1.5 text-left text-xs font-medium text-slate-400">API名称</th>
-                    <th className="px-2 py-1.5 text-left text-xs font-medium text-slate-400">路径</th>
-                    <th className="px-2 py-1.5 text-center text-xs font-medium text-slate-400">操作</th>
+                  <tr className="border-b border-[var(--border-light)]">
+                    <th className="px-2 py-1.5 text-left text-xs font-medium text-[var(--text-muted)]">操作</th>
+                    <th className="px-2 py-1.5 text-left text-xs font-medium text-[var(--text-muted)]">API名称</th>
+                    <th className="px-2 py-1.5 text-left text-xs font-medium text-[var(--text-muted)]">路径</th>
+                    <th className="px-2 py-1.5 text-center text-xs font-medium text-[var(--text-muted)]">操作</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-700/30">
-                  <tr className="hover:bg-slate-700/20">
+                  <tr className="hover:bg-[var(--bg-hover-light)]">
                     <td className="px-2 py-1.5 text-xs text-green-400">查询</td>
-                    <td className="px-2 py-1.5 text-xs text-white">{formData.queryApiName}</td>
-                    <td className="px-2 py-1.5 text-xs text-slate-400 font-mono">{formData.queryApiPath}</td>
+                    <td className="px-2 py-1.5 text-xs text-[var(--text-primary)]">{formData.queryApiName}</td>
+                    <td className="px-2 py-1.5 text-xs text-[var(--text-muted)] font-mono">{formData.queryApiPath}</td>
                     <td className="px-2 py-1.5 text-center">
                       <button
                         type="button"
                         onClick={() => (window as any).layoutOpenTab?.({ id: `api-${formData.queryApiId}`, title: `编辑API-${formData.queryApiName}`, path: `/apis/${formData.queryApiId}` })}
-                        className="text-purple-400 hover:text-purple-300 text-xs"
+                        className="text-[var(--accent)] hover:text-purple-300 text-xs"
                       >
                         编辑
                       </button>
                     </td>
                   </tr>
-                  <tr className="hover:bg-slate-700/20">
+                  <tr className="hover:bg-[var(--bg-hover-light)]">
                     <td className="px-2 py-1.5 text-xs text-green-400">新增</td>
-                    <td className="px-2 py-1.5 text-xs text-white">{formData.createApiName}</td>
-                    <td className="px-2 py-1.5 text-xs text-slate-400 font-mono">/api/{formData.code}/create</td>
+                    <td className="px-2 py-1.5 text-xs text-[var(--text-primary)]">{formData.createApiName}</td>
+                    <td className="px-2 py-1.5 text-xs text-[var(--text-muted)] font-mono">/api/{formData.code}/create</td>
                     <td className="px-2 py-1.5 text-center">
                       <button
                         type="button"
                         onClick={() => (window as any).layoutOpenTab?.({ id: `api-${formData.createApiId}`, title: `编辑API-${formData.createApiName}`, path: `/apis/${formData.createApiId}` })}
-                        className="text-purple-400 hover:text-purple-300 text-xs"
+                        className="text-[var(--accent)] hover:text-purple-300 text-xs"
                       >
                         编辑
                       </button>
                     </td>
                   </tr>
-                  <tr className="hover:bg-slate-700/20">
+                  <tr className="hover:bg-[var(--bg-hover-light)]">
                     <td className="px-2 py-1.5 text-xs text-green-400">更新</td>
-                    <td className="px-2 py-1.5 text-xs text-white">{formData.updateApiName}</td>
-                    <td className="px-2 py-1.5 text-xs text-slate-400 font-mono">/api/{formData.code}/update</td>
+                    <td className="px-2 py-1.5 text-xs text-[var(--text-primary)]">{formData.updateApiName}</td>
+                    <td className="px-2 py-1.5 text-xs text-[var(--text-muted)] font-mono">/api/{formData.code}/update</td>
                     <td className="px-2 py-1.5 text-center">
                       <button
                         type="button"
                         onClick={() => (window as any).layoutOpenTab?.({ id: `api-${formData.updateApiId}`, title: `编辑API-${formData.updateApiName}`, path: `/apis/${formData.updateApiId}` })}
-                        className="text-purple-400 hover:text-purple-300 text-xs"
+                        className="text-[var(--accent)] hover:text-purple-300 text-xs"
                       >
                         编辑
                       </button>
                     </td>
                   </tr>
-                  <tr className="hover:bg-slate-700/20">
+                  <tr className="hover:bg-[var(--bg-hover-light)]">
                     <td className="px-2 py-1.5 text-xs text-green-400">删除</td>
-                    <td className="px-2 py-1.5 text-xs text-white">{formData.deleteApiName}</td>
-                    <td className="px-2 py-1.5 text-xs text-slate-400 font-mono">/api/{formData.code}/delete</td>
+                    <td className="px-2 py-1.5 text-xs text-[var(--text-primary)]">{formData.deleteApiName}</td>
+                    <td className="px-2 py-1.5 text-xs text-[var(--text-muted)] font-mono">/api/{formData.code}/delete</td>
                     <td className="px-2 py-1.5 text-center">
                       <button
                         type="button"
                         onClick={() => (window as any).layoutOpenTab?.({ id: `api-${formData.deleteApiId}`, title: `编辑API-${formData.deleteApiName}`, path: `/apis/${formData.deleteApiId}` })}
-                        className="text-purple-400 hover:text-purple-300 text-xs"
+                        className="text-[var(--accent)] hover:text-purple-300 text-xs"
                       >
                         编辑
                       </button>
                     </td>
                   </tr>
-                  <tr className="hover:bg-slate-700/20">
+                  <tr className="hover:bg-[var(--bg-hover-light)]">
                     <td className="px-2 py-1.5 text-xs text-green-400">详情</td>
-                    <td className="px-2 py-1.5 text-xs text-white">{formData.detailApiName}</td>
-                    <td className="px-2 py-1.5 text-xs text-slate-400 font-mono">/api/{formData.code}/detail</td>
+                    <td className="px-2 py-1.5 text-xs text-[var(--text-primary)]">{formData.detailApiName}</td>
+                    <td className="px-2 py-1.5 text-xs text-[var(--text-muted)] font-mono">/api/{formData.code}/detail</td>
                     <td className="px-2 py-1.5 text-center">
                       <button
                         type="button"
                         onClick={() => (window as any).layoutOpenTab?.({ id: `api-${formData.detailApiId}`, title: `编辑API-${formData.detailApiName}`, path: `/apis/${formData.detailApiId}` })}
-                        className="text-purple-400 hover:text-purple-300 text-xs"
+                        className="text-[var(--accent)] hover:text-purple-300 text-xs"
                       >
                         编辑
                       </button>
@@ -455,32 +455,32 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
               </table>
             </div>
           ) : (
-            <div className="text-slate-400 text-xs">
+            <div className="text-[var(--text-muted)] text-xs">
               请在表单配置中选择数据源和表，保存时将自动创建API
             </div>
           )}
         </div>
 
         {/* 菜单配置 */}
-        <div className="bg-slate-800/30 rounded-lg border border-slate-700/50 p-4">
+        <div className="bg-[var(--bg-table-header)] rounded-lg border border-[var(--border-light)] p-4">
           <div className="grid grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm text-slate-400 mb-1">显示在菜单</label>
+              <label className="block text-sm text-[var(--text-muted)] mb-1">显示在菜单</label>
               <select
                 value={formData.showInMenu || 0}
                 onChange={(e) => setFormData(prev => ({ ...prev, showInMenu: parseInt(e.target.value) }))}
-                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500/50"
+                className="w-full px-3 py-2 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--accent-light)]"
               >
                 <option value={0}>不显示</option>
                 <option value={1}>显示</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm text-slate-400 mb-1">菜单图标</label>
+              <label className="block text-sm text-[var(--text-muted)] mb-1">菜单图标</label>
               <select
                 value={formData.menuIcon || 'layout'}
                 onChange={(e) => setFormData(prev => ({ ...prev, menuIcon: e.target.value }))}
-                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500/50"
+                className="w-full px-3 py-2 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--accent-light)]"
               >
                 <option value="layout">布局</option>
                 <option value="database">数据库</option>
@@ -490,35 +490,35 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
               </select>
             </div>
             <div>
-              <label className="block text-sm text-slate-400 mb-1">菜单排序</label>
+              <label className="block text-sm text-[var(--text-muted)] mb-1">菜单排序</label>
               <input
                 type="number"
                 value={formData.menuOrder || 0}
                 onChange={(e) => setFormData(prev => ({ ...prev, menuOrder: parseInt(e.target.value) }))}
-                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500/50"
+                className="w-full px-3 py-2 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--accent-light)]"
               />
             </div>
             <div>
-              <label className="block text-sm text-slate-400 mb-1">路由路径</label>
+              <label className="block text-sm text-[var(--text-muted)] mb-1">路由路径</label>
               <input
                 type="text"
                 value={formData.routePath || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, routePath: e.target.value }))}
                 placeholder="/dynamic/goods"
-                className="w-full px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm font-mono focus:outline-none focus:border-purple-500/50"
+                className="w-full px-3 py-2 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] text-sm font-mono focus:outline-none focus:border-[var(--accent-light)]"
               />
             </div>
           </div>
         </div>
 
         {/* 字段配置 */}
-        <div className="bg-slate-800/30 rounded-lg border border-slate-700/50 p-4">
+        <div className="bg-[var(--bg-table-header)] rounded-lg border border-[var(--border-light)] p-4">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-white">字段配置</h2>
+            <h2 className="text-sm font-semibold text-[var(--text-primary)]">字段配置</h2>
             <button
               type="button"
               onClick={addColumn}
-              className="flex items-center gap-1 px-2 py-1 bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 rounded transition-colors text-xs"
+              className="flex items-center gap-1 px-2 py-1 bg-[var(--accent)]/20 hover:bg-[var(--accent)]/30 text-[var(--accent)] rounded transition-colors text-xs"
             >
               <Plus className="w-3 h-3" />
               添加字段
@@ -529,27 +529,27 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-slate-700/50">
-                    <th className="px-2 py-1.5 text-left text-xs font-medium text-slate-400">字段名</th>
-                    <th className="px-2 py-1.5 text-left text-xs font-medium text-slate-400">显示名称</th>
-                    <th className="px-2 py-1.5 text-left text-xs font-medium text-slate-400">控件类型</th>
-                    <th className="px-2 py-1.5 text-left text-xs font-medium text-slate-400">数据字典</th>
-                    <th className="px-2 py-1.5 text-center text-xs font-medium text-slate-400">长度</th>
-                    <th className="px-2 py-1.5 text-center text-xs font-medium text-slate-400">对齐</th>
-                    <th className="px-2 py-1.5 text-center text-xs font-medium text-slate-400">可见</th>
-                    <th className="px-2 py-1.5 text-center text-xs font-medium text-slate-400">查询</th>
-                    <th className="px-2 py-1.5 text-center text-xs font-medium text-slate-400">操作</th>
+                  <tr className="border-b border-[var(--border-light)]">
+                    <th className="px-2 py-1.5 text-left text-xs font-medium text-[var(--text-muted)]">字段名</th>
+                    <th className="px-2 py-1.5 text-left text-xs font-medium text-[var(--text-muted)]">显示名称</th>
+                    <th className="px-2 py-1.5 text-left text-xs font-medium text-[var(--text-muted)]">控件类型</th>
+                    <th className="px-2 py-1.5 text-left text-xs font-medium text-[var(--text-muted)]">数据字典</th>
+                    <th className="px-2 py-1.5 text-center text-xs font-medium text-[var(--text-muted)]">长度</th>
+                    <th className="px-2 py-1.5 text-center text-xs font-medium text-[var(--text-muted)]">对齐</th>
+                    <th className="px-2 py-1.5 text-center text-xs font-medium text-[var(--text-muted)]">可见</th>
+                    <th className="px-2 py-1.5 text-center text-xs font-medium text-[var(--text-muted)]">查询</th>
+                    <th className="px-2 py-1.5 text-center text-xs font-medium text-[var(--text-muted)]">操作</th>
                   </tr>
                 </thead>
                 <tbody>
                   {formData.columns.map((col, index) => (
-                    <tr key={index} className="border-b border-slate-700/30">
+                    <tr key={index} className="border-b border-[var(--border-light)]">
                       <td className="px-2 py-1">
                         <input
                           type="text"
                           value={col.fieldName}
                           onChange={(e) => updateColumn(index, { fieldName: e.target.value })}
-                          className="w-full px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-xs font-mono focus:outline-none focus:border-purple-500/50"
+                          className="w-full px-2 py-1 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded text-[var(--text-primary)] text-xs font-mono focus:outline-none focus:border-[var(--accent-light)]"
                           required
                         />
                       </td>
@@ -558,7 +558,7 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
                           type="text"
                           value={col.fieldLabel}
                           onChange={(e) => updateColumn(index, { fieldLabel: e.target.value })}
-                          className="w-full px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-xs focus:outline-none focus:border-purple-500/50"
+                          className="w-full px-2 py-1 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded text-[var(--text-primary)] text-xs focus:outline-none focus:border-[var(--accent-light)]"
                           required
                         />
                       </td>
@@ -566,7 +566,7 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
                         <select
                           value={col.fieldType}
                           onChange={(e) => updateColumn(index, { fieldType: e.target.value as any })}
-                          className="w-full px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-xs focus:outline-none focus:border-purple-500/50"
+                          className="w-full px-2 py-1 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded text-[var(--text-primary)] text-xs focus:outline-none focus:border-[var(--accent-light)]"
                         >
                           <option value="text">文本</option>
                           <option value="number">数字</option>
@@ -580,7 +580,7 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
                         <select
                           value={col.dataDictionary || ''}
                           onChange={(e) => updateColumn(index, { dataDictionary: e.target.value })}
-                          className="w-full px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-xs focus:outline-none focus:border-purple-500/50"
+                          className="w-full px-2 py-1 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded text-[var(--text-primary)] text-xs focus:outline-none focus:border-[var(--accent-light)]"
                         >
                           <option value="">请选择</option>
                           {dicts.map(dict => (
@@ -593,14 +593,14 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
                           type="number"
                           value={col.span || 1}
                           onChange={(e) => updateColumn(index, { span: parseInt(e.target.value) })}
-                          className="w-14 px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-xs text-center focus:outline-none focus:border-purple-500/50"
+                          className="w-14 px-2 py-1 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded text-[var(--text-primary)] text-xs text-center focus:outline-none focus:border-[var(--accent-light)]"
                         />
                       </td>
                       <td className="px-2 py-1">
                         <select
                           value={col.align || 'left'}
                           onChange={(e) => updateColumn(index, { align: e.target.value as any })}
-                          className="w-full px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-xs focus:outline-none focus:border-purple-500/50"
+                          className="w-full px-2 py-1 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded text-[var(--text-primary)] text-xs focus:outline-none focus:border-[var(--accent-light)]"
                         >
                           <option value="left">左</option>
                           <option value="center">中</option>
@@ -612,7 +612,7 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
                           type="checkbox"
                           checked={col.visible !== false}
                           onChange={(e) => updateColumn(index, { visible: e.target.checked })}
-                          className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-purple-500 focus:ring-purple-500"
+                          className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-[var(--accent)] focus:ring-purple-500"
                         />
                       </td>
                       <td className="px-2 py-1 text-center">
@@ -620,14 +620,14 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
                           type="checkbox"
                           checked={col.queryCondition === true}
                           onChange={(e) => updateColumn(index, { queryCondition: e.target.checked })}
-                          className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-purple-500 focus:ring-purple-500"
+                          className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-[var(--accent)] focus:ring-purple-500"
                         />
                       </td>
                       <td className="px-2 py-1 text-center">
                         <button
                           type="button"
                           onClick={() => removeColumn(index)}
-                          className="p-1 hover:bg-slate-700 rounded text-slate-400 hover:text-red-400 transition-colors"
+                          className="p-1 hover:bg-slate-700 rounded text-[var(--text-muted)] hover:text-red-400 transition-colors"
                         >
                           <Trash2 className="w-3 h-3" />
                         </button>
@@ -638,7 +638,7 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
               </table>
             </div>
           ) : (
-            <div className="text-center py-4 text-slate-400 text-xs">
+            <div className="text-center py-4 text-[var(--text-muted)] text-xs">
               暂无字段配置，点击"添加字段"开始配置
             </div>
           )}
@@ -649,14 +649,14 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
           <button
             type="button"
             onClick={() => navigate('/features')}
-            className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors text-sm"
+            className="px-4 py-2 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors text-sm"
           >
             取消
           </button>
           <button
             type="submit"
             disabled={saving}
-            className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors text-sm disabled:opacity-50"
+            className="px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent)] text-[var(--text-primary)] rounded-lg transition-colors text-sm disabled:opacity-50"
           >
             {saving ? '保存中...' : '保存'}
           </button>

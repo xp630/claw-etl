@@ -47,17 +47,17 @@ export default function TaskList() {
       {/* 标题 */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center border border-purple-500/20">
-            <RefreshCw className="w-5 h-5 text-purple-400" />
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--accent-light)] to-pink-500/20 flex items-center justify-center border border-[var(--accent-light)]">
+            <RefreshCw className="w-5 h-5 text-[var(--accent)]" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">任务管理</h1>
-            <p className="text-xs text-slate-500">配置ETL同步任务</p>
+            <h1 className="text-xl font-bold text-[var(--text-primary)]">任务管理</h1>
+            <p className="text-xs text-[var(--text-muted)]">配置ETL同步任务</p>
           </div>
         </div>
         <button
           onClick={() => navigate('/tasks/new')}
-          className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:opacity-90 transition-opacity"
+          className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-[var(--text-primary)] rounded-xl hover:opacity-90 transition-opacity"
         >
           <Plus className="w-4 h-4" />
           新增任务
@@ -65,7 +65,7 @@ export default function TaskList() {
       </div>
 
       {/* 搜索筛选 */}
-      <div className="bg-[#1e293b]/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-4 mb-6">
+      <div className="bg-[var(--bg-secondary)]/60 backdrop-blur-xl rounded-xl border border-[var(--border-light)] p-4 mb-6">
         <div className="flex gap-4">
           <div className="flex-1">
             <input
@@ -73,7 +73,7 @@ export default function TaskList() {
               value={searchTable}
               onChange={(e) => setSearchTable(e.target.value)}
               placeholder="支持表名称查询"
-              className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-sm text-slate-200 placeholder-slate-600"
+              className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-sm text-[var(--text-input)] placeholder:text-[var(--text-muted)]"
             />
           </div>
           <div className="flex-1">
@@ -82,18 +82,18 @@ export default function TaskList() {
               value={searchName}
               onChange={(e) => setSearchName(e.target.value)}
               placeholder="支持任务名称模糊查询"
-              className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-sm text-slate-200 placeholder-slate-600"
+              className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-sm text-[var(--text-input)] placeholder:text-[var(--text-muted)]"
             />
           </div>
           <button
             onClick={loadData}
-            className="px-4 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            className="px-4 py-2.5 bg-blue-500 text-[var(--text-primary)] rounded-lg hover:bg-blue-600 transition-colors"
           >
             查询
           </button>
           <button
             onClick={() => { setSearchTable(''); setSearchName(''); }}
-            className="px-4 py-2.5 bg-white text-slate-900 rounded-lg hover:bg-slate-100 transition-colors"
+            className="px-4 py-2.5 bg-[var(--text-primary)] text-[var(--bg-primary)] rounded-lg hover:bg-[var(--text-secondary)] transition-colors"
           >
             重置
           </button>
@@ -101,46 +101,46 @@ export default function TaskList() {
       </div>
 
       {/* 表格 */}
-      <div className="bg-[#1e293b]/60 backdrop-blur-xl rounded-xl border border-slate-700/50 overflow-hidden">
+      <div className="bg-[var(--bg-secondary)]/60 backdrop-blur-xl rounded-xl border border-[var(--border-light)] overflow-hidden">
         <table className="w-full">
-          <thead className="bg-slate-800/30">
+          <thead className="bg-[var(--bg-table-header)]">
             <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">任务名称</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">源库</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">目标库</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">目标表</th>
-              <th className="px-4 py-3 text-center text-xs font-medium text-slate-400 uppercase">状态</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">执行间隔</th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-400 uppercase">上次执行时间</th>
-              <th className="px-4 py-3 text-center text-xs font-medium text-slate-400 uppercase">操作</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase">任务名称</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase">源库</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase">目标库</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase">目标表</th>
+              <th className="px-4 py-3 text-center text-xs font-medium text-[var(--text-muted)] uppercase">状态</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase">执行间隔</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-[var(--text-muted)] uppercase">上次执行时间</th>
+              <th className="px-4 py-3 text-center text-xs font-medium text-[var(--text-muted)] uppercase">操作</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-700/50">
+          <tbody className="divide-y divide-[var(--border-light)]">
             {loading ? (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-slate-400">
+                <td colSpan={8} className="px-4 py-8 text-center text-[var(--text-muted)]">
                   加载中...
                 </td>
               </tr>
             ) : filteredTasks.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-slate-400">
+                <td colSpan={8} className="px-4 py-8 text-center text-[var(--text-muted)]">
                   暂无数据
                 </td>
               </tr>
             ) : (
               filteredTasks.map((task) => (
-                <tr key={task.id} className="hover:bg-slate-800/30 transition-colors">
-                  <td className="px-4 py-3 text-white font-medium">{task.name}</td>
-                  <td className="px-4 py-3 text-slate-400">{task.source_name}</td>
-                  <td className="px-4 py-3 text-slate-300">{task.target_name || 'nr_data'}</td>
+                <tr key={task.id} className="hover:bg-[var(--bg-table-header)] transition-colors">
+                  <td className="px-4 py-3 text-[var(--text-primary)] font-medium">{task.name}</td>
+                  <td className="px-4 py-3 text-[var(--text-muted)]">{task.source_name}</td>
+                  <td className="px-4 py-3 text-[var(--text-secondary)]">{task.target_name || 'nr_data'}</td>
                   <td className="px-4 py-3 text-cyan-400 font-mono text-sm truncate max-w-[200px]">
                     {task.target_table}
                   </td>
                   <td className="px-4 py-3 text-center">
                     <button
                       onClick={() => handleToggle(task.id)}
-                      className={`transition-colors ${task.status === 1 ? 'text-blue-400' : 'text-slate-500'}`}
+                      className={`transition-colors ${task.status === 1 ? 'text-blue-400' : 'text-[var(--text-muted)]'}`}
                     >
                       {task.status === 1 ? (
                         <ToggleRight className="w-8 h-6" />
@@ -150,11 +150,11 @@ export default function TaskList() {
                     </button>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded text-xs">
+                    <span className="px-2 py-1 bg-[var(--accent-light)] text-[var(--accent)] rounded text-xs">
                       {getIntervalText(task)}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-slate-400 text-sm">
+                  <td className="px-4 py-3 text-[var(--text-muted)] text-sm">
                     {task.last_run_time || '-'}
                   </td>
                   <td className="px-4 py-3">

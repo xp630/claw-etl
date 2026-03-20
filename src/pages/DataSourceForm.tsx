@@ -157,19 +157,19 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
       <div className="flex items-center gap-3 mb-6">
         <button
           onClick={() => navigate('/datasources')}
-          className="p-2 hover:bg-slate-800/50 rounded-lg text-slate-400 hover:text-white transition-colors"
+          className="p-2 hover:bg-[var(--bg-hover-light)] rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div>
-          <h1 className="text-xl font-bold text-white">{isEdit ? '编辑数据源' : '新增数据源'}</h1>
+          <h1 className="text-xl font-bold text-[var(--text-primary)]">{isEdit ? '编辑数据源' : '新增数据源'}</h1>
         </div>
       </div>
 
       {/* 表单 */}
       <form onSubmit={handleSubmit}>
         {/* 基本信息 - 蓝色主题 */}
-        <div className="bg-gradient-to-br from-slate-800/80 to-[#1e293b]/60 backdrop-blur-xl rounded-xl border border-blue-500/30 p-6 mb-4">
+        <div className="bg-gradient-to-br from-[var(--bg-secondary)]/80 to-[var(--bg-secondary)]/60 backdrop-blur-xl rounded-xl border border-blue-500/30 p-6 mb-4">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-1 h-5 bg-blue-500 rounded-full"></div>
             <h3 className="text-base font-medium text-blue-400">基本信息</h3>
@@ -177,7 +177,7 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
           <div className="grid grid-cols-2 gap-6">
             {/* 数据源名称 */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 数据源名称 <span className="text-red-400">*</span>
               </label>
               <input
@@ -185,19 +185,19 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="请输入"
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
               />
             </div>
 
             {/* 用途 */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 用途 <span className="text-red-400">*</span>
               </label>
               <select
                 value={formData.dataType}
                 onChange={(e) => setFormData({ ...formData, dataType: e.target.value as 'source' | 'target' })}
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-[var(--text-primary)]"
               >
                 {DATA_TYPES.map((dt) => (
                   <option key={dt.value} value={dt.value}>
@@ -209,13 +209,13 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
 
             {/* 数据源类型 */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 数据源类型 <span className="text-red-400">*</span>
               </label>
               <select
                 value={formData.type}
                 onChange={(e) => handleTypeChange(e.target.value)}
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-[var(--text-primary)]"
               >
                 {DB_TYPES.map((type) => (
                   <option key={type.value} value={type.value}>
@@ -227,7 +227,7 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
 
             {/* 描述 */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 描述
               </label>
               <input
@@ -235,14 +235,14 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="请输入描述信息（可选）"
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
               />
             </div>
           </div>
         </div>
 
         {/* 连接信息 - 绿色主题 */}
-        <div className="bg-gradient-to-br from-slate-800/80 to-[#1e293b]/60 backdrop-blur-xl rounded-xl border border-emerald-500/30 p-6 mb-4">
+        <div className="bg-gradient-to-br from-[var(--bg-secondary)]/80 to-[var(--bg-secondary)]/60 backdrop-blur-xl rounded-xl border border-emerald-500/30 p-6 mb-4">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-1 h-5 bg-emerald-500 rounded-full"></div>
             <h3 className="text-base font-medium text-emerald-400">连接信息</h3>
@@ -250,7 +250,7 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
           <div className="grid grid-cols-2 gap-6">
             {/* JDBC连接地址 */}
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 JDBC连接地址 <span className="text-red-400">*</span>
               </label>
               <input
@@ -258,13 +258,13 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
                 value={formData.jdbcUrl}
                 onChange={(e) => setFormData({ ...formData, jdbcUrl: e.target.value })}
                 placeholder="jdbc:mysql://localhost:3306/database"
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600 font-mono text-sm"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] font-mono text-sm"
               />
             </div>
 
             {/* 连接检查SQL */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 检查SQL <span className="text-red-400">*</span>
               </label>
               <input
@@ -272,13 +272,13 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
                 value={formData.dbCheckUrl}
                 onChange={(e) => setFormData({ ...formData, dbCheckUrl: e.target.value })}
                 placeholder="select 1"
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600 font-mono text-sm"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-[var(--text-primary)] placeholder:text-[var(--text-muted)] font-mono text-sm"
               />
             </div>
 
             {/* 用户名 */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 用户名 <span className="text-red-400">*</span>
               </label>
               <input
@@ -286,13 +286,13 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                 placeholder="请输入"
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
               />
             </div>
 
             {/* 密码 */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 密码 <span className="text-red-400">*</span>
               </label>
               <input
@@ -300,13 +300,13 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 placeholder="请输入"
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
               />
             </div>
 
             {/* 数据库名 */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 数据库名 <span className="text-red-400">*</span>
               </label>
               <input
@@ -314,22 +314,22 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
                 value={formData.database_name}
                 onChange={(e) => setFormData({ ...formData, database_name: e.target.value })}
                 placeholder="请输入"
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
               />
             </div>
           </div>
         </div>
 
         {/* 扩展信息 - 紫色主题 */}
-        <div className="bg-gradient-to-br from-slate-800/80 to-[#1e293b]/60 backdrop-blur-xl rounded-xl border border-purple-500/30 p-6 mb-4">
+        <div className="bg-gradient-to-br from-[var(--bg-secondary)]/80 to-[var(--bg-secondary)]/60 backdrop-blur-xl rounded-xl border border-[var(--accent-light)] p-6 mb-4">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-1 h-5 bg-purple-500 rounded-full"></div>
-            <h3 className="text-base font-medium text-purple-400">扩展信息</h3>
+            <div className="w-1 h-5 bg-[var(--accent)] rounded-full"></div>
+            <h3 className="text-base font-medium text-[var(--accent)]">扩展信息</h3>
           </div>
           <div className="grid grid-cols-2 gap-6">
             {/* 最大连接数 */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 最大连接数
               </label>
               <input
@@ -337,13 +337,13 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
                 value={formData.maxConnections || ''}
                 onChange={(e) => setFormData({ ...formData, maxConnections: parseInt(e.target.value) || undefined })}
                 placeholder="10"
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
               />
             </div>
 
             {/* 初始化连接数 */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 初始化连接数
               </label>
               <input
@@ -351,13 +351,13 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
                 value={formData.initialConnections || ''}
                 onChange={(e) => setFormData({ ...formData, initialConnections: parseInt(e.target.value) || undefined })}
                 placeholder="5"
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
               />
             </div>
 
             {/* 最大空闲数 */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 最大空闲数
               </label>
               <input
@@ -365,13 +365,13 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
                 value={formData.maxIdle || ''}
                 onChange={(e) => setFormData({ ...formData, maxIdle: parseInt(e.target.value) || undefined })}
                 placeholder="10"
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
               />
             </div>
 
             {/* 最大等待时间 */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 最大等待时间(毫秒) <span className="text-red-400">*</span>
               </label>
               <input
@@ -382,13 +382,13 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
                   setFormData({ ...formData, maxWait: isNaN(val) ? undefined : val });
                 }}
                 placeholder="30000"
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
               />
             </div>
 
             {/* 扩展参数 */}
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 扩展参数
               </label>
               <input
@@ -396,7 +396,7 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
                 value={formData.extraParams || ''}
                 onChange={(e) => setFormData({ ...formData, extraParams: e.target.value })}
                 placeholder="例如: useSSL=false&serverTimezone=UTC"
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
               />
             </div>
           </div>
@@ -408,24 +408,24 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
             type="button"
             onClick={handleTest}
             disabled={testing}
-            className="flex items-center gap-2 px-6 py-2.5 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-6 py-2.5 bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--bg-hover)] transition-colors disabled:opacity-50"
           >
             <Plug className="w-4 h-4" />
             {testing ? '测试中...' : '测试连接'}
           </button>
-          
+
           <div className="flex gap-3">
             <button
               type="button"
               onClick={() => navigate('/datasources')}
-              className="px-6 py-2.5 bg-white text-slate-900 rounded-lg hover:bg-slate-100 transition-colors"
+              className="px-6 py-2.5 bg-[var(--text-primary)] text-[var(--bg-primary)] rounded-lg hover:bg-[var(--text-secondary)] transition-colors"
             >
               返回
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center gap-2 px-6 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-6 py-2.5 bg-blue-500 text-[var(--text-primary)] rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               {saving ? '保存中...' : '保存'}

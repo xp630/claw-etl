@@ -80,7 +80,7 @@ export default function UserForm({ overrideId }: { overrideId?: string }) {
   if (loading) {
     return (
       <div className="p-6 flex items-center justify-center h-full">
-        <div className="text-slate-400">加载中...</div>
+        <div className="text-[var(--text-muted)]">加载中...</div>
       </div>
     );
   }
@@ -91,27 +91,27 @@ export default function UserForm({ overrideId }: { overrideId?: string }) {
       <div className="flex items-center gap-3 mb-6">
         <button
           onClick={() => navigate('/users')}
-          className="p-2 hover:bg-slate-800/50 rounded-lg text-slate-400 hover:text-white transition-colors"
+          className="p-2 hover:bg-[var(--bg-hover-light)] rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="flex items-center gap-3">
-          <UserIcon className="w-6 h-6 text-purple-400" />
-          <h1 className="text-xl font-bold text-white">{isEdit ? '编辑用户' : '新增用户'}</h1>
+          <UserIcon className="w-6 h-6 text-[var(--accent)]" />
+          <h1 className="text-xl font-bold text-[var(--text-primary)]">{isEdit ? '编辑用户' : '新增用户'}</h1>
         </div>
       </div>
 
       {/* 表单 */}
       <form onSubmit={handleSubmit}>
-        <div className="bg-gradient-to-br from-slate-800/80 to-[#1e293b]/60 backdrop-blur-xl rounded-xl border border-purple-500/30 p-6 mb-4">
+        <div className="bg-gradient-to-br from-slate-800/80 to-[#1e293b]/60 backdrop-blur-xl rounded-xl border border-[var(--accent-light)] p-6 mb-4">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-1 h-5 bg-purple-500 rounded-full"></div>
-            <h3 className="text-base font-medium text-purple-400">基本信息</h3>
+            <div className="w-1 h-5 bg-[var(--accent)] rounded-full"></div>
+            <h3 className="text-base font-medium text-[var(--accent)]">基本信息</h3>
           </div>
           <div className="grid grid-cols-2 gap-6">
             {/* 姓名 */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 姓名 <span className="text-red-400">*</span>
               </label>
               <input
@@ -119,13 +119,13 @@ export default function UserForm({ overrideId }: { overrideId?: string }) {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="请输入姓名"
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/30 text-white placeholder-slate-600"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-light)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
               />
             </div>
 
             {/* 工号 */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 工号 <span className="text-red-400">*</span>
               </label>
               <input
@@ -133,13 +133,13 @@ export default function UserForm({ overrideId }: { overrideId?: string }) {
                 value={formData.employeeNo}
                 onChange={(e) => setFormData({ ...formData, employeeNo: e.target.value })}
                 placeholder="请输入工号"
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/30 text-white placeholder-slate-600"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-light)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
               />
             </div>
 
             {/* 手机号 */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 手机号 <span className="text-red-400">*</span>
               </label>
               <input
@@ -147,19 +147,19 @@ export default function UserForm({ overrideId }: { overrideId?: string }) {
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="请输入手机号"
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/30 text-white placeholder-slate-600"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-light)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
               />
             </div>
 
             {/* 状态 */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 状态 <span className="text-red-400">*</span>
               </label>
               <select
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: Number(e.target.value) })}
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/30 text-white"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-light)] text-[var(--text-primary)]"
               >
                 <option value={1}>启用</option>
                 <option value={0}>禁用</option>
@@ -168,7 +168,7 @@ export default function UserForm({ overrideId }: { overrideId?: string }) {
 
             {/* 密码 */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
                 密码 <span className="text-red-400">{isEdit ? '' : '*'}</span>
               </label>
               <input
@@ -176,7 +176,7 @@ export default function UserForm({ overrideId }: { overrideId?: string }) {
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 placeholder={isEdit ? '不修改请留空' : '请输入密码'}
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/30 text-white placeholder-slate-600"
+                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-light)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
               />
             </div>
           </div>
@@ -188,14 +188,14 @@ export default function UserForm({ overrideId }: { overrideId?: string }) {
             <button
               type="button"
               onClick={() => navigate('/users')}
-              className="px-6 py-2.5 bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-colors"
+              className="px-6 py-2.5 bg-slate-700 text-[var(--text-primary)] rounded-lg hover:bg-[var(--bg-hover)] transition-colors"
             >
               返回
             </button>
             <button
               type="submit"
               disabled={saving || !canSave()}
-              className="flex items-center gap-2 px-6 py-2.5 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-6 py-2.5 bg-[var(--accent)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--accent)] transition-colors disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               {saving ? '保存中...' : '保存'}

@@ -425,102 +425,102 @@ ${whereConditions || '  1=1'}
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between p-4 border-b border-slate-700/50">
+      <div className="flex items-center justify-between p-4 border-b border-[var(--border-light)]">
         <div className="flex items-center gap-4">
-          <button onClick={() => navigate('/apis')} className="p-2 hover:bg-slate-700 rounded-lg text-slate-400">
+          <button onClick={() => navigate('/apis')} className="p-2 hover:bg-[var(--bg-hover)] rounded-lg text-[var(--text-muted)]">
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <h1 className="text-lg font-bold text-white">{isEdit ? '编辑API' : '创建API'}</h1>
+          <h1 className="text-lg font-bold text-[var(--text-primary)]">{isEdit ? '编辑API' : '创建API'}</h1>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => navigate('/apis')} className="px-4 py-2 text-slate-400 hover:text-white">取消</button>
+          <button onClick={() => navigate('/apis')} className="px-4 py-2 text-[var(--text-muted)] hover:text-[var(--text-primary)]">取消</button>
         </div>
       </div>
 
-      <div className="flex items-center justify-center gap-4 p-4 border-b border-slate-700/50">
+      <div className="flex items-center justify-center gap-4 p-4 border-b border-[var(--border-light)]">
         {STEPS.map((step, index) => (
           <div key={index} className="flex items-center">
             <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm ${
-              index < currentStep ? 'bg-green-500 text-white' :
-              index === currentStep ? 'bg-purple-500 text-white' : 'bg-slate-700 text-slate-400'
+              index < currentStep ? 'bg-green-500 text-[var(--text-primary)]' :
+              index === currentStep ? 'bg-[var(--accent)] text-[var(--text-primary)]' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)]'
             }`}>
               {index < currentStep ? '✓' : index + 1}
             </div>
-            <span className={`ml-2 text-sm ${index === currentStep ? 'text-white' : 'text-slate-400'}`}>{step}</span>
-            {index < STEPS.length - 1 && <div className={`w-12 h-0.5 mx-4 ${index < currentStep ? 'bg-green-500' : 'bg-slate-700'}`} />}
+            <span className={`ml-2 text-sm ${index === currentStep ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}`}>{step}</span>
+            {index < STEPS.length - 1 && <div className={`w-12 h-0.5 mx-4 ${index < currentStep ? 'bg-green-500' : 'bg-[var(--bg-secondary)]'}`} />}
           </div>
         ))}
       </div>
 
       <div className="flex-1 overflow-auto p-6">
-        {loading ? <div className="flex items-center justify-center h-full text-slate-400">加载中...</div> : (
+        {loading ? <div className="flex items-center justify-center h-full text-[var(--text-muted)]">加载中...</div> : (
           <>
             {currentStep === 0 && (
               <div className="space-y-6">
-                <div className="bg-[#1e293b]/60 rounded-xl border border-slate-700/50 p-6 space-y-4">
-                  <h3 className="text-white font-medium">基本信息</h3>
+                <div className="bg-[var(--bg-secondary)]/60 rounded-xl border border-[var(--border-light)] p-6 space-y-4">
+                  <h3 className="text-[var(--text-primary)] font-medium">基本信息</h3>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm text-slate-400 mb-2">数据源 * (只显示启用)</label>
-                      <select value={formData.datasourceId || ''} onChange={(e) => handleDataSourceChange(parseInt(e.target.value))} className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white">
+                      <label className="block text-sm text-[var(--text-muted)] mb-2">数据源 * (只显示启用)</label>
+                      <select value={formData.datasourceId || ''} onChange={(e) => handleDataSourceChange(parseInt(e.target.value))} className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)]">
                         <option value="">请选择数据源</option>
                         {datasources.map(ds => <option key={ds.id} value={ds.id}>{ds.name}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm text-slate-400 mb-2">数据库</label>
-                      <input type="text" value={formData.databaseName} readOnly className="w-full px-4 py-2.5 bg-slate-800/30 border border-slate-700/50 rounded-lg text-slate-400" />
+                      <label className="block text-sm text-[var(--text-muted)] mb-2">数据库</label>
+                      <input type="text" value={formData.databaseName} readOnly className="w-full px-4 py-2.5 bg-[var(--bg-table-header)] border border-[var(--border-light)] rounded-lg text-[var(--text-muted)]" />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm text-slate-400 mb-2">表 *</label>
+                      <label className="block text-sm text-[var(--text-muted)] mb-2">表 *</label>
                       <div className="flex gap-2">
-                        <select value={formData.tableName} onChange={(e) => handleTableChange(e.target.value)} className="flex-1 px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white">
+                        <select value={formData.tableName} onChange={(e) => handleTableChange(e.target.value)} className="flex-1 px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)]">
                           <option value="">请选择表</option>
                           {tables.map(t => <option key={t.tableName} value={t.tableName}>{t.tableName} {t.tableComment ? `(${t.tableComment})` : ''}</option>)}
                         </select>
-                        <button onClick={() => formData.databaseName && loadTables(formData.databaseName)} className="px-3 py-2 bg-slate-700 rounded-lg text-slate-300 hover:bg-slate-600"><RefreshCw className="w-4 h-4" /></button>
+                        <button onClick={() => formData.databaseName && loadTables(formData.databaseName)} className="px-3 py-2 bg-[var(--bg-secondary)] rounded-lg text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]"><RefreshCw className="w-4 h-4" /></button>
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm text-slate-400 mb-2">请求方式</label>
+                      <label className="block text-sm text-[var(--text-muted)] mb-2">请求方式</label>
                       <div className="flex gap-4">
-                        <label className="flex items-center gap-2 text-white"><input type="radio" name="method" checked={formData.method === 'GET'} onChange={() => setFormData({ ...formData, method: 'GET' })} className="accent-purple-500" />GET</label>
-                        <label className="flex items-center gap-2 text-white"><input type="radio" name="method" checked={formData.method === 'POST'} onChange={() => setFormData({ ...formData, method: 'POST' })} className="accent-purple-500" />POST</label>
+                        <label className="flex items-center gap-2 text-[var(--text-primary)]"><input type="radio" name="method" checked={formData.method === 'GET'} onChange={() => setFormData({ ...formData, method: 'GET' })} className="accent-[var(--accent)]" />GET</label>
+                        <label className="flex items-center gap-2 text-[var(--text-primary)]"><input type="radio" name="method" checked={formData.method === 'POST'} onChange={() => setFormData({ ...formData, method: 'POST' })} className="accent-[var(--accent)]" />POST</label>
                       </div>
                     </div>
                   </div>
-                  <div><label className="block text-sm text-slate-400 mb-2">API名称 *</label><input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="例如：用户查询" className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-500" /></div>
-                  <div><label className="block text-sm text-slate-400 mb-2">API路径 *</label><input type="text" value={formData.path} onChange={(e) => setFormData({ ...formData, path: e.target.value })} placeholder="例如：/api/user/list" className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-500" /></div>
+                  <div><label className="block text-sm text-[var(--text-muted)] mb-2">API名称 *</label><input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="例如：用户查询" className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] placeholder:text-[var(--text-muted)]" /></div>
+                  <div><label className="block text-sm text-[var(--text-muted)] mb-2">API路径 *</label><input type="text" value={formData.path} onChange={(e) => setFormData({ ...formData, path: e.target.value })} placeholder="例如：/api/user/list" className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] placeholder:text-[var(--text-muted)]" /></div>
                   <div>
-                    <label className="block text-sm text-slate-400 mb-2">权限类型</label>
+                    <label className="block text-sm text-[var(--text-muted)] mb-2">权限类型</label>
                     <div className="flex gap-6">
-                      <label className="flex items-center gap-2 text-white">
+                      <label className="flex items-center gap-2 text-[var(--text-primary)]">
                         <input
                           type="radio"
                           name="apiType"
                           checked={formData.apiType === 'private'}
                           onChange={() => setFormData({ ...formData, apiType: 'private' })}
-                          className="accent-purple-500"
+                          className="accent-[var(--accent)]"
                         />
                         私有
-                        <span className="text-xs text-slate-500 ml-1">(需授权)</span>
+                        <span className="text-xs text-[var(--text-muted)] ml-1">(需授权)</span>
                       </label>
-                      <label className="flex items-center gap-2 text-white">
+                      <label className="flex items-center gap-2 text-[var(--text-primary)]">
                         <input
                           type="radio"
                           name="apiType"
                           checked={formData.apiType === 'public'}
                           onChange={() => setFormData({ ...formData, apiType: 'public' })}
-                          className="accent-purple-500"
+                          className="accent-[var(--accent)]"
                         />
                         公有
-                        <span className="text-xs text-slate-500 ml-1">(无需授权)</span>
+                        <span className="text-xs text-[var(--text-muted)] ml-1">(无需授权)</span>
                       </label>
                     </div>
                   </div>
-                  <div><label className="block text-sm text-slate-400 mb-2">描述</label><textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={3} className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white placeholder-slate-500" /></div>
+                  <div><label className="block text-sm text-[var(--text-muted)] mb-2">描述</label><textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={3} className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] placeholder:text-[var(--text-muted)]" /></div>
                 </div>
               </div>
             )}
@@ -528,34 +528,34 @@ ${whereConditions || '  1=1'}
             {currentStep === 1 && (
               <div className="space-y-6">
                 {/* 请求参数 - 可折叠 */}
-                <div className="bg-[#1e293b]/60 rounded-xl border border-slate-700/50 p-6">
+                <div className="bg-[var(--bg-secondary)]/60 rounded-xl border border-[var(--border-light)] p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <button onClick={() => setInputParamsExpanded(!inputParamsExpanded)} className="flex items-center gap-2 text-white font-medium">
+                    <button onClick={() => setInputParamsExpanded(!inputParamsExpanded)} className="flex items-center gap-2 text-[var(--text-primary)] font-medium">
                       <span>{inputParamsExpanded ? '▼' : '▶'}</span>
                       <span>请求参数（{inputParams.length}）</span>
                     </button>
                     {inputParamsExpanded && (
                       <div className="flex gap-2">
-                        <button onClick={() => setInputParams([...inputParams, { paramName: '', columnName: '', paramType: 'string', required: 0, defaultValue: '', description: '' }])} className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm">+ 新增</button>
+                        <button onClick={() => setInputParams([...inputParams, { paramName: '', columnName: '', paramType: 'string', required: 0, defaultValue: '', description: '' }])} className="px-3 py-1 bg-green-600 text-[var(--text-primary)] rounded-lg text-sm">+ 新增</button>
                       </div>
                     )}
                   </div>
                   {inputParamsExpanded && (
                     <div className="overflow-x-auto">
                       <table className="w-full">
-                        <thead className="bg-slate-800/30">
-                          <tr><th className="px-4 py-2 text-left text-xs text-slate-400">#</th><th className="px-4 py-2 text-left text-xs text-slate-400">参数名</th><th className="px-4 py-2 text-left text-xs text-slate-400">对应字段</th><th className="px-4 py-2 text-left text-xs text-slate-400">类型</th><th className="px-4 py-2 text-left text-xs text-slate-400">必填</th><th className="px-4 py-2 text-left text-xs text-slate-400">默认值</th><th className="px-4 py-2 text-left text-xs text-slate-400">说明</th><th className="px-4 py-2"></th></tr>
+                        <thead className="bg-[var(--bg-table-header)]">
+                          <tr><th className="px-4 py-2 text-left text-xs text-[var(--text-muted)]">#</th><th className="px-4 py-2 text-left text-xs text-[var(--text-muted)]">参数名</th><th className="px-4 py-2 text-left text-xs text-[var(--text-muted)]">对应字段</th><th className="px-4 py-2 text-left text-xs text-[var(--text-muted)]">类型</th><th className="px-4 py-2 text-left text-xs text-[var(--text-muted)]">必填</th><th className="px-4 py-2 text-left text-xs text-[var(--text-muted)]">默认值</th><th className="px-4 py-2 text-left text-xs text-[var(--text-muted)]">说明</th><th className="px-4 py-2"></th></tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-700/50">
+                        <tbody className="divide-y divide-[var(--border-light)]">
                           {inputParams.map((param, index) => (
                             <tr key={index}>
-                              <td className="px-4 py-2 text-slate-400">{index + 1}</td>
-                              <td className="px-4 py-2"><input type="text" value={param.paramName} onChange={(e) => updateInputParam(index, 'paramName', e.target.value)} className="px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-sm w-24" /></td>
-                              <td className="px-4 py-2"><input type="text" value={param.columnName || ''} onChange={(e) => updateInputParam(index, 'columnName', e.target.value)} className="px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-sm w-24" /></td>
-                              <td className="px-4 py-2"><select value={param.paramType} onChange={(e) => updateInputParam(index, 'paramType', e.target.value)} className="px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-sm"><option value="string">string</option><option value="integer">integer</option><option value="decimal">decimal</option><option value="date">date</option><option value="datetime">datetime</option><option value="boolean">boolean</option></select></td>
-                              <td className="px-4 py-2"><input type="checkbox" checked={param.required === 1} onChange={(e) => updateInputParam(index, 'required', e.target.checked ? 1 : 0)} className="accent-purple-500" /></td>
-                              <td className="px-4 py-2"><input type="text" value={param.defaultValue || ''} onChange={(e) => updateInputParam(index, 'defaultValue', e.target.value)} className="px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-sm w-20" /></td>
-                              <td className="px-4 py-2"><input type="text" value={param.description || ''} onChange={(e) => updateInputParam(index, 'description', e.target.value)} className="px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-sm" /></td>
+                              <td className="px-4 py-2 text-[var(--text-muted)]">{index + 1}</td>
+                              <td className="px-4 py-2"><input type="text" value={param.paramName} onChange={(e) => updateInputParam(index, 'paramName', e.target.value)} className="px-2 py-1 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded text-[var(--text-primary)] text-sm w-24" /></td>
+                              <td className="px-4 py-2"><input type="text" value={param.columnName || ''} onChange={(e) => updateInputParam(index, 'columnName', e.target.value)} className="px-2 py-1 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded text-[var(--text-primary)] text-sm w-24" /></td>
+                              <td className="px-4 py-2"><select value={param.paramType} onChange={(e) => updateInputParam(index, 'paramType', e.target.value)} className="px-2 py-1 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded text-[var(--text-primary)] text-sm"><option value="string">string</option><option value="integer">integer</option><option value="decimal">decimal</option><option value="date">date</option><option value="datetime">datetime</option><option value="boolean">boolean</option></select></td>
+                              <td className="px-4 py-2"><input type="checkbox" checked={param.required === 1} onChange={(e) => updateInputParam(index, 'required', e.target.checked ? 1 : 0)} className="accent-[var(--accent)]" /></td>
+                              <td className="px-4 py-2"><input type="text" value={param.defaultValue || ''} onChange={(e) => updateInputParam(index, 'defaultValue', e.target.value)} className="px-2 py-1 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded text-[var(--text-primary)] text-sm w-20" /></td>
+                              <td className="px-4 py-2"><input type="text" value={param.description || ''} onChange={(e) => updateInputParam(index, 'description', e.target.value)} className="px-2 py-1 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded text-[var(--text-primary)] text-sm" /></td>
                               <td className="px-4 py-2"><button onClick={() => removeInputParam(index)} className="p-1 text-red-400 hover:text-red-300"><Trash2 className="w-4 h-4" /></button></td>
                             </tr>
                           ))}
@@ -566,9 +566,9 @@ ${whereConditions || '  1=1'}
                 </div>
 
                 {/* 返回值 - 可折叠 */}
-                <div className="bg-[#1e293b]/60 rounded-xl border border-slate-700/50 p-6">
+                <div className="bg-[var(--bg-secondary)]/60 rounded-xl border border-[var(--border-light)] p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <button onClick={() => setOutputParamsExpanded(!outputParamsExpanded)} className="flex items-center gap-2 text-white font-medium">
+                    <button onClick={() => setOutputParamsExpanded(!outputParamsExpanded)} className="flex items-center gap-2 text-[var(--text-primary)] font-medium">
                       <span>{outputParamsExpanded ? '▼' : '▶'}</span>
                       <span>返回值（{selectedFields.length}/{outputParams.length}）</span>
                     </button>
@@ -576,41 +576,41 @@ ${whereConditions || '  1=1'}
                   {outputParamsExpanded && (
                     <div className="overflow-x-auto">
                       <table className="w-full">
-                        <thead className="bg-slate-800/30">
+                        <thead className="bg-[var(--bg-table-header)]">
                           <tr>
-                            <th className="px-4 py-2 text-left text-xs text-slate-400">#</th>
-                            <th className="px-4 py-2 text-left text-xs text-slate-400">字段名</th>
-                            <th className="px-4 py-2 text-left text-xs text-slate-400">别名</th>
-                            <th className="px-4 py-2 text-left text-xs text-slate-400">类型</th>
-                            <th className="px-4 py-2 text-left text-xs text-slate-400">说明</th>
+                            <th className="px-4 py-2 text-left text-xs text-[var(--text-muted)]">#</th>
+                            <th className="px-4 py-2 text-left text-xs text-[var(--text-muted)]">字段名</th>
+                            <th className="px-4 py-2 text-left text-xs text-[var(--text-muted)]">别名</th>
+                            <th className="px-4 py-2 text-left text-xs text-[var(--text-muted)]">类型</th>
+                            <th className="px-4 py-2 text-left text-xs text-[var(--text-muted)]">说明</th>
                             <th className="px-4 py-2"></th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-700/50">
+                        <tbody className="divide-y divide-[var(--border-light)]">
                           {outputParams.length === 0 ? (
                             <tr>
-                              <td colSpan={6} className="px-4 py-4 text-center text-slate-400">请先在第一步选择表</td>
+                              <td colSpan={6} className="px-4 py-4 text-center text-[var(--text-muted)]">请先在第一步选择表</td>
                             </tr>
                           ) : outputParams.map((param, index) => (
                             <tr key={index}>
-                              <td className="px-4 py-2 text-slate-400">{index + 1}</td>
-                              <td className="px-4 py-2 text-white text-sm">{param.columnName}</td>
+                              <td className="px-4 py-2 text-[var(--text-muted)]">{index + 1}</td>
+                              <td className="px-4 py-2 text-[var(--text-primary)] text-sm">{param.columnName}</td>
                               <td className="px-4 py-2">
                                 <input
                                   type="text"
                                   value={param.alias || ''}
                                   onChange={(e) => updateOutputParam(index, 'alias', e.target.value)}
                                   placeholder="输入别名"
-                                  className="px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-sm w-28"
+                                  className="px-2 py-1 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded text-[var(--text-primary)] text-sm w-28"
                                 />
                               </td>
-                              <td className="px-4 py-2 text-slate-400 text-sm">{param.dataType}</td>
+                              <td className="px-4 py-2 text-[var(--text-muted)] text-sm">{param.dataType}</td>
                               <td className="px-4 py-2">
                                 <input
                                   type="text"
                                   value={param.description || ''}
                                   onChange={(e) => updateOutputParam(index, 'description', e.target.value)}
-                                  className="px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-sm"
+                                  className="px-2 py-1 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded text-[var(--text-primary)] text-sm"
                                 />
                               </td>
                               <td className="px-4 py-2">
@@ -627,16 +627,16 @@ ${whereConditions || '  1=1'}
                 </div>
 
                 {/* SQL配置 */}
-                <div className="bg-[#1e293b]/60 rounded-xl border border-slate-700/50 p-6">
+                <div className="bg-[var(--bg-secondary)]/60 rounded-xl border border-[var(--border-light)] p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-white font-medium">SQL配置</h3>
-                    <button onClick={generateSql} className="px-3 py-1 bg-purple-500 text-white rounded-lg text-sm">重新生成</button>
+                    <h3 className="text-[var(--text-primary)] font-medium">SQL配置</h3>
+                    <button onClick={generateSql} className="px-3 py-1 bg-[var(--accent)] text-[var(--text-primary)] rounded-lg text-sm">重新生成</button>
                   </div>
                   <textarea
                     value={formData.querySql || generatedSql || ''}
                     onChange={(e) => setFormData({ ...formData, querySql: e.target.value })}
                     rows={12}
-                    className="w-full px-4 py-3 bg-slate-900 border border-slate-700/50 rounded-lg text-green-400 font-mono text-sm resize-none"
+                    className="w-full px-4 py-3 bg-[var(--bg-primary)] border border-[var(--border-light)] rounded-lg text-green-400 font-mono text-sm resize-none"
                     placeholder="编写你的SQL查询语句..."
                   />
                 </div>
@@ -645,15 +645,15 @@ ${whereConditions || '  1=1'}
 
             {currentStep === 2 && (
               <div className="space-y-6">
-                <div className="bg-[#1e293b]/60 rounded-xl border border-slate-700/50 p-6">
+                <div className="bg-[var(--bg-secondary)]/60 rounded-xl border border-[var(--border-light)] p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-white font-medium">Mock配置</h3>
-                    <label className="flex items-center gap-2 text-white"><input type="checkbox" checked={formData.mockEnabled === 1} onChange={(e) => setFormData({ ...formData, mockEnabled: e.target.checked ? 1 : 0 })} className="accent-purple-500" />启用Mock</label>
+                    <h3 className="text-[var(--text-primary)] font-medium">Mock配置</h3>
+                    <label className="flex items-center gap-2 text-[var(--text-primary)]"><input type="checkbox" checked={formData.mockEnabled === 1} onChange={(e) => setFormData({ ...formData, mockEnabled: e.target.checked ? 1 : 0 })} className="accent-[var(--accent)]" />启用Mock</label>
                   </div>
                   {formData.mockEnabled === 1 && (
                     <div className="space-y-4">
-                      <button onClick={generateMockData} className="px-3 py-1 bg-purple-500 text-white rounded-lg text-sm">根据字段生成</button>
-                      <textarea value={formData.mockData || ''} onChange={(e) => setFormData({ ...formData, mockData: e.target.value })} rows={15} className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white font-mono text-sm" />
+                      <button onClick={generateMockData} className="px-3 py-1 bg-[var(--accent)] text-[var(--text-primary)] rounded-lg text-sm">根据字段生成</button>
+                      <textarea value={formData.mockData || ''} onChange={(e) => setFormData({ ...formData, mockData: e.target.value })} rows={15} className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] font-mono text-sm" />
                     </div>
                   )}
                 </div>
@@ -663,18 +663,18 @@ ${whereConditions || '  1=1'}
         )}
       </div>
 
-      <div className="flex items-center justify-between p-4 border-t border-slate-700/50">
-        <button onClick={() => setCurrentStep(Math.max(0, currentStep - 1))} disabled={currentStep === 0} className="flex items-center gap-2 px-4 py-2 text-slate-400 hover:text-white disabled:opacity-50"><ArrowLeft className="w-4 h-4" />上一步</button>
+      <div className="flex items-center justify-between p-4 border-t border-[var(--border-light)]">
+        <button onClick={() => setCurrentStep(Math.max(0, currentStep - 1))} disabled={currentStep === 0} className="flex items-center gap-2 px-4 py-2 text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-50"><ArrowLeft className="w-4 h-4" />上一步</button>
         <div className="flex items-center gap-2">
           {currentStep === STEPS.length - 1 ? (
             <>
-              <button onClick={() => navigate('/apis')} className="px-4 py-2 text-slate-400 hover:text-white">取消</button>
-              <button onClick={handleSave} disabled={!canSave() || saving} className="flex items-center gap-2 px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:opacity-50">
+              <button onClick={() => navigate('/apis')} className="px-4 py-2 text-[var(--text-muted)] hover:text-[var(--text-primary)]">取消</button>
+              <button onClick={handleSave} disabled={!canSave() || saving} className="flex items-center gap-2 px-6 py-2 bg-[var(--accent)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--accent)] disabled:opacity-50">
                 <Save className="w-4 h-4" />{saving ? '保存中...' : '保存'}
               </button>
             </>
           ) : (
-            <button onClick={() => { if (currentStep < STEPS.length - 1) setCurrentStep(currentStep + 1); }} disabled={!canProceed()} className="flex items-center gap-2 px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:opacity-50">下一步<ArrowRight className="w-4 h-4" /></button>
+            <button onClick={() => { if (currentStep < STEPS.length - 1) setCurrentStep(currentStep + 1); }} disabled={!canProceed()} className="flex items-center gap-2 px-6 py-2 bg-[var(--accent)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--accent)] disabled:opacity-50">下一步<ArrowRight className="w-4 h-4" /></button>
           )}
         </div>
       </div>

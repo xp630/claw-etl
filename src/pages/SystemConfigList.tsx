@@ -62,10 +62,10 @@ export default function SystemConfigList() {
   return (
     <div className="p-4 h-full overflow-auto">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-bold text-white">系统参数管理</h1>
+        <h1 className="text-xl font-bold text-[var(--text-primary)]">系统参数管理</h1>
         <button
           onClick={() => navigate('/config/new')}
-          className="flex items-center gap-2 px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent)] text-[var(--text-primary)] rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
           新增参数
@@ -79,7 +79,7 @@ export default function SystemConfigList() {
           value={searchName}
           onChange={(e) => setSearchName(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-          className="px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500/50"
+          className="px-3 py-2 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--accent-light)]"
         />
         <input
           type="text"
@@ -87,12 +87,12 @@ export default function SystemConfigList() {
           value={searchCode}
           onChange={(e) => setSearchCode(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-          className="px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500/50"
+          className="px-3 py-2 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--accent-light)]"
         />
         <select
           value={searchGroup}
           onChange={(e) => setSearchGroup(e.target.value)}
-          className="px-3 py-2 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white text-sm focus:outline-none focus:border-purple-500/50"
+          className="px-3 py-2 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--accent-light)]"
         >
           <option value="">全部分组</option>
           {groups.map(group => (
@@ -101,44 +101,44 @@ export default function SystemConfigList() {
         </select>
         <button
           onClick={handleSearch}
-          className="px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 rounded-lg transition-colors text-sm"
+          className="px-4 py-2 bg-[var(--accent)]/20 hover:bg-[var(--accent)]/30 text-[var(--accent)] rounded-lg transition-colors text-sm"
         >
           搜索
         </button>
       </div>
 
-      <div className="bg-slate-800/30 rounded-lg border border-slate-700/50 overflow-hidden">
+      <div className="bg-[var(--bg-table-header)] rounded-lg border border-[var(--border-light)] overflow-hidden">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-slate-700/50 bg-slate-800/50">
-              <th className="px-4 py-3 text-left text-sm font-medium text-slate-400">参数编码</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-slate-400">参数名称</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-slate-400">参数值</th>
-              <th className="px-4 py-3 text-center text-sm font-medium text-slate-400">类型</th>
-              <th className="px-4 py-3 text-center text-sm font-medium text-slate-400">分组</th>
-              <th className="px-4 py-3 text-center text-sm font-medium text-slate-400">状态</th>
-              <th className="px-4 py-3 text-center text-sm font-medium text-slate-400">操作</th>
+            <tr className="border-b border-[var(--border-light)] bg-[var(--bg-hover-light)]">
+              <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-muted)]">参数编码</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-muted)]">参数名称</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-[var(--text-muted)]">参数值</th>
+              <th className="px-4 py-3 text-center text-sm font-medium text-[var(--text-muted)]">类型</th>
+              <th className="px-4 py-3 text-center text-sm font-medium text-[var(--text-muted)]">分组</th>
+              <th className="px-4 py-3 text-center text-sm font-medium text-[var(--text-muted)]">状态</th>
+              <th className="px-4 py-3 text-center text-sm font-medium text-[var(--text-muted)]">操作</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={7} className="px-4 py-12 text-center text-slate-400">加载中...</td>
+                <td colSpan={7} className="px-4 py-12 text-center text-[var(--text-muted)]">加载中...</td>
               </tr>
             ) : configs.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-12 text-center text-slate-400">暂无数据</td>
+                <td colSpan={7} className="px-4 py-12 text-center text-[var(--text-muted)]">暂无数据</td>
               </tr>
             ) : (
               configs.map(config => (
-                <tr key={config.id} className="border-b border-slate-700/30 hover:bg-slate-700/20">
-                  <td className="px-4 py-3 text-sm text-white font-mono">{config.code}</td>
-                  <td className="px-4 py-3 text-sm text-white">{config.name}</td>
-                  <td className="px-4 py-3 text-sm text-slate-400 font-mono max-w-xs truncate">{config.value}</td>
-                  <td className="px-4 py-3 text-center text-sm text-slate-400">
+                <tr key={config.id} className="border-b border-[var(--border-light)] hover:bg-[var(--bg-hover-light)]">
+                  <td className="px-4 py-3 text-sm text-[var(--text-primary)] font-mono">{config.code}</td>
+                  <td className="px-4 py-3 text-sm text-[var(--text-primary)]">{config.name}</td>
+                  <td className="px-4 py-3 text-sm text-[var(--text-muted)] font-mono max-w-xs truncate">{config.value}</td>
+                  <td className="px-4 py-3 text-center text-sm text-[var(--text-muted)]">
                     {config.type === 'string' ? '字符串' : config.type === 'number' ? '数字' : '布尔'}
                   </td>
-                  <td className="px-4 py-3 text-center text-sm text-slate-400">{config.groupName || '-'}</td>
+                  <td className="px-4 py-3 text-center text-sm text-[var(--text-muted)]">{config.groupName || '-'}</td>
                   <td className="px-4 py-3 text-center">
                     <span className={`px-2 py-0.5 rounded text-xs ${config.status === 1 ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
                       {config.status === 1 ? '启用' : '禁用'}
@@ -148,13 +148,13 @@ export default function SystemConfigList() {
                     <div className="flex items-center justify-center gap-2">
                       <button
                         onClick={() => navigate(`/config/${config.id}`)}
-                        className="p-1.5 hover:bg-slate-700 rounded text-slate-400 hover:text-white transition-colors"
+                        className="p-1.5 hover:bg-slate-700 rounded text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(config.id!)}
-                        className="p-1.5 hover:bg-slate-700 rounded text-slate-400 hover:text-red-400 transition-colors"
+                        className="p-1.5 hover:bg-slate-700 rounded text-[var(--text-muted)] hover:text-red-400 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -171,14 +171,14 @@ export default function SystemConfigList() {
       {total > 0 && (
         <div className="flex items-center justify-between mt-4 px-2">
           <div className="flex items-center gap-4">
-            <span className="text-sm text-slate-400">共 {total} 条记录</span>
+            <span className="text-sm text-[var(--text-muted)]">共 {total} 条记录</span>
             <select
               value={limit}
               onChange={(e) => {
                 setLimit(Number(e.target.value));
                 setPage(1);
               }}
-              className="px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-sm text-white"
+              className="px-2 py-1 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded text-sm text-[var(--text-primary)]"
             >
               <option value={5}>5条/页</option>
               <option value={10}>10条/页</option>
@@ -190,15 +190,15 @@ export default function SystemConfigList() {
             <button
               onClick={() => setPage(page - 1)}
               disabled={page <= 1}
-              className="p-1.5 rounded hover:bg-slate-700 text-slate-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 rounded hover:bg-slate-700 text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            <span className="text-sm text-white px-2">{page} / {totalPages}</span>
+            <span className="text-sm text-[var(--text-primary)] px-2">{page} / {totalPages}</span>
             <button
               onClick={() => setPage(page + 1)}
               disabled={page >= totalPages}
-              className="p-1.5 rounded hover:bg-slate-700 text-slate-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 rounded hover:bg-slate-700 text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronRight className="w-4 h-4" />
             </button>

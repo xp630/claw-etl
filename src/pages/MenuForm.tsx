@@ -101,21 +101,21 @@ export default function MenuForm() {
           onClick={() => navigate(-1)}
           className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
         >
-          <ChevronLeft className="w-5 h-5 text-white" />
+          <ChevronLeft className="w-5 h-5 text-[var(--text-primary)]" />
         </button>
         <div className="flex items-center gap-3">
-          <MenuIcon className="w-6 h-6 text-purple-400" />
-          <h1 className="text-2xl font-bold text-white">{isEdit ? '编辑菜单' : '新增菜单'}</h1>
+          <MenuIcon className="w-6 h-6 text-[var(--accent)]" />
+          <h1 className="text-2xl font-bold text-[var(--text-primary)]">{isEdit ? '编辑菜单' : '新增菜单'}</h1>
         </div>
       </div>
 
       {/* 表单 */}
-      <div className="bg-slate-800/30 rounded-xl border border-slate-700/50 p-6">
+      <div className="bg-[var(--bg-table-header)] rounded-xl border border-[var(--border-light)] p-6">
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">
+                <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">
                   菜单名称 <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -123,13 +123,13 @@ export default function MenuForm() {
                   value={menu.name}
                   onChange={(e) => setMenu({ ...menu, name: e.target.value })}
                   required
-                  className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white"
+                  className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)]"
                   placeholder="请输入菜单名称"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">
+                <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">
                   菜单编码 <span className="text-red-400">*</span>
                 </label>
                 <input
@@ -138,7 +138,7 @@ export default function MenuForm() {
                   onChange={(e) => setMenu({ ...menu, code: e.target.value })}
                   required
                   disabled={isEdit}
-                  className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white disabled:opacity-50"
+                  className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] disabled:opacity-50"
                   placeholder="请输入菜单编码"
                 />
               </div>
@@ -146,23 +146,23 @@ export default function MenuForm() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">图标</label>
+                <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">图标</label>
                 <input
                   type="text"
                   value={menu.icon || ''}
                   onChange={(e) => setMenu({ ...menu, icon: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white"
+                  className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)]"
                   placeholder="请输入图标名称，如 Settings"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">路由路径</label>
+                <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">路由路径</label>
                 <input
                   type="text"
                   value={menu.path || ''}
                   onChange={(e) => setMenu({ ...menu, path: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white"
+                  className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)]"
                   placeholder="请输入路由路径，如 /settings"
                 />
               </div>
@@ -170,11 +170,11 @@ export default function MenuForm() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">父菜单</label>
+                <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">父菜单</label>
                 <select
                   value={menu.parentId || 0}
                   onChange={(e) => setMenu({ ...menu, parentId: parseInt(e.target.value) || 0 })}
-                  className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white"
+                  className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)]"
                 >
                   <option value={0}>顶级菜单</option>
                   {renderParentOptions(parentMenus.filter(m => isEdit && m.id !== menu.id || !isEdit))}
@@ -182,12 +182,12 @@ export default function MenuForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">排序号</label>
+                <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">排序号</label>
                 <input
                   type="number"
                   value={menu.orderNum || 0}
                   onChange={(e) => setMenu({ ...menu, orderNum: parseInt(e.target.value) || 0 })}
-                  className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white"
+                  className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)]"
                   placeholder="数字越小越靠前"
                 />
               </div>
@@ -195,11 +195,11 @@ export default function MenuForm() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">类型</label>
+                <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">类型</label>
                 <select
                   value={menu.type || 'menu'}
                   onChange={(e) => setMenu({ ...menu, type: e.target.value as 'menu' | 'button' })}
-                  className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white"
+                  className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)]"
                 >
                   <option value="menu">菜单</option>
                   <option value="button">按钮</option>
@@ -207,11 +207,11 @@ export default function MenuForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-400 mb-2">状态</label>
+                <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">状态</label>
                 <select
                   value={menu.status || 1}
                   onChange={(e) => setMenu({ ...menu, status: parseInt(e.target.value) })}
-                  className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg text-white"
+                  className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)]"
                 >
                   <option value={1}>启用</option>
                   <option value={0}>禁用</option>
@@ -225,14 +225,14 @@ export default function MenuForm() {
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition-colors"
+              className="px-6 py-2.5 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors"
             >
               取消
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="px-6 py-2.5 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors disabled:opacity-50"
+              className="px-6 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent)] text-[var(--text-primary)] rounded-lg transition-colors disabled:opacity-50"
             >
               {saving ? '保存中...' : '保存'}
             </button>
