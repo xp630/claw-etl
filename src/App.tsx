@@ -1,5 +1,6 @@
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { ThemeProvider } from './contexts/ThemeContext';
 import Layout from './components/Layout';
 import Login from './pages/Login';
 import DataSourceList from './pages/DataSourceList';
@@ -36,8 +37,9 @@ function App() {
   };
 
   return (
-    <HashRouter>
-      <Routes>
+    <ThemeProvider>
+      <HashRouter>
+        <Routes>
         <Route path="/login" element={
           isLoggedIn ? <Navigate to="/" /> : <Login onLogin={handleLogin} />
         } />
@@ -77,7 +79,8 @@ function App() {
           <Route path="dynamic/:code" element={<DynamicDataGrid />} />
         </Route>
       </Routes>
-    </HashRouter>
+      </HashRouter>
+    </ThemeProvider>
   );
 }
 
