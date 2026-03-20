@@ -148,13 +148,13 @@ export default function SystemConfigList() {
                     <div className="flex items-center justify-center gap-2">
                       <button
                         onClick={() => navigate(`/config/${config.id}`)}
-                        className="p-1.5 hover:bg-slate-700 rounded text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                        className="p-1.5 hover:bg-[var(--bg-tertiary)] rounded text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleDelete(config.id!)}
-                        className="p-1.5 hover:bg-slate-700 rounded text-[var(--text-muted)] hover:text-red-400 transition-colors"
+                        className="p-1.5 hover:bg-[var(--bg-tertiary)] rounded text-[var(--text-muted)] hover:text-red-400 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -190,7 +190,7 @@ export default function SystemConfigList() {
             <button
               onClick={() => setPage(page - 1)}
               disabled={page <= 1}
-              className="p-1.5 rounded hover:bg-slate-700 text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -198,7 +198,7 @@ export default function SystemConfigList() {
             <button
               onClick={() => setPage(page + 1)}
               disabled={page >= totalPages}
-              className="p-1.5 rounded hover:bg-slate-700 text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-1.5 rounded hover:bg-[var(--bg-tertiary)] text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronRight className="w-4 h-4" />
             </button>

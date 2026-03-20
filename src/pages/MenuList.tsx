@@ -470,7 +470,7 @@ export default function MenuList() {
                 </h2>
                 <button
                   onClick={closeForm}
-                  className="p-1.5 hover:bg-slate-700 rounded-lg transition-colors"
+                  className="p-1.5 hover:bg-[var(--bg-tertiary)] rounded-lg transition-colors"
                 >
                   <X className="w-5 h-5 text-[var(--text-muted)]" />
                 </button>
@@ -513,7 +513,7 @@ export default function MenuList() {
                                 className={`p-2 rounded-lg flex items-center justify-center transition-colors ${
                                   isSelected
                                     ? 'bg-[var(--accent)] text-[var(--text-primary)]'
-                                    : 'hover:bg-slate-700 text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                                    : 'hover:bg-[var(--bg-tertiary)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                                 }`}
                                 title={icon.label}
                               >
@@ -627,7 +627,7 @@ export default function MenuList() {
               <div className="flex justify-end gap-3 px-6 py-4 border-t border-[var(--border-light)] bg-[var(--bg-hover-light)]">
                 <button
                   onClick={closeForm}
-                  className="px-6 py-2.5 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors"
+                  className="px-6 py-2.5 bg-[var(--bg-tertiary)]700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors"
                 >
                   取消
                 </button>
@@ -641,7 +641,7 @@ export default function MenuList() {
               </div>
             </div>
           ) : (
-            <div className="h-full flex items-center justify-center text-slate-500">
+            <div className="h-full flex items-center justify-center text-[var(--text-muted)]">
               <div className="text-center">
                 <MenuIcon className="w-16 h-16 mx-auto mb-4 opacity-30" />
                 <p>选择左侧菜单或点击新增按钮</p>
@@ -654,13 +654,13 @@ export default function MenuList() {
       {/* 删除确认弹窗 */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-slate-800 rounded-xl border border-slate-700 p-6 w-full max-w-sm">
+          <div className="bg-[var(--bg-secondary)] rounded-xl border border-[var(--border)] p-6 w-full max-w-sm">
             <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">确认删除</h3>
             <p className="text-[var(--text-muted)] mb-6">确定要删除该菜单吗？子菜单也会被删除。此操作不可撤销。</p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors"
+                className="px-4 py-2 bg-[var(--bg-tertiary)]700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors"
               >
                 取消
               </button>

@@ -132,7 +132,7 @@ export default function ApiAccessLog() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-[var(--text-primary)]">API访问日志</h1>
-            <p className="text-xs text-slate-500">记录API调用详情</p>
+            <p className="text-xs text-[var(--text-muted)]">记录API调用详情</p>
           </div>
         </div>
         <button
@@ -222,7 +222,7 @@ export default function ApiAccessLog() {
               <th className="px-4 py-3 text-center text-xs font-medium text-[var(--text-muted)] uppercase">操作</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-700/50">
+          <tbody className="divide-y divide-[var(--border-light)]">
             {loading ? (
               <tr>
                 <td colSpan={8} className="px-4 py-8 text-center text-[var(--text-muted)]">
@@ -241,7 +241,7 @@ export default function ApiAccessLog() {
                   <td className="px-4 py-3 text-[var(--text-secondary)] text-sm">{log.accessTime}</td>
                   <td className="px-4 py-3">
                     <div className="text-[var(--text-primary)]">{log.apiName}</div>
-                    <div className="text-slate-500 text-xs">{log.apiPath}</div>
+                    <div className="text-[var(--text-muted)] text-xs">{log.apiPath}</div>
                   </td>
                   <td className="px-4 py-3 text-[var(--text-secondary)] text-sm">{log.appName || '-'}</td>
                   <td className="px-4 py-3">
@@ -279,7 +279,7 @@ export default function ApiAccessLog() {
       {/* 详情弹窗 */}
       {selectedLog && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setSelectedLog(null)}>
-          <div className="bg-[var(--bg-secondary)] rounded-xl border border-slate50 w-full-700/ max-w-3xl max-h-[80vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+          <div className="bg-[var(--bg-secondary)] rounded-xl border border-[var(--border)]" max-w-3xl max-h-[80vh] overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between p-4 border-b border-[var(--border-light)]">
               <h3 className="text-lg font-bold text-[var(--text-primary)]">访问详情</h3>
               <button onClick={() => setSelectedLog(null)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)]">✕</button>
@@ -290,29 +290,29 @@ export default function ApiAccessLog() {
                 <h4 className="text-sm font-medium text-[var(--text-muted)] mb-3">基本信息</h4>
                 <div className="grid grid-cols-2 gap-4 bg-[var(--bg-table-header)] p-4 rounded-lg">
                   <div>
-                    <div className="text-xs text-slate-500">API名称</div>
+                    <div className="text-xs text-[var(--text-muted)]">API名称</div>
                     <div className="text-[var(--text-primary)]">{selectedLog.apiName}</div>
                   </div>
                   <div>
-                    <div className="text-xs text-slate-500">API路径</div>
+                    <div className="text-xs text-[var(--text-muted)]">API路径</div>
                     <div className="text-[var(--text-primary)] font-mono text-sm">{selectedLog.apiPath}</div>
                   </div>
                   <div>
-                    <div className="text-xs text-slate-500">访问时间</div>
+                    <div className="text-xs text-[var(--text-muted)]">访问时间</div>
                     <div className="text-[var(--text-primary)]">{selectedLog.accessTime}</div>
                   </div>
                   <div>
-                    <div className="text-xs text-slate-500">响应状态</div>
+                    <div className="text-xs text-[var(--text-muted)]">响应状态</div>
                     <div className={`font-medium ${getStatusColor(selectedLog.responseStatus)}`}>
                       {selectedLog.responseStatus || '-'}
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs text-slate-500">响应时间</div>
+                    <div className="text-xs text-[var(--text-muted)]">响应时间</div>
                     <div className="text-[var(--text-primary)]">{selectedLog.responseTime ? `${selectedLog.responseTime}ms` : '-'}</div>
                   </div>
                   <div>
-                    <div className="text-xs text-slate-500">客户端IP</div>
+                    <div className="text-xs text-[var(--text-muted)]">客户端IP</div>
                     <div className="text-[var(--text-primary)]">{selectedLog.clientIp || '-'}</div>
                   </div>
                 </div>
@@ -350,7 +350,7 @@ export default function ApiAccessLog() {
               {selectedLog.userAgent && (
                 <div>
                   <h4 className="text-sm font-medium text-[var(--text-muted)] mb-3">用户代理</h4>
-                  <div className="bg-[var(--bg-table-header)] p-4 rounded-lg text-xs text-slate-500 break-all">
+                  <div className="bg-[var(--bg-table-header)] p-4 rounded-lg text-xs text-[var(--text-muted)] break-all">
                     {selectedLog.userAgent}
                   </div>
                 </div>

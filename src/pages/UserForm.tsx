@@ -188,7 +188,7 @@ export default function UserForm({ overrideId }: { overrideId?: string }) {
             <button
               type="button"
               onClick={() => navigate('/users')}
-              className="px-6 py-2.5 bg-slate-700 text-[var(--text-primary)] rounded-lg hover:bg-[var(--bg-hover)] transition-colors"
+              className="px-6 py-2.5 bg-[var(--bg-tertiary)]700 text-[var(--text-primary)] rounded-lg hover:bg-[var(--bg-hover)] transition-colors"
             >
               返回
             </button>

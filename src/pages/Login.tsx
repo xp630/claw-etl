@@ -45,7 +45,7 @@ export default function Login({ onLogin }: LoginProps) {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center p-4">
       {/* 背景装饰 */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
@@ -59,22 +59,22 @@ export default function Login({ onLogin }: LoginProps) {
             <Database className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-white">Claw-ETL</h1>
-          <p className="text-slate-400 mt-2">数据同步配置管理系统</p>
+          <p className="text-[var(--text-muted)] mt-2">数据同步配置管理系统</p>
         </div>
 
         {/* 登录表单 */}
-        <div className="bg-[#1e293b]/80 backdrop-blur-xl rounded-2xl border border-slate-700/50 p-8">
+        <div className="bg-[var(--bg-secondary)]/80 backdrop-blur-xl rounded-2xl border border-[var(--border-light)] p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* 工号 */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">工号</label>
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">工号</label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-muted)]" />
                 <input
                   type="text"
                   value={employeeNo}
                   onChange={(e) => setEmployeeNo(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-500"
+                  className="w-full pl-10 pr-4 py-3 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-light)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
                   placeholder="请输入工号"
                 />
               </div>
@@ -82,14 +82,14 @@ export default function Login({ onLogin }: LoginProps) {
 
             {/* 密码 */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">密码</label>
+              <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">密码</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-muted)]" />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-500"
+                  className="w-full pl-10 pr-4 py-3 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-light)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
                   placeholder="请输入密码"
                 />
               </div>

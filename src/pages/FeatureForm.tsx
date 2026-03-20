@@ -612,7 +612,7 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
                           type="checkbox"
                           checked={col.visible !== false}
                           onChange={(e) => updateColumn(index, { visible: e.target.checked })}
-                          className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-[var(--accent)] focus:ring-purple-500"
+                          className="w-4 h-4 rounded border-[var(--border-light)] bg-[var(--bg-tertiary)] text-[var(--accent)] focus:ring-purple-500"
                         />
                       </td>
                       <td className="px-2 py-1 text-center">
@@ -620,14 +620,14 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
                           type="checkbox"
                           checked={col.queryCondition === true}
                           onChange={(e) => updateColumn(index, { queryCondition: e.target.checked })}
-                          className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-[var(--accent)] focus:ring-purple-500"
+                          className="w-4 h-4 rounded border-[var(--border-light)] bg-[var(--bg-tertiary)] text-[var(--accent)] focus:ring-purple-500"
                         />
                       </td>
                       <td className="px-2 py-1 text-center">
                         <button
                           type="button"
                           onClick={() => removeColumn(index)}
-                          className="p-1 hover:bg-slate-700 rounded text-[var(--text-muted)] hover:text-red-400 transition-colors"
+                          className="p-1 hover:bg-[var(--bg-tertiary)] rounded text-[var(--text-muted)] hover:text-red-400 transition-colors"
                         >
                           <Trash2 className="w-3 h-3" />
                         </button>
@@ -649,7 +649,7 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
           <button
             type="button"
             onClick={() => navigate('/features')}
-            className="px-4 py-2 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors text-sm"
+            className="px-4 py-2 bg-[var(--bg-tertiary)] hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors text-sm"
           >
             取消
           </button>

@@ -110,7 +110,7 @@ export default function RoleList() {
                     <div className="flex items-center justify-center gap-2">
                       <button
                         onClick={() => window.layoutOpenTab({ id: `role-${role.roleId}`, title: '编辑角色', path: `/roles/${role.roleId}` })}
-                        className="p-1.5 hover:bg-slate-700 rounded text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                        className="p-1.5 hover:bg-[var(--bg-tertiary)] rounded text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
@@ -119,7 +119,7 @@ export default function RoleList() {
                           setDeleteId(role.roleId!);
                           setShowDeleteConfirm(true);
                         }}
-                        className="p-1.5 hover:bg-slate-700 rounded text-[var(--text-muted)] hover:text-red-400 transition-colors"
+                        className="p-1.5 hover:bg-[var(--bg-tertiary)] rounded text-[var(--text-muted)] hover:text-red-400 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -142,7 +142,7 @@ export default function RoleList() {
             <button
               onClick={() => setPage(page - 1)}
               disabled={page <= 1}
-              className="px-3 py-1 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors disabled:opacity-50"
+              className="px-3 py-1 bg-[var(--bg-tertiary)] hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors disabled:opacity-50"
             >
               上一页
             </button>
@@ -152,7 +152,7 @@ export default function RoleList() {
             <button
               onClick={() => setPage(page + 1)}
               disabled={page >= totalPages}
-              className="px-3 py-1 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors disabled:opacity-50"
+              className="px-3 py-1 bg-[var(--bg-tertiary)] hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors disabled:opacity-50"
             >
               下一页
             </button>
@@ -163,13 +163,13 @@ export default function RoleList() {
       {/* 删除确认弹窗 */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-slate-800 rounded-xl border border-slate-700 p-6 w-full max-w-sm">
+          <div className="bg-[var(--bg-secondary)] rounded-xl border border-[var(--border)] p-6 w-full max-w-sm">
             <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-4">确认删除</h3>
             <p className="text-[var(--text-muted)] mb-6">确定要删除该角色吗？此操作不可撤销。</p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors"
+                className="px-4 py-2 bg-[var(--bg-tertiary)] hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors"
               >
                 取消
               </button>

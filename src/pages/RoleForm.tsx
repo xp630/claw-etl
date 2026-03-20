@@ -131,10 +131,10 @@ export default function RoleForm() {
             type="checkbox"
             checked={selectedMenuIds.includes(menu.id!)}
             onChange={() => toggleMenuSelection(menu.id!)}
-            className="w-4 h-4 rounded border-slate-600 text-[var(--accent)] focus:ring-purple-500"
+            className="w-4 h-4 rounded border-[var(--border-light)] text-[var(--accent)] focus:ring-purple-500"
           />
           <span className="text-[var(--text-primary)]">{menu.name}</span>
-          <span className="text-slate-500 text-sm">({menu.code})</span>
+          <span className="text-[var(--text-muted)] text-sm">({menu.code})</span>
         </div>
         {menu.children && menu.children.length > 0 && expandedKeys.has(menu.id!) && (
           <div>{renderMenuTree(menu.children, level + 1)}</div>
@@ -149,7 +149,7 @@ export default function RoleForm() {
       <div className="flex items-center gap-3 mb-6">
         <button
           onClick={() => navigate(-1)}
-          className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
+          className="p-2 hover:bg-[var(--bg-tertiary)] rounded-lg transition-colors"
         >
           <ChevronLeft className="w-5 h-5 text-[var(--text-primary)]" />
         </button>
@@ -210,7 +210,7 @@ export default function RoleForm() {
                   >
                     <Check className="w-4 h-4" />
                     分配菜单
-                    <span className="text-slate-500">（已选 {selectedMenuIds.length} 个菜单）</span>
+                    <span className="text-[var(--text-muted)]">（已选 {selectedMenuIds.length} 个菜单）</span>
                   </button>
                 </label>
 
@@ -237,7 +237,7 @@ export default function RoleForm() {
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="px-6 py-2.5 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors"
+              className="px-6 py-2.5 bg-[var(--bg-tertiary)]700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors"
             >
               取消
             </button>

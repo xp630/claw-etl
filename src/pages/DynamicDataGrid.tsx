@@ -200,14 +200,14 @@ export default function DynamicDataGrid({ code: codeProp }: { code?: string }) {
           <div className="flex gap-2">
             <button
               onClick={() => setShowColumnSelector(true)}
-              className="px-4 py-2 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors flex items-center gap-2"
+              className="px-4 py-2 bg-[var(--bg-tertiary)] hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors flex items-center gap-2"
             >
               <Columns className="w-4 h-4" />
               列配置
             </button>
             <button
               onClick={() => loadData()}
-              className="px-4 py-2 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors"
+              className="px-4 py-2 bg-[var(--bg-tertiary)]700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors"
             >
               刷新
             </button>
@@ -273,7 +273,7 @@ export default function DynamicDataGrid({ code: codeProp }: { code?: string }) {
         {/* 数据表格 */}
         <div className="bg-[var(--bg-table-header)] rounded-xl border border-[var(--border-light)] overflow-hidden relative">
           {dataLoading && (
-            <div className="absolute inset-0 bg-slate-800/80 flex items-center justify-center z-10">
+            <div className="absolute inset-0 bg-[var(--bg-secondary)]/80 flex items-center justify-center z-10">
               <div className="flex flex-col items-center">
                 <div className="w-8 h-8 border-3 border-purple-500 border-t-transparent rounded-full animate-spin mb-2"></div>
                 <div className="text-[var(--text-muted)] text-sm">加载中...</div>
@@ -330,17 +330,17 @@ export default function DynamicDataGrid({ code: codeProp }: { code?: string }) {
                       <td className="px-4 py-3 text-center">
                         <div className="flex items-center justify-center gap-2">
                           {feature.detailApiId && (
-                            <button className="p-1.5 hover:bg-slate-700 rounded text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
+                            <button className="p-1.5 hover:bg-[var(--bg-tertiary)] rounded text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
                               <Eye className="w-4 h-4" />
                             </button>
                           )}
                           {feature.updateApiId && (
-                            <button className="p-1.5 hover:bg-slate-700 rounded text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
+                            <button className="p-1.5 hover:bg-[var(--bg-tertiary)] rounded text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
                               <Edit2 className="w-4 h-4" />
                             </button>
                           )}
                           {feature.deleteApiId && (
-                            <button className="p-1.5 hover:bg-slate-700 rounded text-[var(--text-muted)] hover:text-red-400 transition-colors">
+                            <button className="p-1.5 hover:bg-[var(--bg-tertiary)] rounded text-[var(--text-muted)] hover:text-red-400 transition-colors">
                               <Trash2 className="w-4 h-4" />
                             </button>
                           )}
@@ -362,7 +362,7 @@ export default function DynamicDataGrid({ code: codeProp }: { code?: string }) {
               <select
                 value={pageSize}
                 onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-                className="px-2 py-1 bg-slate-700 border border-slate-600 rounded text-[var(--text-primary)] text-sm"
+                className="px-2 py-1 bg-[var(--bg-tertiary)] border border-[var(--border-light)] rounded text-[var(--text-primary)] text-sm"
               >
                 <option value={5}>5</option>
                 <option value={10}>10</option>
@@ -375,7 +375,7 @@ export default function DynamicDataGrid({ code: codeProp }: { code?: string }) {
               <button
                 onClick={() => handlePageChange(page - 1)}
                 disabled={page <= 1}
-                className="px-3 py-1 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors disabled:opacity-50"
+                className="px-3 py-1 bg-[var(--bg-tertiary)]700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors disabled:opacity-50"
               >
                 上一页
               </button>
@@ -385,7 +385,7 @@ export default function DynamicDataGrid({ code: codeProp }: { code?: string }) {
               <button
                 onClick={() => handlePageChange(page + 1)}
                 disabled={page >= Math.ceil(total / pageSize)}
-                className="px-3 py-1 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors disabled:opacity-50"
+                className="px-3 py-1 bg-[var(--bg-tertiary)]700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors disabled:opacity-50"
               >
                 下一页
               </button>
@@ -396,12 +396,12 @@ export default function DynamicDataGrid({ code: codeProp }: { code?: string }) {
         {/* 列选择弹窗 */}
         {showColumnSelector && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-slate-800 rounded-xl border border-slate-700 p-6 w-full max-w-md">
+            <div className="bg-[var(--bg-secondary)] rounded-xl border border-[var(--border)] p-6 w-full max-w-md">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-[var(--text-primary)]">选择显示列</h3>
                 <button
                   onClick={() => setShowColumnSelector(false)}
-                  className="p-1 hover:bg-slate-700 rounded text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+                  className="p-1 hover:bg-[var(--bg-tertiary)] rounded text-[var(--text-muted)] hover:text-[var(--text-primary)]"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -419,7 +419,7 @@ export default function DynamicDataGrid({ code: codeProp }: { code?: string }) {
                           setSelectedColumns(selectedColumns.filter(c => c !== col.fieldName));
                         }
                       }}
-                      className="w-4 h-4 rounded border-slate-600 text-[var(--accent)] focus:ring-purple-500"
+                      className="w-4 h-4 rounded border-[var(--border-light)] text-[var(--accent)] focus:ring-[var(--accent-light)]"
                     />
                     <span className="text-[var(--text-primary)]">{col.fieldLabel}</span>
                   </label>
@@ -428,7 +428,7 @@ export default function DynamicDataGrid({ code: codeProp }: { code?: string }) {
               <div className="mt-4 flex justify-end gap-2">
                 <button
                   onClick={() => setShowColumnSelector(false)}
-                  className="px-4 py-2 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors"
+                  className="px-4 py-2 bg-[var(--bg-tertiary)]700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors"
                 >
                   关闭
                 </button>
@@ -473,7 +473,7 @@ export default function DynamicDataGrid({ code: codeProp }: { code?: string }) {
           ))}
         </div>
         <div className="mt-6 flex justify-end gap-3">
-          <button className="px-6 py-2.5 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors">
+          <button className="px-6 py-2.5 bg-[var(--bg-tertiary)]700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors">
             取消
           </button>
           <button className="px-6 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent)] text-[var(--text-primary)] rounded-lg transition-colors">

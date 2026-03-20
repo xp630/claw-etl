@@ -644,7 +644,7 @@ export default function ApiList() {
                       <span className={`px-2 py-1 text-xs rounded-full ${
                         api.source === 'auto'
                           ? 'bg-[var(--accent-light)] text-[var(--accent)]'
-                          : 'bg-slate-500/20 text-[var(--text-muted)]'
+                          : 'bg-[var(--accent-light)] text-[var(--text-muted)]'
                       }`}>
                         {api.source === 'auto' ? '自动' : '手动'}
                       </span>

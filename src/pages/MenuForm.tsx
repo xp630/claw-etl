@@ -99,7 +99,7 @@ export default function MenuForm() {
       <div className="flex items-center gap-3 mb-6">
         <button
           onClick={() => navigate(-1)}
-          className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
+          className="p-2 hover:bg-[var(--bg-tertiary)] rounded-lg transition-colors"
         >
           <ChevronLeft className="w-5 h-5 text-[var(--text-primary)]" />
         </button>
@@ -225,7 +225,7 @@ export default function MenuForm() {
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="px-6 py-2.5 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors"
+              className="px-6 py-2.5 bg-[var(--bg-tertiary)]700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors"
             >
               取消
             </button>

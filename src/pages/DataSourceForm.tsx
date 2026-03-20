@@ -146,7 +146,7 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
   if (loading) {
     return (
       <div className="p-6 flex items-center justify-center h-full">
-        <div className="text-slate-400">加载中...</div>
+        <div className="text-[var(--text-muted)]">加载中...</div>
       </div>
     );
   }

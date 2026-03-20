@@ -70,7 +70,7 @@ export default function SystemConfigForm({ overrideId }: { overrideId?: string }
       <div className="flex items-center gap-4 mb-4">
         <button
           onClick={() => navigate('/config')}
-          className="p-2 hover:bg-slate-700 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+          className="p-2 hover:bg-[var(--bg-tertiary)] rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
         </button>
@@ -161,7 +161,7 @@ export default function SystemConfigForm({ overrideId }: { overrideId?: string }
           <button
             type="button"
             onClick={() => navigate('/config')}
-            className="px-4 py-2 bg-slate-700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors text-sm"
+            className="px-4 py-2 bg-[var(--bg-tertiary)] hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors text-sm"
           >
             取消
           </button>
