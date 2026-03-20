@@ -269,6 +269,7 @@ git commit -m "feat: 在 Layout 顶栏添加主题切换下拉框"
 - `bg-slate-800/50` → `bg-[var(--bg-hover-light)]`
 - `bg-slate-800/30` → `bg-[var(--bg-table-header)]`
 - `bg-slate-700/50` → `bg-[var(--bg-hover)]`
+- `bg-slate-700/20` → `bg-[var(--bg-hover-light)]`
 - `hover:bg-slate-700/50` → `hover:bg-[var(--bg-hover)]`
 - `hover:bg-slate-800/50` → `hover:bg-[var(--bg-hover-light)]`
 - `text-slate-100` → `text-[var(--text-primary)]`
@@ -276,6 +277,8 @@ git commit -m "feat: 在 Layout 顶栏添加主题切换下拉框"
 - `text-slate-300` → `text-[var(--text-secondary)]`
 - `text-slate-400` → `text-[var(--text-muted)]`
 - `placeholder-slate-400` → `placeholder:text-[var(--text-muted)]`
+- `placeholder-slate-500` → `placeholder:text-[var(--text-muted)]`
+- `placeholder-slate-600` → `placeholder:text-[var(--text-muted)]`
 - `text-purple-400` → `text-[var(--accent)]`
 - `text-purple-500` → `text-[var(--accent)]`
 - `bg-purple-500` → `bg-[var(--accent)]`
@@ -316,9 +319,11 @@ git commit -m "feat: 在 Layout 顶栏添加主题切换下拉框"
 - Modify: `src/pages/MenuForm.tsx`
 - Modify: `src/pages/MenuFormModal.tsx`
 - Modify: `src/pages/ApiAccessLog.tsx`
-- Modify: `src/pages/Login.tsx`
+- Modify: `src/pages/Login.tsx` ⚠️ **特殊处理**：登录页保持深色风格，不参与主题切换
 - Modify: `src/components/Toast.tsx`
 - Modify: `src/pages/DynamicDataGrid.tsx`
+
+> **Login.tsx 特殊说明**：根据设计文档，登录页作为未登录状态的页面，应保持与 Layout 一致的深色背景风格。因此 Login.tsx 的颜色改造目标是将硬编码的 slate 色改为 CSS 变量，但始终显示深色主题效果（即使选择了浅色主题，登录页仍为深色）。
 
 **改造示例（以 ApiList.tsx 为例）：**
 
