@@ -1,11 +1,11 @@
 import axios from 'axios';
-import type { DataSource, Task, ApiConfig, ApiInputParam, ApiOutputParam, TableInfo, ColumnInfo } from '../types';
+import type { DataSource, Task, ApiConfig, ApiInputParam, ApiOutputParam, TableInfo, ColumnInfo, Feature, Dict, DictItem, SystemConfig, SysRole, SysMenu, SysUser } from '../types';
 
 // 后端API基础URL（开发模式用空，通过Vite代理；生产模式需要配置）
 const API_BASE = '';
 
 // 创建axios实例
-const api = axios.create({
+export const api = axios.create({
   baseURL: API_BASE,
   timeout: 10000,
   headers: {
@@ -54,42 +54,56 @@ api.interceptors.response.use(
 // ========== 数据源 API ==========
 
 // 获取数据源列表
-export async function getDataSources(dataType?: string): Promise<DataSource[]> {
+export async function getDataSources(params: {
+  dataType?: string;
+  name?: string;
+  dbState?: string;
+  page?: number;
+  limit?: number;
+}): Promise<{ list: DataSource[]; total: number }> {
   try {
-    // 调用后端数据源列表接口
-    const params: any = { limit: 100, page: 1 };
-    if (dataType) {
-      params.dataType = dataType;
-    }
-    const res = await api.post('/etl-admin/dataSourceManager/dataSourceList', params);
+    const res = await api.post('/etl-admin/dataSourceManager/dataSourceList', {
+      limit: params.limit || 10,
+      page: params.page || 1,
+      dataType: params.dataType || '',
+      dbName: params.name || '',
+      dbState: params.dbState || '',
+    });
     if (res.data && res.data.list) {
-      return res.data.list.map((item: any) => ({
-        id: item.id,
-        name: item.dbName,
-        type: item.dbType?.toLowerCase() || 'mysql',
-        dataType: item.dataType || 'source',
-        host: item.dbUrl?.match(/:\/\/([^:]+):/)?.[1] || '',
-        port: parseInt(item.dbUrl?.match(/:(\d+)\//)?.[1]) || 3306,
-        username: item.dbAccount,
-        password: item.dbPassword,
-        databaseName: item.realDataBaseName || item.dbName,
-        maxConnections: item.maxConnections,
-        maxActive: item.maxActive,
-        minIdle: item.minIdle,
-        initialConnections: item.initialConnections,
-        initialSize: item.initialSize,
-        maxIdle: item.maxIdle,
-        extraParams: item.extraParams,
-        description: item.comment,
-        status: item.dbState === '启用' ? 1 : 0,
-        createdAt: item.createTime,
-        updatedAt: item.updateTime,
-      }));
+      return {
+        list: res.data.list.map((item: any) => ({
+          id: item.id,
+          name: item.dbName,
+          type: item.dbType?.toLowerCase() || 'mysql',
+          dataType: item.dataType || 'source',
+          jdbcUrl: item.dbUrl || '',
+          dbCheckUrl: item.dbCheckUrl || '',
+          username: item.dbAccount,
+          password: item.dbPassword,
+          database_name: item.realDataBaseName || item.dbName || '',
+          databaseName: item.realDataBaseName || item.dbName || '',
+          dbName: item.dbName,
+          maxConnections: item.maxConnections ?? item.maxActive,
+          maxActive: item.maxActive ?? item.maxConnections,
+          initialConnections: item.initialConnections ?? item.initialSize,
+          initialSize: item.initialSize ?? item.initialConnections,
+          maxIdle: item.maxIdle,
+          maxWait: item.maxWait,
+          extraParams: item.extraParams,
+          description: item.comment,
+          status: item.dbState === '启用' ? 1 : 0,
+          dbState: item.dbState,
+          createdAt: item.createTime,
+          updatedAt: item.updateTime,
+          comment: item.comment
+        })),
+        total: res.data.count || 0,
+      };
     }
-    return [];
+    return { list: [], total: 0 };
   } catch (error) {
     console.error('Failed to load datasources:', error);
-    return MOCK_DATASOURCES;
+    return { list: [], total: 0 };
   }
 }
 
@@ -104,17 +118,17 @@ export async function getDataSource(id: number): Promise<DataSource | undefined>
         name: data.dbName,
         type: data.dbType?.toLowerCase() || 'mysql',
         dataType: data.dataType || 'source',
-        host: data.dbUrl?.match(/:\/\/([^:]+):/)?.[1] || '',
-        port: parseInt(data.dbUrl?.match(/:(\d+)\//)?.[1]) || 3306,
+        jdbcUrl: data.dbUrl || '',
+        dbCheckUrl: data.dbCheckUrl || '',
         username: data.dbAccount,
         password: data.dbPassword,
         database_name: data.realDataBaseName || data.dbName,
-        maxConnections: data.maxConnections,
-        maxActive: data.maxActive,
-        minIdle: data.minIdle,
-        initialConnections: data.initialConnections,
-        initialSize: data.initialSize,
+        maxConnections: data.maxConnections ?? data.maxActive,
+        maxActive: data.maxActive ?? data.maxConnections,
+        initialConnections: data.initialConnections ?? data.initialSize,
+        initialSize: data.initialSize ?? data.initialConnections,
         maxIdle: data.maxIdle,
+        maxWait: data.maxWait,
         extraParams: data.extraParams,
         description: data.comment,
         status: data.dbState === '启用' ? 1 : 0,
@@ -132,25 +146,35 @@ export async function getDataSource(id: number): Promise<DataSource | undefined>
 // 新增数据源
 export async function createDataSource(data: Partial<DataSource>): Promise<DataSource> {
   try {
-    // 构建JDBC URL
-    const dbUrl = data.host && data.port 
-      ? `jdbc:mysql://${data.host}:${data.port}/${data.database_name}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai`
-      : '';
-    // 简单的检查URL（不带额外参数）
-    const checkUrl = data.host && data.port && data.database_name
-      ? `jdbc:mysql://${data.host}:${data.port}/${data.database_name}`
-      : 'select 1';
-    
+    // 直接使用jdbcUrl字段
+    const dbUrl = data.jdbcUrl || '';
+    // 根据数据库类型获取默认dbCheckUrl
+    const defaultDbCheckUrls: Record<string, string> = {
+      mysql: 'select 1',
+      postgresql: 'select 1',
+      oracle: 'select 1 from dual',
+      sqlserver: 'select 1',
+    };
+    const dbCheckUrl = data.dbCheckUrl || defaultDbCheckUrls[data.type || 'mysql'] || 'select 1';
+
+    // 获取对应的驱动类
+    const driverMap: Record<string, string> = {
+      mysql: 'com.mysql.cj.jdbc.Driver',
+      postgresql: 'org.postgresql.Driver',
+      oracle: 'oracle.jdbc.OracleDriver',
+      sqlserver: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
+    };
+
     // 转换字段名以匹配后端格式
     const postData: any = {
       id: data.id,  // 编辑时需要传ID
       dbName: data.name,
       dbUrl,
-      checkUrl,  // 检查用URL
+      dbCheckUrl,  // 检查用URL
       dbAccount: data.username,
       dbPassword: data.password,
       dbState: data.status === 1 ? '启用' : '禁用',
-      driverClass: 'com.mysql.cj.jdbc.Driver',
+      driverClass: driverMap[data.type || 'mysql'],
       dbType: data.type?.toUpperCase() || 'MYSQL',
       comment: data.description,
       dataType: data.dataType || 'source',
@@ -159,13 +183,13 @@ export async function createDataSource(data: Partial<DataSource>): Promise<DataS
       // 连接池参数 - 确保始终传递
       maxConnections: data.maxConnections ?? 10,
       maxActive: data.maxActive ?? 10,
-      minIdle: data.minIdle ?? 5,
       initialConnections: data.initialConnections ?? 5,
       initialSize: data.initialSize ?? 5,
       maxIdle: data.maxIdle ?? 10,
+      maxWait: data.maxWait ?? 30000,
       extraParams: data.extraParams || '',
     };
-    
+
     const res = await api.post('/etl-admin/dataSourceManager/addDataSource', postData);
     return res.data;
   } catch (error) {
@@ -184,24 +208,34 @@ export async function createDataSource(data: Partial<DataSource>): Promise<DataS
 // 更新数据源
 export async function updateDataSource(id: number, data: Partial<DataSource>): Promise<DataSource> {
   try {
-    // 构建JDBC URL
-    const dbUrl = data.host && data.port 
-      ? `jdbc:mysql://${data.host}:${data.port}/${data.database_name}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai`
-      : '';
-    // 简单的检查URL（不带额外参数）
-    const checkUrl = data.host && data.port && data.database_name
-      ? `jdbc:mysql://${data.host}:${data.port}/${data.database_name}`
-      : 'select 1';
-    
+    // 直接使用jdbcUrl字段
+    const dbUrl = data.jdbcUrl || '';
+    // 根据数据库类型获取默认dbCheckUrl
+    const defaultDbCheckUrls: Record<string, string> = {
+      mysql: 'select 1',
+      postgresql: 'select 1',
+      oracle: 'select 1 from dual',
+      sqlserver: 'select 1',
+    };
+    const dbCheckUrl = data.dbCheckUrl || defaultDbCheckUrls[data.type || 'mysql'] || 'select 1';
+
+    // 获取对应的驱动类
+    const driverMap: Record<string, string> = {
+      mysql: 'com.mysql.cj.jdbc.Driver',
+      postgresql: 'org.postgresql.Driver',
+      oracle: 'oracle.jdbc.OracleDriver',
+      sqlserver: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
+    };
+
     const postData: any = {
       id,
       dbName: data.name,
       dbUrl,
-      checkUrl,  // 检查用URL
+      dbCheckUrl,  // 检查用URL
       dbAccount: data.username,
       dbPassword: data.password,
       dbState: data.status === 1 ? '启用' : '禁用',
-      driverClass: 'com.mysql.cj.jdbc.Driver',
+      driverClass: driverMap[data.type || 'mysql'],
       dbType: data.type?.toUpperCase() || 'MYSQL',
       comment: data.description,
       dataType: data.dataType || 'source',
@@ -210,13 +244,13 @@ export async function updateDataSource(id: number, data: Partial<DataSource>): P
       // 连接池参数 - 确保始终传递，空值给默认值
       maxConnections: data.maxConnections ?? 10,
       maxActive: data.maxActive ?? 10,
-      minIdle: data.minIdle ?? 5,
       initialConnections: data.initialConnections ?? 5,
       initialSize: data.initialSize ?? 5,
       maxIdle: data.maxIdle ?? 10,
+      maxWait: data.maxWait ?? 30000,
       extraParams: data.extraParams || '',
     };
-    
+
     const res = await api.post('/etl-admin/dataSourceManager/addDataSource', postData);
     return res.data;
   } catch (error) {
@@ -241,19 +275,64 @@ export async function deleteDataSource(id: number): Promise<void> {
   }
 }
 
-// 测试数据源连接
-export async function testDataSource(id: number): Promise<{ success: boolean; message: string }> {
+// 切换数据源状态
+export async function toggleDataSourceStatus(id: number, dbState: string): Promise<void> {
   try {
-    const ds = MOCK_DATASOURCES.find(d => d.id === id);
-    if (!ds) return { success: false, message: '数据源不存在' };
-    
-    const res = await api.post('/etl-admin/dataSourceManager/checkUrl', {
-      dbUrl: `jdbc:mysql://${ds.host}:${ds.port}/${ds.database_name}`,
-      dbAccount: ds.username,
-      dbPassword: ds.password,
-      driverClass: 'com.mysql.cj.jdbc.Driver',
+    await api.post('/etl-admin/dataSourceManager/updateDataSourceState', {
+      id,
+      dbState
     });
-    
+  } catch (error) {
+    console.error('Failed to toggle datasource status:', error);
+    throw error;
+  }
+}
+
+// 测试数据源连接
+export async function testDataSource(idOrData: number | Partial<DataSource>): Promise<{ success: boolean; message: string }> {
+  try {
+    // 获取驱动类映射
+    const driverMap: Record<string, string> = {
+      mysql: 'com.mysql.cj.jdbc.Driver',
+      postgresql: 'org.postgresql.Driver',
+      oracle: 'oracle.jdbc.OracleDriver',
+      sqlserver: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
+    };
+
+    // 获取默认dbCheckUrl
+    const defaultDbCheckUrls: Record<string, string> = {
+      mysql: 'select 1',
+      postgresql: 'select 1',
+      oracle: 'select 1 from dual',
+      sqlserver: 'select 1',
+    };
+
+    let postData: any;
+
+    if (typeof idOrData === 'number') {
+      // 传入id时，从列表获取数据
+      const ds = MOCK_DATASOURCES.find(d => d.id === idOrData);
+      if (!ds) return { success: false, message: '数据源不存在' };
+      postData = {
+        dbUrl: ds.jdbcUrl,
+        dbAccount: ds.username,
+        dbPassword: ds.password,
+        driverClass: driverMap[ds.type] || 'com.mysql.cj.jdbc.Driver',
+        dbCheckUrl: ds.dbCheckUrl || defaultDbCheckUrls[ds.type] || 'select 1',
+      };
+    } else {
+      // 直接传数据测试
+      postData = {
+        dbUrl: idOrData.jdbcUrl,
+        dbAccount: idOrData.username,
+        dbPassword: idOrData.password,
+        driverClass: driverMap[idOrData.type || 'mysql'],
+        dbCheckUrl: idOrData.dbCheckUrl || defaultDbCheckUrls[idOrData.type || 'mysql'] || 'select 1',
+      };
+    }
+
+    const res = await api.post('/etl-admin/dataSourceManager/checkUrl', postData);
+
     if (res.data?.success) {
       return { success: true, message: '连接成功' };
     }
@@ -557,9 +636,9 @@ let MOCK_TASKS: Task[] = [
 export async function getDataSourceTree(): Promise<any[]> {
   try {
     // 先获取数据源列表
-    const datasources = await getDataSources();
+    const datasources = await getDataSources({});
     // 转换格式
-    return datasources.map(ds => ({
+    return datasources.list.map(ds => ({
       id: ds.id,
       name: ds.name,
       type: 'datasource',
@@ -632,21 +711,24 @@ export async function getApiList(params: {
   page?: number;
   limit?: number;
   datasourceId?: number;
+  databaseName?: string;
   tableName?: string;
-  keyword?: string;
+  name?: string;
+  path?: string;
+  source?: string;
 }): Promise<{ list: ApiConfig[]; total: number }> {
   try {
     const res = await api.post('/etl-admin/apiManager/list', params);
-    if (res.data?.data) {
+    if (res.data?.list) {
       return {
-        list: res.data.data.list || [],
-        total: res.data.data.total || 0
+        list: res.data.list || [],
+        total: res.data.count || 0
       };
     }
     return { list: [], total: 0 };
   } catch (error) {
     console.error('Failed to load API list:', error);
-    return MOCK_API_LIST;
+    return { list: MOCK_API_LIST, total: MOCK_API_LIST.length };
   }
 }
 
@@ -656,6 +738,9 @@ export async function getApiDetail(id: number): Promise<ApiConfig | undefined> {
     const res = await api.post('/etl-admin/apiManager/detail', { id });
     if (res.data?.data) {
       return res.data.data;
+    }
+    if (res.data) {
+      return res.data;
     }
     return undefined;
   } catch (error) {
@@ -733,9 +818,13 @@ export async function getApiInputParams(apiId: number): Promise<ApiInputParam[]>
 // 保存输入参数
 export async function saveApiInputParams(apiId: number, params: ApiInputParam[]): Promise<void> {
   try {
-    // 这里需要后端提供接口
+    await api.post('/etl-admin/apiManager/saveInputParams', {
+      apiId,
+      params
+    });
   } catch (error) {
     console.error('Failed to save input params:', error);
+    throw error;
   }
 }
 
@@ -752,9 +841,13 @@ export async function getApiOutputParams(apiId: number): Promise<ApiOutputParam[
 // 保存输出参数
 export async function saveApiOutputParams(apiId: number, params: ApiOutputParam[]): Promise<void> {
   try {
-    // 这里需要后端提供接口
+    await api.post('/etl-admin/apiManager/saveOutputParams', {
+      apiId,
+      params
+    });
   } catch (error) {
     console.error('Failed to save output params:', error);
+    throw error;
   }
 }
 
@@ -770,7 +863,7 @@ let MOCK_API_LIST: ApiConfig[] = [
     databaseName: 'wms_db',
     tableName: 't_users',
     description: '查询用户列表',
-    queryFields: 'id,username,email,phone,status',
+    querySql: 'SELECT id,username,email,phone,status\nFROM t_users\n<where>\n  1=1\n</where>',
     paginationEnabled: 1,
     mockEnabled: 1,
     mockData: '{"code":1,"data":{"list":[]},"msg":"success"}',
@@ -788,7 +881,7 @@ let MOCK_API_LIST: ApiConfig[] = [
     databaseName: 'wms_db',
     tableName: 't_orders',
     description: '查询订单列表',
-    queryFields: 'order_id,order_no,amount,status',
+    querySql: 'SELECT order_id,order_no,amount,status\nFROM t_orders\n<where>\n  1=1\n</where>',
     paginationEnabled: 1,
     mockEnabled: 0,
     status: 1,
@@ -796,3 +889,564 @@ let MOCK_API_LIST: ApiConfig[] = [
     updatedAt: '2026-03-02 10:00:00',
   },
 ];
+
+// ========== 功能管理 API ==========
+
+// 获取功能列表
+export async function getFeatures(params?: { page?: number; limit?: number; keyword?: string }): Promise<{ list: Feature[]; total: number }> {
+  try {
+    const res = await api.post('/etl-admin/feature/list', {
+      page: params?.page || 1,
+      pageSize: params?.limit || 5,
+      keyword: params?.keyword || '',
+    });
+    if (((res.data?.code === 1 || res.data?.code === 0 || res.data?.success)) && res.data?.list) {
+      return {
+        list: res.data.list || [],
+        total: res.data.count || 0,
+      };
+    }
+    return { list: [], total: 0 };
+  } catch (error) {
+    console.error('Failed to load features:', error);
+    return { list: [], total: 0 };
+  }
+}
+
+// 获取功能详情
+export async function getFeatureDetail(id: number): Promise<Feature | null> {
+  try {
+    const res = await api.post('/etl-admin/feature/detail', { id });
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data;
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to load feature detail:', error);
+    return null;
+  }
+}
+
+// 保存功能
+export async function saveFeature(feature: Feature): Promise<boolean> {
+  try {
+    const cleanFeature = {
+      ...feature,
+      columns: feature.columns?.map(col => ({
+        fieldName: col.fieldName,
+        fieldLabel: col.fieldLabel,
+        fieldType: col.fieldType,
+        span: col.span,
+        sortable: col.sortable,
+        visible: col.visible,
+        align: col.align,
+        queryCondition: col.queryCondition,
+        fieldOrder: col.fieldOrder,
+        dataDictionary: col.dataDictionary,
+      })),
+    };
+    const res = await api.post('/etl-admin/feature/save', cleanFeature);
+    return res.data?.code === 1 || res.data?.code === 0;
+  } catch (error) {
+    console.error('Failed to save feature:', error);
+    return false;
+  }
+}
+
+// 删除功能
+export async function deleteFeature(id: number): Promise<void> {
+  try {
+    await api.post('/etl-admin/feature/delete', { id });
+  } catch (error) {
+    console.error('Failed to delete feature:', error);
+    throw error;
+  }
+}
+
+// 获取API列表（用于功能关联）
+export async function getApiListSimple(): Promise<ApiConfig[]> {
+  try {
+    const res = await api.post('/etl-admin/apiManager/list', { page: 1, pageSize: 1000 });
+    if (((res.data?.code === 1 || res.data?.code === 0 || res.data?.success)) && res.data?.list) {
+      return res.data.list || [];
+    }
+    return [];
+  } catch (error) {
+    console.error('Failed to load API list:', error);
+    return [];
+  }
+}
+
+// 获取显示在菜单的功能列表
+export async function getMenuFeatures(): Promise<Feature[]> {
+  try {
+    const res = await api.get('/etl-admin/feature/menuList');
+    if (((res.data?.code === 1 || res.data?.code === 0 || res.data?.success)) && res.data?.data) {
+      return res.data.data;
+    }
+    return [];
+  } catch (error) {
+    console.error('Failed to load menu features:', error);
+    return [];
+  }
+}
+
+// 根据编码获取功能
+export async function getFeatureByCode(code: string): Promise<Feature | null> {
+  try {
+    const res = await api.get('/etl-admin/feature/getByCode', { params: { code } });
+    if (((res.data?.code === 1 || res.data?.code === 0 || res.data?.success)) && res.data?.data) {
+      return res.data.data;
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to load feature by code:', error);
+    return null;
+  }
+}
+
+// 生成CRUD API
+export async function generateCrudApi(dataSourceId: number, tableName: string, featureCode: string, columns?: any[]): Promise<any> {
+  try {
+    const res = await api.post('/etl-admin/feature/generateApi', {
+      dataSourceId,
+      tableName,
+      featureCode,
+      columns: columns || [],
+    });
+    if ((res.data?.code === 1 || res.data?.code === 0 || res.data?.success)) {
+      return res.data.data;
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to generate CRUD API:', error);
+    return null;
+  }
+}
+
+// ========== 数据字典 API ==========
+
+export async function getDictList(params?: { name?: string; code?: string; status?: number; page?: number; limit?: number }): Promise<{ list: Dict[]; total: number }> {
+  try {
+    const res = await api.post('/api/dict/list', { ...params, page: params?.page || 1, limit: params?.limit || 10 });
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data) {
+      return {
+        list: res.data.list || [],
+        total: res.data.count || 0
+      };
+    }
+    return { list: [], total: 0 };
+  } catch (error) {
+    console.error('Failed to load dict list:', error);
+    return { list: [], total: 0 };
+  }
+}
+
+export async function getDictDetail(id: number): Promise<Dict | null> {
+  try {
+    const res = await api.get(`/api/dict/${id}`);
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data) {
+      return res.data.data;
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to load dict detail:', error);
+    return null;
+  }
+}
+
+export async function saveDict(dict: Partial<Dict>): Promise<Dict | null> {
+  try {
+    const res = await api.post('/api/dict', dict);
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data) {
+      return res.data.data;
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to save dict:', error);
+    throw error;
+  }
+}
+
+export async function deleteDict(id: number): Promise<void> {
+  try {
+    await api.delete(`/api/dict/${id}`);
+  } catch (error) {
+    console.error('Failed to delete dict:', error);
+    throw error;
+  }
+}
+
+export async function getDictItems(dictId: number): Promise<DictItem[]> {
+  try {
+    const res = await api.get(`/api/dict/${dictId}/items`);
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data || [];
+    }
+    return [];
+  } catch (error) {
+    console.error('Failed to load dict items:', error);
+    return [];
+  }
+}
+
+export async function saveDictItem(item: Partial<DictItem>): Promise<DictItem | null> {
+  try {
+    const res = await api.post('/api/dict/item', item);
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data;
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to save dict item:', error);
+    throw error;
+  }
+}
+
+export async function deleteDictItem(id: number): Promise<void> {
+  try {
+    await api.delete(`/api/dict/item/${id}`);
+  } catch (error) {
+    console.error('Failed to delete dict item:', error);
+    throw error;
+  }
+}
+
+export async function saveDictItems(dictId: number, dictCode: string, items: DictItem[]): Promise<void> {
+  try {
+    await api.post(`/api/dict/${dictId}/items?dictCode=${dictCode}`, items);
+  } catch (error) {
+    console.error('Failed to save dict items:', error);
+    throw error;
+  }
+}
+
+export async function getAllDictItems(): Promise<Record<string, DictItem[]>> {
+  try {
+    const res = await api.get('/api/dict/all-items');
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data || {};
+    }
+    return {};
+  } catch (error) {
+    console.error('Failed to load all dict items:', error);
+    return {};
+  }
+}
+
+// ========== 系统参数 API ==========
+
+export async function getSystemConfigList(params?: { name?: string; code?: string; groupName?: string; status?: number; page?: number; limit?: number }): Promise<{ list: SystemConfig[]; total: number }> {
+  try {
+    const res = await api.post('/api/system-config/list', { ...params, page: params?.page || 1, limit: params?.limit || 10 });
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data) {
+      return {
+        list: res.data.list || [],
+        total: res.data.count || 0
+      };
+    }
+    return { list: [], total: 0 };
+  } catch (error) {
+    console.error('Failed to load system config list:', error);
+    return { list: [], total: 0 };
+  }
+}
+
+export async function getSystemConfigDetail(id: number): Promise<SystemConfig | null> {
+  try {
+    const res = await api.get(`/api/system-config/${id}`);
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data;
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to load system config detail:', error);
+    return null;
+  }
+}
+
+export async function saveSystemConfig(config: Partial<SystemConfig>): Promise<SystemConfig | null> {
+  try {
+    const res = await api.post('/api/system-config', config);
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data;
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to save system config:', error);
+    throw error;
+  }
+}
+
+export async function deleteSystemConfig(id: number): Promise<void> {
+  try {
+    await api.delete(`/api/system-config/${id}`);
+  } catch (error) {
+    console.error('Failed to delete system config:', error);
+    throw error;
+  }
+}
+
+export async function getSystemConfigByGroup(groupName: string): Promise<SystemConfig[]> {
+  try {
+    const res = await api.get(`/api/system-config/group/${groupName}`);
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data || [];
+    }
+    return [];
+  } catch (error) {
+    console.error('Failed to load system config by group:', error);
+    return [];
+  }
+}
+
+export async function getSystemConfigByCode(code: string): Promise<SystemConfig | null> {
+  try {
+    const res = await api.post('/api/system-config/list', { code, limit: 1 });
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.list?.length > 0) {
+      return res.data.list[0];
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to load system config by code:', error);
+    return null;
+  }
+}
+
+// ========== 角色管理 API ==========
+
+export async function getRoles(params?: { role?: string; page?: number; limit?: number }): Promise<{ list: SysRole[]; total: number }> {
+  try {
+    const res = await api.post('/etl-admin/sysRole/list', {
+      page: params?.page || 1,
+      limit: params?.limit || 10,
+      role: params?.role || '',
+    });
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data) {
+      return {
+        list: res.data.list || [],
+        total: res.data.count || 0
+      };
+    }
+    return { list: [], total: 0 };
+  } catch (error) {
+    console.error('Failed to load roles:', error);
+    return { list: [], total: 0 };
+  }
+}
+
+export async function getRoleDetail(id: number): Promise<SysRole | null> {
+  try {
+    const res = await api.post('/etl-admin/sysRole/detail', { id });
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data;
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to load role detail:', error);
+    return null;
+  }
+}
+
+export async function saveRole(role: Partial<SysRole>): Promise<SysRole | null> {
+  try {
+    const res = await api.post('/etl-admin/sysRole/save', role);
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data;
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to save role:', error);
+    throw error;
+  }
+}
+
+export async function deleteRole(id: number): Promise<void> {
+  try {
+    await api.post('/etl-admin/sysRole/delete', { id });
+  } catch (error) {
+    console.error('Failed to delete role:', error);
+    throw error;
+  }
+}
+
+export async function getRoleMenuIds(roleId: number): Promise<number[]> {
+  try {
+    const res = await api.post('/etl-admin/sysRole/menuIds', { roleId });
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data || [];
+    }
+    return [];
+  } catch (error) {
+    console.error('Failed to load role menu ids:', error);
+    return [];
+  }
+}
+
+export async function bindMenus(roleId: number, menuIds: number[]): Promise<void> {
+  try {
+    await api.post('/etl-admin/sysRole/bindMenus', { roleId, menuIds });
+  } catch (error) {
+    console.error('Failed to bind menus:', error);
+    throw error;
+  }
+}
+
+// ========== 用户管理 API ==========
+
+export async function getUsers(params?: { name?: string; phone?: string; employeeNo?: string; page?: number; limit?: number; status?: number }): Promise<{ list: SysUser[]; total: number }> {
+  try {
+    const res = await api.post('/etl-admin/sysUser/list', {
+      page: params?.page || 1,
+      limit: params?.limit || 10,
+      name: params?.name || '',
+      phone: params?.phone || '',
+      employeeNo: params?.employeeNo || '',
+      status: params?.status,
+    });
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data) {
+      return {
+        list: res.data.list || [],
+        total: res.data.count || 0
+      };
+    }
+    return { list: [], total: 0 };
+  } catch (error) {
+    console.error('Failed to load users:', error);
+    return { list: [], total: 0 };
+  }
+}
+
+export async function getUserDetail(id: number): Promise<SysUser | null> {
+  try {
+    const res = await api.post('/etl-admin/sysUser/detail', { id });
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data;
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to load user detail:', error);
+    return null;
+  }
+}
+
+export async function saveUser(user: Partial<SysUser>): Promise<SysUser | null> {
+  const res = await api.post('/etl-admin/sysUser/save', user);
+  if (res.data?.code === 0 && res.data?.data) {
+    return res.data.data;
+  }
+  throw new Error(res.data?.msg || '保存失败');
+}
+
+export async function deleteUser(id: number): Promise<void> {
+  try {
+    await api.post('/etl-admin/sysUser/delete', { id });
+  } catch (error) {
+    console.error('Failed to delete user:', error);
+    throw error;
+  }
+}
+
+export async function userLogin(employeeNo: string, password: string): Promise<{ success: boolean; message: string; user?: SysUser }> {
+  try {
+    const res = await api.post('/etl-admin/sysUser/login', { employeeNo, password });
+    if (res.data?.success) {
+      return {
+        success: true,
+        message: res.data?.message || '登录成功',
+        user: res.data?.data?.user,
+      };
+    }
+    return {
+      success: false,
+      message: res.data?.message || '登录失败',
+    };
+  } catch (error) {
+    console.error('Failed to login:', error);
+    return { success: false, message: '登录异常' };
+  }
+}
+
+// ========== 菜单管理 API ==========
+
+export async function getMenus(params?: { name?: string; code?: string; page?: number; limit?: number }): Promise<{ list: SysMenu[]; total: number }> {
+  try {
+    const res = await api.post('/etl-admin/sysMenu/list', {
+      page: params?.page || 1,
+      limit: params?.limit || 10,
+      name: params?.name || '',
+      code: params?.code || '',
+    });
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data) {
+      return {
+        list: res.data.list || [],
+        total: res.data.count || 0
+      };
+    }
+    return { list: [], total: 0 };
+  } catch (error) {
+    console.error('Failed to load menus:', error);
+    return { list: [], total: 0 };
+  }
+}
+
+export async function getMenuDetail(id: number): Promise<SysMenu | null> {
+  try {
+    const res = await api.post('/etl-admin/sysMenu/detail', { id });
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data;
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to load menu detail:', error);
+    return null;
+  }
+}
+
+export async function saveMenu(menu: Partial<SysMenu>): Promise<SysMenu | null> {
+  try {
+    const res = await api.post('/etl-admin/sysMenu/save', menu);
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data;
+    }
+    return null;
+  } catch (error) {
+    console.error('Failed to save menu:', error);
+    throw error;
+  }
+}
+
+export async function deleteMenu(id: number): Promise<void> {
+  try {
+    await api.post('/etl-admin/sysMenu/delete', { id });
+  } catch (error) {
+    console.error('Failed to delete menu:', error);
+    throw error;
+  }
+}
+
+export async function getMenuTree(): Promise<SysMenu[]> {
+  try {
+    const res = await api.get('/etl-admin/sysMenu/tree');
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data || [];
+    }
+    return [];
+  } catch (error) {
+    console.error('Failed to load menu tree:', error);
+    return [];
+  }
+}
+
+export async function getMenuTreeByRoleId(roleId: number): Promise<SysMenu[]> {
+  try {
+    const res = await api.post('/etl-admin/sysMenu/roleMenus', { roleId });
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data || [];
+    }
+    return [];
+  } catch (error) {
+    console.error('Failed to load role menus:', error);
+    return [];
+  }
+}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, RefreshCw, Edit, Trash2, Plug } from 'lucide-react';
-import { getDataSources, deleteDataSource, testDataSource } from '../lib/api';
+import { Plus, RefreshCw, Edit, Trash2, Plug, ChevronLeft, ChevronRight } from 'lucide-react';
+import { getDataSources, deleteDataSource, testDataSource, toggleDataSourceStatus } from '../lib/api';
 import type { DataSource } from '../types';
 
 export default function DataSourceList() {
@@ -11,20 +11,46 @@ export default function DataSourceList() {
   const [searchName, setSearchName] = useState('');
   const [searchType, setSearchType] = useState('');
   const [searchDataType, setSearchDataType] = useState('');
+  const [searchStatus, setSearchStatus] = useState('');
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [page, limit, searchName, searchType, searchDataType, searchStatus]);
 
   const loadData = async () => {
     setLoading(true);
     try {
-      const data = await getDataSources(searchDataType || undefined);
-      setDatasources(data);
+      const data = await getDataSources({
+        page,
+        limit,
+        name: searchName || undefined,
+        dataType: searchDataType || undefined,
+        dbState: searchStatus || undefined,
+      });
+      setDatasources(data.list);
+      setTotal(data.total);
     } catch (error) {
       console.error('Failed to load datasources:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSearch = () => {
+    setPage(1);
+    loadData();
+  };
+
+  const handleStatusChange = async (id: number, currentDbState: string) => {
+    try {
+      const newStatus = currentDbState === '启用' ? '禁用' : '启用';
+      await toggleDataSourceStatus(id, newStatus);
+      loadData();
+    } catch (error) {
+      console.error('Failed to change status:', error);
     }
   };
 
@@ -40,12 +66,7 @@ export default function DataSourceList() {
     alert(result.message);
   };
 
-  const filteredDatasources = datasources.filter(ds => {
-    const matchName = !searchName || ds.name.toLowerCase().includes(searchName.toLowerCase());
-    const matchType = !searchType || ds.type === searchType;
-    const matchDataType = !searchDataType || ds.dataType === searchDataType;
-    return matchName && matchType && matchDataType;
-  });
+  const totalPages = Math.ceil(total / limit);
 
   const getTypeLabel = (type: string) => {
     const map: Record<string, string> = {
@@ -67,7 +88,6 @@ export default function DataSourceList() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-white">数据源管理</h1>
-            <p className="text-xs text-slate-500">配置数据库连接</p>
           </div>
         </div>
         <Link
@@ -87,6 +107,7 @@ export default function DataSourceList() {
               type="text"
               value={searchName}
               onChange={(e) => setSearchName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
               placeholder="支持数据源名称查询"
               className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-sm text-slate-200 placeholder-slate-600"
             />
@@ -111,11 +132,20 @@ export default function DataSourceList() {
             <option value="source">源数据库</option>
             <option value="target">目标数据库</option>
           </select>
+          <select
+            value={searchStatus}
+            onChange={(e) => setSearchStatus(e.target.value)}
+            className="px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-sm text-slate-200"
+          >
+            <option value="">全部状态</option>
+            <option value="启用">启用</option>
+            <option value="禁用">禁用</option>
+          </select>
           <button
-            onClick={loadData}
+            onClick={handleSearch}
             className="px-4 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
           >
-            <RefreshCw className="w-4 h-4" />
+            搜索
           </button>
         </div>
       </div>
@@ -139,18 +169,18 @@ export default function DataSourceList() {
           <tbody className="divide-y divide-slate-700/50">
             {loading ? (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-slate-400">
+                <td colSpan={9} className="px-4 py-8 text-center text-slate-400">
                   加载中...
                 </td>
               </tr>
-            ) : filteredDatasources.length === 0 ? (
+            ) : datasources.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-slate-400">
+                <td colSpan={9} className="px-4 py-8 text-center text-slate-400">
                   暂无数据
                 </td>
               </tr>
             ) : (
-              filteredDatasources.map((ds) => (
+              datasources.map((ds) => (
                 <tr key={ds.id} className="hover:bg-slate-800/30 transition-colors">
                   <td className="px-4 py-3 text-slate-400">{ds.id}</td>
                   <td className="px-4 py-3 text-white font-medium">{ds.name}</td>
@@ -168,9 +198,15 @@ export default function DataSourceList() {
                   <td className="px-4 py-3 text-slate-400">{ds.port}</td>
                   <td className="px-4 py-3 text-slate-300">{ds.database_name}</td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-1 rounded text-xs ${ds.status === 1 ? 'bg-green-500/20 text-green-400' : 'bg-slate-600/20 text-slate-400'}`}>
-                      {ds.status === 1 ? '启用' : '禁用'}
-                    </span>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={ds.dbState === '启用'}
+                        onChange={() => handleStatusChange(ds.id, ds.dbState)}
+                        className="sr-only peer"
+                      />
+                      <div className="w-11 h-6 bg-slate-600 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                    </label>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-center gap-2">
@@ -203,6 +239,47 @@ export default function DataSourceList() {
           </tbody>
         </table>
       </div>
+
+      {/* 分页组件 */}
+      {total > 0 && (
+        <div className="flex items-center justify-between mt-4 px-2">
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-slate-400">共 {total} 条记录</span>
+            <select
+              value={limit}
+              onChange={(e) => {
+                setLimit(Number(e.target.value));
+                setPage(1);
+              }}
+              className="px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-sm text-white"
+            >
+              <option value={5}>5条/页</option>
+              <option value={10}>10条/页</option>
+              <option value={20}>20条/页</option>
+              <option value={50}>50条/页</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage(page - 1)}
+              disabled={page <= 1}
+              className="p-1.5 rounded hover:bg-slate-700 text-slate-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <span className="text-sm text-white px-2">
+              {page} / {totalPages}
+            </span>
+            <button
+              onClick={() => setPage(page + 1)}
+              disabled={page >= totalPages}
+              className="p-1.5 rounded hover:bg-slate-700 text-slate-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

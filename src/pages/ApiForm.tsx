@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Save, RefreshCw, Trash2 } from 'lucide-react';
 import { getDataSources, getTableList, getTableColumns, saveApi, getApiDetail } from '../lib/api';
-import type { DataSource, ApiConfig, ApiInputParam, TableInfo, ColumnInfo } from '../types';
+import type { DataSource, ApiConfig, ApiInputParam, ApiOutputParam, TableInfo, ColumnInfo } from '../types';
 
-const STEPS = ['基本信息', '参数配置', 'SQL配置', 'Mock配置'];
+const STEPS = ['基本信息', '参数及SQL配置', 'Mock配置'];
 
 // 生成随机16位字符串
 const generateRandomString = (length: number = 16): string => {
@@ -16,15 +16,21 @@ const generateRandomString = (length: number = 16): string => {
   return result;
 };
 
-export default function ApiForm() {
+export default function ApiForm({ overrideId }: { overrideId?: string }) {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const params = useParams();
+  const id = overrideId || params.id;
   const [searchParams] = useSearchParams();
   const isEdit = !!id;
 
   const [currentStep, setCurrentStep] = useState(0);
+  const [inputParamsExpanded, setInputParamsExpanded] = useState(true);
+  const [outputParamsExpanded, setOutputParamsExpanded] = useState(true);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [apiParamsLoaded, setApiParamsLoaded] = useState(false);
+  const [datasourcesLoaded, setDatasourcesLoaded] = useState(false);
+  const isLoadingApiDetail = useRef(false);
 
   const [datasources, setDatasources] = useState<DataSource[]>([]);
   const [tables, setTables] = useState<TableInfo[]>([]);
@@ -40,46 +46,45 @@ export default function ApiForm() {
     tableName: '',
     apiType: 'private', // 默认为私有
     description: '',
-    queryFields: '',
+    querySql: '',
 
     mockEnabled: 1,
     mockData: '',
     status: 1,
+    source: 'manual',
   });
 
   const [inputParams, setInputParams] = useState<ApiInputParam[]>([]);
+  const [outputParams, setOutputParams] = useState<ApiOutputParam[]>([]);
   const [selectedFields, setSelectedFields] = useState<string[]>([]);
   const [generatedSql, setGeneratedSql] = useState('');
 
   useEffect(() => {
     loadDataSources();
+  }, []);
+
+  useEffect(() => {
     if (isEdit && id) {
       loadApiDetail(parseInt(id));
     }
   }, [id]);
 
   useEffect(() => {
-    if (formData.databaseName) {
-      loadTables(formData.databaseName);
-    }
-  }, [formData.databaseName]);
-
-  useEffect(() => {
-    if (formData.databaseName && formData.tableName) {
+    if (formData.databaseName && formData.tableName && datasourcesLoaded) {
       loadColumns(formData.databaseName, formData.tableName);
     }
-  }, [formData.tableName]);
+  }, [formData.tableName, datasourcesLoaded]);
 
   useEffect(() => {
-    if (inputParams.length > 0 && formData.tableName) {
+    if (outputParams.length > 0 && formData.tableName) {
       generateSql();
     }
-  }, [inputParams, formData.tableName]);
+  }, [inputParams, outputParams, selectedFields, formData.tableName]);
 
   const loadDataSources = async () => {
     try {
-      const data = await getDataSources();
-      const activeDatasources = data.filter((ds: DataSource) => ds.status === 1);
+      const data = await getDataSources({});
+      const activeDatasources = data.list.filter((ds: DataSource) => ds.status === 1);
       setDatasources(activeDatasources);
 
       // 数据源加载完成后，检查URL参数并初始化表单
@@ -90,17 +95,18 @@ export default function ApiForm() {
         const dsId = parseInt(datasourceId);
         const ds = activeDatasources.find((d: DataSource) => d.id === dsId);
         if (ds) {
+          // 先标记已加载，再设置表单（useEffect 会自动触发表格加载）
+          setDatasourcesLoaded(true);
           setFormData(prev => ({
             ...prev,
             datasourceId: ds.id,
             datasourceName: ds.name,
-            databaseName: ds.databaseName,
+            databaseName: ds.database_name || ds.dbName,
             tableName: tableName || '',
           }));
-          // 如果有表名，需要加载表和字段，并生成API名称和路径
+          // 如果有表名，加载表信息用于生成API名称和路径
           if (tableName) {
             loadTables(ds.databaseName).then((tableList) => {
-              loadColumns(ds.databaseName, tableName);
               // 从表列表中获取表注释，生成API名称和路径
               const currentTable = tableList.find((t: TableInfo) => t.tableName === tableName);
               const tableComment = currentTable?.tableComment || tableName;
@@ -113,9 +119,13 @@ export default function ApiForm() {
             });
           }
         }
+      } else {
+        // 非URL参数模式（编辑模式或普通新建），标记数据源已加载
+        setDatasourcesLoaded(true);
       }
     } catch (error) {
       console.error('Failed to load datasources:', error);
+      setDatasourcesLoaded(true);
     }
   };
 
@@ -134,7 +144,10 @@ export default function ApiForm() {
     try {
       const data = await getTableColumns(dbName, tableName);
       setColumns(data);
-      autoGenerateParams(data);
+      // 仅在未加载API详情时自动生成（编辑模式下不覆盖已加载的参数）
+      if (!apiParamsLoaded && !isLoadingApiDetail.current) {
+        autoGenerateParams(data);
+      }
     } catch (error) {
       console.error('Failed to load columns:', error);
     }
@@ -142,21 +155,40 @@ export default function ApiForm() {
 
   const loadApiDetail = async (apiId: number) => {
     setLoading(true);
+    isLoadingApiDetail.current = true;
     try {
       const data = await getApiDetail(apiId);
+      console.log('加载到的API详情:', JSON.stringify(data));
       if (data) {
         setFormData(data);
+        // 设置输入参数
+        if (data.inputParams) {
+          console.log('inputParams:', data.inputParams);
+          setInputParams(data.inputParams);
+        }
+        // 设置返回值和选中的字段
+        if (data.outputParams) {
+          console.log('outputParams:', data.outputParams);
+          setOutputParams(data.outputParams);
+          setSelectedFields(data.outputParams.map((p: any) => p.columnName));
+        }
+        // 标记API参数已加载
+        setApiParamsLoaded(true);
+        // 编辑模式下默认停留在基本配置步骤
+        setCurrentStep(0);
+        setOutputParamsExpanded(false);
       }
     } catch (error) {
       console.error('Failed to load API detail:', error);
     } finally {
+      isLoadingApiDetail.current = false;
       setLoading(false);
     }
   };
 
   const autoGenerateParams = (cols: ColumnInfo[]) => {
     const inputs: ApiInputParam[] = [];
-    
+
     // 添加表字段作为参数
     const fieldInputs = cols.map(col => ({
       paramName: col.columnName,
@@ -166,8 +198,18 @@ export default function ApiForm() {
       defaultValue: '',
       description: col.columnComment || '',
     }));
-    
+
     setInputParams([...inputs, ...fieldInputs]);
+
+    // 生成返回值 - 使用表字段，自动设置别名
+    const outputs: ApiOutputParam[] = cols.map(col => ({
+      columnName: col.columnName,
+      alias: col.columnName, // 默认使用字段名作为别名
+      dataType: col.dataType,
+      description: col.columnComment || '',
+    }));
+
+    setOutputParams(outputs);
     setSelectedFields(cols.map((c: ColumnInfo) => c.columnName));
   };
 
@@ -184,17 +226,23 @@ export default function ApiForm() {
   const handleDataSourceChange = (dsId: number) => {
     const ds = datasources.find(d => d.id === dsId);
     if (ds) {
+      const dbName = ds.databaseName || ds.database_name || ds.dbName || '';
       setFormData(prev => ({
         ...prev,
         datasourceId: ds.id,
         datasourceName: ds.name,
-        databaseName: ds.databaseName,
+        databaseName: dbName,
         tableName: '',
       }));
       setTables([]);
       setColumns([]);
       setInputParams([]);
+      setOutputParams([]);
       setSelectedFields([]);
+      // 加载表列表
+      if (dbName) {
+        loadTables(dbName);
+      }
     }
   };
 
@@ -225,6 +273,33 @@ export default function ApiForm() {
     setInputParams(inputParams.filter((_, i) => i !== index));
   };
 
+  // 返回值操作函数
+  const updateOutputParam = (index: number, field: keyof ApiOutputParam, value: any) => {
+    const newParams = [...outputParams];
+    newParams[index] = { ...newParams[index], [field]: value };
+    setOutputParams(newParams);
+  };
+
+  const removeOutputParam = (index: number) => {
+    setOutputParams(outputParams.filter((_, i) => i !== index));
+  };
+
+  const toggleOutputField = (columnName: string) => {
+    if (selectedFields.includes(columnName)) {
+      setSelectedFields(selectedFields.filter(f => f !== columnName));
+    } else {
+      setSelectedFields([...selectedFields, columnName]);
+    }
+  };
+
+  const toggleAllOutputFields = (checked: boolean) => {
+    if (checked) {
+      setSelectedFields(outputParams.map(p => p.columnName));
+    } else {
+      setSelectedFields([]);
+    }
+  };
+
   const getOperator = (paramType: string): string => {
     switch (paramType) {
       case 'string': return 'LIKE';
@@ -236,8 +311,17 @@ export default function ApiForm() {
     const tableName = formData.tableName;
     if (!tableName) return;
 
-    const queryFields = selectedFields.length > 0 ? selectedFields.join(', ') : '*';
-    
+    // 使用返回值生成查询字段，支持别名
+    const queryFields = outputParams
+      .filter(p => selectedFields.includes(p.columnName))
+      .map(p => {
+        if (p.alias && p.alias !== p.columnName) {
+          return `${p.columnName} AS ${p.alias}`;
+        }
+        return p.columnName;
+      })
+      .join(', ');
+
     const whereConditions = inputParams
       .filter(p => p.columnName)
       .map(p => {
@@ -253,7 +337,7 @@ export default function ApiForm() {
       })
       .join('\n');
 
-    const sql = `SELECT ${queryFields}
+    const sql = `SELECT ${queryFields || '*'}
 FROM ${tableName}
 <where>
 ${whereConditions || '  1=1'}
@@ -263,15 +347,20 @@ ${whereConditions || '  1=1'}
   };
 
   const generateMockData = () => {
+    // 生成3条模拟数据记录，每条记录包含所有选中字段
+    const mockList = Array.from({ length: 3 }, (_, rowIndex) => {
+      const record: any = {};
+      selectedFields.forEach((field, colIndex) => {
+        const param = inputParams.find(p => p.columnName === field);
+        record[field] = getMockValue(param?.paramType || 'string', rowIndex * selectedFields.length + colIndex);
+      });
+      return record;
+    });
+
     const mock: any = {
       code: 1,
       data: {
-        list: selectedFields.slice(0, 3).map((field, i) => {
-          const param = inputParams.find(p => p.columnName === field);
-          const obj: any = {};
-          obj[field] = getMockValue(param?.paramType || 'string', i);
-          return obj;
-        }),
+        list: mockList,
         total: 100,
         page: 1,
         pageSize: 10,
@@ -295,8 +384,19 @@ ${whereConditions || '  1=1'}
   const handleSave = async () => {
     setSaving(true);
     try {
-      const queryFields = selectedFields.join(', ');
-      const finalFormData = { ...formData, queryFields };
+      // 如果用户没有手动编辑过SQL，则使用生成的SQL
+      const finalSql = formData.querySql || generatedSql;
+
+      const selectedOutputParams = outputParams.filter(p => selectedFields.includes(p.columnName));
+
+      const finalFormData = {
+        ...formData,
+        querySql: finalSql,
+        inputParams: inputParams,
+        outputParams: selectedOutputParams
+      };
+
+      console.log('保存数据:', JSON.stringify(finalFormData));
       await saveApi(finalFormData);
       navigate('/apis');
     } catch (error) {
@@ -312,10 +412,15 @@ ${whereConditions || '  1=1'}
       case 0:
         return formData.name && formData.path && formData.datasourceId && formData.tableName;
       case 1:
-        return inputParams.length > 0;
+        return inputParams.length > 0 && selectedFields.length > 0;
       default:
         return true;
     }
+  };
+
+  // 保存按钮校验：基本信息必填 + 至少有一个输出字段
+  const canSave = () => {
+    return formData.name && formData.path && formData.datasourceId && formData.tableName && selectedFields.length > 0;
   };
 
   return (
@@ -329,9 +434,6 @@ ${whereConditions || '  1=1'}
         </div>
         <div className="flex items-center gap-2">
           <button onClick={() => navigate('/apis')} className="px-4 py-2 text-slate-400 hover:text-white">取消</button>
-          <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:opacity-50">
-            <Save className="w-4 h-4" />{saving ? '保存中...' : '保存'}
-          </button>
         </div>
       </div>
 
@@ -354,7 +456,7 @@ ${whereConditions || '  1=1'}
         {loading ? <div className="flex items-center justify-center h-full text-slate-400">加载中...</div> : (
           <>
             {currentStep === 0 && (
-              <div className="max-w-2xl space-y-6">
+              <div className="space-y-6">
                 <div className="bg-[#1e293b]/60 rounded-xl border border-slate-700/50 p-6 space-y-4">
                   <h3 className="text-white font-medium">基本信息</h3>
                   <div className="grid grid-cols-2 gap-4">
@@ -425,56 +527,123 @@ ${whereConditions || '  1=1'}
 
             {currentStep === 1 && (
               <div className="space-y-6">
+                {/* 请求参数 - 可折叠 */}
                 <div className="bg-[#1e293b]/60 rounded-xl border border-slate-700/50 p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-white font-medium">请求参数（自动生成，可手动新增/删除）</h3>
-                    <div className="flex gap-2">
-                      <button onClick={() => setInputParams([...inputParams, { paramName: '', columnName: '', paramType: 'string', required: 0, defaultValue: '', description: '' }])} className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm">+ 手动新增</button>
-                      <button onClick={() => toggleAllParams(true)} className="px-3 py-1 bg-slate-700 text-white rounded-lg text-sm">全选</button>
-                      <button onClick={() => toggleAllParams(false)} className="px-3 py-1 bg-slate-700 text-white rounded-lg text-sm">取消全选</button>
-                      <button onClick={() => batchSetDefault('')} className="px-3 py-1 bg-slate-700 text-white rounded-lg text-sm">清空默认值</button>
+                    <button onClick={() => setInputParamsExpanded(!inputParamsExpanded)} className="flex items-center gap-2 text-white font-medium">
+                      <span>{inputParamsExpanded ? '▼' : '▶'}</span>
+                      <span>请求参数（{inputParams.length}）</span>
+                    </button>
+                    {inputParamsExpanded && (
+                      <div className="flex gap-2">
+                        <button onClick={() => setInputParams([...inputParams, { paramName: '', columnName: '', paramType: 'string', required: 0, defaultValue: '', description: '' }])} className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm">+ 新增</button>
+                      </div>
+                    )}
+                  </div>
+                  {inputParamsExpanded && (
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-slate-800/30">
+                          <tr><th className="px-4 py-2 text-left text-xs text-slate-400">#</th><th className="px-4 py-2 text-left text-xs text-slate-400">参数名</th><th className="px-4 py-2 text-left text-xs text-slate-400">对应字段</th><th className="px-4 py-2 text-left text-xs text-slate-400">类型</th><th className="px-4 py-2 text-left text-xs text-slate-400">必填</th><th className="px-4 py-2 text-left text-xs text-slate-400">默认值</th><th className="px-4 py-2 text-left text-xs text-slate-400">说明</th><th className="px-4 py-2"></th></tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-700/50">
+                          {inputParams.map((param, index) => (
+                            <tr key={index}>
+                              <td className="px-4 py-2 text-slate-400">{index + 1}</td>
+                              <td className="px-4 py-2"><input type="text" value={param.paramName} onChange={(e) => updateInputParam(index, 'paramName', e.target.value)} className="px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-sm w-24" /></td>
+                              <td className="px-4 py-2"><input type="text" value={param.columnName || ''} onChange={(e) => updateInputParam(index, 'columnName', e.target.value)} className="px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-sm w-24" /></td>
+                              <td className="px-4 py-2"><select value={param.paramType} onChange={(e) => updateInputParam(index, 'paramType', e.target.value)} className="px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-sm"><option value="string">string</option><option value="integer">integer</option><option value="decimal">decimal</option><option value="date">date</option><option value="datetime">datetime</option><option value="boolean">boolean</option></select></td>
+                              <td className="px-4 py-2"><input type="checkbox" checked={param.required === 1} onChange={(e) => updateInputParam(index, 'required', e.target.checked ? 1 : 0)} className="accent-purple-500" /></td>
+                              <td className="px-4 py-2"><input type="text" value={param.defaultValue || ''} onChange={(e) => updateInputParam(index, 'defaultValue', e.target.value)} className="px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-sm w-20" /></td>
+                              <td className="px-4 py-2"><input type="text" value={param.description || ''} onChange={(e) => updateInputParam(index, 'description', e.target.value)} className="px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-sm" /></td>
+                              <td className="px-4 py-2"><button onClick={() => removeInputParam(index)} className="p-1 text-red-400 hover:text-red-300"><Trash2 className="w-4 h-4" /></button></td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
+                  )}
+                </div>
+
+                {/* 返回值 - 可折叠 */}
+                <div className="bg-[#1e293b]/60 rounded-xl border border-slate-700/50 p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <button onClick={() => setOutputParamsExpanded(!outputParamsExpanded)} className="flex items-center gap-2 text-white font-medium">
+                      <span>{outputParamsExpanded ? '▼' : '▶'}</span>
+                      <span>返回值（{selectedFields.length}/{outputParams.length}）</span>
+                    </button>
                   </div>
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead className="bg-slate-800/30">
-                        <tr><th className="px-4 py-2 text-left text-xs text-slate-400">#</th><th className="px-4 py-2 text-left text-xs text-slate-400">参数名</th><th className="px-4 py-2 text-left text-xs text-slate-400">对应字段</th><th className="px-4 py-2 text-left text-xs text-slate-400">类型</th><th className="px-4 py-2 text-left text-xs text-slate-400">必填</th><th className="px-4 py-2 text-left text-xs text-slate-400">默认值</th><th className="px-4 py-2 text-left text-xs text-slate-400">说明</th><th className="px-4 py-2"></th></tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-700/50">
-                        {inputParams.map((param, index) => (
-                          <tr key={index}>
-                            <td className="px-4 py-2 text-slate-400">{index + 1}</td>
-                            <td className="px-4 py-2"><input type="text" value={param.paramName} onChange={(e) => updateInputParam(index, 'paramName', e.target.value)} className="px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-sm w-24" /></td>
-                            <td className="px-4 py-2"><input type="text" value={param.columnName || ''} onChange={(e) => updateInputParam(index, 'columnName', e.target.value)} className="px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-sm w-24" /></td>
-                            <td className="px-4 py-2"><select value={param.paramType} onChange={(e) => updateInputParam(index, 'paramType', e.target.value)} className="px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-sm"><option value="string">string</option><option value="integer">integer</option><option value="decimal">decimal</option><option value="date">date</option><option value="datetime">datetime</option><option value="boolean">boolean</option></select></td>
-                            <td className="px-4 py-2"><input type="checkbox" checked={param.required === 1} onChange={(e) => updateInputParam(index, 'required', e.target.checked ? 1 : 0)} className="accent-purple-500" /></td>
-                            <td className="px-4 py-2"><input type="text" value={param.defaultValue || ''} onChange={(e) => updateInputParam(index, 'defaultValue', e.target.value)} className="px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-sm w-20" /></td>
-                            <td className="px-4 py-2"><input type="text" value={param.description || ''} onChange={(e) => updateInputParam(index, 'description', e.target.value)} className="px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-sm" /></td>
-                            <td className="px-4 py-2"><button onClick={() => removeInputParam(index)} className="p-1 text-red-400 hover:text-red-300"><Trash2 className="w-4 h-4" /></button></td>
+                  {outputParamsExpanded && (
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-slate-800/30">
+                          <tr>
+                            <th className="px-4 py-2 text-left text-xs text-slate-400">#</th>
+                            <th className="px-4 py-2 text-left text-xs text-slate-400">字段名</th>
+                            <th className="px-4 py-2 text-left text-xs text-slate-400">别名</th>
+                            <th className="px-4 py-2 text-left text-xs text-slate-400">类型</th>
+                            <th className="px-4 py-2 text-left text-xs text-slate-400">说明</th>
+                            <th className="px-4 py-2"></th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                        </thead>
+                        <tbody className="divide-y divide-slate-700/50">
+                          {outputParams.length === 0 ? (
+                            <tr>
+                              <td colSpan={6} className="px-4 py-4 text-center text-slate-400">请先在第一步选择表</td>
+                            </tr>
+                          ) : outputParams.map((param, index) => (
+                            <tr key={index}>
+                              <td className="px-4 py-2 text-slate-400">{index + 1}</td>
+                              <td className="px-4 py-2 text-white text-sm">{param.columnName}</td>
+                              <td className="px-4 py-2">
+                                <input
+                                  type="text"
+                                  value={param.alias || ''}
+                                  onChange={(e) => updateOutputParam(index, 'alias', e.target.value)}
+                                  placeholder="输入别名"
+                                  className="px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-sm w-28"
+                                />
+                              </td>
+                              <td className="px-4 py-2 text-slate-400 text-sm">{param.dataType}</td>
+                              <td className="px-4 py-2">
+                                <input
+                                  type="text"
+                                  value={param.description || ''}
+                                  onChange={(e) => updateOutputParam(index, 'description', e.target.value)}
+                                  className="px-2 py-1 bg-slate-800/50 border border-slate-700/50 rounded text-white text-sm"
+                                />
+                              </td>
+                              <td className="px-4 py-2">
+                                <button onClick={() => removeOutputParam(index)} className="p-1 text-red-400 hover:text-red-300">
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+
+                {/* SQL配置 */}
+                <div className="bg-[#1e293b]/60 rounded-xl border border-slate-700/50 p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-white font-medium">SQL配置</h3>
+                    <button onClick={generateSql} className="px-3 py-1 bg-purple-500 text-white rounded-lg text-sm">重新生成</button>
                   </div>
+                  <textarea
+                    value={formData.querySql || generatedSql || ''}
+                    onChange={(e) => setFormData({ ...formData, querySql: e.target.value })}
+                    rows={12}
+                    className="w-full px-4 py-3 bg-slate-900 border border-slate-700/50 rounded-lg text-green-400 font-mono text-sm resize-none"
+                    placeholder="编写你的SQL查询语句..."
+                  />
                 </div>
               </div>
             )}
 
             {currentStep === 2 && (
-              <div className="space-y-6">
-                <div className="bg-[#1e293b]/60 rounded-xl border border-slate-700/50 p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-white font-medium">SQL配置（基于参数自动生成）</h3>
-                    <button onClick={generateSql} className="px-3 py-1 bg-purple-500 text-white rounded-lg text-sm">重新生成</button>
-                  </div>
-                  <div className="bg-slate-900 p-4 rounded-lg overflow-auto max-h-80">
-                    <pre className="text-green-400 text-sm font-mono whitespace-pre">{generatedSql || '请先完成参数配置'}</pre>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {currentStep === 3 && (
               <div className="space-y-6">
                 <div className="bg-[#1e293b]/60 rounded-xl border border-slate-700/50 p-6">
                   <div className="flex items-center justify-between mb-4">
@@ -496,7 +665,18 @@ ${whereConditions || '  1=1'}
 
       <div className="flex items-center justify-between p-4 border-t border-slate-700/50">
         <button onClick={() => setCurrentStep(Math.max(0, currentStep - 1))} disabled={currentStep === 0} className="flex items-center gap-2 px-4 py-2 text-slate-400 hover:text-white disabled:opacity-50"><ArrowLeft className="w-4 h-4" />上一步</button>
-        <button onClick={() => { if (currentStep < STEPS.length - 1) setCurrentStep(currentStep + 1); }} disabled={!canProceed()} className="flex items-center gap-2 px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:opacity-50">{currentStep === STEPS.length - 1 ? '完成' : '下一步'}{currentStep < STEPS.length - 1 && <ArrowRight className="w-4 h-4" />}</button>
+        <div className="flex items-center gap-2">
+          {currentStep === STEPS.length - 1 ? (
+            <>
+              <button onClick={() => navigate('/apis')} className="px-4 py-2 text-slate-400 hover:text-white">取消</button>
+              <button onClick={handleSave} disabled={!canSave() || saving} className="flex items-center gap-2 px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:opacity-50">
+                <Save className="w-4 h-4" />{saving ? '保存中...' : '保存'}
+              </button>
+            </>
+          ) : (
+            <button onClick={() => { if (currentStep < STEPS.length - 1) setCurrentStep(currentStep + 1); }} disabled={!canProceed()} className="flex items-center gap-2 px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 disabled:opacity-50">下一步<ArrowRight className="w-4 h-4" /></button>
+          )}
+        </div>
       </div>
     </div>
   );

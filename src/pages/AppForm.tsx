@@ -12,9 +12,10 @@ interface ApiApp {
   status: number;
 }
 
-export default function AppForm() {
+export default function AppForm({ overrideId }: { overrideId?: string }) {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const params = useParams();
+  const id = overrideId || params.id;
   const isEdit = !!id;
 
   const [formData, setFormData] = useState<ApiApp>({

@@ -10,9 +10,10 @@ const WINDOW_UNITS = [
   { value: 'days', label: '天' },
 ];
 
-export default function TaskForm() {
+export default function TaskForm({ overrideId }: { overrideId?: string }) {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const params = useParams();
+  const id = overrideId || params.id;
   const isEdit = Boolean(id);
 
   const [loading, setLoading] = useState(false);
@@ -46,8 +47,8 @@ export default function TaskForm() {
 
   const loadDatasources = async () => {
     try {
-      const data = await getDataSources();
-      setDatasources(data);
+      const data = await getDataSources({});
+      setDatasources(data.list);
     } catch (error) {
       console.error('Failed to load datasources:', error);
     }

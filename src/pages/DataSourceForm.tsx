@@ -17,16 +17,26 @@ const DATA_TYPES = [
   { value: 'target', label: '目标数据库' },
 ];
 
-const DEFAULT_PORTS: Record<string, number> = {
-  mysql: 3306,
-  postgresql: 5432,
-  oracle: 1521,
-  sqlserver: 1433,
+// 默认JDBC URL模板
+const DEFAULT_JDBC_URLS: Record<string, string> = {
+  mysql: 'jdbc:mysql://localhost:3306/database',
+  postgresql: 'jdbc:postgresql://localhost:5432/database',
+  oracle: 'jdbc:oracle:thin:@localhost:1521:ORCL',
+  sqlserver: 'jdbc:sqlserver://localhost:1433;databaseName=database',
 };
 
-export default function DataSourceForm() {
+// 默认连接检查SQL
+const DEFAULT_DB_CHECK_URLS: Record<string, string> = {
+  mysql: 'select 1',
+  postgresql: 'select 1',
+  oracle: 'select 1 from dual',
+  sqlserver: 'select 1',
+};
+
+export default function DataSourceForm({ overrideId }: { overrideId?: string }) {
   const navigate = useNavigate();
-  const { id } = useParams();
+  const params = useParams();
+  const id = overrideId || params.id;
   const isEdit = Boolean(id);
   const { showToast } = useToast();
 
@@ -38,15 +48,15 @@ export default function DataSourceForm() {
     name: '',
     type: 'mysql',
     dataType: 'source',
-    host: '',
-    port: 3306,
+    jdbcUrl: DEFAULT_JDBC_URLS.mysql,
+    dbCheckUrl: DEFAULT_DB_CHECK_URLS.mysql,
     username: '',
     password: '',
     database_name: '',
     maxConnections: 10,
-    minIdle: 5,
     initialConnections: 5,
     maxIdle: 10,
+    maxWait: 30000,
     extraParams: '',
     description: '',
   });
@@ -76,27 +86,24 @@ export default function DataSourceForm() {
     setFormData({
       ...formData,
       type: type as DataSource['type'],
-      port: DEFAULT_PORTS[type] || 3306,
+      jdbcUrl: DEFAULT_JDBC_URLS[type] || '',
+      dbCheckUrl: DEFAULT_DB_CHECK_URLS[type] || '',
     });
   };
 
+  const canSave = () => {
+    return formData.name && formData.jdbcUrl && formData.username && formData.database_name && (formData.maxWait !== undefined && formData.maxWait > 0);
+  };
+
   const handleTest = async () => {
-    if (!formData.name) {
-      alert('请先填写数据源名称');
+    if (!canSave()) {
+      showToast('请填写完整信息', 'error');
       return;
     }
     setTesting(true);
     try {
-      // 先保存再测试
-      let dsId: number;
-      if (isEdit && id) {
-        await updateDataSource(parseInt(id), formData);
-        dsId = parseInt(id);
-      } else {
-        const newDS = await createDataSource(formData);
-        dsId = newDS.id;
-      }
-      const result = await testDataSource(dsId);
+      // 直接传数据测试，不需要先保存
+      const result = await testDataSource(formData);
       showToast(result.message, result.success ? 'success' : 'error');
     } catch (error: any) {
       showToast(error?.message || '测试连接失败', 'error');
@@ -107,8 +114,8 @@ export default function DataSourceForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!formData.name || !formData.host || !formData.username || !formData.database_name) {
+
+    if (!canSave()) {
       showToast('请填写必填项', 'error');
       return;
     }
@@ -122,10 +129,11 @@ export default function DataSourceForm() {
         result = await createDataSource(formData);
       }
       
-      if (result === 1 || result?.code === 1 || result?.code === undefined) {
+      const res = result as any;
+      if (result === 1 || res?.code === 1 || res?.code === 0 || res?.code === undefined) {
         showToast(isEdit ? '更新成功' : '创建成功', 'success');
       } else {
-        showToast(result?.msg || '保存失败', 'error');
+        showToast(res?.msg || '保存失败', 'error');
       }
       navigate('/datasources');
     } catch (error: any) {
@@ -155,13 +163,17 @@ export default function DataSourceForm() {
         </button>
         <div>
           <h1 className="text-xl font-bold text-white">{isEdit ? '编辑数据源' : '新增数据源'}</h1>
-          <p className="text-xs text-slate-500">配置数据库连接信息</p>
         </div>
       </div>
 
       {/* 表单 */}
       <form onSubmit={handleSubmit}>
-        <div className="bg-[#1e293b]/60 backdrop-blur-xl rounded-xl border border-slate-700/50 p-6">
+        {/* 基本信息 - 蓝色主题 */}
+        <div className="bg-gradient-to-br from-slate-800/80 to-[#1e293b]/60 backdrop-blur-xl rounded-xl border border-blue-500/30 p-6 mb-4">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-1 h-5 bg-blue-500 rounded-full"></div>
+            <h3 className="text-base font-medium text-blue-400">基本信息</h3>
+          </div>
           <div className="grid grid-cols-2 gap-6">
             {/* 数据源名称 */}
             <div>
@@ -213,30 +225,54 @@ export default function DataSourceForm() {
               </select>
             </div>
 
-            {/* 主机地址 */}
+            {/* 描述 */}
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
-                主机地址 <span className="text-red-400">*</span>
+                描述
               </label>
               <input
                 type="text"
-                value={formData.host}
-                onChange={(e) => setFormData({ ...formData, host: e.target.value })}
-                placeholder="请输入IP地址或域名"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="请输入描述信息（可选）"
                 className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
               />
             </div>
+          </div>
+        </div>
 
-            {/* 端口 */}
-            <div>
+        {/* 连接信息 - 绿色主题 */}
+        <div className="bg-gradient-to-br from-slate-800/80 to-[#1e293b]/60 backdrop-blur-xl rounded-xl border border-emerald-500/30 p-6 mb-4">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-1 h-5 bg-emerald-500 rounded-full"></div>
+            <h3 className="text-base font-medium text-emerald-400">连接信息</h3>
+          </div>
+          <div className="grid grid-cols-2 gap-6">
+            {/* JDBC连接地址 */}
+            <div className="col-span-2">
               <label className="block text-sm font-medium text-slate-300 mb-2">
-                端口 <span className="text-red-400">*</span>
+                JDBC连接地址 <span className="text-red-400">*</span>
               </label>
               <input
-                type="number"
-                value={formData.port}
-                onChange={(e) => setFormData({ ...formData, port: parseInt(e.target.value) })}
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
+                type="text"
+                value={formData.jdbcUrl}
+                onChange={(e) => setFormData({ ...formData, jdbcUrl: e.target.value })}
+                placeholder="jdbc:mysql://localhost:3306/database"
+                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600 font-mono text-sm"
+              />
+            </div>
+
+            {/* 连接检查SQL */}
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                检查SQL <span className="text-red-400">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.dbCheckUrl}
+                onChange={(e) => setFormData({ ...formData, dbCheckUrl: e.target.value })}
+                placeholder="select 1"
+                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600 font-mono text-sm"
               />
             </div>
 
@@ -281,7 +317,16 @@ export default function DataSourceForm() {
                 className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
               />
             </div>
+          </div>
+        </div>
 
+        {/* 扩展信息 - 紫色主题 */}
+        <div className="bg-gradient-to-br from-slate-800/80 to-[#1e293b]/60 backdrop-blur-xl rounded-xl border border-purple-500/30 p-6 mb-4">
+          <div className="flex items-center gap-2 mb-4">
+            <div className="w-1 h-5 bg-purple-500 rounded-full"></div>
+            <h3 className="text-base font-medium text-purple-400">扩展信息</h3>
+          </div>
+          <div className="grid grid-cols-2 gap-6">
             {/* 最大连接数 */}
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
@@ -310,20 +355,6 @@ export default function DataSourceForm() {
               />
             </div>
 
-            {/* 最小空闲连接数 */}
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                最小空闲连接数
-              </label>
-              <input
-                type="number"
-                value={formData.minIdle || ''}
-                onChange={(e) => setFormData({ ...formData, minIdle: parseInt(e.target.value) || undefined })}
-                placeholder="5"
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
-              />
-            </div>
-
             {/* 最大空闲数 */}
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
@@ -334,6 +365,23 @@ export default function DataSourceForm() {
                 value={formData.maxIdle || ''}
                 onChange={(e) => setFormData({ ...formData, maxIdle: parseInt(e.target.value) || undefined })}
                 placeholder="10"
+                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
+              />
+            </div>
+
+            {/* 最大等待时间 */}
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">
+                最大等待时间(毫秒) <span className="text-red-400">*</span>
+              </label>
+              <input
+                type="number"
+                value={formData.maxWait || ''}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value);
+                  setFormData({ ...formData, maxWait: isNaN(val) ? undefined : val });
+                }}
+                placeholder="30000"
                 className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
               />
             </div>
@@ -349,20 +397,6 @@ export default function DataSourceForm() {
                 onChange={(e) => setFormData({ ...formData, extraParams: e.target.value })}
                 placeholder="例如: useSSL=false&serverTimezone=UTC"
                 className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600"
-              />
-            </div>
-
-            {/* 描述 */}
-            <div className="col-span-2">
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                描述
-              </label>
-              <textarea
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="请输入描述信息（可选）"
-                rows={3}
-                className="w-full px-4 py-2.5 bg-slate-800/50 border border-slate-700/50 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/30 text-white placeholder-slate-600 resize-none"
               />
             </div>
           </div>
