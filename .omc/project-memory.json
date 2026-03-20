@@ -194,21 +194,27 @@
   "hotPaths": [
     {
       "path": "src/pages/ApiList.tsx",
-      "accessCount": 47,
-      "lastAccessed": 1773982699002,
+      "accessCount": 48,
+      "lastAccessed": 1773982814004,
       "type": "file"
     },
     {
       "path": "",
-      "accessCount": 25,
-      "lastAccessed": 1773982572674,
+      "accessCount": 26,
+      "lastAccessed": 1773982790373,
       "type": "directory"
     },
     {
       "path": "src/pages/Login.tsx",
-      "accessCount": 23,
-      "lastAccessed": 1773982691527,
+      "accessCount": 24,
+      "lastAccessed": 1773982813812,
       "type": "directory"
+    },
+    {
+      "path": "src/components/Layout.tsx",
+      "accessCount": 24,
+      "lastAccessed": 1773982951458,
+      "type": "file"
     },
     {
       "path": "docs/superpowers/specs/2026-03-20-theme-switching-design.md",
@@ -223,27 +229,27 @@
       "type": "file"
     },
     {
+      "path": "src",
+      "accessCount": 14,
+      "lastAccessed": 1773982837693,
+      "type": "directory"
+    },
+    {
       "path": "src/pages/DynamicDataGrid.tsx",
       "accessCount": 11,
       "lastAccessed": 1773982397966,
       "type": "directory"
     },
     {
-      "path": "src",
+      "path": "src/App.tsx",
       "accessCount": 10,
-      "lastAccessed": 1773982533197,
-      "type": "directory"
+      "lastAccessed": 1773982793797,
+      "type": "file"
     },
     {
       "path": "docs/superpowers/plans/2026-03-20-theme-switching-implementation.md",
       "accessCount": 9,
       "lastAccessed": 1773980665335,
-      "type": "file"
-    },
-    {
-      "path": "src/App.tsx",
-      "accessCount": 9,
-      "lastAccessed": 1773980945597,
       "type": "file"
     },
     {
@@ -259,10 +265,10 @@
       "type": "file"
     },
     {
-      "path": "src/components/Layout.tsx",
-      "accessCount": 7,
-      "lastAccessed": 1773981042891,
-      "type": "file"
+      "path": "src/pages",
+      "accessCount": 8,
+      "lastAccessed": 1773982809710,
+      "type": "directory"
     },
     {
       "path": "src/pages/DataSourceList.tsx",
@@ -277,9 +283,9 @@
       "type": "file"
     },
     {
-      "path": "src/pages",
+      "path": "src/pages/UserList.tsx",
       "accessCount": 7,
-      "lastAccessed": 1773982433467,
+      "lastAccessed": 1773982857868,
       "type": "directory"
     },
     {
@@ -289,15 +295,9 @@
       "type": "file"
     },
     {
-      "path": "src/pages/UserList.tsx",
-      "accessCount": 6,
-      "lastAccessed": 1773982344516,
-      "type": "directory"
-    },
-    {
       "path": "src/index.css",
-      "accessCount": 5,
-      "lastAccessed": 1773980829463,
+      "accessCount": 6,
+      "lastAccessed": 1773982793742,
       "type": "file"
     },
     {
@@ -368,8 +368,8 @@
     },
     {
       "path": "src/contexts/ThemeContext.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1773980945613,
+      "accessCount": 3,
+      "lastAccessed": 1773982793686,
       "type": "file"
     },
     {

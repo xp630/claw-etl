@@ -34,3 +34,8 @@
 {"t":0,"agent":"a74693d","agent_type":"document-specialist","event":"agent_start","parent_mode":"none"}
 {"t":0,"agent":"a74693d","agent_type":"document-specialist","event":"agent_stop","success":true,"duration_ms":74939}
 {"t":0,"agent":"a09cc1e","agent_type":"general-purpose","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"a09cc1e","agent_type":"general-purpose","event":"agent_stop","success":true,"duration_ms":35367}
+{"t":0,"agent":"a275b4a","agent_type":"code-reviewer","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"a275b4a","agent_type":"code-reviewer","event":"agent_stop","success":true,"duration_ms":115327}
+{"t":0,"agent":"a1859bd","agent_type":"general-purpose","event":"agent_start","parent_mode":"none"}
+{"t":0,"agent":"a1859bd","agent_type":"general-purpose","event":"agent_stop","success":true,"duration_ms":95279}

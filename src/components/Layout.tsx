@@ -478,18 +478,6 @@ export default function Layout() {
         {/* Logo */}
         <div className="h-16 flex items-center justify-center border-b border-[var(--border-light)]">
           {!collapsed && <span className="text-lg font-bold">{systemName}</span>}
-          {!collapsed && (
-            <select
-              value={theme}
-              onChange={(e) => setTheme(e.target.value as 'dark' | 'light')}
-              className="ml-3 px-2 py-1 rounded border text-xs cursor-pointer
-                bg-[var(--bg-secondary)] text-[var(--text-primary)] border-[var(--border)]
-                hover:border-[var(--accent)] transition-colors"
-            >
-              <option value="dark">🌙 深色</option>
-              <option value="light">☀️ 浅色</option>
-            </select>
-          )}
           <button
             onClick={() => setCollapsed(!collapsed)}
             className="p-2 hover:bg-[var(--bg-hover)] rounded-lg"
@@ -521,7 +509,8 @@ export default function Layout() {
       {/* 主内容区 */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Tab栏 */}
-        <div className="h-10 flex items-center bg-[var(--bg-primary)] border-b border-[var(--border-light)] overflow-x-auto">
+        <div className="h-10 flex items-center justify-between bg-[var(--bg-primary)] border-b border-[var(--border-light)]">
+          <div className="flex items-center overflow-x-auto flex-1">
           {tabs.map((tab) => (
             <div
               key={tab.id}
@@ -541,6 +530,28 @@ export default function Layout() {
               </button>
             </div>
           ))}
+          </div>
+
+          {/* 右侧：用户信息 + 主题切换 */}
+          <div className="flex items-center gap-3 px-4 shrink-0">
+            {/* 用户信息 */}
+            <div className="flex items-center gap-2 text-sm text-[var(--text-secondary)]">
+              <User className="w-4 h-4" />
+              <span>Admin</span>
+            </div>
+
+            {/* 主题切换 */}
+            <select
+              value={theme}
+              onChange={(e) => setTheme(e.target.value as 'dark' | 'light')}
+              className="px-2 py-1 rounded border text-xs cursor-pointer
+                bg-[var(--bg-secondary)] text-[var(--text-primary)] border-[var(--border)]
+                hover:border-[var(--accent)] transition-colors"
+            >
+              <option value="dark">🌙</option>
+              <option value="light">☀️</option>
+            </select>
+          </div>
         </div>
 
         {/* 页面内容 - 根据活动tab渲染 */}
