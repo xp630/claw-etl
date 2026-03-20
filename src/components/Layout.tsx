@@ -472,11 +472,11 @@ export default function Layout() {
   const activeTab = tabs.find(t => t.id === activeTabId);
 
   return (
-    <div className="flex h-screen bg-slate-900 text-white">
+    <div className="flex h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
       {/* 左侧菜单 */}
-      <div className={`flex flex-col bg-[#1e293b] border-r border-slate-700 transition-all ${collapsed ? 'w-16' : 'w-56'}`}>
+      <div className={`flex flex-col bg-[var(--bg-secondary)] border-r border-[var(--border)] transition-all ${collapsed ? 'w-16' : 'w-56'}`}>
         {/* Logo */}
-        <div className="h-16 flex items-center justify-center border-b border-slate-700/50">
+        <div className="h-16 flex items-center justify-center border-b border-[var(--border-light)]">
           {!collapsed && <span className="text-lg font-bold">{systemName}</span>}
           {!collapsed && (
             <select
@@ -492,7 +492,7 @@ export default function Layout() {
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-2 hover:bg-slate-700/50 rounded-lg"
+            className="p-2 hover:bg-[var(--bg-hover)] rounded-lg"
           >
             {collapsed ? <PanelLeft className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
           </button>
@@ -504,13 +504,13 @@ export default function Layout() {
         </div>
 
         {/* 退出登录 */}
-        <div className="p-4 border-t border-slate-700/50">
+        <div className="p-4 border-t border-[var(--border-light)]">
           <button
             onClick={() => {
               localStorage.removeItem('isLoggedIn');
               window.location.reload();
             }}
-            className="flex items-center gap-2 w-full px-3 py-2 hover:bg-slate-700/50 rounded-lg text-slate-400 hover:text-white"
+            className="flex items-center gap-2 w-full px-3 py-2 hover:bg-[var(--bg-hover)] rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)]"
           >
             <LogOut className="w-5 h-5" />
             {!collapsed && <span>退出登录</span>}
@@ -521,21 +521,21 @@ export default function Layout() {
       {/* 主内容区 */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Tab栏 */}
-        <div className="h-10 flex items-center bg-[#0f172a] border-b border-slate-700/50 overflow-x-auto">
+        <div className="h-10 flex items-center bg-[var(--bg-primary)] border-b border-[var(--border-light)] overflow-x-auto">
           {tabs.map((tab) => (
             <div
               key={tab.id}
               onClick={() => setActiveTabId(tab.id)}
-              className={`flex items-center gap-2 px-4 h-full cursor-pointer border-r border-slate-700/50 shrink-0 ${
+              className={`flex items-center gap-2 px-4 h-full cursor-pointer border-r border-[var(--border-light)] shrink-0 ${
                 activeTabId === tab.id
-                  ? 'bg-[#1e293b] text-white'
-                  : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+                  ? 'bg-[var(--bg-secondary)] text-[var(--text-primary)]'
+                  : 'text-[var(--text-muted)] hover:bg-[var(--bg-hover-light)] hover:text-[var(--text-primary)]'
               }`}
             >
               <span className="text-sm">{tab.title}</span>
               <button
                 onClick={(e) => closeTab(tab.id, e)}
-                className="p-0.5 hover:bg-slate-700 rounded"
+                className="p-0.5 hover:bg-[var(--bg-hover)] rounded"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -544,7 +544,7 @@ export default function Layout() {
         </div>
 
         {/* 页面内容 - 根据活动tab渲染 */}
-        <div className="flex-1 overflow-auto bg-slate-900">
+        <div className="flex-1 overflow-auto bg-[var(--bg-primary)]">
           {activeTab ? renderPage(activeTab.path, activeTab.resourceId) : <Outlet />}
         </div>
       </div>
@@ -572,14 +572,14 @@ export default function Layout() {
             <button
               onClick={() => toggleMenu(item.title)}
               className={`w-full flex items-center justify-center p-3 rounded-lg transition-colors ${
-                isActive ? 'bg-purple-500/20 text-purple-400' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+                isActive ? 'bg-purple-500/20 text-purple-400' : 'text-[var(--text-muted)] hover:bg-[var(--bg-hover-light)] hover:text-[var(--text-primary)]'
               }`}
               title={item.title}
             >
               {item.icon}
             </button>
             {isExpanded && item.children && (
-              <div className="absolute left-full top-0 ml-1 bg-[#1e293b] border border-slate-700/50 rounded-lg shadow-lg p-2 space-y-1 min-w-[160px] z-50">
+              <div className="absolute left-full top-0 ml-1 bg-[var(--bg-secondary)] border border-[var(--border-light)] rounded-lg shadow-lg p-2 space-y-1 min-w-[160px] z-50">
                 {item.children.map(child => renderMenuItem(child, 0))}
               </div>
             )}
@@ -592,7 +592,7 @@ export default function Layout() {
           key={item.path}
           onClick={handleClick}
           className={`w-full flex items-center justify-center p-3 rounded-lg transition-colors ${
-            isActive ? 'bg-purple-500/20 text-purple-400' : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+            isActive ? 'bg-purple-500/20 text-purple-400' : 'text-[var(--text-muted)] hover:bg-[var(--bg-hover-light)] hover:text-[var(--text-primary)]'
           }`}
           title={item.title}
         >
@@ -606,7 +606,7 @@ export default function Layout() {
         <div key={item.title} className="mb-1">
           <button
             onClick={() => toggleMenu(item.title)}
-            className="w-full flex items-center gap-2 px-4 py-2 text-slate-400 hover:bg-slate-700/50 rounded-lg transition-colors"
+            className="w-full flex items-center gap-2 px-4 py-2 text-[var(--text-muted)] hover:bg-[var(--bg-hover)] rounded-lg transition-colors"
           >
             {item.icon}
             <span className="flex-1 text-left text-sm">{item.title}</span>
@@ -626,7 +626,7 @@ export default function Layout() {
         key={item.path}
         onClick={handleClick}
         className={`w-full flex items-center gap-2 px-4 py-2 rounded-lg transition-colors mb-1 ${
-          isActive ? 'bg-purple-500/20 text-purple-400' : 'text-slate-400 hover:bg-slate-700/50 hover:text-white'
+          isActive ? 'bg-purple-500/20 text-purple-400' : 'text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
         }`}
       >
         {item.icon}
