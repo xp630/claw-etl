@@ -1,0 +1,413 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1773979010095,
+  "projectRoot": "/Users/xp630/work/workspace/openclaw/claw-etl",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "react",
+        "version": "19.2.0",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "19.2.0",
+        "category": "frontend"
+      },
+      {
+        "name": "vite",
+        "version": "7.3.1",
+        "category": "build"
+      }
+    ],
+    "packageManager": "pnpm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "pnpm build",
+    "testCommand": null,
+    "lintCommand": "pnpm lint",
+    "devCommand": "pnpm dev",
+    "scripts": {
+      "dev": "vite",
+      "build": "tsc -b && vite build",
+      "lint": "eslint .",
+      "preview": "vite preview"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": "type-based"
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "docs",
+      "public",
+      "src"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "dist": {
+      "path": "dist",
+      "purpose": "Distribution/build output",
+      "fileCount": 2,
+      "lastAccessed": 1773979010057,
+      "keyFiles": [
+        "index.html",
+        "vite.svg"
+      ]
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 1,
+      "lastAccessed": 1773979010070,
+      "keyFiles": [
+        "API管理模块设计文档.md"
+      ]
+    },
+    "public": {
+      "path": "public",
+      "purpose": "Public files",
+      "fileCount": 1,
+      "lastAccessed": 1773979010072,
+      "keyFiles": [
+        "vite.svg"
+      ]
+    },
+    "sql": {
+      "path": "sql",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1773979010072,
+      "keyFiles": [
+        "t_api_config.sql"
+      ]
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 4,
+      "lastAccessed": 1773979010073,
+      "keyFiles": [
+        "App.css",
+        "App.tsx",
+        "index.css",
+        "main.tsx"
+      ]
+    },
+    "dist/assets": {
+      "path": "dist/assets",
+      "purpose": "Static assets",
+      "fileCount": 2,
+      "lastAccessed": 1773979010075,
+      "keyFiles": [
+        "index-ZJ0hfrfo.js",
+        "index-zswagS4v.css"
+      ]
+    },
+    "src/assets": {
+      "path": "src/assets",
+      "purpose": "Static assets",
+      "fileCount": 1,
+      "lastAccessed": 1773979010078,
+      "keyFiles": [
+        "react.svg"
+      ]
+    },
+    "src/components": {
+      "path": "src/components",
+      "purpose": "UI components",
+      "fileCount": 2,
+      "lastAccessed": 1773979010079,
+      "keyFiles": [
+        "Layout.tsx",
+        "Toast.tsx"
+      ]
+    },
+    "src/config": {
+      "path": "src/config",
+      "purpose": "Configuration files",
+      "fileCount": 1,
+      "lastAccessed": 1773979010079,
+      "keyFiles": [
+        "menu.ts"
+      ]
+    },
+    "src/lib": {
+      "path": "src/lib",
+      "purpose": "Library code",
+      "fileCount": 1,
+      "lastAccessed": 1773979010079,
+      "keyFiles": [
+        "api.ts"
+      ]
+    },
+    "src/pages": {
+      "path": "src/pages",
+      "purpose": "Page components",
+      "fileCount": 24,
+      "lastAccessed": 1773979010080,
+      "keyFiles": [
+        "ApiAccessLog.tsx",
+        "ApiForm.tsx",
+        "ApiList.tsx"
+      ]
+    },
+    "src/types": {
+      "path": "src/types",
+      "purpose": "Type definitions",
+      "fileCount": 1,
+      "lastAccessed": 1773979010080,
+      "keyFiles": [
+        "index.ts"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "src/pages/ApiList.tsx",
+      "accessCount": 47,
+      "lastAccessed": 1773982699002,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 25,
+      "lastAccessed": 1773982572674,
+      "type": "directory"
+    },
+    {
+      "path": "src/pages/Login.tsx",
+      "accessCount": 23,
+      "lastAccessed": 1773982691527,
+      "type": "directory"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-03-20-theme-switching-design.md",
+      "accessCount": 15,
+      "lastAccessed": 1773982503182,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/ApiAccessLog.tsx",
+      "accessCount": 14,
+      "lastAccessed": 1773982625198,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/DynamicDataGrid.tsx",
+      "accessCount": 11,
+      "lastAccessed": 1773982397966,
+      "type": "directory"
+    },
+    {
+      "path": "src",
+      "accessCount": 10,
+      "lastAccessed": 1773982533197,
+      "type": "directory"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-03-20-theme-switching-implementation.md",
+      "accessCount": 9,
+      "lastAccessed": 1773980665335,
+      "type": "file"
+    },
+    {
+      "path": "src/App.tsx",
+      "accessCount": 9,
+      "lastAccessed": 1773980945597,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/MenuForm.tsx",
+      "accessCount": 9,
+      "lastAccessed": 1773982702144,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/MenuList.tsx",
+      "accessCount": 8,
+      "lastAccessed": 1773982429565,
+      "type": "file"
+    },
+    {
+      "path": "src/components/Layout.tsx",
+      "accessCount": 7,
+      "lastAccessed": 1773981042891,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/DataSourceList.tsx",
+      "accessCount": 7,
+      "lastAccessed": 1773982063765,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/ApiForm.tsx",
+      "accessCount": 7,
+      "lastAccessed": 1773982064023,
+      "type": "file"
+    },
+    {
+      "path": "src/pages",
+      "accessCount": 7,
+      "lastAccessed": 1773982433467,
+      "type": "directory"
+    },
+    {
+      "path": "src/pages/FeatureList.tsx",
+      "accessCount": 6,
+      "lastAccessed": 1773981822414,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/UserList.tsx",
+      "accessCount": 6,
+      "lastAccessed": 1773982344516,
+      "type": "directory"
+    },
+    {
+      "path": "src/index.css",
+      "accessCount": 5,
+      "lastAccessed": 1773980829463,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/RoleList.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1773982352201,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/FeatureForm.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1773982370129,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/TaskForm.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1773982380541,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/RoleForm.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1773982393609,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/MenuFormModal.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1773982396870,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/DataSourceForm.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1773982415254,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/TaskList.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1773981604401,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/AppList.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1773981709726,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/DictForm.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1773982382725,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/DictList.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1773982366847,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/SystemConfigForm.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1773982381628,
+      "type": "file"
+    },
+    {
+      "path": "src/contexts/ThemeContext.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1773980945613,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/AppForm.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1773981745295,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/SystemConfigList.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1773982364643,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/UserForm.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1773982399069,
+      "type": "file"
+    },
+    {
+      "path": "package.json",
+      "accessCount": 1,
+      "lastAccessed": 1773979149265,
+      "type": "file"
+    },
+    {
+      "path": "README.md",
+      "accessCount": 1,
+      "lastAccessed": 1773979157188,
+      "type": "file"
+    },
+    {
+      "path": "tailwind.config.js",
+      "accessCount": 1,
+      "lastAccessed": 1773979173642,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

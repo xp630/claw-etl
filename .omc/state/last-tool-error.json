@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"npm run build\",\"timeout\":300000,\"description\":\"Run build to check for TypeScript and build errors\"}",
+  "error": "Exit code 2\n\n> claw-etl@0.0.0 build\n> tsc -b && vite build\n\nsrc/App.tsx(2,20): error TS6133: 'useEffect' is declared but its value is never read.\nsrc/components/Layout.tsx(5,57): error TS6133: 'ChevronDown' is declared but its value is never read.\nsrc/components/Layout.tsx(11,59): error TS6133: 'LogOutIcon' is declared but its value is never read.\nsrc/components/Layout.tsx(247,24): error TS2322: Type '{ overrideId: string; }' is not assignable to type 'IntrinsicAttributes'.\n  Property 'overrideI...",
+  "timestamp": "2026-03-20T04:59:06.957Z",
+  "retry_count": 1
+}
