@@ -225,7 +225,7 @@ export default function MenuForm() {
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="px-6 py-2.5 bg-[var(--bg-tertiary)]700 hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors"
+              className="px-6 py-2.5 bg-[var(--bg-tertiary)] hover:bg-[var(--bg-hover)] text-[var(--text-primary)] rounded-lg transition-colors"
             >
               取消
             </button>

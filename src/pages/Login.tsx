@@ -48,8 +48,8 @@ export default function Login({ onLogin }: LoginProps) {
     <div className="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center p-4">
       {/* 背景装饰 */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[var(--accent-light)] rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[var(--accent-light)] rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative w-full max-w-md">

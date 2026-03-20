@@ -530,7 +530,7 @@ export default function ApiList() {
         {/* 标题 */}
         <div className="flex justify-between items-center mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--accent-light)] to-pink-500/20 flex items-center justify-center border border-[var(--accent-light)]">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--accent-light)] to-[var(--accent-light)] flex items-center justify-center border border-[var(--accent-light)]">
               <Table className="w-5 h-5 text-[var(--accent)]" />
             </div>
             <div>

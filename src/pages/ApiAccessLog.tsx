@@ -279,7 +279,7 @@ export default function ApiAccessLog() {
       {/* 详情弹窗 */}
       {selectedLog && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setSelectedLog(null)}>
-          <div className="bg-[var(--bg-secondary)] rounded-xl border border-[var(--border)]" max-w-3xl max-h-[80vh] overflow-hidden" onClick={e => e.stopPropagation()}>
+          <div className="bg-[var(--bg-secondary)] rounded-xl border border-[var(--border)] max-w-3xl max-h-[80vh] overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between p-4 border-b border-[var(--border-light)]">
               <h3 className="text-lg font-bold text-[var(--text-primary)]">访问详情</h3>
               <button onClick={() => setSelectedLog(null)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)]">✕</button>
