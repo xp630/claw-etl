@@ -453,16 +453,10 @@ export default function Layout() {
 
   // 加载用户信息
   const loadUserInfo = () => {
-    // 检查所有可能的 key
-    console.log('localStorage keys:', Object.keys(localStorage));
-    console.log('isLoggedIn:', localStorage.getItem('isLoggedIn'));
-    console.log('user key value:', localStorage.getItem('user'));
-
     const userStr = localStorage.getItem('user');
     if (userStr && userStr !== 'undefined' && userStr !== 'null') {
       try {
         const user = JSON.parse(userStr);
-        console.log('parsed user:', user);
         // 尝试多个可能的字段名
         const name = user?.name || user?.userName || user?.username || user?.nickname || user?.employeeNo || '未知用户';
         const empNo = user?.employeeNo || user?.empNo || user?.emp_no || '';

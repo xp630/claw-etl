@@ -7,10 +7,13 @@ interface LoginProps {
 }
 
 // 保存登录状态到localStorage
-const saveLoginState = (user: any) => {
+const saveLoginState = (user: any, employeeNo?: string) => {
   localStorage.setItem('isLoggedIn', 'true');
   localStorage.setItem('loginTime', new Date().toISOString());
-  localStorage.setItem('user', JSON.stringify(user));
+  // 确保 user 是有效对象
+  const userToSave = user || { employeeNo: employeeNo, name: employeeNo };
+  localStorage.setItem('user', JSON.stringify(userToSave));
+  console.log('保存的用户信息:', userToSave);
 };
 
 export default function Login({ onLogin }: LoginProps) {
@@ -32,7 +35,7 @@ export default function Login({ onLogin }: LoginProps) {
     try {
       const result = await userLogin(employeeNo, password);
       if (result.success) {
-        saveLoginState(result.user);
+        saveLoginState(result.user, employeeNo);
         onLogin();
       } else {
         setError(result.message || '工号或密码错误');
