@@ -44,6 +44,10 @@ export default function ChangePasswordModal({
       setError('新密码长度不能少于6位');
       return;
     }
+    if (oldPassword === newPassword) {
+      setError('新密码不能与旧密码相同');
+      return;
+    }
     if (newPassword !== confirmPassword) {
       setError('两次输入的新密码不一致');
       return;

@@ -86,7 +86,7 @@ export default function UserForm({ overrideId }: { overrideId?: string }) {
   }
 
   return (
-    <div className="p-6">
+    <div>
       {/* 标题 */}
       <div className="flex items-center gap-3 mb-6">
         <button
@@ -103,7 +103,7 @@ export default function UserForm({ overrideId }: { overrideId?: string }) {
 
       {/* 表单 */}
       <form onSubmit={handleSubmit}>
-        <div className="bg-gradient-to-br from-slate-800/80 to-[#1e293b]/60 backdrop-blur-xl rounded-xl border border-[var(--accent-light)] p-6 mb-4">
+        <div className="bg-[var(--bg-secondary)] rounded-xl border border-[var(--border)] p-6 mb-4">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-1 h-5 bg-[var(--accent)] rounded-full"></div>
             <h3 className="text-base font-medium text-[var(--accent)]">基本信息</h3>
@@ -112,54 +112,54 @@ export default function UserForm({ overrideId }: { overrideId?: string }) {
             {/* 姓名 */}
             <div>
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                姓名 <span className="text-red-400">*</span>
+                姓名 <span className="text-[var(--danger)]">*</span>
               </label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="请输入姓名"
-                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-light)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
+                className="w-full px-4 py-2.5 bg-[var(--input-bg)] border border-[var(--input-border)] rounded-lg focus:outline-none focus:border-[var(--accent)] text-[var(--text-input)] placeholder:text-[var(--text-muted)] transition-colors"
               />
             </div>
 
             {/* 工号 */}
             <div>
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                工号 <span className="text-red-400">*</span>
+                工号 <span className="text-[var(--danger)]">*</span>
               </label>
               <input
                 type="text"
                 value={formData.employeeNo}
                 onChange={(e) => setFormData({ ...formData, employeeNo: e.target.value })}
                 placeholder="请输入工号"
-                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-light)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
+                className="w-full px-4 py-2.5 bg-[var(--input-bg)] border border-[var(--input-border)] rounded-lg focus:outline-none focus:border-[var(--accent)] text-[var(--text-input)] placeholder:text-[var(--text-muted)] transition-colors"
               />
             </div>
 
             {/* 手机号 */}
             <div>
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                手机号 <span className="text-red-400">*</span>
+                手机号 <span className="text-[var(--danger)]">*</span>
               </label>
               <input
                 type="text"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="请输入手机号"
-                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-light)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
+                className="w-full px-4 py-2.5 bg-[var(--input-bg)] border border-[var(--input-border)] rounded-lg focus:outline-none focus:border-[var(--accent)] text-[var(--text-input)] placeholder:text-[var(--text-muted)] transition-colors"
               />
             </div>
 
             {/* 状态 */}
             <div>
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                状态 <span className="text-red-400">*</span>
+                状态 <span className="text-[var(--danger)]">*</span>
               </label>
               <select
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: Number(e.target.value) })}
-                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-light)] text-[var(--text-primary)]"
+                className="w-full px-4 py-2.5 bg-[var(--input-bg)] border border-[var(--input-border)] rounded-lg focus:outline-none focus:border-[var(--accent)] text-[var(--text-input)] transition-colors"
               >
                 <option value={1}>启用</option>
                 <option value={0}>禁用</option>
@@ -169,14 +169,14 @@ export default function UserForm({ overrideId }: { overrideId?: string }) {
             {/* 密码 */}
             <div>
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                密码 <span className="text-red-400">{isEdit ? '' : '*'}</span>
+                密码 <span className="text-[var(--danger)]">{isEdit ? '' : '*'}</span>
               </label>
               <input
                 type="password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 placeholder={isEdit ? '不修改请留空' : '请输入密码'}
-                className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--accent-light)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)]"
+                className="w-full px-4 py-2.5 bg-[var(--input-bg)] border border-[var(--input-border)] rounded-lg focus:outline-none focus:border-[var(--accent)] text-[var(--text-input)] placeholder:text-[var(--text-muted)] transition-colors"
               />
             </div>
           </div>
@@ -188,14 +188,14 @@ export default function UserForm({ overrideId }: { overrideId?: string }) {
             <button
               type="button"
               onClick={() => navigate('/users')}
-              className="px-6 py-2.5 bg-[var(--bg-tertiary)]700 text-[var(--text-primary)] rounded-lg hover:bg-[var(--bg-hover)] transition-colors"
+              className="px-6 py-2.5 bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--bg-hover)] transition-colors"
             >
               返回
             </button>
             <button
               type="submit"
               disabled={saving || !canSave()}
-              className="flex items-center gap-2 px-6 py-2.5 bg-[var(--accent)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--accent)] transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-6 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-lg transition-colors disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               {saving ? '保存中...' : '保存'}

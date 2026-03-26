@@ -1,8 +1,8 @@
 import axios from 'axios';
 import type { DataSource, Task, ApiConfig, ApiInputParam, ApiOutputParam, TableInfo, ColumnInfo, Feature, Dict, DictItem, SystemConfig, SysRole, SysMenu, SysUser } from '../types';
 
-// 后端API基础URL（开发模式用空，通过Vite代理；生产模式需要配置）
-const API_BASE = '';
+// 后端API基础URL
+const API_BASE = '/etl-admin';
 
 // 创建axios实例
 export const api = axios.create({
@@ -16,7 +16,7 @@ export const api = axios.create({
 // 拦截器：打印每个请求的curl命令
 api.interceptors.request.use((config) => {
   // 开发模式显示实际后端地址，方便调试
-  const fullURL = 'http://139.9.200.56:8090' + config.url;
+  const fullURL = API_BASE + config.url;
   const method = config.method?.toUpperCase() || 'GET';
   
   let curl = `curl -X ${method} '${fullURL}'`;
@@ -62,7 +62,7 @@ export async function getDataSources(params: {
   limit?: number;
 }): Promise<{ list: DataSource[]; total: number }> {
   try {
-    const res = await api.post('/etl-admin/dataSourceManager/dataSourceList', {
+    const res = await api.post('/dataSourceManager/dataSourceList', {
       limit: params.limit || 10,
       page: params.page || 1,
       dataType: params.dataType || '',
@@ -352,21 +352,21 @@ export async function getTasks(): Promise<Task[]> {
       return res.data.list.map((item: any) => ({
         id: item.id,
         name: item.taskName,
-        source_id: 0,
-        source_name: item.sourceDb,
-        query_sql: item.querySql,
-        target_id: 0,
-        target_name: item.targetDb,
-        target_table: item.targetTable,
+        sourceId: 0,
+        sourceName: item.sourceDb,
+        querySql: item.querySql,
+        targetId: 0,
+        targetName: item.targetDb,
+        targetTable: item.targetTable,
         columns: item.columns,
-        dynamic_sql: item.dynamicParam,
-        window_value: item.taskCronTime || 1,
-        window_unit: item.taskCronTimeUnit?.toLowerCase() === 'hours' ? 'hours' : 
-                     item.taskCronTimeUnit?.toLowerCase() === 'days' ? 'days' : 'minutes',
+        dynamicSql: item.dynamicParam,
+        windowValue: item.taskCronTime || 1,
+        windowUnit: (item.taskCronTimeUnit?.toLowerCase() === 'hours' ? 'hours' : 
+                     item.taskCronTimeUnit?.toLowerCase() === 'days' ? 'days' : 'minutes') as 'minutes' | 'hours' | 'days',
         status: item.status,
-        last_run_time: item.lastRunTime,
-        created_at: item.createTime || '',
-        updated_at: item.updateTime || '',
+        lastRunTime: item.lastRunTime,
+        createdAt: item.createTime || '',
+        updatedAt: item.updateTime || '',
       }));
     }
     return [];
@@ -385,21 +385,21 @@ export async function getTask(id: number): Promise<Task | undefined> {
       return {
         id: data.id,
         name: data.taskName,
-        source_id: 0,
-        source_name: data.sourceDb,
-        query_sql: data.querySql,
-        target_id: 0,
-        target_name: data.targetDb,
-        target_table: data.targetTable,
+        sourceId: 0,
+        sourceName: data.sourceDb,
+        querySql: data.querySql,
+        targetId: 0,
+        targetName: data.targetDb,
+        targetTable: data.targetTable,
         columns: data.columns,
-        dynamic_sql: data.dynamicParam,
-        window_value: data.taskCronTime || 1,
-        window_unit: data.taskCronTimeUnit?.toLowerCase() === 'hours' ? 'hours' : 
-                     data.taskCronTimeUnit?.toLowerCase() === 'days' ? 'days' : 'minutes',
+        dynamicSql: data.dynamicParam,
+        windowValue: data.taskCronTime || 1,
+        windowUnit: (data.taskCronTimeUnit?.toLowerCase() === 'hours' ? 'hours' : 
+                     data.taskCronTimeUnit?.toLowerCase() === 'days' ? 'days' : 'minutes') as 'minutes' | 'hours' | 'days',
         status: data.status,
-        last_run_time: data.lastRunTime,
-        created_at: data.createTime || '',
-        updated_at: data.updateTime || '',
+        lastRunTime: data.lastRunTime,
+        createdAt: data.createTime || '',
+        updatedAt: data.updateTime || '',
       };
     }
     return undefined;
@@ -579,54 +579,54 @@ let MOCK_TASKS: Task[] = [
   {
     id: 1,
     name: '兑换商品同步',
-    source_id: 1,
-    source_name: 'WMS源库',
-    query_sql: 'SELECT * FROM exchange_goods WHERE update_time > {lastSyncTime}',
-    target_id: 3,
-    target_name: '目标库nr_data',
-    target_table: 't_goods_goods_exchange',
+    sourceId: 1,
+    sourceName: 'WMS源库',
+    querySql: 'SELECT * FROM exchange_goods WHERE update_time > {lastSyncTime}',
+    targetId: 3,
+    targetName: '目标库nr_data',
+    targetTable: 't_goods_goods_exchange',
     columns: 'id,goods_name,goods_price,stock_num,update_time',
-    dynamic_sql: "SELECT MAX(update_time) as lastSyncTime FROM t_goods_goods_exchange",
-    window_value: 1,
-    window_unit: 'hours',
+    dynamicSql: "SELECT MAX(update_time) as lastSyncTime FROM t_goods_goods_exchange",
+    windowValue: 1,
+    windowUnit: 'hours',
     status: 1,
-    last_run_time: '2026-03-10 10:00:00',
-    created_at: '2026-01-05 10:00:00',
-    updated_at: '2026-01-05 10:00:00',
+    lastRunTime: '2026-03-10 10:00:00',
+    createdAt: '2026-01-05 10:00:00',
+    updatedAt: '2026-01-05 10:00:00',
   },
   {
     id: 2,
     name: '商品信息同步',
-    source_id: 2,
-    source_name: 'ERP源库',
-    query_sql: 'SELECT * FROM products WHERE status = 1',
-    target_id: 3,
-    target_name: '目标库nr_data',
-    target_table: 't_trade_order',
+    sourceId: 2,
+    sourceName: 'ERP源库',
+    querySql: 'SELECT * FROM products WHERE status = 1',
+    targetId: 3,
+    targetName: '目标库nr_data',
+    targetTable: 't_trade_order',
     columns: 'order_id,product_id,product_name,quantity,price,create_time',
-    window_value: 10,
-    window_unit: 'minutes',
+    windowValue: 10,
+    windowUnit: 'minutes',
     status: 1,
-    last_run_time: '2026-03-10 09:50:00',
-    created_at: '2026-01-06 10:00:00',
-    updated_at: '2026-01-06 10:00:00',
+    lastRunTime: '2026-03-10 09:50:00',
+    createdAt: '2026-01-06 10:00:00',
+    updatedAt: '2026-01-06 10:00:00',
   },
   {
     id: 3,
     name: '五粮液-会员同步',
-    source_id: 2,
-    source_name: 'ERP源库',
-    query_sql: 'SELECT * FROM wuliangye_members',
-    target_id: 3,
-    target_name: '目标库nr_data',
-    target_table: 't_member_info',
+    sourceId: 2,
+    sourceName: 'ERP源库',
+    querySql: 'SELECT * FROM wuliangye_members',
+    targetId: 3,
+    targetName: '目标库nr_data',
+    targetTable: 't_member_info',
     columns: 'member_id,member_name,phone,points,level',
-    window_value: 1,
-    window_unit: 'minutes',
+    windowValue: 1,
+    windowUnit: 'minutes',
     status: 0,
-    last_run_time: 'Invalid Date',
-    created_at: '2026-01-07 10:00:00',
-    updated_at: '2026-01-07 10:00:00',
+    lastRunTime: 'Invalid Date',
+    createdAt: '2026-01-07 10:00:00',
+    updatedAt: '2026-01-07 10:00:00',
   },
 ];
 
@@ -735,7 +735,7 @@ export async function getApiList(params: {
 // 获取API详情
 export async function getApiDetail(id: number): Promise<ApiConfig | undefined> {
   try {
-    const res = await api.post('/etl-admin/apiManager/detail', { id });
+    const res = await api.post('/apiManager/detail', { id });
     if (res.data?.data) {
       return res.data.data;
     }
@@ -752,7 +752,7 @@ export async function getApiDetail(id: number): Promise<ApiConfig | undefined> {
 // 保存API
 export async function saveApi(data: Partial<ApiConfig>): Promise<ApiConfig> {
   try {
-    const res = await api.post('/etl-admin/apiManager/save', data);
+    const res = await api.post('/apiManager/save', data);
     return res.data;
   } catch (error) {
     console.error('Failed to save API:', error);
@@ -763,7 +763,7 @@ export async function saveApi(data: Partial<ApiConfig>): Promise<ApiConfig> {
 // 删除API
 export async function deleteApi(id: number): Promise<void> {
   try {
-    await api.post('/etl-admin/apiManager/delete', { id });
+    await api.post('/apiManager/delete', { id });
   } catch (error) {
     console.error('Failed to delete API:', error);
     throw error;
@@ -773,7 +773,7 @@ export async function deleteApi(id: number): Promise<void> {
 // 切换API状态
 export async function toggleApi(id: number, status: number): Promise<void> {
   try {
-    await api.post('/etl-admin/apiManager/toggle', { id, status });
+    await api.post('/apiManager/toggle', { id, status });
   } catch (error) {
     console.error('Failed to toggle API:', error);
     throw error;
@@ -783,7 +783,7 @@ export async function toggleApi(id: number, status: number): Promise<void> {
 // 测试API
 export async function testApi(id: number, testParams: Record<string, any>): Promise<any> {
   try {
-    const res = await api.post('/etl-admin/apiManager/test', {
+    const res = await api.post('/apiManager/test', {
       id,
       testParams
     });
@@ -797,7 +797,7 @@ export async function testApi(id: number, testParams: Record<string, any>): Prom
 // 复制API
 export async function copyApi(id: number, newName: string): Promise<any> {
   try {
-    const res = await api.post('/etl-admin/apiManager/copy', { id, newName });
+    const res = await api.post('/apiManager/copy', { id, newName });
     return res.data;
   } catch (error) {
     console.error('Failed to copy API:', error);
@@ -806,7 +806,7 @@ export async function copyApi(id: number, newName: string): Promise<any> {
 }
 
 // 获取输入参数
-export async function getApiInputParams(apiId: number): Promise<ApiInputParam[]> {
+export async function getApiInputParams(_apiId: number): Promise<ApiInputParam[]> {
   try {
     // 这里需要后端提供接口，暂时返回空
     return [];
@@ -818,7 +818,7 @@ export async function getApiInputParams(apiId: number): Promise<ApiInputParam[]>
 // 保存输入参数
 export async function saveApiInputParams(apiId: number, params: ApiInputParam[]): Promise<void> {
   try {
-    await api.post('/etl-admin/apiManager/saveInputParams', {
+    await api.post('apiManager/saveInputParams', {
       apiId,
       params
     });
@@ -829,7 +829,7 @@ export async function saveApiInputParams(apiId: number, params: ApiInputParam[])
 }
 
 // 获取输出参数
-export async function getApiOutputParams(apiId: number): Promise<ApiOutputParam[]> {
+export async function getApiOutputParams(_apiId: number): Promise<ApiOutputParam[]> {
   try {
     // 这里需要后端提供接口，暂时返回空
     return [];
@@ -841,7 +841,7 @@ export async function getApiOutputParams(apiId: number): Promise<ApiOutputParam[
 // 保存输出参数
 export async function saveApiOutputParams(apiId: number, params: ApiOutputParam[]): Promise<void> {
   try {
-    await api.post('/etl-admin/apiManager/saveOutputParams', {
+    await api.post('/apiManager/saveOutputParams', {
       apiId,
       params
     });
@@ -895,7 +895,7 @@ let MOCK_API_LIST: ApiConfig[] = [
 // 获取功能列表
 export async function getFeatures(params?: { page?: number; limit?: number; keyword?: string }): Promise<{ list: Feature[]; total: number }> {
   try {
-    const res = await api.post('/etl-admin/feature/list', {
+    const res = await api.post('/feature/list', {
       page: params?.page || 1,
       pageSize: params?.limit || 5,
       keyword: params?.keyword || '',
@@ -916,7 +916,7 @@ export async function getFeatures(params?: { page?: number; limit?: number; keyw
 // 获取功能详情
 export async function getFeatureDetail(id: number): Promise<Feature | null> {
   try {
-    const res = await api.post('/etl-admin/feature/detail', { id });
+    const res = await api.post('/feature/detail', { id });
     if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
       return res.data.data;
     }
@@ -945,7 +945,7 @@ export async function saveFeature(feature: Feature): Promise<boolean> {
         dataDictionary: col.dataDictionary,
       })),
     };
-    const res = await api.post('/etl-admin/feature/save', cleanFeature);
+    const res = await api.post('/feature/save', cleanFeature);
     return res.data?.code === 1 || res.data?.code === 0;
   } catch (error) {
     console.error('Failed to save feature:', error);
@@ -956,7 +956,7 @@ export async function saveFeature(feature: Feature): Promise<boolean> {
 // 删除功能
 export async function deleteFeature(id: number): Promise<void> {
   try {
-    await api.post('/etl-admin/feature/delete', { id });
+    await api.post('/feature/delete', { id });
   } catch (error) {
     console.error('Failed to delete feature:', error);
     throw error;
@@ -980,7 +980,7 @@ export async function getApiListSimple(): Promise<ApiConfig[]> {
 // 获取显示在菜单的功能列表
 export async function getMenuFeatures(): Promise<Feature[]> {
   try {
-    const res = await api.get('/etl-admin/feature/menuList');
+    const res = await api.get('/feature/menuList');
     if (((res.data?.code === 1 || res.data?.code === 0 || res.data?.success)) && res.data?.data) {
       return res.data.data;
     }
@@ -994,7 +994,7 @@ export async function getMenuFeatures(): Promise<Feature[]> {
 // 根据编码获取功能
 export async function getFeatureByCode(code: string): Promise<Feature | null> {
   try {
-    const res = await api.get('/etl-admin/feature/getByCode', { params: { code } });
+    const res = await api.get('/feature/getByCode', { params: { code } });
     if (((res.data?.code === 1 || res.data?.code === 0 || res.data?.success)) && res.data?.data) {
       return res.data.data;
     }
@@ -1008,7 +1008,7 @@ export async function getFeatureByCode(code: string): Promise<Feature | null> {
 // 生成CRUD API
 export async function generateCrudApi(dataSourceId: number, tableName: string, featureCode: string, columns?: any[]): Promise<any> {
   try {
-    const res = await api.post('/etl-admin/feature/generateApi', {
+    const res = await api.post('/feature/generateApi', {
       dataSourceId,
       tableName,
       featureCode,
@@ -1217,7 +1217,7 @@ export async function getSystemConfigByCode(code: string): Promise<SystemConfig 
 
 export async function getRoles(params?: { role?: string; page?: number; limit?: number }): Promise<{ list: SysRole[]; total: number }> {
   try {
-    const res = await api.post('/etl-admin/sysRole/list', {
+    const res = await api.post('/sysRole/list', {
       page: params?.page || 1,
       limit: params?.limit || 10,
       role: params?.role || '',
@@ -1237,7 +1237,7 @@ export async function getRoles(params?: { role?: string; page?: number; limit?: 
 
 export async function getRoleDetail(id: number): Promise<SysRole | null> {
   try {
-    const res = await api.post('/etl-admin/sysRole/detail', { id });
+    const res = await api.post('/sysRole/detail', { id });
     if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
       return res.data.data;
     }
@@ -1250,7 +1250,7 @@ export async function getRoleDetail(id: number): Promise<SysRole | null> {
 
 export async function saveRole(role: Partial<SysRole>): Promise<SysRole | null> {
   try {
-    const res = await api.post('/etl-admin/sysRole/save', role);
+    const res = await api.post('/sysRole/save', role);
     if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
       return res.data.data;
     }
@@ -1263,7 +1263,7 @@ export async function saveRole(role: Partial<SysRole>): Promise<SysRole | null> 
 
 export async function deleteRole(id: number): Promise<void> {
   try {
-    await api.post('/etl-admin/sysRole/delete', { id });
+    await api.post('/sysRole/delete', { id });
   } catch (error) {
     console.error('Failed to delete role:', error);
     throw error;
@@ -1272,7 +1272,7 @@ export async function deleteRole(id: number): Promise<void> {
 
 export async function getRoleMenuIds(roleId: number): Promise<number[]> {
   try {
-    const res = await api.post('/etl-admin/sysRole/menuIds', { roleId });
+    const res = await api.post('/sysRole/menuIds', { roleId });
     if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
       return res.data.data || [];
     }
@@ -1285,7 +1285,7 @@ export async function getRoleMenuIds(roleId: number): Promise<number[]> {
 
 export async function bindMenus(roleId: number, menuIds: number[]): Promise<void> {
   try {
-    await api.post('/etl-admin/sysRole/bindMenus', { roleId, menuIds });
+    await api.post('/sysRole/bindMenus', { roleId, menuIds });
   } catch (error) {
     console.error('Failed to bind menus:', error);
     throw error;
@@ -1296,7 +1296,7 @@ export async function bindMenus(roleId: number, menuIds: number[]): Promise<void
 
 export async function getUsers(params?: { name?: string; phone?: string; employeeNo?: string; page?: number; limit?: number; status?: number }): Promise<{ list: SysUser[]; total: number }> {
   try {
-    const res = await api.post('/etl-admin/sysUser/list', {
+    const res = await api.post('/sysUser/list', {
       page: params?.page || 1,
       limit: params?.limit || 10,
       name: params?.name || '',
@@ -1319,7 +1319,7 @@ export async function getUsers(params?: { name?: string; phone?: string; employe
 
 export async function getUserDetail(id: number): Promise<SysUser | null> {
   try {
-    const res = await api.post('/etl-admin/sysUser/detail', { id });
+    const res = await api.post('/sysUser/detail', { id });
     if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
       return res.data.data;
     }
@@ -1340,7 +1340,7 @@ export async function saveUser(user: Partial<SysUser>): Promise<SysUser | null> 
 
 export async function deleteUser(id: number): Promise<void> {
   try {
-    await api.post('/etl-admin/sysUser/delete', { id });
+    await api.post('/sysUser/delete', { id });
   } catch (error) {
     console.error('Failed to delete user:', error);
     throw error;
@@ -1349,7 +1349,7 @@ export async function deleteUser(id: number): Promise<void> {
 
 export async function userLogin(employeeNo: string, password: string): Promise<{ success: boolean; message: string; user?: SysUser }> {
   try {
-    const res = await api.post('/etl-admin/sysUser/login', { employeeNo, password });
+    const res = await api.post('/sysUser/login', { employeeNo, password });
     if (res.data?.success) {
       return {
         success: true,
@@ -1369,7 +1369,7 @@ export async function userLogin(employeeNo: string, password: string): Promise<{
 
 export async function changePassword(employeeNo: string, oldPassword: string, newPassword: string): Promise<{ success: boolean; message: string }> {
   try {
-    const res = await api.post('/etl-admin/sysUser/changePassword', {
+    const res = await api.post('/sysUser/changePassword', {
       employeeNo,
       oldPassword,
       newPassword,
@@ -1388,7 +1388,7 @@ export async function changePassword(employeeNo: string, oldPassword: string, ne
 
 export async function getMenus(params?: { name?: string; code?: string; page?: number; limit?: number }): Promise<{ list: SysMenu[]; total: number }> {
   try {
-    const res = await api.post('/etl-admin/sysMenu/list', {
+    const res = await api.post('/sysMenu/list', {
       page: params?.page || 1,
       limit: params?.limit || 10,
       name: params?.name || '',
@@ -1409,7 +1409,7 @@ export async function getMenus(params?: { name?: string; code?: string; page?: n
 
 export async function getMenuDetail(id: number): Promise<SysMenu | null> {
   try {
-    const res = await api.post('/etl-admin/sysMenu/detail', { id });
+    const res = await api.post('/sysMenu/detail', { id });
     if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
       return res.data.data;
     }
@@ -1422,7 +1422,7 @@ export async function getMenuDetail(id: number): Promise<SysMenu | null> {
 
 export async function saveMenu(menu: Partial<SysMenu>): Promise<SysMenu | null> {
   try {
-    const res = await api.post('/etl-admin/sysMenu/save', menu);
+    const res = await api.post('/sysMenu/save', menu);
     if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
       return res.data.data;
     }
@@ -1435,7 +1435,7 @@ export async function saveMenu(menu: Partial<SysMenu>): Promise<SysMenu | null> 
 
 export async function deleteMenu(id: number): Promise<void> {
   try {
-    await api.post('/etl-admin/sysMenu/delete', { id });
+    await api.post('/sysMenu/delete', { id });
   } catch (error) {
     console.error('Failed to delete menu:', error);
     throw error;
@@ -1444,7 +1444,7 @@ export async function deleteMenu(id: number): Promise<void> {
 
 export async function getMenuTree(): Promise<SysMenu[]> {
   try {
-    const res = await api.get('/etl-admin/sysMenu/tree');
+    const res = await api.get('/sysMenu/tree');
     if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
       return res.data.data || [];
     }
@@ -1457,7 +1457,7 @@ export async function getMenuTree(): Promise<SysMenu[]> {
 
 export async function getMenuTreeByRoleId(roleId: number): Promise<SysMenu[]> {
   try {
-    const res = await api.post('/etl-admin/sysMenu/roleMenus', { roleId });
+    const res = await api.post('/sysMenu/roleMenus', { roleId });
     if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
       return res.data.data || [];
     }

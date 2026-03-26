@@ -53,10 +53,10 @@ export default function RoleList() {
         </div>
         <button
           onClick={() => window.layoutOpenTab({ id: `role-new-${Date.now()}`, title: '新增角色', path: '/roles/new' })}
-          className="flex items-center gap-2 px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent)] text-[var(--text-primary)] rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
-          新增角色
+          新增
         </button>
       </div>
 
@@ -119,7 +119,7 @@ export default function RoleList() {
                           setDeleteId(role.roleId!);
                           setShowDeleteConfirm(true);
                         }}
-                        className="p-1.5 hover:bg-[var(--bg-tertiary)] rounded text-[var(--text-muted)] hover:text-red-400 transition-colors"
+                        className="p-1.5 hover:bg-[var(--bg-tertiary)] rounded text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -175,7 +175,7 @@ export default function RoleList() {
               </button>
               <button
                 onClick={() => deleteId && handleDelete(deleteId)}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-[var(--text-primary)] rounded-lg transition-colors"
+                className="px-4 py-2 bg-[var(--danger)] hover:opacity-90 text-white rounded-lg transition-colors"
               >
                 删除
               </button>

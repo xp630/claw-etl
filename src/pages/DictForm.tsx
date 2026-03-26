@@ -248,7 +248,7 @@ export default function DictForm({ overrideId }: { overrideId?: string }) {
                       <button
                         type="button"
                         onClick={() => handleRemoveItem(index)}
-                        className="p-1 hover:bg-[var(--bg-tertiary)] rounded text-[var(--text-muted)] hover:text-red-400 transition-colors"
+                        className="p-1 hover:bg-[var(--bg-tertiary)] rounded text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors"
                       >
                         <Trash2 className="w-3 h-3" />
                       </button>
@@ -271,7 +271,7 @@ export default function DictForm({ overrideId }: { overrideId?: string }) {
           <button
             type="submit"
             disabled={saving}
-            className="px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent)] text-[var(--text-primary)] rounded-lg transition-colors text-sm disabled:opacity-50"
+            className="px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-lg transition-colors text-sm disabled:opacity-50"
           >
             {saving ? '保存中...' : '保存'}
           </button>

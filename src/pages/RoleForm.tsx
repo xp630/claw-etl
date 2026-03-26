@@ -4,10 +4,10 @@ import { ChevronLeft, Users, Check, Search } from 'lucide-react';
 import { getRoleDetail, saveRole, getMenuTree, getRoleMenuIds, bindMenus } from '../lib/api';
 import type { SysRole, SysMenu } from '../types';
 
-export default function RoleForm() {
+export default function RoleForm({ overrideId }: { overrideId?: string }) {
   const params = useParams();
   const navigate = useNavigate();
-  const id = params.id;
+  const id = overrideId || params.id;
   const isEdit = Boolean(id);
 
   const [role, setRole] = useState<SysRole>({
@@ -165,7 +165,7 @@ export default function RoleForm() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">
-                角色标识 <span className="text-red-400">*</span>
+                角色标识 <span className="text-[var(--danger)]">*</span>
               </label>
               <input
                 type="text"
@@ -244,7 +244,7 @@ export default function RoleForm() {
             <button
               type="submit"
               disabled={saving}
-              className="px-6 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent)] text-[var(--text-primary)] rounded-lg transition-colors disabled:opacity-50"
+              className="px-6 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-lg transition-colors disabled:opacity-50"
             >
               {saving ? '保存中...' : '保存'}
             </button>

@@ -377,7 +377,7 @@ export default function MenuList() {
           )}
           <span className="text-[var(--text-primary)] font-medium">{menu.name}</span>
           <span className={`px-2 py-0.5 rounded text-xs ${
-            menu.type === 'menu' ? 'bg-blue-500/20 text-blue-400' : 'bg-orange-500/20 text-orange-400'
+            menu.type === 'menu' ? 'bg-[var(--info)]/20 text-[var(--info)]' : 'bg-[var(--warning)]/20 text-[var(--warning)]'
           }`}>
             {menu.type === 'menu' ? '菜单' : '按钮'}
           </span>
@@ -388,7 +388,7 @@ export default function MenuList() {
                 e.stopPropagation();
                 handleCreate(menu.id!);
               }}
-              className="p-1.5 hover:bg-[var(--bg-hover)] rounded text-[var(--text-muted)] hover:text-green-400 transition-colors"
+              className="p-1.5 hover:bg-[var(--bg-hover)] rounded text-[var(--text-muted)] hover:text-[var(--success)] transition-colors"
               title="添加子节点"
             >
               <Plus className="w-4 h-4" />
@@ -399,7 +399,7 @@ export default function MenuList() {
                 setDeleteId(menu.id!);
                 setShowDeleteConfirm(true);
               }}
-              className="p-1.5 hover:bg-[var(--bg-hover)] rounded text-[var(--text-muted)] hover:text-red-400 transition-colors"
+              className="p-1.5 hover:bg-[var(--bg-hover)] rounded text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors"
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -422,10 +422,10 @@ export default function MenuList() {
         </div>
         <button
           onClick={() => handleCreate(null)}
-          className="flex items-center gap-2 px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent)] text-[var(--text-primary)] rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
-          新增菜单
+          新增
         </button>
       </div>
 
@@ -485,7 +485,7 @@ export default function MenuList() {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">
-                          菜单名称 <span className="text-red-400">*</span>
+                          菜单名称 <span className="text-[var(--danger)]">*</span>
                         </label>
                         <input
                           type="text"
@@ -512,7 +512,7 @@ export default function MenuList() {
                                 onClick={() => setFormData({ ...formData, icon: icon.name })}
                                 className={`p-2 rounded-lg flex items-center justify-center transition-colors ${
                                   isSelected
-                                    ? 'bg-[var(--accent)] text-[var(--text-primary)]'
+                                    ? 'bg-[var(--accent)] text-white'
                                     : 'hover:bg-[var(--bg-tertiary)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                                 }`}
                                 title={icon.label}
@@ -634,7 +634,7 @@ export default function MenuList() {
                 <button
                   onClick={handleSave}
                   disabled={saving}
-                  className="px-6 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent)] text-[var(--text-primary)] rounded-lg transition-colors disabled:opacity-50"
+                  className="px-6 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-lg transition-colors disabled:opacity-50"
                 >
                   {saving ? '保存中...' : '保存'}
                 </button>
@@ -666,7 +666,7 @@ export default function MenuList() {
               </button>
               <button
                 onClick={() => deleteId && handleDelete(deleteId)}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-[var(--text-primary)] rounded-lg transition-colors"
+                className="px-4 py-2 bg-[var(--danger)] hover:opacity-90 text-white rounded-lg transition-colors"
               >
                 删除
               </button>

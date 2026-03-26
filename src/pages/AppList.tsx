@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Plus, RefreshCw, Edit, Trash2, Key, Copy, Search } from 'lucide-react';
 
 // 应用类型
@@ -110,7 +110,7 @@ export default function AppList() {
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500/20 to-orange-500/20 flex items-center justify-center border border-yellow-500/20">
-            <Key className="w-5 h-5 text-yellow-400" />
+            <Key className="w-5 h-5 text-[var(--warning)]" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-[var(--text-primary)]">应用管理</h1>
@@ -119,10 +119,10 @@ export default function AppList() {
         </div>
         <button
           onClick={() => navigate('/apps/new')}
-          className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-yellow-500 to-orange-600 text-[var(--text-primary)] rounded-xl hover:opacity-90 transition-opacity"
+          className="flex items-center gap-2 px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
-          新增应用
+          新增
         </button>
       </div>
 
@@ -141,7 +141,7 @@ export default function AppList() {
           </div>
           <button
             onClick={loadData}
-            className="px-4 py-2.5 bg-yellow-500 text-[var(--text-primary)] rounded-lg hover:bg-yellow-600 transition-colors"
+            className="px-4 py-2.5 bg-[var(--warning)] text-white rounded-lg hover:bg-[var(--warning)]/80 transition-colors"
           >
             <RefreshCw className="w-4 h-4" />
           </button>
@@ -179,10 +179,10 @@ export default function AppList() {
             ) : (
               filteredApps.map((app) => (
                 <tr key={app.id} className="hover:bg-[var(--bg-table-header)] transition-colors">
-                  <td className="px-4 py-3 text-[var(--text-muted)]">{app.id}</td>
-                  <td className="px-4 py-3 text-[var(--text-primary)] font-medium">{app.appName}</td>
+                  <td className="px-4 py-3 text-[var(--text-muted)] truncate">{app.id}</td>
+                  <td className="px-4 py-3 text-[var(--text-primary)] truncate font-medium">{app.appName}</td>
                   <td className="px-4 py-3">
-                    <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 rounded text-xs">
+                    <span className="px-2 py-1 bg-[var(--warning)]/20 text-[var(--warning)] rounded text-xs">
                       {getAppTypeLabel(app.appType)}
                     </span>
                   </td>
@@ -218,23 +218,23 @@ export default function AppList() {
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-1 rounded text-xs ${app.status === 1 ? 'bg-green-500/20 text-green-400' : 'bg-[var(--bg-secondary)]/20 text-[var(--text-muted)]'}`}>
+                    <span className={`px-2 py-1 rounded text-xs ${app.status === 1 ? 'bg-[var(--success)]/20 text-[var(--success)]' : 'bg-[var(--bg-secondary)]/20 text-[var(--text-muted)]'}`}>
                       {app.status === 1 ? '启用' : '禁用'}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-[var(--text-muted)] text-sm">{app.createdAt}</td>
+                  <td className="px-4 py-3 text-[var(--text-muted)] truncate text-sm">{app.createdAt}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-center gap-2">
                       <button
                         onClick={() => navigate(`/apps/${app.id}`)}
-                        className="p-2 hover:bg-blue-500/10 rounded-lg text-blue-400 transition-colors"
+                        className="p-2 hover:bg-[var(--info)]/10 rounded-lg text-[var(--info)] transition-colors"
                         title="编辑"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => handleToggle(app)}
-                        className="p-2 hover:bg-yellow-500/10 rounded-lg text-yellow-400 transition-colors"
+                        className="p-2 hover:bg-[var(--warning)]/10 rounded-lg text-[var(--warning)] transition-colors"
                         title={app.status === 1 ? '禁用' : '启用'}
                       >
                         {app.status === 1 ? <Trash2 className="w-4 h-4" /> : <Plus className="w-4 h-4" />}

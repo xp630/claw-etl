@@ -282,6 +282,7 @@ export interface SysUser {
 export interface SysMenu {
   id?: number;
   name: string;
+  code?: string;
   icon?: string;
   path?: string;
   parentId?: number;

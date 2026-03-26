@@ -59,10 +59,10 @@ export default function DictList() {
         <h1 className="text-xl font-bold text-[var(--text-primary)]">数据字典管理</h1>
         <button
           onClick={() => navigate('/dict/new')}
-          className="flex items-center gap-2 px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent)] text-[var(--text-primary)] rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
-          新增字典
+          新增
         </button>
       </div>
 
@@ -121,7 +121,7 @@ export default function DictList() {
                     {dict.type === 'number' ? '数字' : '字符串'}
                   </td>
                   <td className="px-4 py-3 text-center">
-                    <span className={`px-2 py-0.5 rounded text-xs ${dict.status === 1 ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                    <span className={`px-2 py-0.5 rounded text-xs ${dict.status === 1 ? 'bg-[var(--success)]/20 text-[var(--success)]' : 'bg-[var(--danger)]/20 text-[var(--danger)]'}`}>
                       {dict.status === 1 ? '启用' : '禁用'}
                     </span>
                   </td>
@@ -136,7 +136,7 @@ export default function DictList() {
                       </button>
                       <button
                         onClick={() => handleDelete(dict.id!)}
-                        className="p-1.5 hover:bg-[var(--bg-tertiary)] rounded text-[var(--text-muted)] hover:text-red-400 transition-colors"
+                        className="p-1.5 hover:bg-[var(--bg-tertiary)] rounded text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

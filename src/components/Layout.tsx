@@ -2,13 +2,13 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
 import {
-  Database, ListTodo, LogOut, Globe, Key, ChevronRight, ChevronDown, PanelLeftClose, PanelLeft,
+  Database, ListTodo, LogOut, Globe, Key, ChevronRight, PanelLeftClose, PanelLeft,
   Layout as LayoutIcon, X, Users, Menu as MenuIcon, Settings, Home, FileText, Folder, Bell,
   Calendar, Clock, User, Lock, BarChart, Activity, Anchor, Award, Bookmark, Box, Briefcase,
   Brush, Bug, Circle, Code, Coffee, Command, Compass, Copy, CreditCard, Cpu, Crosshair,
   Delete, Disc, DollarSign, Download, Edit, Eye, EyeOff, FastForward, Feather, Filter, Flag,
   Grid, HardDrive, Hash, Headphones, Heart, HelpCircle, Image, Inbox, Info, Layers, Library,
-  LifeBuoy, Link, List, Loader, Loader2, LogIn, LogOut as LogOutIcon, Mail, Map, MapPin,
+  LifeBuoy, Link, List, Loader, Loader2, LogIn, Mail, Map, MapPin,
   Maximize, MessageCircle, MessageSquare, Mic, Minimize, Minus, Monitor, Moon, MoreHorizontal,
   MoreVertical, Move, Music, Navigation, Network, Octagon, Package, Paperclip, Pause, PauseCircle,
   Percent, Phone, Play, PlayCircle, Power, Printer, Radio, RefreshCw, Repeat, RotateCcw, RotateCw,
@@ -43,6 +43,10 @@ import MenuList from '../pages/MenuList';
 import MenuForm from '../pages/MenuForm';
 import UserList from '../pages/UserList';
 import UserForm from '../pages/UserForm';
+import DatasetList from '../pages/report/DatasetList';
+import DatasetForm from '../pages/report/DatasetForm';
+import DashboardList from '../pages/report/DashboardList';
+import Dashboard from '../pages/report/Dashboard';
 
 // 图标映射
 const iconMap: Record<string, LucideIcon> = {
@@ -255,6 +259,12 @@ function renderPage(path: string, resourceId?: string) {
       const id = resourceId || path.split('/')[2];
       return <UserForm overrideId={id} />;
     }
+    if (path.match(/^\/report\/datasets\/[^/]+$/) || path.match(/^report\/datasets\/[^/]+$/)) {
+      return <DatasetForm />;
+    }
+    if (path.match(/^\/report\/dashboards\/[^/]+$/) || path.match(/^report\/dashboards\/[^/]+$/)) {
+      return <Dashboard />;
+    }
 
     switch (path) {
     case '/datasources':
@@ -297,6 +307,12 @@ function renderPage(path: string, resourceId?: string) {
       return <UserList />;
     case '/users/new':
       return <UserForm />;
+    case '/report/datasets':
+      return <DatasetList />;
+    case '/report/datasets/new':
+      return <DatasetForm />;
+    case '/report/dashboards':
+      return <DashboardList />;
     default:
       if (path.startsWith('/dynamic/')) {
         const code = path.split('/')[2];
@@ -327,7 +343,6 @@ export default function Layout() {
     const path = location.pathname;
     // 只有当 path 真正变化（不是由于 tab 更新导致的）时才处理
     if (path !== prevPathRef.current) {
-      const prevPath = prevPathRef.current;
       prevPathRef.current = path;
 
       if (path === '/') {
@@ -375,6 +390,9 @@ export default function Layout() {
       '/features': '功能管理',
       '/dict': '字典管理',
       '/config': '系统配置',
+      '/users': '用户管理',
+      '/roles': '角色管理',
+      '/menus': '菜单管理',
     };
     if (path.startsWith('/datasources/')) return '编辑数据源';
     if (path.startsWith('/tasks/')) return '编辑任务';
@@ -383,6 +401,11 @@ export default function Layout() {
     if (path.startsWith('/features/')) return '编辑功能';
     if (path.startsWith('/dict/')) return '编辑字典';
     if (path.startsWith('/config/')) return '编辑配置';
+    if (path.startsWith('/users/')) return '编辑用户';
+    if (path.startsWith('/roles/')) return '编辑角色';
+    if (path.startsWith('/menus/')) return '编辑菜单';
+    if (path.startsWith('/report/dashboards/')) return '编辑仪表盘';
+    if (path.startsWith('/report/datasets/')) return '编辑数据集';
     return titles[path] || '新页面';
   };
 
@@ -494,7 +517,7 @@ export default function Layout() {
   return (
     <div className="flex h-screen bg-[var(--bg-primary)] text-[var(--text-primary)]">
       {/* 左侧菜单 */}
-      <div className={`flex flex-col bg-[var(--bg-secondary)] border-r border-[var(--border)] transition-all ${collapsed ? 'w-16' : 'w-56'}`}>
+      <div className={`flex flex-col bg-[var(--bg-secondary)] border-r border-[var(--border)] transition-all duration-200 ${collapsed ? 'w-[72px]' : 'w-64'}`}>
         {/* Logo */}
         <div className="h-16 flex items-center justify-center border-b border-[var(--border-light)]">
           {!collapsed && <span className="text-lg font-bold">{systemName}</span>}
@@ -509,7 +532,7 @@ export default function Layout() {
         <div className="p-4 border-t border-[var(--border-light)]">
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="flex items-center gap-2 w-full px-3 py-2 hover:bg-[var(--bg-hover)] rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+            className="flex items-center gap-2 w-full px-3 py-2 hover:bg-[var(--bg-hover)] rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-150"
           >
             {collapsed ? <PanelLeft className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
             {!collapsed && <span>收起菜单</span>}
@@ -520,24 +543,28 @@ export default function Layout() {
       {/* 主内容区 */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Tab栏 */}
-        <div className="h-10 flex items-center justify-between bg-[var(--bg-primary)] border-b border-[var(--border-light)]">
-          <div className="flex items-center overflow-x-auto flex-1">
-          {tabs.map((tab) => (
+        <div className="h-11 flex items-center justify-between bg-[var(--bg-primary)] border-b border-[var(--border-light)]">
+          <div className="flex items-center overflow-x-auto flex-1 scrollbar-thin">
+          {tabs.length === 0 ? (
+            <div className="flex items-center px-4 h-full text-[var(--text-muted)] text-sm">
+              点击左侧菜单打开页面
+            </div>
+          ) : tabs.map((tab) => (
             <div
               key={tab.id}
               onClick={() => setActiveTabId(tab.id)}
-              className={`flex items-center gap-2 px-4 h-full cursor-pointer border-r border-[var(--border-light)] shrink-0 ${
+              className={`flex items-center gap-2 px-4 h-full cursor-pointer border-r border-[var(--border-light)] shrink-0 group ${
                 activeTabId === tab.id
-                  ? 'bg-[var(--bg-secondary)] text-[var(--text-primary)]'
+                  ? 'bg-[var(--bg-secondary)] text-[var(--text-primary)] border-b-2 border-b-[var(--accent)]'
                   : 'text-[var(--text-muted)] hover:bg-[var(--bg-hover-light)] hover:text-[var(--text-primary)]'
               }`}
             >
               <span className="text-sm">{tab.title}</span>
               <button
                 onClick={(e) => closeTab(tab.id, e)}
-                className="p-0.5 hover:bg-[var(--bg-hover)] rounded"
+                className="p-1 rounded text-[var(--text-muted)] hover:bg-[var(--danger)]/20 hover:text-[var(--danger)] opacity-0 group-hover:opacity-100 transition-opacity"
               >
-                <X className="w-3 h-3" />
+                <X className="w-4 h-4" />
               </button>
             </div>
           ))}
@@ -588,8 +615,8 @@ export default function Layout() {
         </div>
 
         {/* 页面内容 - 根据活动tab渲染 */}
-        <div className="flex-1 overflow-auto bg-[var(--bg-primary)]">
-          {activeTab ? renderPage(activeTab.path, activeTab.resourceId) : <Outlet />}
+        <div className="flex-1 overflow-auto bg-[var(--bg-primary)] p-6">
+          {activeTab ? renderPage(location.pathname, activeTab.resourceId) : <Outlet />}
         </div>
       </div>
 
@@ -623,7 +650,7 @@ export default function Layout() {
             <button
               onClick={() => toggleMenu(item.title)}
               className={`w-full flex items-center justify-center p-3 rounded-lg transition-colors ${
-                isActive ? 'bg-purple-500/20 text-purple-400' : 'text-[var(--text-muted)] hover:bg-[var(--bg-hover-light)] hover:text-[var(--text-primary)]'
+                isActive ? 'bg-[var(--accent-light)] text-[var(--accent)]' : 'text-[var(--text-muted)] hover:bg-[var(--bg-hover-light)] hover:text-[var(--text-primary)]'
               }`}
               title={item.title}
             >
@@ -643,7 +670,7 @@ export default function Layout() {
           key={item.path}
           onClick={handleClick}
           className={`w-full flex items-center justify-center p-3 rounded-lg transition-colors ${
-            isActive ? 'bg-purple-500/20 text-purple-400' : 'text-[var(--text-muted)] hover:bg-[var(--bg-hover-light)] hover:text-[var(--text-primary)]'
+            isActive ? 'bg-[var(--accent-light)] text-[var(--accent)]' : 'text-[var(--text-muted)] hover:bg-[var(--bg-hover-light)] hover:text-[var(--text-primary)]'
           }`}
           title={item.title}
         >
@@ -677,7 +704,7 @@ export default function Layout() {
         key={item.path}
         onClick={handleClick}
         className={`w-full flex items-center gap-2 px-4 py-2 rounded-lg transition-colors mb-1 ${
-          isActive ? 'bg-purple-500/20 text-purple-400' : 'text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
+          isActive ? 'bg-[var(--accent-light)] text-[var(--accent)]' : 'text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
         }`}
       >
         {item.icon}

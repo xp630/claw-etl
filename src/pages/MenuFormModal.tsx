@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { getMenuDetail, saveMenu, getMenuTree } from '../lib/api';
 import type { SysMenu } from '../types';
@@ -95,8 +95,8 @@ export default function MenuFormModal({ open, onClose, onSuccess, menuId, parent
     }
   };
 
-  const renderParentOptions = (menus: SysMenu[], level = 0): JSX.Element[] => {
-    const options: JSX.Element[] = [];
+  const renderParentOptions = (menus: SysMenu[], level = 0): React.ReactElement[] => {
+    const options: React.ReactElement[] = [];
     menus.forEach(m => {
       // 排除自己和自己的子节点
       if (mode === 'edit' && menuId && (m.id === menuId || (m.children && m.children.some(c => c.id === menuId)))) {
@@ -142,7 +142,7 @@ export default function MenuFormModal({ open, onClose, onSuccess, menuId, parent
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">
-                      菜单名称 <span className="text-red-400">*</span>
+                      菜单名称 <span className="text-[var(--danger)]">*</span>
                     </label>
                     <input
                       type="text"
@@ -156,7 +156,7 @@ export default function MenuFormModal({ open, onClose, onSuccess, menuId, parent
 
                   <div>
                     <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">
-                      菜单编码 <span className="text-red-400">*</span>
+                      菜单编码 <span className="text-[var(--danger)]">*</span>
                     </label>
                     <input
                       type="text"
@@ -261,7 +261,7 @@ export default function MenuFormModal({ open, onClose, onSuccess, menuId, parent
           <button
             onClick={handleSubmit}
             disabled={saving}
-            className="px-6 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent)] text-[var(--text-primary)] rounded-lg transition-colors disabled:opacity-50"
+            className="px-6 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-lg transition-colors disabled:opacity-50"
           >
             {saving ? '保存中...' : '保存'}
           </button>

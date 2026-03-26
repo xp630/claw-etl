@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Search, X } from 'lucide-react';
 import { getFeatureDetail, saveFeature, getApiListSimple, getApiDetail, getDataSources, getTableList, getTableColumns, generateCrudApi, getDictList } from '../lib/api';
 import type { Feature, FeatureColumn, ApiConfig, DataSource, Dict } from '../types';
 
@@ -18,6 +18,9 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
   const [dataSources, setDataSources] = useState<DataSource[]>([]);
   const [tables, setTables] = useState<{ tableName: string; tableComment: string }[]>([]);
   const [dicts, setDicts] = useState<Dict[]>([]);
+  const [tableSearchOpen, setTableSearchOpen] = useState(false);
+  const [tableSearchValue, setTableSearchValue] = useState('');
+  const tableSearchRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState<Feature>({
     name: '',
     code: '',
@@ -54,6 +57,17 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
     };
     init();
   }, [id]);
+
+  // 点击外部关闭搜索下拉
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (tableSearchRef.current && !tableSearchRef.current.contains(e.target as Node)) {
+        setTableSearchOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const loadDicts = async () => {
     const data = await getDictList({ page: 1, limit: 100 });
@@ -299,21 +313,67 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
                 ))}
               </select>
             </div>
-            <div>
+            <div ref={tableSearchRef} className="relative">
               <label className="block text-sm text-[var(--text-muted)] mb-1">表名</label>
-              <select
-                value={formData.tableName || ''}
-                onChange={(e) => handleTableChange(e.target.value)}
-                className="w-full px-3 py-2 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--accent-light)]"
-                disabled={!formData.datasourceId}
-              >
-                <option value="">请选择表</option>
-                {tables.map(t => (
-                  <option key={t.tableName} value={t.tableName}>
-                    {t.tableName} {t.tableComment ? `(${t.tableComment})` : ''}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={tableSearchOpen ? tableSearchValue : (formData.tableName || '')}
+                  onChange={(e) => {
+                    setTableSearchValue(e.target.value);
+                    setTableSearchOpen(true);
+                  }}
+                  onFocus={() => setTableSearchOpen(true)}
+                  placeholder={formData.datasourceId ? "搜索表名..." : "请先选择数据源"}
+                  disabled={!formData.datasourceId}
+                  className="w-full px-3 py-2 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] text-sm focus:outline-none focus:border-[var(--accent-light)]"
+                />
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                  {formData.tableName && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleTableChange('');
+                        setTableSearchValue('');
+                      }}
+                      className="p-1 hover:bg-[var(--bg-tertiary)] rounded text-[var(--text-muted)]"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
+                  <Search className="w-4 h-4 text-[var(--text-muted)]" />
+                </div>
+              </div>
+              {tableSearchOpen && formData.datasourceId && (
+                <div className="absolute z-50 w-full mt-1 bg-[var(--bg-secondary)] border border-[var(--border-light)] rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  {tables.filter(t =>
+                    t.tableName.toLowerCase().includes(tableSearchValue.toLowerCase()) ||
+                    (t.tableComment && t.tableComment.toLowerCase().includes(tableSearchValue.toLowerCase()))
+                  ).length > 0 ? (
+                    tables.filter(t =>
+                      t.tableName.toLowerCase().includes(tableSearchValue.toLowerCase()) ||
+                      (t.tableComment && t.tableComment.toLowerCase().includes(tableSearchValue.toLowerCase()))
+                    ).map(t => (
+                      <button
+                        key={t.tableName}
+                        type="button"
+                        onClick={() => {
+                          handleTableChange(t.tableName);
+                          setTableSearchOpen(false);
+                          setTableSearchValue('');
+                        }}
+                        className="w-full px-3 py-2 text-left text-sm text-[var(--text-primary)] hover:bg-[var(--bg-hover)] flex justify-between items-center"
+                      >
+                        <span className="font-mono">{t.tableName}</span>
+                        {t.tableComment && <span className="text-[var(--text-muted)] text-xs ml-2">{t.tableComment}</span>}
+                      </button>
+                    ))
+                  ) : (
+                    <div className="px-3 py-2 text-sm text-[var(--text-muted)] text-center">无匹配结果</div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -382,7 +442,7 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
                 </thead>
                 <tbody className="divide-y divide-slate-700/30">
                   <tr className="hover:bg-[var(--bg-hover-light)]">
-                    <td className="px-2 py-1.5 text-xs text-green-400">查询</td>
+                    <td className="px-2 py-1.5 text-xs text-[var(--success)]">查询</td>
                     <td className="px-2 py-1.5 text-xs text-[var(--text-primary)]">{formData.queryApiName}</td>
                     <td className="px-2 py-1.5 text-xs text-[var(--text-muted)] font-mono">{formData.queryApiPath}</td>
                     <td className="px-2 py-1.5 text-center">
@@ -396,7 +456,7 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
                     </td>
                   </tr>
                   <tr className="hover:bg-[var(--bg-hover-light)]">
-                    <td className="px-2 py-1.5 text-xs text-green-400">新增</td>
+                    <td className="px-2 py-1.5 text-xs text-[var(--success)]">新增</td>
                     <td className="px-2 py-1.5 text-xs text-[var(--text-primary)]">{formData.createApiName}</td>
                     <td className="px-2 py-1.5 text-xs text-[var(--text-muted)] font-mono">/api/{formData.code}/create</td>
                     <td className="px-2 py-1.5 text-center">
@@ -410,7 +470,7 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
                     </td>
                   </tr>
                   <tr className="hover:bg-[var(--bg-hover-light)]">
-                    <td className="px-2 py-1.5 text-xs text-green-400">更新</td>
+                    <td className="px-2 py-1.5 text-xs text-[var(--success)]">更新</td>
                     <td className="px-2 py-1.5 text-xs text-[var(--text-primary)]">{formData.updateApiName}</td>
                     <td className="px-2 py-1.5 text-xs text-[var(--text-muted)] font-mono">/api/{formData.code}/update</td>
                     <td className="px-2 py-1.5 text-center">
@@ -424,7 +484,7 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
                     </td>
                   </tr>
                   <tr className="hover:bg-[var(--bg-hover-light)]">
-                    <td className="px-2 py-1.5 text-xs text-green-400">删除</td>
+                    <td className="px-2 py-1.5 text-xs text-[var(--success)]">删除</td>
                     <td className="px-2 py-1.5 text-xs text-[var(--text-primary)]">{formData.deleteApiName}</td>
                     <td className="px-2 py-1.5 text-xs text-[var(--text-muted)] font-mono">/api/{formData.code}/delete</td>
                     <td className="px-2 py-1.5 text-center">
@@ -438,7 +498,7 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
                     </td>
                   </tr>
                   <tr className="hover:bg-[var(--bg-hover-light)]">
-                    <td className="px-2 py-1.5 text-xs text-green-400">详情</td>
+                    <td className="px-2 py-1.5 text-xs text-[var(--success)]">详情</td>
                     <td className="px-2 py-1.5 text-xs text-[var(--text-primary)]">{formData.detailApiName}</td>
                     <td className="px-2 py-1.5 text-xs text-[var(--text-muted)] font-mono">/api/{formData.code}/detail</td>
                     <td className="px-2 py-1.5 text-center">
@@ -627,7 +687,7 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
                         <button
                           type="button"
                           onClick={() => removeColumn(index)}
-                          className="p-1 hover:bg-[var(--bg-tertiary)] rounded text-[var(--text-muted)] hover:text-red-400 transition-colors"
+                          className="p-1 hover:bg-[var(--bg-tertiary)] rounded text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors"
                         >
                           <Trash2 className="w-3 h-3" />
                         </button>
@@ -656,7 +716,7 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
           <button
             type="submit"
             disabled={saving}
-            className="px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent)] text-[var(--text-primary)] rounded-lg transition-colors text-sm disabled:opacity-50"
+            className="px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-lg transition-colors text-sm disabled:opacity-50"
           >
             {saving ? '保存中...' : '保存'}
           </button>

@@ -1,5 +1,5 @@
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ThemeProvider } from './contexts/ThemeContext';
 import Layout from './components/Layout';
 import Login from './pages/Login';
@@ -15,6 +15,11 @@ import ApiAccessLog from './pages/ApiAccessLog';
 import FeatureList from './pages/FeatureList';
 import FeatureForm from './pages/FeatureForm';
 import DynamicDataGrid from './pages/DynamicDataGrid';
+import DatasetList from './pages/report/DatasetList';
+import DatasetForm from './pages/report/DatasetForm';
+import DashboardList from './pages/report/DashboardList';
+import Dashboard from './pages/report/Dashboard';
+import DashboardDemo from './pages/report/DashboardDemo';
 import DictList from './pages/DictList';
 import DictForm from './pages/DictForm';
 import SystemConfigList from './pages/SystemConfigList';
@@ -77,6 +82,12 @@ function App() {
           <Route path="users/new" element={<UserForm />} />
           <Route path="users/:id" element={<UserForm />} />
           <Route path="dynamic/:code" element={<DynamicDataGrid />} />
+          <Route path="report/datasets" element={<DatasetList />} />
+          <Route path="report/datasets/new" element={<DatasetForm />} />
+          <Route path="report/datasets/:id" element={<DatasetForm />} />
+          <Route path="report/dashboards" element={<DashboardList />} />
+          <Route path="report/dashboards/:id" element={<Dashboard />} />
+          <Route path="report/demo" element={<DashboardDemo />} />
         </Route>
       </Routes>
       </HashRouter>

@@ -101,12 +101,12 @@ export default function ApiForm({ overrideId }: { overrideId?: string }) {
             ...prev,
             datasourceId: ds.id,
             datasourceName: ds.name,
-            databaseName: ds.database_name || ds.dbName,
+            databaseName: ds.database_name || ds.dbName || '',
             tableName: tableName || '',
           }));
           // 如果有表名，加载表信息用于生成API名称和路径
           if (tableName) {
-            loadTables(ds.databaseName).then((tableList) => {
+            loadTables(ds.databaseName || '').then((tableList) => {
               // 从表列表中获取表注释，生成API名称和路径
               const currentTable = tableList.find((t: TableInfo) => t.tableName === tableName);
               const tableComment = currentTable?.tableComment || tableName;
@@ -441,13 +441,13 @@ ${whereConditions || '  1=1'}
         {STEPS.map((step, index) => (
           <div key={index} className="flex items-center">
             <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm ${
-              index < currentStep ? 'bg-green-500 text-[var(--text-primary)]' :
-              index === currentStep ? 'bg-[var(--accent)] text-[var(--text-primary)]' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)]'
+              index < currentStep ? 'bg-[var(--success)] text-white' :
+              index === currentStep ? 'bg-[var(--accent)] text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)]'
             }`}>
               {index < currentStep ? '✓' : index + 1}
             </div>
             <span className={`ml-2 text-sm ${index === currentStep ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}`}>{step}</span>
-            {index < STEPS.length - 1 && <div className={`w-12 h-0.5 mx-4 ${index < currentStep ? 'bg-green-500' : 'bg-[var(--bg-secondary)]'}`} />}
+            {index < STEPS.length - 1 && <div className={`w-12 h-0.5 mx-4 ${index < currentStep ? 'bg-[var(--success)]' : 'bg-[var(--bg-secondary)]'}`} />}
           </div>
         ))}
       </div>
@@ -536,7 +536,7 @@ ${whereConditions || '  1=1'}
                     </button>
                     {inputParamsExpanded && (
                       <div className="flex gap-2">
-                        <button onClick={() => setInputParams([...inputParams, { paramName: '', columnName: '', paramType: 'string', required: 0, defaultValue: '', description: '' }])} className="px-3 py-1 bg-green-600 text-[var(--text-primary)] rounded-lg text-sm">+ 新增</button>
+                        <button onClick={() => setInputParams([...inputParams, { paramName: '', columnName: '', paramType: 'string', required: 0, defaultValue: '', description: '' }])} className="px-3 py-1 bg-[var(--success)] text-white rounded-lg text-sm">+ 新增</button>
                       </div>
                     )}
                   </div>
@@ -556,7 +556,7 @@ ${whereConditions || '  1=1'}
                               <td className="px-4 py-2"><input type="checkbox" checked={param.required === 1} onChange={(e) => updateInputParam(index, 'required', e.target.checked ? 1 : 0)} className="accent-[var(--accent)]" /></td>
                               <td className="px-4 py-2"><input type="text" value={param.defaultValue || ''} onChange={(e) => updateInputParam(index, 'defaultValue', e.target.value)} className="px-2 py-1 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded text-[var(--text-primary)] text-sm w-20" /></td>
                               <td className="px-4 py-2"><input type="text" value={param.description || ''} onChange={(e) => updateInputParam(index, 'description', e.target.value)} className="px-2 py-1 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded text-[var(--text-primary)] text-sm" /></td>
-                              <td className="px-4 py-2"><button onClick={() => removeInputParam(index)} className="p-1 text-red-400 hover:text-red-300"><Trash2 className="w-4 h-4" /></button></td>
+                              <td className="px-4 py-2"><button onClick={() => removeInputParam(index)} className="p-1 text-[var(--danger)] hover:text-red-300"><Trash2 className="w-4 h-4" /></button></td>
                             </tr>
                           ))}
                         </tbody>
@@ -614,7 +614,7 @@ ${whereConditions || '  1=1'}
                                 />
                               </td>
                               <td className="px-4 py-2">
-                                <button onClick={() => removeOutputParam(index)} className="p-1 text-red-400 hover:text-red-300">
+                                <button onClick={() => removeOutputParam(index)} className="p-1 text-[var(--danger)] hover:text-red-300">
                                   <Trash2 className="w-4 h-4" />
                                 </button>
                               </td>
@@ -630,13 +630,13 @@ ${whereConditions || '  1=1'}
                 <div className="bg-[var(--bg-secondary)]/60 rounded-xl border border-[var(--border-light)] p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-[var(--text-primary)] font-medium">SQL配置</h3>
-                    <button onClick={generateSql} className="px-3 py-1 bg-[var(--accent)] text-[var(--text-primary)] rounded-lg text-sm">重新生成</button>
+                    <button onClick={generateSql} className="px-3 py-1 bg-[var(--accent)] text-white rounded-lg text-sm">重新生成</button>
                   </div>
                   <textarea
                     value={formData.querySql || generatedSql || ''}
                     onChange={(e) => setFormData({ ...formData, querySql: e.target.value })}
                     rows={12}
-                    className="w-full px-4 py-3 bg-[var(--bg-primary)] border border-[var(--border-light)] rounded-lg text-green-400 font-mono text-sm resize-none"
+                    className="w-full px-4 py-3 bg-[var(--bg-primary)] border border-[var(--border-light)] rounded-lg text-[var(--success)] font-mono text-sm resize-none"
                     placeholder="编写你的SQL查询语句..."
                   />
                 </div>
@@ -652,7 +652,7 @@ ${whereConditions || '  1=1'}
                   </div>
                   {formData.mockEnabled === 1 && (
                     <div className="space-y-4">
-                      <button onClick={generateMockData} className="px-3 py-1 bg-[var(--accent)] text-[var(--text-primary)] rounded-lg text-sm">根据字段生成</button>
+                      <button onClick={generateMockData} className="px-3 py-1 bg-[var(--accent)] text-white rounded-lg text-sm">根据字段生成</button>
                       <textarea value={formData.mockData || ''} onChange={(e) => setFormData({ ...formData, mockData: e.target.value })} rows={15} className="w-full px-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] font-mono text-sm" />
                     </div>
                   )}
@@ -669,12 +669,12 @@ ${whereConditions || '  1=1'}
           {currentStep === STEPS.length - 1 ? (
             <>
               <button onClick={() => navigate('/apis')} className="px-4 py-2 text-[var(--text-muted)] hover:text-[var(--text-primary)]">取消</button>
-              <button onClick={handleSave} disabled={!canSave() || saving} className="flex items-center gap-2 px-6 py-2 bg-[var(--accent)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--accent)] disabled:opacity-50">
+              <button onClick={handleSave} disabled={!canSave() || saving} className="flex items-center gap-2 px-6 py-2 bg-[var(--accent)] text-white rounded-lg hover:bg-[var(--accent-hover)] disabled:opacity-50">
                 <Save className="w-4 h-4" />{saving ? '保存中...' : '保存'}
               </button>
             </>
           ) : (
-            <button onClick={() => { if (currentStep < STEPS.length - 1) setCurrentStep(currentStep + 1); }} disabled={!canProceed()} className="flex items-center gap-2 px-6 py-2 bg-[var(--accent)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--accent)] disabled:opacity-50">下一步<ArrowRight className="w-4 h-4" /></button>
+            <button onClick={() => { if (currentStep < STEPS.length - 1) setCurrentStep(currentStep + 1); }} disabled={!canProceed()} className="flex items-center gap-2 px-6 py-2 bg-[var(--accent)] text-white rounded-lg hover:bg-[var(--accent-hover)] disabled:opacity-50">下一步<ArrowRight className="w-4 h-4" /></button>
           )}
         </div>
       </div>

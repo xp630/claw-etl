@@ -193,14 +193,14 @@ export default function TaskForm({ overrideId }: { overrideId?: string }) {
         {/* 源数据 */}
         <div className="bg-[var(--bg-secondary)]/60 backdrop-blur-xl rounded-xl border border-[var(--border-light)] p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Database className="w-5 h-5 text-blue-400" />
+            <Database className="w-5 h-5 text-[var(--info)]" />
             <h2 className="text-lg font-medium text-[var(--text-primary)]">源数据</h2>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                源数据库 <span className="text-red-400">*</span>
+                源数据库 <span className="text-[var(--danger)]">*</span>
               </label>
               <select
                 value={formData.source_id || ''}
@@ -216,7 +216,7 @@ export default function TaskForm({ overrideId }: { overrideId?: string }) {
 
             <div>
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                任务名称 <span className="text-red-400">*</span>
+                任务名称 <span className="text-[var(--danger)]">*</span>
               </label>
               <input
                 type="text"
@@ -229,7 +229,7 @@ export default function TaskForm({ overrideId }: { overrideId?: string }) {
 
             <div className="col-span-2">
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                查询语句 <span className="text-red-400">*</span>
+                查询语句 <span className="text-[var(--danger)]">*</span>
               </label>
               <textarea
                 value={formData.query_sql}
@@ -245,14 +245,14 @@ export default function TaskForm({ overrideId }: { overrideId?: string }) {
         {/* 目标数据 */}
         <div className="bg-[var(--bg-secondary)]/60 backdrop-blur-xl rounded-xl border border-[var(--border-light)] p-6">
           <div className="flex items-center gap-2 mb-4">
-            <Table className="w-5 h-5 text-green-400" />
+            <Table className="w-5 h-5 text-[var(--success)]" />
             <h2 className="text-lg font-medium text-[var(--text-primary)]">目标数据</h2>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                目标数据库 <span className="text-red-400">*</span>
+                目标数据库 <span className="text-[var(--danger)]">*</span>
               </label>
               <select
                 value={formData.target_id || ''}
@@ -268,7 +268,7 @@ export default function TaskForm({ overrideId }: { overrideId?: string }) {
 
             <div>
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                目标表名 <span className="text-red-400">*</span>
+                目标表名 <span className="text-[var(--danger)]">*</span>
               </label>
               <input
                 type="text"
@@ -281,7 +281,7 @@ export default function TaskForm({ overrideId }: { overrideId?: string }) {
 
             <div className="col-span-2">
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                列名 <span className="text-red-400">*</span>
+                列名 <span className="text-[var(--danger)]">*</span>
                 <span className="text-[var(--text-muted)] font-normal ml-2">用英文,多个时用英文逗号隔开</span>
               </label>
               <div className="flex gap-2">
@@ -296,7 +296,7 @@ export default function TaskForm({ overrideId }: { overrideId?: string }) {
                   type="button"
                   onClick={handleAutoGetColumns}
                   disabled={autoLoading || !formData.query_sql || !formData.source_id}
-                  className="px-4 py-2.5 bg-green-500/20 text-green-400 rounded-lg hover:bg-green-500/30 transition-colors flex items-center gap-2 disabled:opacity-50"
+                  className="px-4 py-2.5 bg-[var(--success)]/20 text-[var(--success)] rounded-lg hover:bg-[var(--success)]/30 transition-colors flex items-center gap-2 disabled:opacity-50"
                 >
                   <Download className="w-4 h-4" />
                   {autoLoading ? '获取中...' : '自动获取'}
@@ -330,7 +330,7 @@ export default function TaskForm({ overrideId }: { overrideId?: string }) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                执行窗口时长 <span className="text-red-400">*</span>
+                执行窗口时长 <span className="text-[var(--danger)]">*</span>
               </label>
               <div className="flex items-center gap-2">
                 <button
@@ -358,7 +358,7 @@ export default function TaskForm({ overrideId }: { overrideId?: string }) {
 
             <div>
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                执行窗口单位 <span className="text-red-400">*</span>
+                执行窗口单位 <span className="text-[var(--danger)]">*</span>
               </label>
               <select
                 value={formData.window_unit}
@@ -378,14 +378,14 @@ export default function TaskForm({ overrideId }: { overrideId?: string }) {
           <button
             type="button"
             onClick={() => navigate('/tasks')}
-            className="px-6 py-2.5 bg-[var(--text-primary)] text-[var(--bg-primary)] rounded-lg hover:bg-[var(--text-secondary)] transition-colors"
+            className="px-6 py-2.5 bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--bg-hover)] transition-colors"
           >
             返回
           </button>
           <button
             type="submit"
             disabled={saving}
-            className="flex items-center gap-2 px-6 py-2.5 bg-blue-500 text-[var(--text-primary)] rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 px-6 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-lg transition-colors disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
             {saving ? '保存中...' : '保存'}

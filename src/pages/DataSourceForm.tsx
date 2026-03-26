@@ -130,7 +130,7 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
       }
       
       const res = result as any;
-      if (result === 1 || res?.code === 1 || res?.code === 0 || res?.code === undefined) {
+      if (res === 1 || res?.code === 1 || res?.code === 0 || res?.code === undefined) {
         showToast(isEdit ? '更新成功' : '创建成功', 'success');
       } else {
         showToast(res?.msg || '保存失败', 'error');
@@ -171,14 +171,14 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
         {/* 基本信息 - 蓝色主题 */}
         <div className="bg-gradient-to-br from-[var(--bg-secondary)]/80 to-[var(--bg-secondary)]/60 backdrop-blur-xl rounded-xl border border-blue-500/30 p-6 mb-4">
           <div className="flex items-center gap-2 mb-4">
-            <div className="w-1 h-5 bg-blue-500 rounded-full"></div>
-            <h3 className="text-base font-medium text-blue-400">基本信息</h3>
+            <div className="w-1 h-5 bg-[var(--info)] rounded-full"></div>
+            <h3 className="text-base font-medium text-[var(--info)]">基本信息</h3>
           </div>
           <div className="grid grid-cols-2 gap-6">
             {/* 数据源名称 */}
             <div>
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                数据源名称 <span className="text-red-400">*</span>
+                数据源名称 <span className="text-[var(--danger)]">*</span>
               </label>
               <input
                 type="text"
@@ -192,7 +192,7 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
             {/* 用途 */}
             <div>
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                用途 <span className="text-red-400">*</span>
+                用途 <span className="text-[var(--danger)]">*</span>
               </label>
               <select
                 value={formData.dataType}
@@ -210,7 +210,7 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
             {/* 数据源类型 */}
             <div>
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                数据源类型 <span className="text-red-400">*</span>
+                数据源类型 <span className="text-[var(--danger)]">*</span>
               </label>
               <select
                 value={formData.type}
@@ -251,7 +251,7 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
             {/* JDBC连接地址 */}
             <div className="col-span-2">
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                JDBC连接地址 <span className="text-red-400">*</span>
+                JDBC连接地址 <span className="text-[var(--danger)]">*</span>
               </label>
               <input
                 type="text"
@@ -265,7 +265,7 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
             {/* 连接检查SQL */}
             <div>
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                检查SQL <span className="text-red-400">*</span>
+                检查SQL <span className="text-[var(--danger)]">*</span>
               </label>
               <input
                 type="text"
@@ -279,7 +279,7 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
             {/* 用户名 */}
             <div>
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                用户名 <span className="text-red-400">*</span>
+                用户名 <span className="text-[var(--danger)]">*</span>
               </label>
               <input
                 type="text"
@@ -293,7 +293,7 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
             {/* 密码 */}
             <div>
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                密码 <span className="text-red-400">*</span>
+                密码 <span className="text-[var(--danger)]">*</span>
               </label>
               <input
                 type="password"
@@ -307,7 +307,7 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
             {/* 数据库名 */}
             <div>
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                数据库名 <span className="text-red-400">*</span>
+                数据库名 <span className="text-[var(--danger)]">*</span>
               </label>
               <input
                 type="text"
@@ -372,7 +372,7 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
             {/* 最大等待时间 */}
             <div>
               <label className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
-                最大等待时间(毫秒) <span className="text-red-400">*</span>
+                最大等待时间(毫秒) <span className="text-[var(--danger)]">*</span>
               </label>
               <input
                 type="number"
@@ -418,14 +418,14 @@ export default function DataSourceForm({ overrideId }: { overrideId?: string }) 
             <button
               type="button"
               onClick={() => navigate('/datasources')}
-              className="px-6 py-2.5 bg-[var(--text-primary)] text-[var(--bg-primary)] rounded-lg hover:bg-[var(--text-secondary)] transition-colors"
+              className="px-6 py-2.5 bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--bg-hover)] transition-colors"
             >
               返回
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="flex items-center gap-2 px-6 py-2.5 bg-blue-500 text-[var(--text-primary)] rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-6 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-lg transition-colors disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               {saving ? '保存中...' : '保存'}

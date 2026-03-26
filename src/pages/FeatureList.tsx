@@ -58,10 +58,10 @@ export default function FeatureList() {
         </div>
         <button
           onClick={() => setShowNewModal(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent)] text-[var(--text-primary)] rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
-          新增功能
+          新增
         </button>
       </div>
 
@@ -110,14 +110,14 @@ export default function FeatureList() {
             ) : (
               features.map((feature) => (
                 <tr key={feature.id} className="border-b border-[var(--border-light)] hover:bg-[var(--bg-hover-light)]">
-                  <td className="px-4 py-3 text-[var(--text-primary)] font-medium">{feature.name}</td>
-                  <td className="px-4 py-3 text-[var(--text-muted)] font-mono text-sm">{feature.code}</td>
-                  <td className="px-4 py-3 text-[var(--text-muted)]">{feature.queryApiName || '-'}</td>
-                  <td className="px-4 py-3 text-[var(--text-muted)] truncate max-w-xs">{feature.description || '-'}</td>
+                  <td className="px-4 py-3 text-[var(--text-primary)] truncate font-medium">{feature.name}</td>
+                  <td className="px-4 py-3 text-[var(--text-muted)] truncate font-mono text-sm">{feature.code}</td>
+                  <td className="px-4 py-3 text-[var(--text-muted)] truncate">{feature.queryApiName || '-'}</td>
+                  <td className="px-4 py-3 text-[var(--text-muted)] truncate truncate max-w-xs">{feature.description || '-'}</td>
                   <td className="px-4 py-3">
                     <span className={`px-2 py-1 text-xs rounded-full ${
                       feature.status === 1
-                        ? 'bg-green-500/20 text-green-400'
+                        ? 'bg-[var(--success)]/20 text-[var(--success)]'
                         : 'bg-[var(--bg-secondary)]/20 text-[var(--text-muted)]'
                     }`}>
                       {feature.status === 1 ? '启用' : '禁用'}
@@ -143,7 +143,7 @@ export default function FeatureList() {
                           setDeleteId(feature.id!);
                           setShowDeleteConfirm(true);
                         }}
-                        className="p-1.5 hover:bg-[var(--bg-hover)] rounded text-[var(--text-muted)] hover:text-red-400 transition-colors"
+                        className="p-1.5 hover:bg-[var(--bg-hover)] rounded text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors"
                         title="删除"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -214,7 +214,7 @@ export default function FeatureList() {
               </button>
               <button
                 onClick={() => deleteId && handleDelete(deleteId)}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-[var(--text-primary)] rounded-lg transition-colors"
+                className="px-4 py-2 bg-[var(--danger)] hover:opacity-90 text-white rounded-lg transition-colors"
               >
                 确认删除
               </button>

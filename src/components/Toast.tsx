@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 
 type ToastType = 'success' | 'error' | 'info';
 
@@ -34,9 +34,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`px-4 py-3 rounded-lg shadow-lg text-[var(--text-primary)] min-w-[200px] max-w-[400px] animate-slide-in ${
-              toast.type === 'success' ? 'bg-green-500' :
-              toast.type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+            className={`px-4 py-3 rounded-lg shadow-lg text-white min-w-[280px] max-w-[400px] animate-slide-in ${
+              toast.type === 'success' ? 'bg-[var(--success)]' :
+              toast.type === 'error' ? 'bg-[var(--danger)]' : 'bg-[var(--info)]'
             }`}
           >
             {toast.message}

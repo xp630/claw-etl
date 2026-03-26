@@ -193,16 +193,34 @@
   },
   "hotPaths": [
     {
+      "path": "src/pages/DynamicDataGrid.tsx",
+      "accessCount": 144,
+      "lastAccessed": 1773992999614,
+      "type": "directory"
+    },
+    {
       "path": "src/components/Layout.tsx",
-      "accessCount": 61,
-      "lastAccessed": 1773984170160,
+      "accessCount": 101,
+      "lastAccessed": 1773986837490,
       "type": "file"
     },
     {
       "path": "src/pages/ApiList.tsx",
-      "accessCount": 48,
-      "lastAccessed": 1773982814004,
+      "accessCount": 56,
+      "lastAccessed": 1773989313598,
       "type": "file"
+    },
+    {
+      "path": "src/pages/DataSourceList.tsx",
+      "accessCount": 31,
+      "lastAccessed": 1773991537849,
+      "type": "file"
+    },
+    {
+      "path": "src/pages",
+      "accessCount": 30,
+      "lastAccessed": 1773989226096,
+      "type": "directory"
     },
     {
       "path": "src/pages/Login.tsx",
@@ -214,6 +232,12 @@
       "path": "",
       "accessCount": 26,
       "lastAccessed": 1773982790373,
+      "type": "directory"
+    },
+    {
+      "path": "src/pages/UserList.tsx",
+      "accessCount": 17,
+      "lastAccessed": 1773989286668,
       "type": "directory"
     },
     {
@@ -235,15 +259,39 @@
       "type": "directory"
     },
     {
-      "path": "src/pages/DynamicDataGrid.tsx",
-      "accessCount": 11,
-      "lastAccessed": 1773982397966,
-      "type": "directory"
+      "path": "src/pages/FeatureForm.tsx",
+      "accessCount": 14,
+      "lastAccessed": 1773990130069,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/MenuList.tsx",
+      "accessCount": 13,
+      "lastAccessed": 1773989314712,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/UserForm.tsx",
+      "accessCount": 12,
+      "lastAccessed": 1773988007186,
+      "type": "file"
     },
     {
       "path": "src/App.tsx",
       "accessCount": 10,
       "lastAccessed": 1773982793797,
+      "type": "file"
+    },
+    {
+      "path": "src/index.css",
+      "accessCount": 10,
+      "lastAccessed": 1773986671293,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/FeatureList.tsx",
+      "accessCount": 10,
+      "lastAccessed": 1773990051576,
       "type": "file"
     },
     {
@@ -259,63 +307,45 @@
       "type": "file"
     },
     {
-      "path": "src/pages/MenuList.tsx",
-      "accessCount": 8,
-      "lastAccessed": 1773982429565,
-      "type": "file"
-    },
-    {
-      "path": "src/pages",
-      "accessCount": 8,
-      "lastAccessed": 1773982809710,
-      "type": "directory"
-    },
-    {
-      "path": "src/pages/DataSourceList.tsx",
-      "accessCount": 7,
-      "lastAccessed": 1773982063765,
-      "type": "file"
-    },
-    {
       "path": "src/pages/ApiForm.tsx",
-      "accessCount": 7,
-      "lastAccessed": 1773982064023,
-      "type": "file"
-    },
-    {
-      "path": "src/pages/UserList.tsx",
-      "accessCount": 7,
-      "lastAccessed": 1773982857868,
-      "type": "directory"
-    },
-    {
-      "path": "src/pages/FeatureList.tsx",
-      "accessCount": 6,
-      "lastAccessed": 1773981822414,
-      "type": "file"
-    },
-    {
-      "path": "src/index.css",
-      "accessCount": 6,
-      "lastAccessed": 1773982793742,
-      "type": "file"
-    },
-    {
-      "path": "src/pages/RoleList.tsx",
-      "accessCount": 5,
-      "lastAccessed": 1773982352201,
-      "type": "file"
-    },
-    {
-      "path": "src/pages/FeatureForm.tsx",
-      "accessCount": 5,
-      "lastAccessed": 1773982370129,
+      "accessCount": 9,
+      "lastAccessed": 1773986826234,
       "type": "file"
     },
     {
       "path": "src/pages/TaskForm.tsx",
-      "accessCount": 5,
-      "lastAccessed": 1773982380541,
+      "accessCount": 9,
+      "lastAccessed": 1773988090231,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/TaskList.tsx",
+      "accessCount": 8,
+      "lastAccessed": 1773989289975,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/RoleList.tsx",
+      "accessCount": 8,
+      "lastAccessed": 1773989293308,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/AppList.tsx",
+      "accessCount": 8,
+      "lastAccessed": 1773989334771,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/DataSourceForm.tsx",
+      "accessCount": 7,
+      "lastAccessed": 1773988102636,
+      "type": "file"
+    },
+    {
+      "path": "src/components/Toast.tsx",
+      "accessCount": 6,
+      "lastAccessed": 1773986873407,
       "type": "file"
     },
     {
@@ -331,21 +361,21 @@
       "type": "file"
     },
     {
-      "path": "src/pages/DataSourceForm.tsx",
+      "path": "src/components/ChangePasswordModal.tsx",
       "accessCount": 5,
-      "lastAccessed": 1773982415254,
+      "lastAccessed": 1773986421248,
       "type": "file"
     },
     {
-      "path": "src/pages/TaskList.tsx",
-      "accessCount": 4,
-      "lastAccessed": 1773981604401,
+      "path": "src/pages/AppForm.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1773988204941,
       "type": "file"
     },
     {
-      "path": "src/pages/AppList.tsx",
-      "accessCount": 4,
-      "lastAccessed": 1773981709726,
+      "path": "src/pages/DictList.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1773989288875,
       "type": "file"
     },
     {
@@ -361,9 +391,15 @@
       "type": "file"
     },
     {
-      "path": "src/pages/DictList.tsx",
-      "accessCount": 3,
-      "lastAccessed": 1773982366847,
+      "path": "src/contexts/ThemeContext.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1773986415074,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/SystemConfigList.tsx",
+      "accessCount": 4,
+      "lastAccessed": 1773989291082,
       "type": "file"
     },
     {
@@ -373,45 +409,21 @@
       "type": "file"
     },
     {
-      "path": "src/contexts/ThemeContext.tsx",
+      "path": "tailwind.config.js",
       "accessCount": 3,
-      "lastAccessed": 1773982793686,
-      "type": "file"
-    },
-    {
-      "path": "src/pages/AppForm.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1773981745295,
-      "type": "file"
-    },
-    {
-      "path": "src/pages/SystemConfigList.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1773982364643,
-      "type": "file"
-    },
-    {
-      "path": "src/pages/UserForm.tsx",
-      "accessCount": 2,
-      "lastAccessed": 1773982399069,
+      "lastAccessed": 1773986481520,
       "type": "file"
     },
     {
       "path": "package.json",
-      "accessCount": 1,
-      "lastAccessed": 1773979149265,
+      "accessCount": 2,
+      "lastAccessed": 1773986405931,
       "type": "file"
     },
     {
       "path": "README.md",
       "accessCount": 1,
       "lastAccessed": 1773979157188,
-      "type": "file"
-    },
-    {
-      "path": "tailwind.config.js",
-      "accessCount": 1,
-      "lastAccessed": 1773979173642,
       "type": "file"
     },
     {
@@ -427,9 +439,33 @@
       "type": "file"
     },
     {
-      "path": "src/components/ChangePasswordModal.tsx",
+      "path": "postcss.config.js",
       "accessCount": 1,
-      "lastAccessed": 1773984094876,
+      "lastAccessed": 1773986426505,
+      "type": "file"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-03-20-ui-design-system.md",
+      "accessCount": 1,
+      "lastAccessed": 1773986628245,
+      "type": "file"
+    },
+    {
+      "path": "src/components",
+      "accessCount": 1,
+      "lastAccessed": 1773986833370,
+      "type": "directory"
+    },
+    {
+      "path": "src/types",
+      "accessCount": 1,
+      "lastAccessed": 1773992859377,
+      "type": "directory"
+    },
+    {
+      "path": "src/types/index.ts",
+      "accessCount": 1,
+      "lastAccessed": 1773992862812,
       "type": "file"
     }
   ],

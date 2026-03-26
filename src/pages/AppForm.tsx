@@ -97,7 +97,7 @@ export default function AppForm({ overrideId }: { overrideId?: string }) {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 px-4 py-2 bg-yellow-500 text-[var(--text-primary)] rounded-lg hover:bg-yellow-600 disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 bg-[var(--warning)] text-white rounded-lg hover:bg-[var(--warning)]/80 disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
             {saving ? '保存中...' : '保存'}
@@ -171,7 +171,7 @@ export default function AppForm({ overrideId }: { overrideId?: string }) {
                 />
                 <button
                   onClick={generateAppKey}
-                  className="px-4 py-2 bg-yellow-500 text-[var(--text-primary)] rounded-lg hover:bg-yellow-600"
+                  className="px-4 py-2 bg-[var(--warning)] text-white rounded-lg hover:bg-[var(--warning)]/80"
                 >
                   生成
                 </button>
@@ -198,7 +198,7 @@ export default function AppForm({ overrideId }: { overrideId?: string }) {
                 />
                 <button
                   onClick={generateAppSecret}
-                  className="px-4 py-2 bg-yellow-500 text-[var(--text-primary)] rounded-lg hover:bg-yellow-600"
+                  className="px-4 py-2 bg-[var(--warning)] text-white rounded-lg hover:bg-[var(--warning)]/80"
                 >
                   生成
                 </button>

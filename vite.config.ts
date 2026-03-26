@@ -10,17 +10,17 @@ export default defineConfig({
         target: 'http://localhost:8090',
         changeOrigin: true,
       },
-      '/api': {
-        target: 'http://localhost:8090/etl-admin',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, '/api'),
-      },
     },
     fs: {
       strict: false,
     },
   },
-  define: {
-    'import.meta.env.VITE_API_BASE_URL': JSON.stringify('http://localhost:8090/etl-admin'),
+  optimizeDeps: {
+    include: ['react-grid-layout', 'antd'],
+  },
+  build: {
+    commonjsOptions: {
+      transformMixedEsModules: true,
+    },
   },
 })

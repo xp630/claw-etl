@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Menu as MenuIcon } from 'lucide-react';
 import { getMenuDetail, saveMenu, getMenuTree } from '../lib/api';
 import type { SysMenu } from '../types';
 
-export default function MenuForm() {
+export default function MenuForm({ overrideId }: { overrideId?: string }) {
   const params = useParams();
   const navigate = useNavigate();
-  const id = params.id;
+  const id = overrideId || params.id;
   const isEdit = Boolean(id);
 
   const [menu, setMenu] = useState<SysMenu>({
@@ -78,8 +78,8 @@ export default function MenuForm() {
     }
   };
 
-  const renderParentOptions = (menus: SysMenu[], level = 0): JSX.Element[] => {
-    const options: JSX.Element[] = [];
+  const renderParentOptions = (menus: SysMenu[], level = 0): React.ReactElement[] => {
+    const options: React.ReactElement[] = [];
     menus.forEach(m => {
       options.push(
         <option key={m.id} value={m.id} style={{ paddingLeft: `${level * 20}px` }}>
@@ -116,7 +116,7 @@ export default function MenuForm() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">
-                  菜单名称 <span className="text-red-400">*</span>
+                  菜单名称 <span className="text-[var(--danger)]">*</span>
                 </label>
                 <input
                   type="text"
@@ -130,7 +130,7 @@ export default function MenuForm() {
 
               <div>
                 <label className="block text-sm font-medium text-[var(--text-muted)] mb-2">
-                  菜单编码 <span className="text-red-400">*</span>
+                  菜单编码 <span className="text-[var(--danger)]">*</span>
                 </label>
                 <input
                   type="text"
@@ -232,7 +232,7 @@ export default function MenuForm() {
             <button
               type="submit"
               disabled={saving}
-              className="px-6 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent)] text-[var(--text-primary)] rounded-lg transition-colors disabled:opacity-50"
+              className="px-6 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-lg transition-colors disabled:opacity-50"
             >
               {saving ? '保存中...' : '保存'}
             </button>

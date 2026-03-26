@@ -44,7 +44,7 @@ export default function UserList() {
   const totalPages = Math.ceil(total / limit);
 
   return (
-    <div className="p-6">
+    <div>
       {/* 页面标题 */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
@@ -53,10 +53,10 @@ export default function UserList() {
         </div>
         <button
           onClick={() => window.layoutOpenTab({ id: `user-new-${Date.now()}`, title: '新增用户', path: '/users/new' })}
-          className="flex items-center gap-2 px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent)] text-[var(--text-primary)] rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
-          新增用户
+          新增
         </button>
       </div>
 
@@ -72,7 +72,7 @@ export default function UserList() {
             setPage(1);
           }}
           onKeyDown={(e) => e.key === 'Enter' && setPage(1)}
-          className="w-full pl-10 pr-4 py-2.5 bg-[var(--bg-hover-light)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-light)]"
+          className="w-full pl-10 pr-4 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-lg text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent)] transition-colors"
         />
       </div>
 
@@ -109,7 +109,7 @@ export default function UserList() {
                   <td className="px-4 py-3 text-sm text-[var(--text-muted)]">{user.phone}</td>
                   <td className="px-4 py-3 text-center">
                     <span className={`px-2 py-0.5 rounded text-xs ${
-                      user.status === 1 ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                      user.status === 1 ? 'bg-[var(--success)]/20 text-[var(--success)]' : 'bg-[var(--danger)]/20 text-[var(--danger)]'
                     }`}>
                       {user.status === 1 ? '启用' : '禁用'}
                     </span>
@@ -127,7 +127,7 @@ export default function UserList() {
                           setDeleteId(user.id!);
                           setShowDeleteConfirm(true);
                         }}
-                        className="p-1.5 hover:bg-[var(--bg-tertiary)] rounded text-[var(--text-muted)] hover:text-red-400 transition-colors"
+                        className="p-1.5 hover:bg-[var(--bg-tertiary)] rounded text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
@@ -197,7 +197,7 @@ export default function UserList() {
               </button>
               <button
                 onClick={() => deleteId && handleDelete(deleteId)}
-                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-[var(--text-primary)] rounded-lg transition-colors"
+                className="px-4 py-2 bg-[var(--danger)] hover:opacity-90 text-white rounded-lg transition-colors"
               >
                 删除
               </button>

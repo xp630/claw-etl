@@ -168,7 +168,7 @@ export default function SystemConfigForm({ overrideId }: { overrideId?: string }
           <button
             type="submit"
             disabled={saving}
-            className="px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent)] text-[var(--text-primary)] rounded-lg transition-colors text-sm disabled:opacity-50"
+            className="px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-lg transition-colors text-sm disabled:opacity-50"
           >
             {saving ? '保存中...' : '保存'}
           </button>

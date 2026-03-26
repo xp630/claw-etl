@@ -116,9 +116,9 @@ export default function ApiAccessLog() {
 
   const getStatusColor = (status: number | undefined) => {
     if (!status) return 'text-[var(--text-muted)]';
-    if (status >= 200 && status < 300) return 'text-green-400';
-    if (status >= 400 && status < 500) return 'text-yellow-400';
-    if (status >= 500) return 'text-red-400';
+    if (status >= 200 && status < 300) return 'text-[var(--success)]';
+    if (status >= 400 && status < 500) return 'text-[var(--warning)]';
+    if (status >= 500) return 'text-[var(--danger)]';
     return 'text-[var(--text-muted)]';
   };
 
@@ -202,7 +202,7 @@ export default function ApiAccessLog() {
 
       {/* 错误提示 */}
       {error && (
-        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6 text-red-400">
+        <div className="bg-[var(--danger)]/10 border border-red-500/30 rounded-xl p-4 mb-6 text-[var(--danger)]">
           {error}
         </div>
       )}
@@ -238,15 +238,15 @@ export default function ApiAccessLog() {
             ) : (
               logs.map((log) => (
                 <tr key={log.id} className="hover:bg-[var(--bg-table-header)] transition-colors">
-                  <td className="px-4 py-3 text-[var(--text-secondary)] text-sm">{log.accessTime}</td>
+                  <td className="px-4 py-3 text-[var(--text-secondary)] truncate text-sm">{log.accessTime}</td>
                   <td className="px-4 py-3">
                     <div className="text-[var(--text-primary)]">{log.apiName}</div>
                     <div className="text-[var(--text-muted)] text-xs">{log.apiPath}</div>
                   </td>
-                  <td className="px-4 py-3 text-[var(--text-secondary)] text-sm">{log.appName || '-'}</td>
+                  <td className="px-4 py-3 text-[var(--text-secondary)] truncate text-sm">{log.appName || '-'}</td>
                   <td className="px-4 py-3">
                     <span className={`px-2 py-1 rounded text-xs ${
-                      log.requestMethod === 'GET' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'
+                      log.requestMethod === 'GET' ? 'bg-[var(--success)]/20 text-[var(--success)]' : 'bg-[var(--info)]/20 text-[var(--info)]'
                     }`}>
                       {log.requestMethod}
                     </span>
@@ -254,10 +254,10 @@ export default function ApiAccessLog() {
                   <td className={`px-4 py-3 font-medium ${getStatusColor(log.responseStatus)}`}>
                     {log.responseStatus || '-'}
                   </td>
-                  <td className="px-4 py-3 text-[var(--text-secondary)] text-sm">
+                  <td className="px-4 py-3 text-[var(--text-secondary)] truncate text-sm">
                     {log.responseTime ? `${log.responseTime}ms` : '-'}
                   </td>
-                  <td className="px-4 py-3 text-[var(--text-muted)] text-sm">{log.clientIp || '-'}</td>
+                  <td className="px-4 py-3 text-[var(--text-muted)] truncate text-sm">{log.clientIp || '-'}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-center gap-2">
                       <button
@@ -339,8 +339,8 @@ export default function ApiAccessLog() {
               {/* 错误信息 */}
               {selectedLog.errorMsg && (
                 <div className="mb-6">
-                  <h4 className="text-sm font-medium text-red-400 mb-3">错误信息</h4>
-                  <div className="bg-red-500/10 border border-red-500/30 p-4 rounded-lg text-red-300 text-sm">
+                  <h4 className="text-sm font-medium text-[var(--danger)] mb-3">错误信息</h4>
+                  <div className="bg-[var(--danger)]/10 border border-red-500/30 p-4 rounded-lg text-red-300 text-sm">
                     {selectedLog.errorMsg}
                   </div>
                 </div>

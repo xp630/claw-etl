@@ -57,10 +57,10 @@ export default function TaskList() {
         </div>
         <button
           onClick={() => navigate('/tasks/new')}
-          className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 text-[var(--text-primary)] rounded-xl hover:opacity-90 transition-opacity"
+          className="flex items-center gap-2 px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
-          新增任务
+          新增
         </button>
       </div>
 
@@ -87,13 +87,13 @@ export default function TaskList() {
           </div>
           <button
             onClick={loadData}
-            className="px-4 py-2.5 bg-blue-500 text-[var(--text-primary)] rounded-lg hover:bg-blue-600 transition-colors"
+            className="px-4 py-2.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-lg transition-colors"
           >
             查询
           </button>
           <button
             onClick={() => { setSearchTable(''); setSearchName(''); }}
-            className="px-4 py-2.5 bg-[var(--text-primary)] text-[var(--bg-primary)] rounded-lg hover:bg-[var(--text-secondary)] transition-colors"
+            className="px-4 py-2.5 bg-[var(--bg-tertiary)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--bg-hover)] transition-colors"
           >
             重置
           </button>
@@ -131,16 +131,16 @@ export default function TaskList() {
             ) : (
               filteredTasks.map((task) => (
                 <tr key={task.id} className="hover:bg-[var(--bg-table-header)] transition-colors">
-                  <td className="px-4 py-3 text-[var(--text-primary)] font-medium">{task.name}</td>
-                  <td className="px-4 py-3 text-[var(--text-muted)]">{task.source_name}</td>
-                  <td className="px-4 py-3 text-[var(--text-secondary)]">{task.target_name || 'nr_data'}</td>
+                  <td className="px-4 py-3 text-[var(--text-primary)] truncate font-medium">{task.name}</td>
+                  <td className="px-4 py-3 text-[var(--text-muted)] truncate">{task.source_name}</td>
+                  <td className="px-4 py-3 text-[var(--text-secondary)] truncate">{task.target_name || 'nr_data'}</td>
                   <td className="px-4 py-3 text-cyan-400 font-mono text-sm truncate max-w-[200px]">
                     {task.target_table}
                   </td>
                   <td className="px-4 py-3 text-center">
                     <button
                       onClick={() => handleToggle(task.id)}
-                      className={`transition-colors ${task.status === 1 ? 'text-blue-400' : 'text-[var(--text-muted)]'}`}
+                      className={`transition-colors ${task.status === 1 ? 'text-[var(--info)]' : 'text-[var(--text-muted)]'}`}
                     >
                       {task.status === 1 ? (
                         <ToggleRight className="w-8 h-6" />
@@ -154,14 +154,14 @@ export default function TaskList() {
                       {getIntervalText(task)}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-[var(--text-muted)] text-sm">
+                  <td className="px-4 py-3 text-[var(--text-muted)] truncate text-sm">
                     {task.last_run_time || '-'}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-center gap-2">
                       <button
                         onClick={() => navigate(`/tasks/${task.id}`)}
-                        className="px-3 py-1.5 bg-blue-500/10 text-blue-400 rounded hover:bg-blue-500/20 transition-colors text-sm"
+                        className="px-3 py-1.5 bg-[var(--info)]/10 text-[var(--info)] rounded hover:bg-[var(--info)]/20 transition-colors text-sm"
                       >
                         编辑
                       </button>

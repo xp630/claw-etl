@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Plus, RefreshCw, Edit, Trash2, Play, Copy, Search, ChevronRight, ChevronLeft, ChevronDown, Database, Table, X } from 'lucide-react';
 import { getDataSources, getTableList, getApiList, deleteApi, toggleApi, testApi, copyApi, getApiDetail } from '../lib/api';
 import type { DataSource, ApiConfig, TableInfo, ApiInputParam } from '../types';
@@ -19,7 +19,7 @@ interface TreeNode {
 
 // 获取API调用基础路径
 function getBaseUrl(): string {
-  return (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:8090';
+  return (import.meta as any).env?.VITE_API_BASE_URL || '';
 }
 
 // 生成 cURL 请求示例
@@ -473,7 +473,7 @@ export default function ApiList() {
       <div key={node.id}>
         <div
           className={`flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-[var(--bg-hover)] ${
-            isSelected ? 'bg-blue-500/20 text-blue-400' : 'text-[var(--text-secondary)]'
+            isSelected ? 'bg-[var(--info)]/20 text-[var(--info)]' : 'text-[var(--text-secondary)]'
           }`}
           style={{ paddingLeft: `${level * 16 + 12}px` }}
           onClick={() => handleSelect(node)}
@@ -490,9 +490,9 @@ export default function ApiList() {
             </button>
           )}
           {node.type === 'datasource' ? (
-            <Database className="w-4 h-4 text-blue-400" />
+            <Database className="w-4 h-4 text-[var(--info)]" />
           ) : (
-            <Table className="w-4 h-4 text-green-400" />
+            <Table className="w-4 h-4 text-[var(--success)]" />
           )}
           <span className="text-sm truncate">{node.name}</span>
           {node.isLoading && <RefreshCw className="w-3 h-3 animate-spin" />}
@@ -540,13 +540,13 @@ export default function ApiList() {
               </p>
             </div>
           </div>
-          <Link
-            to={newApiUrl}
-            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[var(--accent)] to-pink-600 text-[var(--text-primary)] rounded-xl hover:opacity-90 transition-opacity"
+          <button
+            onClick={() => navigate(newApiUrl)}
+            className="flex items-center gap-2 px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-lg transition-colors"
           >
             <Plus className="w-4 h-4" />
-            新增API
-          </Link>
+            新增
+          </button>
         </div>
 
         {/* 搜索筛选 */}
@@ -573,7 +573,7 @@ export default function ApiList() {
             </select>
             <button
               onClick={loadApiList}
-              className="px-4 py-2.5 bg-[var(--accent)] text-[var(--text-primary)] rounded-lg hover:bg-[var(--accent)] transition-colors"
+              className="px-4 py-2.5 bg-[var(--accent)] text-white rounded-lg hover:bg-[var(--accent-hover)] transition-colors"
             >
               <RefreshCw className="w-4 h-4" />
             </button>
@@ -582,7 +582,7 @@ export default function ApiList() {
 
         {/* 错误提示 */}
         {error && (
-          <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6 text-red-400">
+          <div className="bg-[var(--danger)]/10 border border-red-500/30 rounded-xl p-4 mb-6 text-[var(--danger)]">
             {error}
           </div>
         )}
@@ -618,17 +618,17 @@ export default function ApiList() {
               ) : (
                 apiList.map((api) => (
                   <tr key={api.id} className="hover:bg-[var(--bg-table-header)] transition-colors">
-                    <td className="px-4 py-3 text-[var(--text-primary)] font-medium">{api.name}</td>
-                    <td className="px-4 py-3 text-[var(--text-secondary)] font-mono text-sm">{api.path}</td>
+                    <td className="px-4 py-3 text-[var(--text-primary)] truncate font-medium">{api.name}</td>
+                    <td className="px-4 py-3 text-[var(--text-secondary)] truncate font-mono text-sm">{api.path}</td>
                     <td className="px-4 py-3">
                       <span className={`px-2 py-1 rounded text-xs ${
-                        api.method === 'GET' ? 'bg-green-500/20 text-green-400' : 'bg-blue-500/20 text-blue-400'
+                        api.method === 'GET' ? 'bg-[var(--success)]/20 text-[var(--success)]' : 'bg-[var(--info)]/20 text-[var(--info)]'
                       }`}>
                         {api.method}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-[var(--text-secondary)]">{api.datasourceName}</td>
-                    <td className="px-4 py-3 text-[var(--text-secondary)]">{api.tableName}</td>
+                    <td className="px-4 py-3 text-[var(--text-secondary)] truncate">{api.datasourceName}</td>
+                    <td className="px-4 py-3 text-[var(--text-secondary)] truncate">{api.tableName}</td>
                     <td className="px-4 py-3">
                       <label className="relative inline-flex items-center cursor-pointer">
                         <input
@@ -637,7 +637,7 @@ export default function ApiList() {
                           onChange={() => handleToggle(api)}
                           className="sr-only peer"
                         />
-                        <div className="w-11 h-6 bg-[var(--bg-secondary)] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[var(--accent-light)] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-500"></div>
+                        <div className="w-11 h-6 bg-[var(--bg-secondary)] peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[var(--accent-light)] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[var(--success)]"></div>
                       </label>
                     </td>
                     <td className="px-4 py-3">
@@ -653,7 +653,7 @@ export default function ApiList() {
                       <div className="flex items-center justify-center gap-2">
                         <button
                           onClick={() => handleTest(api)}
-                          className="p-2 hover:bg-green-500/10 rounded-lg text-green-400 transition-colors"
+                          className="p-2 hover:bg-[var(--success)]/10 rounded-lg text-[var(--success)] transition-colors"
                           title="测试"
                         >
                           <Play className="w-4 h-4" />
@@ -667,14 +667,14 @@ export default function ApiList() {
                         </button>
                         <button
                           onClick={() => navigate(`/apis/${api.id}`)}
-                          className="p-2 hover:bg-blue-500/10 rounded-lg text-blue-400 transition-colors"
+                          className="p-2 hover:bg-[var(--info)]/10 rounded-lg text-[var(--info)] transition-colors"
                           title="编辑"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(api.id!)}
-                          className="p-2 hover:bg-red-500/10 rounded-lg text-red-400 transition-colors"
+                          className="p-2 hover:bg-[var(--danger)]/10 rounded-lg text-[var(--danger)] transition-colors"
                           title="删除"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -753,7 +753,7 @@ export default function ApiList() {
                 {/* Request 请求 */}
                 <div className="h-[35%] flex flex-col border-b border-[var(--border-light)] p-4 overflow-hidden">
                   <h4 className="text-sm font-medium text-[var(--text-secondary)] mb-3 flex items-center gap-2">
-                    <span className="w-1 h-4 bg-blue-500 rounded-full"></span>
+                    <span className="w-1 h-4 bg-[var(--info)] rounded-full"></span>
                     Request 请求
                   </h4>
 
@@ -776,7 +776,7 @@ export default function ApiList() {
                               <td className="py-2 px-3">
                                 <div className="flex items-center gap-2">
                                   <span className="text-[var(--text-primary)]">{param.paramName}</span>
-                                  {param.required === 1 && <span className="text-red-400 text-xs">*</span>}
+                                  {param.required === 1 && <span className="text-[var(--danger)] text-xs">*</span>}
                                 </div>
                               </td>
                               <td className="py-2 px-3">
@@ -819,7 +819,7 @@ export default function ApiList() {
                               </td>
                               <td className="py-2 px-3">
                                 {param.required === 1 ? (
-                                  <span className="text-xs px-2 py-0.5 bg-red-500/20 text-red-400 rounded">是</span>
+                                  <span className="text-xs px-2 py-0.5 bg-[var(--danger)]/20 text-[var(--danger)] rounded">是</span>
                                 ) : (
                                   <span className="text-xs px-2 py-0.5 bg-[var(--border-light)] text-[var(--text-muted)] rounded">否</span>
                                 )}
@@ -831,7 +831,7 @@ export default function ApiList() {
                                     delete newParams[param.paramName];
                                     setTestParams(newParams);
                                   }}
-                                  className="p-1 text-[var(--text-muted)] hover:text-red-400"
+                                  className="p-1 text-[var(--text-muted)] hover:text-[var(--danger)]"
                                 >
                                   <X className="w-3.5 h-3.5" />
                                 </button>
@@ -850,7 +850,7 @@ export default function ApiList() {
                     <button
                       onClick={handleExecuteTest}
                       disabled={testLoading}
-                      className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-orange-500 text-[var(--text-primary)] rounded-lg hover:bg-orange-600 disabled:opacity-50 transition-colors"
+                      className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-[var(--warning)] text-white rounded-lg hover:bg-[var(--warning)]/80 disabled:opacity-50 transition-colors"
                     >
                       <Play className="w-4 h-4" />
                       {testLoading ? '执行中...' : 'Execute 执行'}
@@ -861,7 +861,7 @@ export default function ApiList() {
                 {/* Response 响应 */}
                 <div className="flex-1 flex flex-col p-4 overflow-hidden">
                   <h4 className="text-sm font-medium text-[var(--text-secondary)] mb-3 flex items-center gap-2">
-                    <span className="w-1 h-4 bg-green-500 rounded-full"></span>
+                    <span className="w-1 h-4 bg-[var(--success)] rounded-full"></span>
                     Response 响应
                   </h4>
 
@@ -870,7 +870,7 @@ export default function ApiList() {
                     {testResult ? (
                       <>
                         <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                          <span className="w-2 h-2 rounded-full bg-[var(--success)]"></span>
                           <span className="text-sm text-[var(--text-primary)]">Status: 200 OK</span>
                         </div>
                         <span className="text-sm text-[var(--text-muted)]">Time: {testLoading ? '...' : '123ms'}</span>
@@ -888,13 +888,13 @@ export default function ApiList() {
                         点击"执行"按钮获取响应结果
                       </div>
                     ) : testResult.error ? (
-                      <div className="p-4 text-red-400 text-sm">{testResult.error}</div>
+                      <div className="p-4 text-[var(--danger)] text-sm">{testResult.error}</div>
                     ) : testResult.code === '1' || testResult.code === 1 ? (
                       <pre className="p-4 text-xs text-[var(--text-secondary)] whitespace-pre-wrap">
                         {JSON.stringify(testResult, null, 2)}
                       </pre>
                     ) : (
-                      <div className="p-4 text-red-400 text-sm">{testResult.msg || testResult.message || '执行失败'}</div>
+                      <div className="p-4 text-[var(--danger)] text-sm">{testResult.msg || testResult.message || '执行失败'}</div>
                     )}
                   </div>
                 </div>
@@ -908,7 +908,7 @@ export default function ApiList() {
                     onClick={() => setTestRightTab('reference')}
                     className={`px-4 py-3 text-sm font-medium transition-colors ${
                       testRightTab === 'reference'
-                        ? 'text-blue-400 border-b-2 border-blue-400'
+                        ? 'text-[var(--info)] border-b-2 border-blue-400'
                         : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                     }`}
                   >
@@ -918,7 +918,7 @@ export default function ApiList() {
                     onClick={() => setTestRightTab('headers')}
                     className={`px-4 py-3 text-sm font-medium transition-colors ${
                       testRightTab === 'headers'
-                        ? 'text-blue-400 border-b-2 border-blue-400'
+                        ? 'text-[var(--info)] border-b-2 border-blue-400'
                         : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                     }`}
                   >
@@ -928,7 +928,7 @@ export default function ApiList() {
                     onClick={() => setTestRightTab('example')}
                     className={`px-4 py-3 text-sm font-medium transition-colors ${
                       testRightTab === 'example'
-                        ? 'text-blue-400 border-b-2 border-blue-400'
+                        ? 'text-[var(--info)] border-b-2 border-blue-400'
                         : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                     }`}
                   >
@@ -953,7 +953,7 @@ export default function ApiList() {
                           </div>
                           <div className="flex justify-between">
                             <span className="text-[var(--text-muted)]">请求路径</span>
-                            <span className="text-green-400 font-mono text-xs">{testApiConfig.path}</span>
+                            <span className="text-[var(--success)] font-mono text-xs">{testApiConfig.path}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-[var(--text-muted)]">数据源</span>
@@ -1023,7 +1023,7 @@ export default function ApiList() {
                               const example = generateCurlExample(testApiConfig, testParams);
                               navigator.clipboard.writeText(example);
                             }}
-                            className="text-xs text-blue-400 hover:text-blue-300"
+                            className="text-xs text-[var(--info)] hover:text-blue-300"
                           >
                             复制
                           </button>
@@ -1041,7 +1041,7 @@ export default function ApiList() {
                               const example = generateJsExample(testApiConfig, testParams);
                               navigator.clipboard.writeText(example);
                             }}
-                            className="text-xs text-blue-400 hover:text-blue-300"
+                            className="text-xs text-[var(--info)] hover:text-blue-300"
                           >
                             复制
                           </button>
@@ -1059,7 +1059,7 @@ export default function ApiList() {
                               const example = generatePythonExample(testApiConfig, testParams);
                               navigator.clipboard.writeText(example);
                             }}
-                            className="text-xs text-blue-400 hover:text-blue-300"
+                            className="text-xs text-[var(--info)] hover:text-blue-300"
                           >
                             复制
                           </button>
@@ -1077,7 +1077,7 @@ export default function ApiList() {
                               const example = generateJavaExample(testApiConfig, testParams);
                               navigator.clipboard.writeText(example);
                             }}
-                            className="text-xs text-blue-400 hover:text-blue-300"
+                            className="text-xs text-[var(--info)] hover:text-blue-300"
                           >
                             复制
                           </button>

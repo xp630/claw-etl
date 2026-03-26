@@ -65,10 +65,10 @@ export default function SystemConfigList() {
         <h1 className="text-xl font-bold text-[var(--text-primary)]">系统参数管理</h1>
         <button
           onClick={() => navigate('/config/new')}
-          className="flex items-center gap-2 px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent)] text-[var(--text-primary)] rounded-lg transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-lg transition-colors"
         >
           <Plus className="w-4 h-4" />
-          新增参数
+          新增
         </button>
       </div>
 
@@ -140,7 +140,7 @@ export default function SystemConfigList() {
                   </td>
                   <td className="px-4 py-3 text-center text-sm text-[var(--text-muted)]">{config.groupName || '-'}</td>
                   <td className="px-4 py-3 text-center">
-                    <span className={`px-2 py-0.5 rounded text-xs ${config.status === 1 ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                    <span className={`px-2 py-0.5 rounded text-xs ${config.status === 1 ? 'bg-[var(--success)]/20 text-[var(--success)]' : 'bg-[var(--danger)]/20 text-[var(--danger)]'}`}>
                       {config.status === 1 ? '启用' : '禁用'}
                     </span>
                   </td>
@@ -154,7 +154,7 @@ export default function SystemConfigList() {
                       </button>
                       <button
                         onClick={() => handleDelete(config.id!)}
-                        className="p-1.5 hover:bg-[var(--bg-tertiary)] rounded text-[var(--text-muted)] hover:text-red-400 transition-colors"
+                        className="p-1.5 hover:bg-[var(--bg-tertiary)] rounded text-[var(--text-muted)] hover:text-[var(--danger)] transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>

@@ -1,6 +1,12 @@
 import { useState } from 'react';
 import { Database, Lock, User } from 'lucide-react';
-import { userLogin } from '../lib/api';
+import { userLogin, getMenuTree } from '../lib/api';
+import type { SysMenu } from '../types';
+
+interface Permission {
+  code: string;
+  name: string;
+}
 
 interface LoginProps {
   onLogin: () => void;
@@ -14,6 +20,28 @@ const saveLoginState = (user: any, employeeNo?: string) => {
   const userToSave = user || { employeeNo: employeeNo, name: employeeNo };
   localStorage.setItem('user', JSON.stringify(userToSave));
   console.log('保存的用户信息:', userToSave);
+};
+
+// 保存权限到localStorage
+const savePermissions = (permissions: Permission[]) => {
+  localStorage.setItem('permissions', JSON.stringify(permissions));
+  console.log('保存的权限:', permissions);
+};
+
+// 获取用户权限（从菜单树中提取权限码）
+const fetchUserPermissions = async (userId?: number): Promise<Permission[]> => {
+  try {
+    const menus = await getMenuTree();
+    // 将菜单转换为权限格式，code使用菜单的id或code
+    const permissions: Permission[] = menus.map((menu: SysMenu) => ({
+      code: menu.id?.toString() || menu.code || '',
+      name: menu.name || '',
+    }));
+    return permissions;
+  } catch (error) {
+    console.error('获取权限失败:', error);
+    return [];
+  }
 };
 
 export default function Login({ onLogin }: LoginProps) {
@@ -36,6 +64,9 @@ export default function Login({ onLogin }: LoginProps) {
       const result = await userLogin(employeeNo, password);
       if (result.success) {
         saveLoginState(result.user, employeeNo);
+        // 获取并保存用户权限
+        const permissions = await fetchUserPermissions(result.user?.id);
+        savePermissions(permissions);
         onLogin();
       } else {
         setError(result.message || '工号或密码错误');
@@ -100,7 +131,7 @@ export default function Login({ onLogin }: LoginProps) {
 
             {/* 错误提示 */}
             {error && (
-              <div className="text-red-400 text-sm text-center">{error}</div>
+              <div className="text-[var(--danger)] text-sm text-center">{error}</div>
             )}
 
             {/* 登录按钮 */}
