@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, Box } from 'lucide-react';
+import { Trash2, Box, ChevronDown, ChevronRight } from 'lucide-react';
 import { CanvasComponent, ColumnConfig } from './types';
 import { propLabels } from './constants';
 import { getDataSources, getTableList, getFeatures, getFeatureDetail, getTableColumns } from '../../lib/api';
@@ -317,6 +317,7 @@ function PropertyPanel({
   const [editingColumn, setEditingColumn] = useState<ColumnConfig | null>(null);
   const [editingColumnIndex, setEditingColumnIndex] = useState<number | null>(null);
   const [columnsCollapsed, setColumnsCollapsed] = useState(false);
+  const [propsCollapsed, setPropsCollapsed] = useState(false);
 
   // Container selector modal state
   const [containerSelectorOpen, setContainerSelectorOpen] = useState(false);
@@ -563,7 +564,10 @@ function PropertyPanel({
   return (
     <div className="w-72 bg-[var(--bg-primary)] border-l border-[var(--border)] overflow-y-auto">
       <div className="p-4">
-        <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-4">属性配置</h3>
+        <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => setPropsCollapsed(!propsCollapsed)}>
+            <h3 className="text-sm font-medium text-[var(--text-secondary)]">属性配置</h3>
+            {propsCollapsed ? <ChevronRight className="w-4 h-4 text-[var(--text-muted)]" /> : <ChevronDown className="w-4 h-4 text-[var(--text-muted)]" />}
+          </div>
 
         {/* Quick Actions - Move In/Out of Container */}
         <div className="mb-4 p-2 bg-[var(--info)]/10 rounded border border-[var(--info)]/30">
