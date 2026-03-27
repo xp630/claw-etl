@@ -176,11 +176,11 @@ function TableRenderer({
       return value ? (
         <img src={value} alt="" className="h-8 w-8 object-cover rounded" />
       ) : (
-        <span className="text-gray-300">-</span>
+        <span className="text-[var(--text-muted)]">-</span>
       );
     }
     if (col.fieldType === 'date') {
-      if (!value) return <span className="text-gray-300">-</span>;
+      if (!value) return <span className="text-[var(--text-muted)]">-</span>;
       try {
         const date = new Date(value);
         return col.dateFormat ? date.toLocaleDateString() : String(value);
@@ -204,19 +204,19 @@ function TableRenderer({
   };
 
   return (
-    <div className="border border-gray-200 rounded bg-white flex flex-col h-full">
+    <div className="border border-[var(--border)] rounded bg-[var(--bg-primary)] flex flex-col h-full">
       {/* 查询和操作按钮区域 - 合并到同一行 */}
-      <div className="flex flex-wrap gap-2 p-3 border-b border-gray-200 bg-gray-50 items-center flex-shrink-0">
+      <div className="flex flex-wrap gap-2 p-3 border-b border-[var(--border)] bg-[var(--bg-secondary)] items-center flex-shrink-0">
         {/* 查询条件区域 - 靠左 */}
         <div className="flex flex-wrap gap-2 items-center">
           {queryFields.slice(0, 4).map(col => (
             <div key={col.key} className="flex items-center gap-1.5">
-              <label className="text-xs text-gray-500 whitespace-nowrap">{col.label}:</label>
+              <label className="text-xs text-[var(--text-muted)] whitespace-nowrap">{col.label}:</label>
               {col.fieldType === 'select' ? (
                 <select
                   value={searchParams[col.key] || ''}
                   onChange={(e) => setSearchParams({ ...searchParams, [col.key]: e.target.value })}
-                  className="px-2 py-1.5 border border-gray-300 rounded text-xs focus:outline-none focus:border-blue-500"
+                  className="px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-blue-500"
                 >
                   <option value="">请选择</option>
                 </select>
@@ -227,14 +227,14 @@ function TableRenderer({
                     type="date"
                     value={searchParams[col.key + 'Start'] || ''}
                     onChange={(e) => setSearchParams({ ...searchParams, [col.key + 'Start']: e.target.value })}
-                    className="px-2 py-1.5 border border-gray-300 rounded text-xs focus:outline-none focus:border-blue-500"
+                    className="px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-blue-500"
                   />
-                  <span className="text-xs text-gray-400">至</span>
+                  <span className="text-xs text-[var(--text-muted)]">至</span>
                   <input
                     type="date"
                     value={searchParams[col.key + 'End'] || ''}
                     onChange={(e) => setSearchParams({ ...searchParams, [col.key + 'End']: e.target.value })}
-                    className="px-2 py-1.5 border border-gray-300 rounded text-xs focus:outline-none focus:border-blue-500"
+                    className="px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-blue-500"
                   />
                 </div>
               ) : (
@@ -243,7 +243,7 @@ function TableRenderer({
                   value={searchParams[col.key] || ''}
                   onChange={(e) => setSearchParams({ ...searchParams, [col.key]: e.target.value })}
                   placeholder={`请输入${col.label}`}
-                  className="px-2 py-1.5 border border-gray-300 rounded text-xs focus:outline-none focus:border-blue-500 w-24"
+                  className="px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-blue-500 w-24"
                 />
               )}
             </div>
@@ -286,14 +286,14 @@ function TableRenderer({
       <div className="overflow-auto flex-1 min-h-0">
         <table className="w-full min-w-[600px] h-full">
           <thead className="sticky top-0">
-            <tr className="border-b border-gray-200 bg-gray-50">
+            <tr className="border-b border-[var(--border)] bg-[var(--bg-secondary)]">
               {visibleColumns.map(col => (
                 <th
                   key={col.key}
                   style={{ width: col.width || 150, minWidth: col.width || 150 }}
                   className={cn(
-                    'px-4 py-2.5 text-left text-xs font-medium text-gray-500 truncate',
-                    col.sortable ? 'cursor-pointer hover:bg-gray-100' : '',
+                    'px-4 py-2.5 text-left text-xs font-medium text-[var(--text-muted)] truncate',
+                    col.sortable ? 'cursor-pointer hover:bg-[var(--bg-tertiary)]' : '',
                     col.align === 'center' ? 'text-center' : col.align === 'right' ? 'text-right' : ''
                   )}
                 >
@@ -303,7 +303,7 @@ function TableRenderer({
               {(showDetail || showEdit || showDelete) && (
                 <th
                   style={{ width: 150, minWidth: 150 }}
-                  className="px-4 py-2.5 text-left text-xs font-medium text-gray-500"
+                  className="px-4 py-2.5 text-left text-xs font-medium text-[var(--text-muted)]"
                 >
                   操作
                 </th>
@@ -313,7 +313,7 @@ function TableRenderer({
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={visibleColumns.length + (showDetail || showEdit || showDelete ? 1 : 0)} className="text-center py-12 text-gray-400">
+                <td colSpan={visibleColumns.length + (showDetail || showEdit || showDelete ? 1 : 0)} className="text-center py-12 text-[var(--text-muted)]">
                   <div className="flex items-center justify-center gap-2">
                     <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
                     加载中...
@@ -322,7 +322,7 @@ function TableRenderer({
               </tr>
             ) : data.length === 0 ? (
               <tr>
-                <td colSpan={visibleColumns.length + (showDetail || showEdit || showDelete ? 1 : 0)} className="text-center py-12 text-gray-400">
+                <td colSpan={visibleColumns.length + (showDetail || showEdit || showDelete ? 1 : 0)} className="text-center py-12 text-[var(--text-muted)]">
                   暂无数据
                 </td>
               </tr>
@@ -331,9 +331,9 @@ function TableRenderer({
                 <tr
                   key={i}
                   className={cn(
-                    'border-b border-gray-100 transition-colors',
-                    striped && i % 2 === 1 ? 'bg-gray-50' : '',
-                    hoverable ? 'hover:bg-gray-50 cursor-pointer' : ''
+                    'border-b border-[var(--border-light)] transition-colors',
+                    striped && i % 2 === 1 ? 'bg-[var(--bg-secondary)]' : '',
+                    hoverable ? 'hover:bg-[var(--bg-secondary)] cursor-pointer' : ''
                   )}
                   onClick={() => handleRowClick(row)}
                 >
@@ -342,7 +342,7 @@ function TableRenderer({
                       key={col.key}
                       style={{ width: col.width || 150, minWidth: col.width || 150 }}
                       className={cn(
-                        'px-4 py-2.5 text-sm text-gray-700 truncate',
+                        'px-4 py-2.5 text-sm text-[var(--text-primary)] truncate',
                         col.align === 'center' ? 'text-center' : col.align === 'right' ? 'text-right' : ''
                       )}
                       title={String(row[col.key] ?? '-')}
@@ -355,7 +355,7 @@ function TableRenderer({
                       <div className="flex gap-1">
                         {showDetail && (
                           <button
-                            className="px-2 py-1 text-xs text-gray-500 hover:bg-gray-100 rounded transition-colors flex items-center gap-0.5"
+                            className="px-2 py-1 text-xs text-[var(--text-muted)] hover:bg-[var(--bg-tertiary)] rounded transition-colors flex items-center gap-0.5"
                             onClick={(e) => { e.stopPropagation(); }}
                           >
                             <Eye className="w-3 h-3" />
@@ -392,7 +392,7 @@ function TableRenderer({
 
       {/* 分页 */}
       {showPagination && total > 0 && (
-        <div className="flex items-center justify-between px-4 py-2.5 border-t border-gray-200 text-xs text-gray-500 flex-shrink-0">
+        <div className="flex items-center justify-between px-4 py-2.5 border-t border-[var(--border)] text-xs text-[var(--text-muted)] flex-shrink-0">
           <span>共 {total} 条</span>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1">
@@ -404,7 +404,7 @@ function TableRenderer({
                   setCurrentPageSize(newSize);
                   setPage(1);
                 }}
-                className="px-1 py-0.5 border border-gray-200 rounded text-xs focus:outline-none"
+                className="px-1 py-0.5 border border-[var(--border)] rounded text-xs focus:outline-none"
               >
                 <option value={10}>10</option>
                 <option value={20}>20</option>
@@ -414,7 +414,7 @@ function TableRenderer({
             </div>
             <div className="flex items-center gap-1">
               <button
-                className="px-2 py-1 border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="px-2 py-1 border border-[var(--border)] rounded hover:bg-[var(--bg-secondary)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 disabled={page <= 1}
                 onClick={() => setPage(p => Math.max(1, p - 1))}
               >
@@ -422,7 +422,7 @@ function TableRenderer({
               </button>
               <span className="px-2 py-1">{page} / {totalPages}</span>
               <button
-                className="px-2 py-1 border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                className="px-2 py-1 border border-[var(--border)] rounded hover:bg-[var(--bg-secondary)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 disabled={page >= totalPages}
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
               >
@@ -437,16 +437,16 @@ function TableRenderer({
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowModal(false)}>
           <div
-            className="bg-white rounded-lg w-[500px] max-h-[80vh] overflow-hidden shadow-xl"
+            className="bg-[var(--bg-primary)] rounded-lg w-[500px] max-h-[80vh] overflow-hidden shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-              <h3 className="font-medium text-gray-700">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
+              <h3 className="font-medium text-[var(--text-primary)]">
                 {modalType === 'add' ? '新增' : '编辑'}
               </h3>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                className="p-1 text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] rounded transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -457,21 +457,21 @@ function TableRenderer({
                   .filter(col => col.key !== 'id' && col.fieldType !== 'action')
                   .map(col => (
                     <div key={col.key}>
-                      <label className="block text-xs text-gray-500 mb-1">{col.label}</label>
+                      <label className="block text-xs text-[var(--text-muted)] mb-1">{col.label}</label>
                       <input
                         type={col.fieldType === 'number' ? 'number' : 'text'}
                         value={formData[col.key] || ''}
                         onChange={(e) => setFormData({ ...formData, [col.key]: e.target.value })}
-                        className="w-full px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                        className="w-full px-3 py-1.5 border border-[var(--border)] rounded text-sm focus:outline-none focus:border-blue-500"
                       />
                     </div>
                   ))}
               </div>
             </div>
-            <div className="flex justify-end gap-2 px-4 py-3 border-t border-gray-200 bg-gray-50">
+            <div className="flex justify-end gap-2 px-4 py-3 border-t border-[var(--border)] bg-[var(--bg-secondary)]">
               <button
                 onClick={() => setShowModal(false)}
-                className="px-4 py-1.5 text-xs border border-gray-300 rounded hover:bg-gray-100 transition-colors"
+                className="px-4 py-1.5 text-xs border border-[var(--border)] rounded hover:bg-[var(--bg-tertiary)] transition-colors"
               >
                 取消
               </button>
@@ -537,12 +537,12 @@ function ContainerRenderer({ type, props, children, onEvent }: { type: string; p
       return (
         <div
           className={cn(
-            'w-full bg-white rounded-lg p-4 flex flex-col',
-            hasBorder ? 'border border-gray-200' : ''
+            'w-full bg-[var(--bg-primary)] rounded-lg p-4 flex flex-col',
+            hasBorder ? 'border border-[var(--border)]' : ''
           )}
           style={containerStyle}
         >
-          {props.title && <div className="font-medium text-gray-700 mb-3 text-sm flex-shrink-0">{String(props.title)}</div>}
+          {props.title && <div className="font-medium text-[var(--text-primary)] mb-3 text-sm flex-shrink-0">{String(props.title)}</div>}
           <div className="flex-1 min-h-0">{renderChildren()}</div>
         </div>
       );
@@ -553,8 +553,8 @@ function ContainerRenderer({ type, props, children, onEvent }: { type: string; p
       const activeChild = arr[activeTab];
 
       return (
-        <div className="w-full bg-white border border-gray-200 rounded-lg flex flex-col" style={containerStyle}>
-          <div className="flex border-b border-gray-200 -mx-4 px-4 mb-3 flex-shrink-0">
+        <div className="w-full bg-[var(--bg-primary)] border border-[var(--border)] rounded-lg flex flex-col" style={containerStyle}>
+          <div className="flex border-b border-[var(--border)] -mx-4 px-4 mb-3 flex-shrink-0">
             {tabs.map((tab, i) => (
               <div
                 key={i}
@@ -563,7 +563,7 @@ function ContainerRenderer({ type, props, children, onEvent }: { type: string; p
                   'px-4 py-2 text-sm cursor-pointer transition-colors border-b-2 -mb-px',
                   i === activeTab
                     ? 'text-blue-500 border-blue-500 font-medium'
-                    : 'text-gray-500 border-transparent hover:text-gray-700'
+                    : 'text-[var(--text-muted)] border-transparent hover:text-[var(--text-primary)]'
                 )}
               >
                 {tab}
@@ -576,12 +576,12 @@ function ContainerRenderer({ type, props, children, onEvent }: { type: string; p
     }
     case 'collapse':
       return (
-        <div className="w-full bg-white border border-gray-200 rounded-lg flex flex-col" style={containerStyle}>
+        <div className="w-full bg-[var(--bg-primary)] border border-[var(--border)] rounded-lg flex flex-col" style={containerStyle}>
           {((props.panels as Array<{ title: string; content: string }>) || []).map((panel, i) => (
-            <div key={i} className={cn('border border-gray-200 rounded mb-2 last:mb-0 flex flex-col', i > 0 && 'mt-2')}>
-              <div className="px-4 py-2.5 bg-gray-50 flex items-center justify-between flex-shrink-0">
-                <span className="text-sm font-medium text-gray-700">{panel.title}</span>
-                <ChevronDown className="w-4 h-4 text-gray-400" />
+            <div key={i} className={cn('border border-[var(--border)] rounded mb-2 last:mb-0 flex flex-col', i > 0 && 'mt-2')}>
+              <div className="px-4 py-2.5 bg-[var(--bg-secondary)] flex items-center justify-between flex-shrink-0">
+                <span className="text-sm font-medium text-[var(--text-primary)]">{panel.title}</span>
+                <ChevronDown className="w-4 h-4 text-[var(--text-muted)]" />
               </div>
               <div className="p-4 flex-1 min-h-0">
                 {i === 0 && renderChildren()}
@@ -606,7 +606,7 @@ function ComponentRenderer({ type, props, children, onEvent }: { type: string; p
     case 'Text':
     case 'text':
       return (
-        <div className="text-sm text-gray-700" style={props.style as React.CSSProperties}>
+        <div className="text-sm text-[var(--text-primary)]" style={props.style as React.CSSProperties}>
           {String(props.content || '文本')}
         </div>
       );
@@ -620,7 +620,7 @@ function ComponentRenderer({ type, props, children, onEvent }: { type: string; p
           case 'success': return 'bg-green-500 text-white hover:bg-green-600';
           case 'warning': return 'bg-yellow-500 text-white hover:bg-yellow-600';
           case 'danger': return 'bg-red-500 text-white hover:bg-red-600';
-          case 'default': return 'bg-gray-100 text-gray-700 hover:bg-gray-200';
+          case 'default': return 'bg-[var(--bg-tertiary)] text-[var(--text-primary)] hover:bg-[var(--bg-hover)]';
           case 'text': return 'bg-transparent text-blue-500 hover:bg-blue-50';
           default: return 'bg-blue-500 text-white hover:bg-blue-600';
         }
@@ -636,11 +636,11 @@ function ComponentRenderer({ type, props, children, onEvent }: { type: string; p
     case 'input':
       return (
         <div className="flex flex-col gap-1">
-          {props.label && <label className="text-xs text-gray-500">{String(props.label)}</label>}
+          {props.label && <label className="text-xs text-[var(--text-muted)]">{String(props.label)}</label>}
           <input
             type="text"
             placeholder={String(props.placeholder || '')}
-            className={cn('px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500 transition-colors', props.className as string)}
+            className={cn('px-3 py-1.5 border border-[var(--border)] rounded text-sm focus:outline-none focus:border-blue-500 transition-colors', props.className as string)}
           />
         </div>
       );
@@ -695,26 +695,26 @@ function ComponentRenderer({ type, props, children, onEvent }: { type: string; p
       // Static data table (simplified)
       const data = (props.data as Record<string, any>[]) || [];
       return (
-        <div className="border border-gray-200 rounded bg-white">
+        <div className="border border-[var(--border)] rounded bg-[var(--bg-primary)]">
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-gray-200 bg-gray-50">
+                <tr className="border-b border-[var(--border)] bg-[var(--bg-secondary)]">
                   {cols.filter(c => c.visible !== false).map(col => (
-                    <th key={col.key} className="px-4 py-2.5 text-left text-xs font-medium text-gray-500">{col.label}</th>
+                    <th key={col.key} className="px-4 py-2.5 text-left text-xs font-medium text-[var(--text-muted)]">{col.label}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {data.length === 0 ? (
                   <tr>
-                    <td colSpan={cols.filter(c => c.visible !== false).length} className="text-center py-8 text-gray-400">暂无数据</td>
+                    <td colSpan={cols.filter(c => c.visible !== false).length} className="text-center py-8 text-[var(--text-muted)]">暂无数据</td>
                   </tr>
                 ) : (
                   data.map((row, i) => (
-                    <tr key={i} className={cn('border-b border-gray-100', striped && i % 2 === 1 && 'bg-gray-50', hoverable && 'hover:bg-gray-50')}>
+                    <tr key={i} className={cn('border-b border-[var(--border-light)]', striped && i % 2 === 1 && 'bg-[var(--bg-secondary)]', hoverable && 'hover:bg-[var(--bg-secondary)]')}>
                       {cols.filter(c => c.visible !== false).map(col => (
-                        <td key={col.key} className="px-4 py-2 text-sm text-gray-700">{String(row[col.key] ?? '-')}</td>
+                        <td key={col.key} className="px-4 py-2 text-sm text-[var(--text-primary)]">{String(row[col.key] ?? '-')}</td>
                       ))}
                     </tr>
                   ))
@@ -731,16 +731,16 @@ function ComponentRenderer({ type, props, children, onEvent }: { type: string; p
     case 'pieChart':
     case 'Chart':
       return (
-        <div className="border border-gray-200 rounded p-6 bg-gray-50 text-center">
-          <div className="text-sm text-gray-500">{String(props.title || '图表组件')}</div>
+        <div className="border border-[var(--border)] rounded p-6 bg-[var(--bg-secondary)] text-center">
+          <div className="text-sm text-[var(--text-muted)]">{String(props.title || '图表组件')}</div>
         </div>
       );
 
     case 'select':
       return (
         <div className="flex flex-col gap-1">
-          {props.label && <label className="text-xs text-gray-500">{String(props.label)}</label>}
-          <select className="px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500 bg-white">
+          {props.label && <label className="text-xs text-[var(--text-muted)]">{String(props.label)}</label>}
+          <select className="px-3 py-1.5 border border-[var(--border)] rounded text-sm focus:outline-none focus:border-blue-500 bg-[var(--bg-primary)]">
             <option value="">{String(props.placeholder || '请选择')}</option>
             {((props.options as string[]) || []).map((opt, i) => (
               <option key={i} value={opt}>{opt}</option>
@@ -752,10 +752,10 @@ function ComponentRenderer({ type, props, children, onEvent }: { type: string; p
     case 'date':
       return (
         <div className="flex flex-col gap-1">
-          {props.label && <label className="text-xs text-gray-500">{String(props.label)}</label>}
+          {props.label && <label className="text-xs text-[var(--text-muted)]">{String(props.label)}</label>}
           <input
             type="date"
-            className="px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+            className="px-3 py-1.5 border border-[var(--border)] rounded text-sm focus:outline-none focus:border-blue-500"
           />
         </div>
       );
@@ -763,12 +763,12 @@ function ComponentRenderer({ type, props, children, onEvent }: { type: string; p
     case 'switch':
       return (
         <div className="flex items-center gap-2">
-          {props.label && <label className="text-xs text-gray-500">{String(props.label)}</label>}
+          {props.label && <label className="text-xs text-[var(--text-muted)]">{String(props.label)}</label>}
           <button
             type="button"
-            className={cn('w-10 h-5 rounded-full transition-colors relative', props.value ? 'bg-blue-500' : 'bg-gray-300')}
+            className={cn('w-10 h-5 rounded-full transition-colors relative', props.value ? 'bg-[var(--accent)]' : 'bg-[var(--bg-tertiary)]')}
           >
-            <div className={cn('w-4 h-4 bg-white rounded-full shadow absolute top-0.5 transition-transform', props.value ? 'translate-x-5' : 'translate-x-0.5')} />
+            <div className={cn('w-4 h-4 bg-[var(--bg-primary)] rounded-full shadow absolute top-0.5 transition-transform', props.value ? 'translate-x-5' : 'translate-x-0.5')} />
           </button>
         </div>
       );
@@ -776,7 +776,7 @@ function ComponentRenderer({ type, props, children, onEvent }: { type: string; p
     case 'slider':
       return (
         <div className="flex flex-col gap-1 w-full">
-          {props.label && <label className="text-xs text-gray-500">{String(props.label)}</label>}
+          {props.label && <label className="text-xs text-[var(--text-muted)]">{String(props.label)}</label>}
           <input
             type="range"
             min={Number(props.min) || 0}
@@ -784,26 +784,26 @@ function ComponentRenderer({ type, props, children, onEvent }: { type: string; p
             value={Number(props.value) || 50}
             className="w-full"
           />
-          <div className="text-xs text-gray-400 text-center">{Number(props.value) || 50}</div>
+          <div className="text-xs text-[var(--text-muted)] text-center">{Number(props.value) || 50}</div>
         </div>
       );
 
     case 'grid':
       return (
         <div
-          className="border border-gray-200 rounded p-3 bg-gray-50"
+          className="border border-[var(--border)] rounded p-3 bg-[var(--bg-secondary)]"
           style={{
             display: 'grid',
             gridTemplateColumns: `repeat(${Number(props.cols) || 3}, 1fr)`,
             gap: `${Number(props.gap) || 10}px`,
           }}
         >
-          <div className="text-xs text-gray-400 text-center py-4">栅格布局</div>
+          <div className="text-xs text-[var(--text-muted)] text-center py-4">栅格布局</div>
         </div>
       );
 
     case 'divider':
-      return <hr className="border-gray-300 my-2" />;
+      return <hr className="border-[var(--border)] my-2" />;
 
     case 'blank':
       return <div className="bg-gradient-to-r from-gray-100 to-gray-50" style={{ height: `${Number(props.height) || 50}px` }} />;
@@ -828,12 +828,12 @@ function ComponentRenderer({ type, props, children, onEvent }: { type: string; p
     case 'form':
       // 表单组件 - 简化渲染
       return (
-        <div className="border border-gray-200 rounded bg-white p-4">
-          <div className="text-sm text-gray-500">表单组件（预览模式）</div>
+        <div className="border border-[var(--border)] rounded bg-[var(--bg-primary)] p-4">
+          <div className="text-sm text-[var(--text-muted)]">表单组件（预览模式）</div>
         </div>
       );
 
     default:
-      return <div className="text-gray-400 text-sm">未知组件: {type}</div>;
+      return <div className="text-[var(--text-muted)] text-sm">未知组件: {type}</div>;
   }
 }
