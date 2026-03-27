@@ -566,7 +566,7 @@ function PropertyPanel({
         <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-4">属性配置</h3>
 
         {/* Quick Actions - Move In/Out of Container */}
-        <div className="mb-4 p-2 bg-blue-50 rounded border border-blue-200">
+        <div className="mb-4 p-2 bg-[var(--accent-light)] rounded border border-[var(--accent)]/30">
           <div className="text-xs text-blue-600 mb-2">快捷操作</div>
           <div className="flex gap-2">
             <button
