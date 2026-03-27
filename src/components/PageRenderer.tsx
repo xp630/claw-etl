@@ -148,6 +148,7 @@ function TableRenderer({
         key: q.key,
         label: q.label,
         fieldType: q.fieldType as any,
+        dataDictionary: q.dataDictionary,
       }))}
       showSearchBar={true}
       showSearch={showSearch}
