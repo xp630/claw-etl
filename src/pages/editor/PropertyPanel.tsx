@@ -750,7 +750,7 @@ function PropertyPanel({
                             defaultValue={(value as string[]).join(', ')}
                             onBlur={(e) => handleOptionsChange(e.target.value)}
                             placeholder="用逗号分隔选项"
-                            className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-blue-500"
+                            className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                           />
                         </div>
                       );
@@ -769,13 +769,13 @@ function PropertyPanel({
                           type="number"
                           value={value}
                           onChange={(e) => handlePropChange(key, Number(e.target.value))}
-                          className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-blue-500"
+                          className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                         />
                       ) : key === 'buttonType' ? (
                         <select
                           value={String(value)}
                           onChange={(e) => handlePropChange(key, e.target.value)}
-                          className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-blue-500"
+                          className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                         >
                           <option value="primary">主要按钮</option>
                           <option value="success">成功按钮</option>
@@ -789,7 +789,7 @@ function PropertyPanel({
                           type="text"
                           value={String(value)}
                           onChange={(e) => handlePropChange(key, e.target.value)}
-                          className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-blue-500"
+                          className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                         />
                       )}
                     </div>
@@ -811,7 +811,7 @@ function PropertyPanel({
                     max={12}
                     value={Number(selectedComponent.props.cols) || 3}
                     onChange={(e) => handlePropChange('cols', Number(e.target.value))}
-                    className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-blue-500"
+                    className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                   />
                 </div>
                 <div>
@@ -822,7 +822,7 @@ function PropertyPanel({
                     max={50}
                     value={Number(selectedComponent.props.gap) || 10}
                     onChange={(e) => handlePropChange('gap', Number(e.target.value))}
-                    className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-blue-500"
+                    className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                   />
                 </div>
               </div>
@@ -846,7 +846,7 @@ function PropertyPanel({
                       handlePropChange('width', val === '' ? undefined : Number(val));
                     }}
                     placeholder="自适应"
-                    className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-blue-500"
+                    className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                   />
                 </div>
                 <div>
@@ -861,7 +861,7 @@ function PropertyPanel({
                       handlePropChange('height', val === '' ? undefined : Number(val));
                     }}
                     placeholder="自适应"
-                    className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-blue-500"
+                    className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                   />
                 </div>
               </div>
@@ -879,7 +879,7 @@ function PropertyPanel({
                     type="number"
                     value={Number(selectedComponent.props.min) || 0}
                     onChange={(e) => handlePropChange('min', Number(e.target.value))}
-                    className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-blue-500"
+                    className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                   />
                 </div>
                 <div>
@@ -888,7 +888,7 @@ function PropertyPanel({
                     type="number"
                     value={Number(selectedComponent.props.max) || 100}
                     onChange={(e) => handlePropChange('max', Number(e.target.value))}
-                    className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-blue-500"
+                    className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                   />
                 </div>
                 <div>
@@ -897,7 +897,7 @@ function PropertyPanel({
                     type="number"
                     value={Number(selectedComponent.props.value) || 50}
                     onChange={(e) => handlePropChange('value', Number(e.target.value))}
-                    className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-blue-500"
+                    className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                   />
                 </div>
               </div>
@@ -933,7 +933,7 @@ function PropertyPanel({
                             }
                           }
                         }}
-                        className="w-full px-2 py-1 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-blue-500"
+                        className="w-full px-2 py-1 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                       >
                         <option value="">请选择数据源</option>
                         {dataSources.map(ds => (
@@ -957,7 +957,7 @@ function PropertyPanel({
                           }
                         }}
                         placeholder="搜索或选择表..."
-                        className="w-full px-2 py-1 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-blue-500"
+                        className="w-full px-2 py-1 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                       />
                       <datalist id="table-list">
                         {tables.map(t => (
@@ -1055,7 +1055,7 @@ function PropertyPanel({
                       type="text"
                       id="newColumnInput"
                       placeholder="输入列名新增"
-                      className="flex-1 px-2 py-1 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-blue-500"
+                      className="flex-1 px-2 py-1 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                       onKeyDown={async (e) => {
                         if (e.key === 'Enter') {
                           const input = document.getElementById('newColumnInput') as HTMLInputElement;
