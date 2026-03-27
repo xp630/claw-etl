@@ -1,5 +1,5 @@
 import { useState, useEffect, ReactNode } from 'react';
-import { Search, Plus, Download, ChevronDown, ChevronUp, Edit2, Trash2, Eye, RefreshCw } from 'lucide-react';
+import { Search, Plus, Download, ChevronDown, ChevronUp, Edit2, Trash2, Eye, RefreshCw, X } from 'lucide-react';
 
 export interface ColumnDef {
   key: string;
@@ -11,18 +11,19 @@ export interface ColumnDef {
   fieldType?: 'text' | 'number' | 'select' | 'date' | 'datetime' | 'switch' | 'image' | 'currency' | 'action' | 'custom';
   align?: 'left' | 'center' | 'right';
   ellipsis?: boolean;
-  frozen?: boolean;  // 冻结列
-  dataDictionary?: string;  // 字典编码
+  frozen?: boolean;
+  dataDictionary?: string;
   dateFormat?: string;
   options?: { label: string; value: string }[];
   defaultValue?: any;
   placeholder?: string;
   required?: boolean;
+  span?: number;  // 表单中占的列宽
   // 自定义渲染
   render?: (value: any, row: Record<string, any>, index: number) => ReactNode;
   // 自定义查询控件类型
   queryType?: 'input' | 'select' | 'date' | 'daterange' | 'number';
-  queryOperator?: 'eq' | 'like' | 'gt' | 'lt' | 'between';  // 查询操作符
+  queryOperator?: 'eq' | 'like' | 'gt' | 'lt' | 'between';
 }
 
 export interface PaginationConfig {
@@ -68,6 +69,8 @@ export interface DataTableProps {
   onDelete?: (row: Record<string, any>) => void;
   onDetail?: (row: Record<string, any>) => void;
   onColumnChange?: (columns: string[]) => void;
+  // CRUD 回调（弹窗需要）
+  onSubmit?: (type: 'add' | 'edit', data: Record<string, any>, done: () => void) => void;
   // 数据字典
   dictData?: Record<string, { label: string; value: string }[]>;
   // 样式配置
@@ -85,6 +88,10 @@ export interface DataTableProps {
   extraActions?: ReactNode;
   // 自定义工具栏
   customToolbar?: ReactNode;
+  // 弹窗配置
+  modalTitle?: { add?: string; edit?: string; detail?: string };
+  // 弹窗宽度
+  modalWidth?: number | string;
 }
 
 export default function DataTable({
@@ -115,6 +122,7 @@ export default function DataTable({
   onDelete,
   onDetail,
   onColumnChange,
+  onSubmit,
   dictData = {},
   bordered = true,
   striped = true,
@@ -124,11 +132,20 @@ export default function DataTable({
   rowKey = 'id',
   extraActions,
   customToolbar,
+  modalTitle = { add: '新增', edit: '编辑', detail: '详情' },
+  modalWidth = 600,
 }: DataTableProps) {
   const [searchParams, setSearchParams] = useState<Record<string, any>>({});
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [selectedColumns, setSelectedColumns] = useState<string[]>(columns.map(c => c.key));
+  const [selectedColumns, setSelectedColumns] = useState<string[]>(columns.filter(c => c.fieldType !== 'action').map(c => c.key));
   const [showColSelector, setShowColSelector] = useState(false);
+
+  // 弹窗状态
+  const [showModal, setShowModal] = useState(false);
+  const [modalType, setModalType] = useState<'add' | 'edit' | 'detail'>('add');
+  const [editRow, setEditRow] = useState<Record<string, any> | null>(null);
+  const [formData, setFormData] = useState<Record<string, any>>({});
+  const [submitting, setSubmitting] = useState(false);
 
   // 初始化查询参数
   useEffect(() => {
@@ -179,21 +196,67 @@ export default function DataTable({
     onColumnChange?.(newSelected);
   };
 
+  // 弹窗操作
+  const openAddModal = () => {
+    setModalType('add');
+    setEditRow(null);
+    setFormData({});
+    setShowModal(true);
+    onAdd?.();
+  };
+
+  const openEditModal = (row: Record<string, any>) => {
+    setModalType('edit');
+    setEditRow(row);
+    setFormData({ ...row });
+    setShowModal(true);
+    onEdit?.(row);
+  };
+
+  const openDetailModal = (row: Record<string, any>) => {
+    setModalType('detail');
+    setEditRow(row);
+    setFormData({ ...row });
+    setShowModal(true);
+    onDetail?.(row);
+  };
+
+  const handleDelete = (row: Record<string, any>) => {
+    if (confirm('确定删除？')) {
+      onDelete?.(row);
+    }
+  };
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    try {
+      if (onSubmit) {
+        await new Promise<void>((resolve) => {
+          onSubmit(modalType as 'add' | 'edit', formData, () => resolve());
+        });
+      }
+      setShowModal(false);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleFormChange = (key: string, value: any) => {
+    setFormData(prev => ({ ...prev, [key]: value }));
+  };
+
   const renderCellValue = (value: any, col: ColumnDef, row: Record<string, any>, index: number) => {
-    // 自定义渲染优先
     if (col.render) {
       return col.render(value, row, index);
     }
     
     if (value === null || value === undefined) return '-';
     
-    // 数据字典翻译
     if (col.dataDictionary && dictData[col.dataDictionary]) {
       const item = dictData[col.dataDictionary].find(d => String(d.value) === String(value));
       if (item) return item.label;
     }
     
-    // 字段类型渲染
     switch (col.fieldType) {
       case 'date':
         return String(value).substring(0, 10);
@@ -216,6 +279,13 @@ export default function DataTable({
   const textSizeClass = compact ? 'text-xs' : 'text-sm';
 
   const tableStyle = maxHeight ? { maxHeight } : {};
+
+  // 表单字段（排除 action 和 queryCondition）
+  const formColumns = columns.filter(col => 
+    col.visible !== false && 
+    col.fieldType !== 'action' &&
+    col.queryCondition !== true
+  );
 
   return (
     <div className={`bg-white rounded ${bordered ? 'border border-gray-200' : ''} flex flex-col`}>
@@ -268,7 +338,6 @@ export default function DataTable({
       {showSearchBar && effectiveQueryFields.length > 0 && (
         <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
           <div className="flex items-center gap-2 flex-wrap">
-            {/* 查询条件 */}
             <div className="flex items-center gap-2 flex-wrap flex-1">
               {displayQueryFields.slice(0, 3).map(col => (
                 <div key={col.key} className="flex items-center gap-1.5">
@@ -289,13 +358,6 @@ export default function DataTable({
                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                       ))}
                     </select>
-                  ) : col.queryType === 'date' || col.fieldType === 'date' || col.fieldType === 'datetime' ? (
-                    <input
-                      type="date"
-                      value={searchParams[col.key] || ''}
-                      onChange={(e) => setSearchParams({ ...searchParams, [col.key]: e.target.value })}
-                      className={`px-2 ${compact ? 'py-1' : 'py-1.5'} border border-gray-300 rounded text-xs w-32`}
-                    />
                   ) : (
                     <input
                       type={col.queryType === 'number' || col.fieldType === 'number' ? 'number' : 'text'}
@@ -338,7 +400,7 @@ export default function DataTable({
               )}
               {showAdd && (
                 <button
-                  onClick={onAdd}
+                  onClick={openAddModal}
                   className={`px-3 ${compact ? 'py-1' : 'py-1.5'} text-xs bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-1`}
                 >
                   <Plus className="w-3 h-3" />
@@ -356,38 +418,6 @@ export default function DataTable({
               )}
             </div>
           </div>
-
-          {/* 高级查询条件 */}
-          {showAdvanced && displayQueryFields.length > 3 && (
-            <div className="flex items-center gap-2 flex-wrap mt-2 pt-2 border-t border-gray-200">
-              {displayQueryFields.slice(3).map(col => (
-                <div key={col.key} className="flex items-center gap-1.5">
-                  <label className={`text-xs text-gray-500 whitespace-nowrap ${compact ? 'text-[10px]' : ''}`}>
-                    {col.label}:
-                  </label>
-                  {col.queryType === 'select' || col.fieldType === 'select' ? (
-                    <select
-                      value={searchParams[col.key] || ''}
-                      onChange={(e) => setSearchParams({ ...searchParams, [col.key]: e.target.value })}
-                      className={`px-2 ${compact ? 'py-1' : 'py-1.5'} border border-gray-300 rounded text-xs w-24`}
-                    >
-                      <option value="">请选择</option>
-                      {col.options?.map(opt => (
-                        <option key={opt.value} value={opt.value}>{opt.label}</option>
-                      ))}
-                    </select>
-                  ) : (
-                    <input
-                      type="text"
-                      value={searchParams[col.key] || ''}
-                      onChange={(e) => setSearchParams({ ...searchParams, [col.key]: e.target.value })}
-                      className={`px-2 ${compact ? 'py-1' : 'py-1.5'} border border-gray-300 rounded text-xs w-24`}
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       )}
 
@@ -469,7 +499,7 @@ export default function DataTable({
                       <div className="flex items-center gap-1">
                         {showDetail && (
                           <button
-                            onClick={() => onDetail?.(row)}
+                            onClick={() => openDetailModal(row)}
                             className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-blue-500"
                             title="查看"
                           >
@@ -478,7 +508,7 @@ export default function DataTable({
                         )}
                         {showEdit && (
                           <button
-                            onClick={() => onEdit?.(row)}
+                            onClick={() => openEditModal(row)}
                             className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-blue-500"
                             title="编辑"
                           >
@@ -487,7 +517,7 @@ export default function DataTable({
                         )}
                         {showDelete && (
                           <button
-                            onClick={() => onDelete?.(row)}
+                            onClick={() => handleDelete(row)}
                             className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-red-500"
                             title="删除"
                           >
@@ -538,6 +568,142 @@ export default function DataTable({
             >
               下一页
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* 弹窗 */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div 
+            className="bg-white rounded-lg shadow-xl max-h-[80vh] overflow-hidden flex flex-col"
+            style={{ width: typeof modalWidth === 'number' ? `${modalWidth}px` : modalWidth }}
+          >
+            {/* 弹窗头部 */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
+              <h3 className="text-lg font-medium text-gray-800">
+                {modalTitle[modalType] || (modalType === 'add' ? '新增' : modalType === 'edit' ? '编辑' : '详情')}
+              </h3>
+              <button
+                onClick={() => setShowModal(false)}
+                className="p-1 hover:bg-gray-200 rounded text-gray-500 hover:text-gray-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* 弹窗内容 - 表单 */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {modalType !== 'detail' ? (
+                <div className="grid grid-cols-2 gap-4">
+                  {formColumns.map(col => (
+                    <div 
+                      key={col.key} 
+                      className={col.span && col.span > 1 ? 'col-span-2' : ''}
+                    >
+                      <label className="block text-sm text-gray-600 mb-1">
+                        {col.label}
+                        {col.required && <span className="text-red-500 ml-1">*</span>}
+                      </label>
+                      {col.fieldType === 'select' || col.queryType === 'select' ? (
+                        <select
+                          value={formData[col.key] ?? ''}
+                          onChange={(e) => handleFormChange(col.key, e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                          disabled={modalType === 'detail'}
+                        >
+                          <option value="">请选择</option>
+                          {col.options?.map(opt => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                          {col.dataDictionary && dictData[col.dataDictionary]?.map(opt => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                        </select>
+                      ) : col.fieldType === 'date' ? (
+                        <input
+                          type="date"
+                          value={formData[col.key] ?? ''}
+                          onChange={(e) => handleFormChange(col.key, e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                          disabled={modalType === 'detail'}
+                        />
+                      ) : col.fieldType === 'datetime' ? (
+                        <input
+                          type="datetime-local"
+                          value={formData[col.key] ? String(formData[col.key]).substring(0, 16) : ''}
+                          onChange={(e) => handleFormChange(col.key, e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                          disabled={modalType === 'detail'}
+                        />
+                      ) : col.fieldType === 'number' ? (
+                        <input
+                          type="number"
+                          value={formData[col.key] ?? ''}
+                          onChange={(e) => handleFormChange(col.key, e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                          disabled={modalType === 'detail'}
+                        />
+                      ) : col.fieldType === 'switch' ? (
+                        <select
+                          value={formData[col.key] ?? ''}
+                          onChange={(e) => handleFormChange(col.key, e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                          disabled={modalType === 'detail'}
+                        >
+                          <option value="">请选择</option>
+                          <option value="1">是</option>
+                          <option value="0">否</option>
+                        </select>
+                      ) : (
+                        <input
+                          type="text"
+                          value={formData[col.key] ?? ''}
+                          onChange={(e) => handleFormChange(col.key, e.target.value)}
+                          placeholder={col.placeholder || `请输入${col.label}`}
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                          disabled={modalType === 'detail'}
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                /* 详情模式 */
+                <div className="grid grid-cols-2 gap-4">
+                  {formColumns.map(col => (
+                    <div 
+                      key={col.key} 
+                      className={`${col.span && col.span > 1 ? 'col-span-2' : ''}`}
+                    >
+                      <label className="block text-sm text-gray-500 mb-1">{col.label}</label>
+                      <div className="text-sm text-gray-800 px-3 py-2 bg-gray-50 rounded">
+                        {renderCellValue(formData[col.key], col, formData, 0)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* 弹窗底部 */}
+            <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded hover:bg-gray-50"
+              >
+                取消
+              </button>
+              {modalType !== 'detail' && (
+                <button
+                  onClick={handleSubmit}
+                  disabled={submitting}
+                  className="px-4 py-2 text-sm text-white bg-blue-500 rounded hover:bg-blue-600 disabled:opacity-50"
+                >
+                  {submitting ? '提交中...' : '确定'}
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}
