@@ -1,7 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, ChevronDown, Search, Download, Plus, Edit2, Trash2, Eye, X } from 'lucide-react';
 import { dataBridge } from '../lib/DataBridge';
-import { getDictByName } from '../lib/api';
 import cn from 'classnames';
 import DataTable from './DataTable';
 import type { ColumnDef } from './DataTable';
@@ -76,27 +75,6 @@ function TableRenderer({
   const [currentPageSize, setCurrentPageSize] = useState(initialPageSize || 10);
   const [total, setTotal] = useState(0);
   const [searchParams, setSearchParams] = useState<Record<string, string>>({});
-  const [localDictData, setLocalDictData] = useState<Record<string, { label: string; value: string }[]>>({});
-
-  // 自动加载列配置中引用的数据字典
-  useEffect(() => {
-    const loadDictData = async () => {
-      const dictCodes = columns
-        .filter(col => col.dataDictionary && (!dictData || !dictData[col.dataDictionary!]))
-        .map(col => col.dataDictionary!);
-      
-      const uniqueCodes = [...new Set(dictCodes)];
-      
-      for (const code of uniqueCodes) {
-        const items = await getDictByName(code);
-        if (items.length > 0) {
-          setLocalDictData(prev => ({ ...prev, [code]: items }));
-        }
-      }
-    };
-    
-    loadDictData();
-  }, [columns, dictData]);
 
   const effectiveApiId = queryApiId || apiId;
 
@@ -182,7 +160,7 @@ function TableRenderer({
       bordered={bordered}
       striped={striped}
       hoverable={hoverable}
-      dictData={{ ...dictData, ...localDictData }}
+      dictData={dictData}
       onSearch={handleLoad}
       onPageChange={(p) => loadData(p)}
       onPageSizeChange={(size) => { setCurrentPageSize(size); loadData(1); }}
@@ -412,7 +390,7 @@ function ComponentRenderer({ type, props, children, onEvent }: { type: string; p
             showDelete={showDelete}
             showPagination={showPagination}
             showDetail={showDetail}
-            dictData={{ ...dictData, ...localDictData }}
+            dictData={dictData}
             onEvent={onEvent as any}
           />
         );

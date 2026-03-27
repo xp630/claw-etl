@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, ReactNode } from 'react';
 import { Search, Plus, Download, ChevronDown, ChevronUp, Edit2, Trash2, Eye, RefreshCw, X } from 'lucide-react';
+import { getDictByName } from '../lib/api';
 
 export interface ColumnDef {
   key: string;
@@ -150,6 +151,29 @@ export default function DataTable({
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [submitting, setSubmitting] = useState(false);
 
+  // 本地数据字典状态（自动加载列中引用的字典）
+  const [localDictData, setLocalDictData] = useState<Record<string, { label: string; value: string }[]>>({});
+
+  // 自动加载列配置中引用的数据字典
+  useEffect(() => {
+    const loadDictData = async () => {
+      const dictCodes = columns
+        .filter(col => col.dataDictionary && (!dictData || !dictData[col.dataDictionary!]))
+        .map(col => col.dataDictionary!);
+      
+      const uniqueCodes = [...new Set(dictCodes)];
+      
+      for (const code of uniqueCodes) {
+        const items = await getDictByName(code);
+        if (items.length > 0) {
+          setLocalDictData(prev => ({ ...prev, [code]: items }));
+        }
+      }
+    };
+    
+    loadDictData();
+  }, [columns, dictData]);
+
   // 初始化查询参数（仅在组件挂载时执行一次）
   const initRef = useRef(false);
   useEffect(() => {
@@ -263,8 +287,8 @@ export default function DataTable({
     
     if (value === null || value === undefined) return '-';
     
-    if (col.dataDictionary && dictData[col.dataDictionary]) {
-      const item = dictData[col.dataDictionary].find(d => String(d.value) === String(value));
+    if (col.dataDictionary && ({ ...dictData, ...localDictData })[col.dataDictionary!]) {
+      const item = ({ ...dictData, ...localDictData })[col.dataDictionary!].find(d => String(d.value) === String(value));
       if (item) return item.label;
     }
     
@@ -377,7 +401,7 @@ export default function DataTable({
                       {col.options?.map(opt => (
                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                       ))}
-                      {col.dataDictionary && dictData[col.dataDictionary]?.map(opt => (
+                      {col.dataDictionary && ({ ...dictData, ...localDictData })[col.dataDictionary!]?.map(opt => (
                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                       ))}
                     </select>
@@ -639,7 +663,7 @@ export default function DataTable({
                           {col.options?.map(opt => (
                             <option key={opt.value} value={opt.value}>{opt.label}</option>
                           ))}
-                          {col.dataDictionary && dictData[col.dataDictionary]?.map(opt => (
+                          {col.dataDictionary && ({ ...dictData, ...localDictData })[col.dataDictionary!]?.map(opt => (
                             <option key={opt.value} value={opt.value}>{opt.label}</option>
                           ))}
                         </select>
