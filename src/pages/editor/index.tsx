@@ -556,18 +556,40 @@ function PageEditor() {
   return (
     <div className="h-screen flex flex-col bg-[var(--bg-secondary)]">
       {/* Header */}
-      <div className="h-14 bg-[var(--bg-primary)] border-b border-[var(--border-light)] flex items-center px-4">
+      <div className="h-14 bg-[var(--bg-primary)] border-b border-[var(--border-light)] flex items-center px-4 gap-4">
         <h1 className="text-lg font-medium text-[var(--text-primary)]">
           {isNewPage ? '新建页面' : '页面编辑器'}
         </h1>
-        <div className="ml-4 flex items-center gap-2">
-          <input
-            type="text"
-            value={pageName}
-            onChange={(e) => setPageName(e.target.value)}
-            placeholder="输入页面名称"
-            className="px-3 py-1.5 border border-[var(--border)] rounded text-sm w-48 bg-[var(--input-bg)] text-[var(--text-primary)]"
-          />
+        <input
+          type="text"
+          value={pageName}
+          onChange={(e) => setPageName(e.target.value)}
+          placeholder="输入页面名称"
+          className="px-3 py-1.5 border border-[var(--border)] rounded text-sm w-48 bg-[var(--input-bg)] text-[var(--text-primary)]"
+        />
+        {/* 浮动工具栏 - 横向放在上面 */}
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setActiveLeftTab(activeLeftTab === 'components' ? '' : 'components')}
+            className={`px-3 py-1.5 text-xs rounded transition-colors flex items-center gap-1.5 ${activeLeftTab === 'components' ? 'bg-[var(--accent)] text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'}`}
+          >
+            <LayoutGrid className="w-4 h-4" />
+            组件库
+          </button>
+          <button
+            onClick={() => setActiveLeftTab(activeLeftTab === 'layer' ? '' : 'layer')}
+            className={`px-3 py-1.5 text-xs rounded transition-colors flex items-center gap-1.5 ${activeLeftTab === 'layer' ? 'bg-[var(--accent)] text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'}`}
+          >
+            <Layers className="w-4 h-4" />
+            组件层
+          </button>
+          <button
+            onClick={() => setActiveLeftTab(activeLeftTab === 'props' ? '' : 'props')}
+            className={`px-3 py-1.5 text-xs rounded transition-colors flex items-center gap-1.5 ${activeLeftTab === 'props' ? 'bg-[var(--accent)] text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'}`}
+          >
+            <Settings2 className="w-4 h-4" />
+            属性
+          </button>
         </div>
         <div className="ml-auto flex items-center gap-2">
           <span className="text-xs text-[var(--text-muted)]">
@@ -620,38 +642,10 @@ function PageEditor() {
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden relative">
-        {/* 浮动工具栏 */}
-        <div className="absolute left-2 top-2 z-50 flex flex-col gap-2">
-          {/* 组件库按钮 */}
-          <button
-            onClick={() => setActiveLeftTab('components')}
-            className="w-10 h-10 bg-[var(--bg-primary)] border border-[var(--border)] rounded-lg shadow-lg flex items-center justify-center hover:bg-[var(--bg-hover)] transition-colors"
-            title="组件库"
-          >
-            <LayoutGrid className="w-5 h-5 text-[var(--text-secondary)]" />
-          </button>
-          {/* 组件层按钮 */}
-          <button
-            onClick={() => setActiveLeftTab('layer')}
-            className="w-10 h-10 bg-[var(--bg-primary)] border border-[var(--border)] rounded-lg shadow-lg flex items-center justify-center hover:bg-[var(--bg-hover)] transition-colors"
-            title="组件层"
-          >
-            <Layers className="w-5 h-5 text-[var(--text-secondary)]" />
-          </button>
-          {/* 属性配置按钮 */}
-          <button
-            onClick={() => setActiveLeftTab('props')}
-            className="w-10 h-10 bg-[var(--bg-primary)] border border-[var(--border)] rounded-lg shadow-lg flex items-center justify-center hover:bg-[var(--bg-hover)] transition-colors"
-            title="属性配置"
-          >
-            <Settings2 className="w-5 h-5 text-[var(--text-secondary)]" />
-          </button>
-        </div>
-
         {/* 浮动面板 */}
         {(activeLeftTab === 'layer' || activeLeftTab === 'components' || activeLeftTab === 'props') && (
           <div 
-            className="absolute left-16 top-2 z-40 w-72 max-h-[calc(100vh-120px)] bg-[var(--bg-primary)] border border-[var(--border)] rounded-lg shadow-xl overflow-hidden"
+            className="absolute left-4 top-4 z-40 w-72 max-h-[calc(100vh-140px)] bg-[var(--bg-primary)] border border-[var(--border)] rounded-lg shadow-xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             {activeLeftTab === 'layer' && (
@@ -668,7 +662,7 @@ function PageEditor() {
               <ComponentPanel onDragStart={() => { setActiveLeftTab(''); }} />
             )}
             {activeLeftTab === 'props' && selectedComponent && (
-              <div className="p-3 overflow-y-auto max-h-[calc(100vh-180px)]">
+              <div className="p-3 overflow-y-auto max-h-[calc(100vh-200px)]">
                 <PropertyPanel
                   selectedComponent={selectedComponent}
                   components={components}
