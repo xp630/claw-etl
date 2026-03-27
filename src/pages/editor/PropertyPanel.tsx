@@ -638,15 +638,16 @@ function PropertyPanel({
                   </div>
                   {selectedComponent.props.pagination && (
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-gray-500">每页条数</span>
-                      <input
-                        type="number"
-                        min={5}
-                        max={100}
+                      <span className="text-xs text-[var(--text-secondary)]">每页条数</span>
+                      <select
                         value={Number(selectedComponent.props.pageSize) || 10}
                         onChange={(e) => handlePropChange('pageSize', Number(e.target.value))}
-                        className="w-20 px-2 py-1 border border-gray-200 rounded text-xs focus:outline-none focus:border-blue-500"
-                      />
+                        className="px-2 py-1 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
+                      >
+                        <option value={10}>10</option>
+                        <option value={20}>20</option>
+                        <option value={50}>50</option>
+                      </select>
                     </div>
                   )}
                 </div>
