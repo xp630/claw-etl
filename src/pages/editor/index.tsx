@@ -530,7 +530,13 @@ function PageEditor() {
   const flattenComponents = useCallback((comps: CanvasComponent[]): CanvasComponent[] => {
     const result: CanvasComponent[] = [];
     for (const comp of comps) {
-      result.push({ ...comp, children: undefined }); // 移除children，打平到根层级
+      // 如果是容器组件（tabs, card, collapse），清除 childrenMap
+      const isContainer = comp.type === 'tabs' || comp.type === 'card' || comp.type === 'collapse';
+      result.push({ 
+        ...comp, 
+        children: undefined,
+        props: isContainer ? { ...comp.props, childrenMap: {} } : comp.props
+      });
       if (comp.children && comp.children.length > 0) {
         result.push(...flattenComponents(comp.children));
       }
