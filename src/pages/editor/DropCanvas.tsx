@@ -16,6 +16,7 @@ interface DropCanvasProps {
   onMoveChildToRoot?: (containerId: string, childId: string, toIndex: number) => void;
   onResize?: (id: string, width: number, height: number) => void;
   onUpdateProps?: (id: string, props: Record<string, unknown>) => void;
+  onDragStart?: () => void;
 }
 
 // Generate unique ID
@@ -34,6 +35,7 @@ function DropCanvas({
   onMoveChildToRoot,
   onResize,
   onUpdateProps,
+  onDragStart,
 }: DropCanvasProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [dragOverContainerId, setDragOverContainerId] = useState<string | null>(null);
@@ -230,6 +232,7 @@ function DropCanvas({
           } else {
             handleRootDragStart(e, index);
           }
+          onDragStart?.();
         }}
         onDragOver={(e) => e.preventDefault()}
         onClick={(e) => {

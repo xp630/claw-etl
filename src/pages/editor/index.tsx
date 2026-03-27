@@ -702,6 +702,7 @@ function PageEditor() {
           onUpdateProps={(id, props) => {
             setComponents(prev => updateComponentProps(prev, id, props));
           }}
+          onDragStart={() => setActiveLeftTab('')}
         />
       </div>
     </div>
