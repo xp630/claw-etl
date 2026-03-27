@@ -321,7 +321,6 @@ function PropertyPanel({
   const [columnConfigOpen, setColumnConfigOpen] = useState(false);
   const [editingColumn, setEditingColumn] = useState<ColumnConfig | null>(null);
   const [editingColumnIndex, setEditingColumnIndex] = useState<number | null>(null);
-  const [columnsCollapsed, setColumnsCollapsed] = useState(false);
   const [propsCollapsed, setPropsCollapsed] = useState(false);
 
   // Container selector modal state
@@ -1159,11 +1158,9 @@ function PropertyPanel({
                   <div className="space-y-1">
                     {(() => {
                       const columns = (selectedComponent.props.columns as ColumnConfig[]) || [];
-                      const showCollapse = columns.length > 10;
-                      const displayColumns = showCollapse && columnsCollapsed ? columns.slice(0, 10) : columns;
                       return (
                         <>
-                          {displayColumns.map((col, idx) => (
+                          {columns.map((col, idx) => (
                             <div key={idx} className="flex items-center gap-2 p-2 bg-[var(--bg-secondary)] rounded">
                               <span className="flex-1 text-xs truncate">{col.label}</span>
                               <span className="text-xs text-[var(--text-muted)]">{col.fieldType || 'text'}</span>
@@ -1189,14 +1186,6 @@ function PropertyPanel({
                               </button>
                             </div>
                           ))}
-                          {showCollapse && (
-                            <button
-                              onClick={() => setColumnsCollapsed(!columnsCollapsed)}
-                              className="w-full mt-1 text-xs text-blue-500 hover:text-blue-600"
-                            >
-                              {columnsCollapsed ? `展开剩余 ${columns.length - 10} 列` : '收拢'}
-                            </button>
-                          )}
                         </>
                       );
                     })()}
