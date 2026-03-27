@@ -637,73 +637,12 @@ function PropertyPanel({
             </div>
             
             <div className="space-y-3">
-              {/* 编辑操作按钮 + 显示边框 */}
-              {selectedComponent.props.showEdit !== undefined && (
-                <div className="flex items-center gap-2 flex-wrap">
-                  {(['showDetail', 'showEdit', 'showDelete', 'showAdd', 'showExport'] as const).map(key => {
-                    if (selectedComponent.props[key] === undefined) return null;
-                    return (
-                      <div key={key} className="flex items-center justify-between bg-[var(--bg-secondary)] px-2 py-1.5 rounded min-w-[120px]">
-                        <span className="text-xs text-[var(--text-secondary)] truncate" title={propLabels[key] || key}>
-                          {propLabels[key] || key}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => handlePropChange(key, !selectedComponent.props[key])}
-                          className={`w-8 h-4 rounded-full transition-colors flex-shrink-0 ml-2 ${
-                            selectedComponent.props[key] ? 'bg-blue-500' : 'bg-[var(--bg-tertiary)]'
-                          }`}
-                        >
-                          <div
-                            className={`w-3 h-3 bg-white rounded-full shadow transition-transform mt-0.5 ${
-                              selectedComponent.props[key] ? 'translate-x-4' : 'translate-x-0.5'
-                            }`}
-                          />
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {/* 其他布尔属性一排两个 */}
-              {(() => {
-                const boolProps = Object.entries(selectedComponent.props)
-                  .filter(([key, value]) => typeof value === 'boolean' && key !== 'striped' && key !== 'bordered' && key !== 'showSearch' && key !== 'showPagination' && key !== 'showDetail' && key !== 'showEdit' && key !== 'showDelete' && key !== 'showAdd' && key !== 'showExport' && key !== 'pagination');
-                
-                if (boolProps.length === 0) return null;
-                
-                return (
-                  <div className="grid grid-cols-2 gap-x-2 gap-y-2">
-                    {boolProps.map(([key, value]) => (
-                      <div key={key} className="flex items-center justify-between bg-[var(--bg-secondary)] px-2 py-1.5 rounded">
-                        <span className="text-xs text-[var(--text-secondary)] truncate" title={propLabels[key] || key}>
-                          {propLabels[key] || key}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => handlePropChange(key, !value)}
-                          className={`w-8 h-4 rounded-full transition-colors flex-shrink-0 ${
-                            value ? 'bg-blue-500' : 'bg-[var(--bg-tertiary)]'
-                          }`}
-                        >
-                          <div
-                            className={`w-3 h-3 bg-white rounded-full shadow transition-transform mt-0.5 ${
-                              value ? 'translate-x-4' : 'translate-x-0.5'
-                            }`}
-                          />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                );
-              })()}
-
-              {/* 分页和每页条数 */}
-              {selectedComponent.props.pagination !== undefined && (
-                <div className="flex items-center justify-between bg-[var(--bg-secondary)] px-2 py-1.5 rounded">
-                  <span className="text-xs text-[var(--text-secondary)]">显示分页</span>
-                  <div className="flex items-center gap-2">
+              {/* 所有开关属性一行 */}
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* 显示分页 + 每页条数 */}
+                {selectedComponent.props.pagination !== undefined && (
+                  <div className="flex items-center gap-1 bg-[var(--bg-secondary)] px-2 py-1.5 rounded">
+                    <span className="text-xs text-[var(--text-secondary)]">分页</span>
                     <button
                       type="button"
                       onClick={() => handlePropChange('pagination', !selectedComponent.props.pagination)}
@@ -718,23 +657,71 @@ function PropertyPanel({
                       />
                     </button>
                     {selectedComponent.props.pagination && (
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs text-[var(--text-secondary)]">每页</span>
-                        <select
-                          value={Number(selectedComponent.props.pageSize) || 10}
-                          onChange={(e) => handlePropChange('pageSize', Number(e.target.value))}
-                          className="px-1 py-0.5 border border-[var(--border)] rounded text-xs bg-[var(--input-bg)] text-[var(--text-primary)]"
-                        >
-                          <option value={10}>10</option>
-                          <option value={20}>20</option>
-                          <option value={50}>50</option>
-                        </select>
-                        <span className="text-xs text-[var(--text-secondary)]">条</span>
-                      </div>
+                      <select
+                        value={Number(selectedComponent.props.pageSize) || 10}
+                        onChange={(e) => handlePropChange('pageSize', Number(e.target.value))}
+                        className="px-1 py-0.5 border border-[var(--border)] rounded text-xs bg-[var(--input-bg)] text-[var(--text-primary)]"
+                      >
+                        <option value={10}>10条</option>
+                        <option value={20}>20条</option>
+                        <option value={50}>50条</option>
+                      </select>
                     )}
                   </div>
-                </div>
-              )}
+                )}
+                {/* 操作按钮开关 */}
+                {(['showDetail', 'showEdit', 'showDelete', 'showAdd', 'showExport'] as const).map(key => {
+                  if (selectedComponent.props[key] === undefined) return null;
+                  return (
+                    <div key={key} className="flex items-center gap-1 bg-[var(--bg-secondary)] px-2 py-1.5 rounded">
+                      <span className="text-xs text-[var(--text-secondary)] truncate" title={propLabels[key] || key}>
+                        {propLabels[key] || key}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handlePropChange(key, !selectedComponent.props[key])}
+                        className={`w-8 h-4 rounded-full transition-colors flex-shrink-0 ${
+                          selectedComponent.props[key] ? 'bg-blue-500' : 'bg-[var(--bg-tertiary)]'
+                        }`}
+                      >
+                        <div
+                          className={`w-3 h-3 bg-white rounded-full shadow transition-transform mt-0.5 ${
+                            selectedComponent.props[key] ? 'translate-x-4' : 'translate-x-0.5'
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  );
+                })}
+                {/* 其他布尔属性 */}
+                {(() => {
+                  const boolProps = Object.entries(selectedComponent.props)
+                    .filter(([key, value]) => typeof value === 'boolean' && key !== 'striped' && key !== 'bordered' && key !== 'showSearch' && key !== 'showPagination' && key !== 'showDetail' && key !== 'showEdit' && key !== 'showDelete' && key !== 'showAdd' && key !== 'showExport' && key !== 'pagination');
+                  
+                  if (boolProps.length === 0) return null;
+                  
+                  return boolProps.map(([key, value]) => (
+                    <div key={key} className="flex items-center gap-1 bg-[var(--bg-secondary)] px-2 py-1.5 rounded">
+                      <span className="text-xs text-[var(--text-secondary)] truncate" title={propLabels[key] || key}>
+                        {propLabels[key] || key}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handlePropChange(key, !value)}
+                        className={`w-8 h-4 rounded-full transition-colors flex-shrink-0 ${
+                          value ? 'bg-blue-500' : 'bg-[var(--bg-tertiary)]'
+                        }`}
+                      >
+                        <div
+                          className={`w-3 h-3 bg-white rounded-full shadow transition-transform mt-0.5 ${
+                            value ? 'translate-x-4' : 'translate-x-0.5'
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  ));
+                })()}
+              </div>
 
               {/* 非布尔属性 - 两列布局 */}
               <div className="grid grid-cols-2 gap-x-2 gap-y-2">
