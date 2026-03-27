@@ -147,10 +147,12 @@ export default function DataTable({
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [submitting, setSubmitting] = useState(false);
 
-  // 初始化查询参数
+  // 初始化查询参数（仅在 defaultQueryParams 变化时执行一次）
   useEffect(() => {
-    setSearchParams(defaultQueryParams);
-  }, [defaultQueryParams]);
+    if (Object.keys(defaultQueryParams).length > 0) {
+      setSearchParams(defaultQueryParams);
+    }
+  }, [JSON.stringify(defaultQueryParams)]);
 
   // 过滤可见列
   const visibleColumns = columns.filter(col => 
