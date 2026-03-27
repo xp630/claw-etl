@@ -683,27 +683,6 @@ function PropertyPanel({
                       </div>
                     );
                   })}
-                  {/* 显示边框 - 跟在导出后面 */}
-                  {selectedComponent.props.striped !== undefined && (
-                    <div className="flex items-center justify-between bg-[var(--bg-secondary)] px-2 py-1.5 rounded min-w-[120px]">
-                      <span className="text-xs text-[var(--text-secondary)] truncate" title={propLabels['striped'] || 'striped'}>
-                        斑马纹
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handlePropChange('striped', !selectedComponent.props.striped)}
-                        className={`w-8 h-4 rounded-full transition-colors flex-shrink-0 ml-2 ${
-                          selectedComponent.props.striped ? 'bg-blue-500' : 'bg-[var(--bg-tertiary)]'
-                        }`}
-                      >
-                        <div
-                          className={`w-3 h-3 bg-white rounded-full shadow transition-transform mt-0.5 ${
-                            selectedComponent.props.striped ? 'translate-x-4' : 'translate-x-0.5'
-                          }`}
-                        />
-                      </button>
-                    </div>
-                  )}
                 </div>
               )}
 
