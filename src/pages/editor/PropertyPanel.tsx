@@ -1163,7 +1163,21 @@ function PropertyPanel({
                           {columns.map((col, idx) => (
                             <div key={idx} className="flex items-center gap-2 p-2 bg-[var(--bg-secondary)] rounded">
                               <span className="flex-1 text-xs truncate min-w-[60px]">{col.label}</span>
-                              <span className="text-xs text-[var(--text-muted)] w-12 text-center">{col.fieldType || 'text'}</span>
+                              <select
+                                value={col.fieldType || 'text'}
+                                onChange={(e) => {
+                                  const newCols = [...(selectedComponent.props.columns as ColumnConfig[])];
+                                  newCols[idx] = { ...newCols[idx], fieldType: e.target.value };
+                                  handlePropChange('columns', newCols);
+                                }}
+                                className="px-1 py-0.5 border border-[var(--border)] rounded text-[10px] bg-[var(--input-bg)] text-[var(--text-primary)]"
+                              >
+                                <option value="text">文本</option>
+                                <option value="number">数字</option>
+                                <option value="date">日期</option>
+                                <option value="select">下拉</option>
+                                <option value="switch">开关</option>
+                              </select>
                               {/* 可见 */}
                               <button
                                 onClick={() => {
