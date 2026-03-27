@@ -637,43 +637,6 @@ function PropertyPanel({
             </div>
             
             <div className="space-y-3">
-              {/* 分页和每页条数 - 单独处理 */}
-              {selectedComponent.props.pagination !== undefined && (
-                <div className="bg-[var(--bg-secondary)] px-2 py-2 rounded space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-[var(--text-secondary)]">显示分页</span>
-                    <button
-                      type="button"
-                      onClick={() => handlePropChange('pagination', !selectedComponent.props.pagination)}
-                      className={`w-8 h-4 rounded-full transition-colors flex-shrink-0 ${
-                        selectedComponent.props.pagination ? 'bg-blue-500' : 'bg-[var(--bg-tertiary)]'
-                      }`}
-                    >
-                      <div
-                        className={`w-3 h-3 bg-white rounded-full shadow transition-transform mt-0.5 ${
-                          selectedComponent.props.pagination ? 'translate-x-4' : 'translate-x-0.5'
-                        }`}
-                      />
-                    </button>
-                  </div>
-                  {selectedComponent.props.pagination && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-[var(--text-secondary)]">每页条数</span>
-                      <select
-                        value={Number(selectedComponent.props.pageSize) || 10}
-                        onChange={(e) => handlePropChange('pageSize', Number(e.target.value))}
-                        className="px-2 py-1 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
-                      >
-                        <option value={5}>5</option>
-                        <option value={10}>10</option>
-                        <option value={20}>20</option>
-                        <option value={50}>50</option>
-                      </select>
-                    </div>
-                  )}
-                </div>
-              )}
-
               {/* 编辑操作按钮 + 显示边框 */}
               {selectedComponent.props.showEdit !== undefined && (
                 <div className="flex items-center gap-2 flex-wrap">
@@ -735,68 +698,104 @@ function PropertyPanel({
                   </div>
                 );
               })()}
+               {/* 分页和每页条数 - 单独处理 */}
+              {selectedComponent.props.pagination !== undefined && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-[var(--text-secondary)]">显示分页</span>
+                    <button
+                      type="button"
+                      onClick={() => handlePropChange('pagination', !selectedComponent.props.pagination)}
+                      className={`w-8 h-4 rounded-full transition-colors flex-shrink-0 ${
+                        selectedComponent.props.pagination ? 'bg-blue-500' : 'bg-[var(--bg-tertiary)]'
+                      }`}
+                    >
+                      <div
+                        className={`w-3 h-3 bg-white rounded-full shadow transition-transform mt-0.5 ${
+                          selectedComponent.props.pagination ? 'translate-x-4' : 'translate-x-0.5'
+                        }`}
+                      />
+                    </button>
+                  {selectedComponent.props.pagination && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-[var(--text-secondary)]">每页条数</span>
+                      <select
+                        value={Number(selectedComponent.props.pageSize) || 10}
+                        onChange={(e) => handlePropChange('pageSize', Number(e.target.value))}
+                        className="px-2 py-1 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
+                      >
+                        <option value={5}>5</option>
+                        <option value={10}>10</option>
+                        <option value={20}>20</option>
+                        <option value={50}>50</option>
+                      </select>
+                    </div>
+                  )}
+                </div>
+              )}
 
-              {/* 非布尔属性 */}
+              {/* 非布尔属性 - 两列布局 */}
+              <div className="grid grid-cols-2 gap-x-2 gap-y-2">
+                {Object.entries(selectedComponent.props)
+                  .filter(([key, value]) => typeof value !== 'boolean' && key !== 'id' && key !== 'datasourceId' && key !== 'featureId' && key !== 'pageSize' && !key.endsWith('ApiId'))
+                  .map(([key, value]) => {
+                    if (key === 'options' || key === 'columns' || key === 'data') {
+                      if (key === 'options' && selectedComponent.type === 'select') {
+                        return (
+                          <div key={key} className="col-span-2">
+                            <label className="block text-xs text-[var(--text-muted)] mb-1">选项列表</label>
+                            <input
+                              type="text"
+                              defaultValue={(value as string[]).join(', ')}
+                              onBlur={(e) => handleOptionsChange(e.target.value)}
+                              placeholder="用逗号分隔选项"
+                              className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
+                            />
+                          </div>
+                        );
+                      }
+                      return null;
+                    }
 
-              {Object.entries(selectedComponent.props)
-                .filter(([key, value]) => typeof value !== 'boolean' && key !== 'id' && key !== 'datasourceId' && key !== 'featureId' && key !== 'pageSize' && !key.endsWith('ApiId'))
-                .map(([key, value]) => {
-                  if (key === 'options' || key === 'columns' || key === 'data') {
-                    if (key === 'options' && selectedComponent.type === 'select') {
-                      return (
-                        <div key={key}>
-                          <label className="block text-xs text-[var(--text-muted)] mb-1">选项列表</label>
+                    return (
+                      <div key={key}>
+                        <label className="block text-xs text-[var(--text-muted)] mb-1 truncate">
+                          {propLabels[key] || key}
+                        </label>
+
+                        {typeof value === 'number' ? (
+                          <input
+                            type="number"
+                            value={value}
+                            onChange={(e) => handlePropChange(key, Number(e.target.value))}
+                            className="w-full px-2 py-1 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
+                          />
+                        ) : key === 'buttonType' ? (
+                          <select
+                            value={String(value)}
+                            onChange={(e) => handlePropChange(key, e.target.value)}
+                            className="w-full px-2 py-1 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
+                          >
+                            <option value="primary">主要按钮</option>
+                            <option value="success">成功按钮</option>
+                            <option value="warning">警告按钮</option>
+                            <option value="danger">危险按钮</option>
+                            <option value="default">默认按钮</option>
+                            <option value="text">文字按钮</option>
+                          </select>
+                        ) : (
                           <input
                             type="text"
-                            defaultValue={(value as string[]).join(', ')}
-                            onBlur={(e) => handleOptionsChange(e.target.value)}
-                            placeholder="用逗号分隔选项"
-                            className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
+                            value={String(value)}
+                            onChange={(e) => handlePropChange(key, e.target.value)}
+                            className="w-full px-2 py-1 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                           />
-                        </div>
-                      );
-                    }
-                    return null;
-                  }
-
-                  return (
-                    <div key={key}>
-                      <label className="block text-xs text-[var(--text-muted)] mb-1">
-                        {propLabels[key] || key}
-                      </label>
-                      
-                      {typeof value === 'number' ? (
-                        <input
-                          type="number"
-                          value={value}
-                          onChange={(e) => handlePropChange(key, Number(e.target.value))}
-                          className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
-                        />
-                      ) : key === 'buttonType' ? (
-                        <select
-                          value={String(value)}
-                          onChange={(e) => handlePropChange(key, e.target.value)}
-                          className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
-                        >
-                          <option value="primary">主要按钮</option>
-                          <option value="success">成功按钮</option>
-                          <option value="warning">警告按钮</option>
-                          <option value="danger">危险按钮</option>
-                          <option value="default">默认按钮</option>
-                          <option value="text">文字按钮</option>
-                        </select>
-                      ) : (
-                        <input
-                          type="text"
-                          value={String(value)}
-                          onChange={(e) => handlePropChange(key, e.target.value)}
-                          className="w-full px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
-                        />
-                      )}
-                    </div>
-                  );
-                })}
+                        )}
+                      </div>
+                    );
+                  })}
+              </div>
             </div>
+            
           </div>
 
           {/* Grid-specific config */}
