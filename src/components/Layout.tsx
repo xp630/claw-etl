@@ -364,6 +364,11 @@ export default function Layout() {
     if (path !== prevPathRef.current) {
       prevPathRef.current = path;
 
+      // 编辑器页面默认折叠左侧菜单
+      if (path === '/page-editor') {
+        setCollapsed(true);
+      }
+
       if (path === '/') {
         return;
       }
