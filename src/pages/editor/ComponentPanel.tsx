@@ -5,10 +5,11 @@ import { componentCategories, iconMap } from './constants';
 
 interface ComponentPanelProps {
   onDragStart: (comp: ComponentItem) => void;
+  onQuickAdd?: (comp: ComponentItem) => void;
 }
 
 // Component Panel - Left Side
-function ComponentPanel({ onDragStart }: ComponentPanelProps) {
+function ComponentPanel({ onDragStart, onQuickAdd }: ComponentPanelProps) {
   const handleDragStart = (e: React.DragEvent, comp: ComponentItem) => {
     e.dataTransfer.setData('application/json', JSON.stringify({
       type: comp.type,
@@ -34,12 +35,25 @@ function ComponentPanel({ onDragStart }: ComponentPanelProps) {
                 return (
                   <div
                     key={comp.type}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, comp)}
-                    className="flex items-center gap-2 px-3 py-2 bg-[var(--bg-tertiary)] rounded-md text-sm cursor-grab hover:bg-[var(--bg-hover)] active:cursor-grabbing transition-colors select-none text-[var(--text-primary)]"
+                    className="flex items-center gap-2 px-3 py-2 bg-[var(--bg-tertiary)] rounded-md text-sm group transition-colors text-[var(--text-primary)]"
                   >
-                    <IconComp className="w-4 h-4 text-[var(--text-muted)]" />
-                    <span>{comp.label}</span>
+                    <div
+                      draggable
+                      onDragStart={(e) => handleDragStart(e, comp)}
+                      className="flex-1 flex items-center gap-2 cursor-grab hover:bg-[var(--bg-hover)] active:cursor-grabbing rounded p-1 -m-1"
+                    >
+                      <IconComp className="w-4 h-4 text-[var(--text-muted)]" />
+                      <span>{comp.label}</span>
+                    </div>
+                    {onQuickAdd && (
+                      <button
+                        onClick={() => onQuickAdd(comp)}
+                        className="opacity-0 group-hover:opacity-100 w-6 h-6 flex items-center justify-center text-blue-500 hover:bg-blue-100 rounded transition-all"
+                        title="快速添加"
+                      >
+                        +
+                      </button>
+                    )}
                   </div>
                 );
               })}

@@ -699,7 +699,21 @@ function PageEditor() {
                   <Plus className="w-4 h-4" />
                   添加数据表格
                 </button>
-                <ComponentPanel onDragStart={() => { setActiveLeftTab(''); }} />
+                <ComponentPanel 
+                  onDragStart={() => { setActiveLeftTab(''); }} 
+                  onQuickAdd={(comp) => {
+                    const newComponent: CanvasComponent = {
+                      id: generateId(),
+                      type: comp.type,
+                      label: comp.label,
+                      props: comp.defaultProps || {},
+                    };
+                    setComponents(prev => [...prev, newComponent]);
+                    setSelectedId(newComponent.id);
+                    setActiveLeftTab('');
+                    setShowPropsModal(true);
+                  }}
+                />
               </div>
             )}
           </div>
