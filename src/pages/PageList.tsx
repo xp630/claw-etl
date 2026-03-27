@@ -18,7 +18,6 @@ const PageList: React.FC = () => {
   const navigate = useNavigate();
   const [pages, setPages] = useState<PageItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState('');
 
   const columns: ColumnDef[] = [
     { key: 'id', label: 'ID', width: 80 },
@@ -38,28 +37,50 @@ const PageList: React.FC = () => {
     { key: 'updatedAt', label: '更新时间', width: 160 },
   ];
 
-  const loadPages = useCallback(async () => {
+  // 查询字段配置
+  const queryFields: ColumnDef[] = [
+    { 
+      key: 'status', 
+      label: '状态', 
+      fieldType: 'select',
+      options: [
+        { label: '全部', value: '' },
+        { label: '启用', value: '1' },
+        { label: '禁用', value: '0' },
+      ]
+    },
+  ];
+
+  const loadPages = useCallback(async (params: Record<string, any> = {}) => {
     setLoading(true);
     try {
-      const res = await getPageConfigList({ page: 1, limit: 100, keyword: search });
+      const res = await getPageConfigList({ 
+        page: 1, 
+        limit: 100, 
+        ...params 
+      });
       setPages(res.list || []);
     } catch (err) {
       console.error('加载页面列表失败', err);
     } finally {
       setLoading(false);
     }
-  }, [search]);
+  }, []);
 
   useEffect(() => {
     loadPages();
   }, [loadPages]);
+
+  const handleSearch = (params: Record<string, any>) => {
+    loadPages(params);
+  };
 
   const handleEdit = (row: PageItem) => {
     window.open(`/#/page-editor?pageId=${row.id}`, '_blank');
   };
 
   const handlePreview = (row: PageItem) => {
-    window.open(`#/preview?pageId=${row.id}`, '_blank');
+    window.open(`/#/preview?pageId=${row.id}`, '_blank');
   };
 
   const handleDelete = async (row: PageItem) => {
@@ -83,11 +104,13 @@ const PageList: React.FC = () => {
         data={pages}
         loading={loading}
         pagination={false}
-        showSearchBar={false}
+        showSearchBar
+        queryFields={queryFields}
         showAdd={false}
         showEdit
         showDelete
         showDetail={false}
+        onSearch={handleSearch}
         onEdit={handleEdit}
         onDelete={handleDelete}
         extraActions={
