@@ -323,7 +323,6 @@ function PropertyPanel({
   const [editingColumnIndex, setEditingColumnIndex] = useState<number | null>(null);
   const [columnsCollapsed, setColumnsCollapsed] = useState(false);
   const [propsCollapsed, setPropsCollapsed] = useState(false);
-  const [treeCollapsed, setTreeCollapsed] = useState(false);
 
   // Container selector modal state
   const [containerSelectorOpen, setContainerSelectorOpen] = useState(false);
@@ -689,26 +688,6 @@ function PropertyPanel({
                       </div>
                     );
                   })}
-                  {/* 组件层开关 - 跟在导出后面 */}
-                  <div className="flex items-center justify-between bg-[var(--bg-secondary)] px-2 py-1.5 rounded min-w-[120px]">
-                    <div className="flex items-center gap-1">
-                      <Layers className="w-3 h-3 text-[var(--text-muted)]" />
-                      <span className="text-xs text-[var(--text-secondary)]">组件层</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setTreeCollapsed(!treeCollapsed)}
-                      className={`w-8 h-4 rounded-full transition-colors flex-shrink-0 ml-2 ${
-                        treeCollapsed ? 'bg-[var(--bg-tertiary)]' : 'bg-blue-500'
-                      }`}
-                    >
-                      <div
-                        className={`w-3 h-3 bg-white rounded-full shadow transition-transform mt-0.5 ${
-                          treeCollapsed ? 'translate-x-0.5' : 'translate-x-4'
-                        }`}
-                      />
-                    </button>
-                  </div>
                 </div>
               )}
 
@@ -748,17 +727,15 @@ function PropertyPanel({
               {/* 非布尔属性 - 隐藏 API ID 字段，pageSize 已在上方分页区块处理 */}
               
               {/* 组件层 */}
-              {!treeCollapsed && (
-                <div className="border border-[var(--border)] rounded p-2 max-h-[200px] overflow-y-auto">
-                  <ComponentTree
-                    components={components}
-                    selectedId={selectedComponent?.id || null}
-                    onSelect={(id) => { onSelectComponent?.(id); }}
-                    onDelete={(id) => { if (confirm('确定删除该组件?')) { onDeleteComponent?.(id); } }}
-                    showHeader={false}
-                  />
-                </div>
-              )}
+              <div className="border border-[var(--border)] rounded p-2 max-h-[200px] overflow-y-auto">
+                <ComponentTree
+                  components={components}
+                  selectedId={selectedComponent?.id || null}
+                  onSelect={(id) => { onSelectComponent?.(id); }}
+                  onDelete={(id) => { if (confirm('确定删除该组件?')) { onDeleteComponent?.(id); } }}
+                  showHeader={false}
+                />
+              </div>
 
               {Object.entries(selectedComponent.props)
                 .filter(([key, value]) => typeof value !== 'boolean' && key !== 'id' && key !== 'datasourceId' && key !== 'featureId' && key !== 'pageSize' && !key.endsWith('ApiId'))
