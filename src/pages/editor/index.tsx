@@ -709,9 +709,7 @@ function PageEditor() {
                       props: comp.defaultProps || {},
                     };
                     setComponents(prev => [...prev, newComponent]);
-                    setSelectedId(newComponent.id);
                     setActiveLeftTab('');
-                    setShowPropsModal(true);
                   }}
                 />
               </div>
