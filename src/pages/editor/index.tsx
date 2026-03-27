@@ -653,7 +653,7 @@ function PageEditor() {
         {/* 浮动面板 */}
         {(activeLeftTab === 'layer' || activeLeftTab === 'components') && (
           <div 
-            className="absolute left-4 top-4 z-40 w-72 max-h-[calc(100vh-140px)] bg-[var(--bg-primary)] border border-[var(--border)] rounded-lg shadow-xl overflow-hidden"
+            className="absolute left-4 top-4 z-40 w-72 h-[calc(100vh-140px)] bg-[var(--bg-primary)] border border-[var(--border)] rounded-lg shadow-xl overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {activeLeftTab === 'layer' && (
@@ -668,37 +668,6 @@ function PageEditor() {
             )}
             {activeLeftTab === 'components' && (
               <div>
-                {/* 添加组件按钮 */}
-                <button
-                  onClick={() => {
-                    const newComponent: CanvasComponent = {
-                      id: generateId(),
-                      type: 'table',
-                      label: '数据表格',
-                      props: {
-                        apiId: undefined,
-                        queryApiId: undefined,
-                        columns: [],
-                        pagination: true,
-                        pageSize: 10,
-                        showSearch: true,
-                        showAdd: false,
-                        showExport: false,
-                        showEdit: true,
-                        showDelete: true,
-                        showPagination: true,
-                        showDetail: false,
-                      },
-                    };
-                    setComponents(prev => [...prev, newComponent]);
-                    setSelectedId(newComponent.id);
-                    setActiveLeftTab('props');
-                  }}
-                  className="w-full px-3 py-2 text-xs bg-blue-500 text-white rounded-t-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-1"
-                >
-                  <Plus className="w-4 h-4" />
-                  添加数据表格
-                </button>
                 <ComponentPanel 
                   onDragStart={() => { setActiveLeftTab(''); }} 
                   onQuickAdd={(comp) => {

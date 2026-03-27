@@ -22,7 +22,7 @@ function ComponentPanel({ onDragStart, onQuickAdd }: ComponentPanelProps) {
   };
 
   return (
-    <div className="h-full bg-[var(--bg-primary)] overflow-y-auto">
+    <div className="flex-1 overflow-y-auto bg-[var(--bg-primary)]">
       <div className="p-4">
         <h3 className="text-sm font-medium text-[var(--text-primary)] mb-4">组件库</h3>
         
