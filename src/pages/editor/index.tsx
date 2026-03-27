@@ -581,12 +581,11 @@ function PageEditor() {
           </button>
           <button
             onClick={() => {
-              const config = {
-                components: components,
-                layout: 'vertical'
-              };
-              localStorage.setItem('page_preview_config', JSON.stringify(config));
-              window.open('#/preview', '_blank');
+              if (isNewPage || !pageCode) {
+                showToast('请先保存页面后再预览', 'warning');
+                return;
+              }
+              window.open(`#/render/${pageCode}`, '_blank');
             }}
             className="px-3 py-1.5 text-xs bg-green-500 text-white rounded hover:bg-green-600 transition-colors"
           >

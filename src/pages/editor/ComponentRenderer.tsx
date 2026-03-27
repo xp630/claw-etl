@@ -258,9 +258,10 @@ function ComponentRenderer({ component, children, allComponents, onResize, onUpd
 
       return (
         <div className="border border-gray-200 rounded bg-white">
-          {/* 查询条件区域 */}
-          {queryFields.length > 0 && (
-            <div className="flex gap-2 p-3 border-b border-gray-200 bg-gray-50 flex-wrap">
+          {/* 查询条件 + 操作按钮 - 同一行 */}
+          <div className="flex gap-2 p-3 border-b border-gray-200 bg-gray-50 items-center flex-wrap">
+            {/* 查询条件区域 - 靠左 */}
+            <div className="flex gap-2 items-center flex-wrap">
               {queryFields.slice(0, 4).map(col => (
                 <div key={col.key} className="flex items-center gap-1">
                   <label className="text-xs text-gray-500 whitespace-nowrap">{col.label}:</label>
@@ -273,7 +274,6 @@ function ComponentRenderer({ component, children, allComponents, onResize, onUpd
                       <option value="">请选择</option>
                     </select>
                   ) : (col.fieldType === 'date' || col.fieldType === 'datetime') ? (
-                    // 时间字段显示开始和结束两个日期框
                     <div className="flex items-center gap-1">
                       <input
                         type="date"
@@ -300,17 +300,17 @@ function ComponentRenderer({ component, children, allComponents, onResize, onUpd
                   )}
                 </div>
               ))}
-              <button className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600">搜索</button>
             </div>
-          )}
 
-          {/* 操作按钮区域 */}
-          {(showAdd || showExport) && (
-            <div className="flex gap-2 p-2 border-b border-gray-200">
+            {/* 操作按钮区域 - 靠右 */}
+            <div className="flex gap-2 ml-auto items-center">
+              {queryFields.length > 0 && (
+                <button className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600">查询</button>
+              )}
               {showAdd && <button className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600">新增</button>}
               {showExport && <button className="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600">导出</button>}
             </div>
-          )}
+          </div>
 
           {/* 表格 */}
           <div className="overflow-x-auto">

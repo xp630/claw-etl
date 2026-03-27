@@ -246,40 +246,38 @@ function TableRenderer({
               )}
             </div>
           ))}
+        </div>
+
+        {/* 操作按钮区域 - 靠右 */}
+        <div className="flex gap-2 ml-auto items-center">
           {queryFields.length > 0 && (
             <button
               onClick={handleSearch}
               className="px-3 py-1.5 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors flex items-center gap-1"
             >
               <Search className="w-3 h-3" />
-              搜索
+              查询
+            </button>
+          )}
+          {showAdd && (
+            <button
+              onClick={handleAdd}
+              className="px-3 py-1.5 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors flex items-center gap-1"
+            >
+              <Plus className="w-3 h-3" />
+              新增
+            </button>
+          )}
+          {showExport && (
+            <button
+              onClick={handleExport}
+              className="px-3 py-1.5 text-xs bg-green-500 text-white rounded hover:bg-green-600 transition-colors flex items-center gap-1"
+            >
+              <Download className="w-3 h-3" />
+              导出
             </button>
           )}
         </div>
-
-        {/* 操作按钮区域 - 靠右 */}
-        {(showAdd || showExport) && (
-          <div className="flex gap-2 ml-auto">
-            {showAdd && (
-              <button
-                onClick={handleAdd}
-                className="px-3 py-1.5 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors flex items-center gap-1"
-              >
-                <Plus className="w-3 h-3" />
-                新增
-              </button>
-            )}
-            {showExport && (
-              <button
-                onClick={handleExport}
-                className="px-3 py-1.5 text-xs bg-green-500 text-white rounded hover:bg-green-600 transition-colors flex items-center gap-1"
-              >
-                <Download className="w-3 h-3" />
-                导出
-              </button>
-            )}
-          </div>
-        )}
       </div>
 
       {/* 表格 */}
