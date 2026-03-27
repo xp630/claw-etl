@@ -30,8 +30,11 @@ export default function HomePage() {
         {cards.map((card, i) => (
           <div
             key={i}
-            className="rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-[var(--border)]"
-            style={{ backgroundColor: `var(--bg-tertiary)` }}
+            className="rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+            style={{ 
+              background: `linear-gradient(135deg, var(--bg-primary) 0%, color-mix(in srgb, var(${card.bgVar}) 12%, var(--bg-primary)) 100%)`,
+              borderLeft: `4px solid var(${card.bgVar})`
+            }}
             onClick={() => navigate(`/${card.title.includes('欢迎') ? 'datasources' : card.title.includes('快捷') ? 'tasks' : card.title.includes('数据') ? 'pages' : 'config'}`)}
           >
             <div className="text-2xl mb-2">{card.icon}</div>
