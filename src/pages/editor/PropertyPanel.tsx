@@ -595,38 +595,6 @@ function PropertyPanel({
           </div>
         </div>
 
-        {/* 组件层 */}
-        <div className="mb-4">
-          <div 
-            className="flex items-center justify-between mb-2 cursor-pointer px-1"
-            onClick={() => setTreeCollapsed(!treeCollapsed)}
-          >
-            <div className="flex items-center gap-2">
-              <Layers className="w-4 h-4 text-[var(--text-muted)]" />
-              <span className="text-xs text-[var(--text-secondary)]">组件层</span>
-            </div>
-            {treeCollapsed ? <ChevronRight className="w-4 h-4 text-[var(--text-muted)]" /> : <ChevronDown className="w-4 h-4 text-[var(--text-muted)]" />}
-          </div>
-          {!treeCollapsed && (
-            <div className="border border-[var(--border)] rounded p-2 max-h-[200px] overflow-y-auto">
-              <ComponentTree
-                components={components}
-                selectedId={selectedComponent?.id || null}
-                onSelect={(id) => {
-                  // 当选择组件时，选中它（这里只是更新selectedId的引用）
-                  // 实际上由于我们在属性面板中，selectedComponent已经是当前组件
-                }}
-                onDelete={(id) => {
-                  if (confirm('确定删除该组件?')) {
-                    onDeleteComponent?.(id);
-                  }
-                }}
-                showHeader={false}
-              />
-            </div>
-          )}
-        </div>
-
         <div className="border-t border-[var(--border)] my-4" />
 
         <div className="space-y-4">
@@ -719,6 +687,26 @@ function PropertyPanel({
                       </div>
                     );
                   })}
+                  {/* 组件层开关 - 跟在导出后面 */}
+                  <div className="flex items-center justify-between bg-[var(--bg-secondary)] px-2 py-1.5 rounded min-w-[120px]">
+                    <div className="flex items-center gap-1">
+                      <Layers className="w-3 h-3 text-[var(--text-muted)]" />
+                      <span className="text-xs text-[var(--text-secondary)]">组件层</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setTreeCollapsed(!treeCollapsed)}
+                      className={`w-8 h-4 rounded-full transition-colors flex-shrink-0 ml-2 ${
+                        treeCollapsed ? 'bg-[var(--bg-tertiary)]' : 'bg-blue-500'
+                      }`}
+                    >
+                      <div
+                        className={`w-3 h-3 bg-white rounded-full shadow transition-transform mt-0.5 ${
+                          treeCollapsed ? 'translate-x-0.5' : 'translate-x-4'
+                        }`}
+                      />
+                    </button>
+                  </div>
                 </div>
               )}
 
