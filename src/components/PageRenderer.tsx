@@ -27,7 +27,7 @@ interface TableProps {
   createApiId?: number;
   updateApiId?: number;
   deleteApiId?: number;
-  columns: { key: string; label: string; width?: number; sortable?: boolean; fieldType?: string; dateFormat?: string; fixedValue?: string; customFunction?: string; align?: string; ellipsis?: boolean; visible?: boolean; queryCondition?: boolean }[];
+  columns: { key: string; label: string; width?: number; sortable?: boolean; fieldType?: string; dateFormat?: string; fixedValue?: string; customFunction?: string; align?: string; ellipsis?: boolean; visible?: boolean; queryCondition?: boolean; dataDictionary?: string }[];
   bordered?: boolean;
   striped?: boolean;
   hoverable?: boolean;
@@ -40,6 +40,7 @@ interface TableProps {
   showDelete?: boolean;
   showPagination?: boolean;
   showDetail?: boolean;
+  dictData?: Record<string, { label: string; value: string }[]>;
   onEvent?: (componentId: string, event: string, data: any) => void;
 }
 
@@ -65,6 +66,7 @@ function TableRenderer({
   showDelete,
   showPagination,
   showDetail,
+  dictData,
   onEvent
 }: TableProps) {
   const [data, setData] = useState<Record<string, any>[]>([]);
@@ -113,6 +115,9 @@ function TableRenderer({
       align: col.align as any,
       ellipsis: col.ellipsis,
       dateFormat: col.dateFormat,
+      fixedValue: col.fixedValue,
+      customFunction: col.customFunction,
+      dataDictionary: col.dataDictionary,
     }));
 
   // 查询字段
@@ -154,6 +159,7 @@ function TableRenderer({
       bordered={bordered}
       striped={striped}
       hoverable={hoverable}
+      dictData={dictData}
       onSearch={handleLoad}
       onPageChange={(p) => loadData(p)}
       onPageSizeChange={(size) => { setCurrentPageSize(size); loadData(1); }}
@@ -347,7 +353,8 @@ function ComponentRenderer({ type, props, children, onEvent }: { type: string; p
       const createApiId = props.createApiId as number | undefined;
       const updateApiId = props.updateApiId as number | undefined;
       const deleteApiId = props.deleteApiId as number | undefined;
-      const cols = (props.columns as Array<{ key: string; label: string; width?: number; sortable?: boolean; fieldType?: string; dateFormat?: string; fixedValue?: string; customFunction?: string; align?: string; ellipsis?: boolean; visible?: boolean; queryCondition?: boolean }>) || [];
+      const cols = (props.columns as Array<{ key: string; label: string; width?: number; sortable?: boolean; fieldType?: string; dateFormat?: string; fixedValue?: string; customFunction?: string; align?: string; ellipsis?: boolean; visible?: boolean; queryCondition?: boolean; dataDictionary?: string }>) || [];
+      const dictData = props.dictData as Record<string, { label: string; value: string }[]> | undefined;
       const bordered = props.bordered as boolean;
       const striped = props.striped as boolean;
       const hoverable = props.hoverable as boolean;
@@ -382,6 +389,7 @@ function ComponentRenderer({ type, props, children, onEvent }: { type: string; p
             showDelete={showDelete}
             showPagination={showPagination}
             showDetail={showDetail}
+            dictData={dictData}
             onEvent={onEvent as any}
           />
         );
