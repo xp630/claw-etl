@@ -625,6 +625,17 @@ function PropertyPanel({
           <div className="border-t border-[var(--border)] pt-4">
             <div className="text-xs text-[var(--text-muted)] mb-2">组件配置</div>
             
+            {/* 组件层 */}
+            <div className="border border-[var(--border)] rounded p-2 max-h-[200px] overflow-y-auto mb-3">
+              <ComponentTree
+                components={components}
+                selectedId={selectedComponent?.id || null}
+                onSelect={(id) => { onSelectComponent?.(id); }}
+                onDelete={(id) => { if (confirm('确定删除该组件?')) { onDeleteComponent?.(id); } }}
+                showHeader={false}
+              />
+            </div>
+            
             <div className="space-y-3">
               {/* 分页和每页条数 - 单独处理 */}
               {selectedComponent.props.pagination !== undefined && (
@@ -724,18 +735,7 @@ function PropertyPanel({
                 );
               })()}
 
-              {/* 非布尔属性 - 隐藏 API ID 字段，pageSize 已在上方分页区块处理 */}
-              
-              {/* 组件层 */}
-              <div className="border border-[var(--border)] rounded p-2 max-h-[200px] overflow-y-auto">
-                <ComponentTree
-                  components={components}
-                  selectedId={selectedComponent?.id || null}
-                  onSelect={(id) => { onSelectComponent?.(id); }}
-                  onDelete={(id) => { if (confirm('确定删除该组件?')) { onDeleteComponent?.(id); } }}
-                  showHeader={false}
-                />
-              </div>
+              {/* 非布尔属性 */}
 
               {Object.entries(selectedComponent.props)
                 .filter(([key, value]) => typeof value !== 'boolean' && key !== 'id' && key !== 'datasourceId' && key !== 'featureId' && key !== 'pageSize' && !key.endsWith('ApiId'))
