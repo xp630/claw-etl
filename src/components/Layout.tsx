@@ -44,6 +44,8 @@ import MenuForm from '../pages/MenuForm';
 import PageList from '../pages/PageList';
 import PageEditor from '../pages/PageEditor';
 import PagePreview from '../pages/PagePreview';
+import PageViewer from '../pages/PageViewer';
+import HomePage from '../pages/HomePage';
 import UserList from '../pages/UserList';
 import UserForm from '../pages/UserForm';
 import DatasetList from '../pages/report/DatasetList';
@@ -267,6 +269,14 @@ function renderPage(path: string, resourceId?: string) {
     }
     if (path.match(/^\/report\/dashboards\/[^/]+$/) || path.match(/^report\/dashboards\/[^/]+$/)) {
       return <Dashboard />;
+    }
+    if (path.match(/^\/render\/.+$/)) {
+      const code = path.split('/')[2];
+      return <PageViewer code={code} />;
+    }
+    // 处理 /index 快捷路由
+    if (path === '/index') {
+      return <HomePage />;
     }
 
     switch (path) {

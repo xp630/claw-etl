@@ -655,7 +655,7 @@ export async function getDataSourceTree(): Promise<any[]> {
 // 获取表列表
 export async function getTableList(database: string): Promise<TableInfo[]> {
   try {
-    const res = await api.get('/etl-admin/sqlManager/findTable', {
+    const res = await api.get('/sqlManager/findTable', {
       params: { database }
     });
     if (res.data?.data) {

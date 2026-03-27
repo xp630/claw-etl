@@ -33,6 +33,8 @@ import MenuForm from './pages/MenuForm';
 import PageList from './pages/PageList';
 import PageEditor from './pages/PageEditor';
 import PagePreview from './pages/PagePreview';
+import PageViewer from './pages/PageViewer';
+import HomePage from './pages/HomePage';
 
 function App() {
   // 从localStorage检查登录状态
@@ -52,7 +54,7 @@ function App() {
           isLoggedIn ? <Navigate to="/" /> : <Login onLogin={handleLogin} />
         } />
         <Route path="/" element={isLoggedIn ? <Layout /> : <Navigate to="/login" />}>
-          <Route index element={<Navigate to="/datasources" />} />
+          <Route index element={<Navigate to="/index" />} />
           <Route path="datasources" element={<DataSourceList />} />
           <Route path="datasources/new" element={<DataSourceForm />} />
           <Route path="datasources/:id" element={<DataSourceForm />} />
@@ -81,8 +83,10 @@ function App() {
           <Route path="menus" element={<MenuList />} />
           <Route path="menus/new" element={<MenuForm />} />
           <Route path="pages" element={<PageList />} />
+          <Route path="index" element={<HomePage />} />
           <Route path="page-editor" element={<PageEditor />} />
           <Route path="preview" element={<PagePreview />} />
+          <Route path="render/:code" element={<PageViewer />} />
           <Route path="menus/:id" element={<MenuForm />} />
           <Route path="users" element={<UserList />} />
           <Route path="users/new" element={<UserForm />} />

@@ -314,7 +314,7 @@ export default function FeatureForm({ overrideId, onSuccess }: { overrideId?: st
               </select>
             </div>
             <div ref={tableSearchRef} className="relative">
-              <label className="block text-sm text-[var(--text-muted)] mb-1">表名</label>
+              <label className="block text-sm text-[var(--text-muted)] mb-1">表名2</label>
               <div className="relative">
                 <input
                   type="text"

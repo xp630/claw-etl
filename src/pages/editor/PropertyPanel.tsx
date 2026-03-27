@@ -682,7 +682,7 @@ function PropertyPanel({
                   {selectedComponent.props.striped !== undefined && (
                     <div className="flex items-center justify-between bg-gray-50 px-2 py-1.5 rounded min-w-[120px]">
                       <span className="text-xs text-gray-600 truncate" title={propLabels['striped'] || 'striped'}>
-                        显示边框
+                        斑马纹
                       </span>
                       <button
                         type="button"
@@ -705,7 +705,7 @@ function PropertyPanel({
               {/* 其他布尔属性一排两个 */}
               {(() => {
                 const boolProps = Object.entries(selectedComponent.props)
-                  .filter(([key, value]) => typeof value === 'boolean' && key !== 'striped' && key !== 'showSearch' && key !== 'showPagination' && key !== 'showDetail' && key !== 'showEdit' && key !== 'showDelete' && key !== 'showAdd' && key !== 'showExport' && key !== 'pagination');
+                  .filter(([key, value]) => typeof value === 'boolean' && key !== 'striped' && key !== 'bordered' && key !== 'showSearch' && key !== 'showPagination' && key !== 'showDetail' && key !== 'showEdit' && key !== 'showDelete' && key !== 'showAdd' && key !== 'showExport' && key !== 'pagination');
                 
                 if (boolProps.length === 0) return null;
                 
@@ -943,12 +943,13 @@ function PropertyPanel({
                     
                     {/* 表选择 */}
                     <div>
-                      <label className="block text-xs text-gray-400 mb-0.5">表名</label>
+                      <label className="block text-xs text-gray-400 mb-0.5">表名1</label>
                       <input
                         list="table-list"
                         value={selectedComponent.props.tableName as string || ''}
                         onChange={async (e) => {
                           const tableName = e.target.value;
+                          console.log('[TableSelect] tableName:', tableName, 'selectedDatasource:', selectedDatasource);
                           handlePropChange('tableName', tableName);
                           if (selectedDatasource && tableName) {
                             await loadFeaturesByTable(selectedDatasource, tableName);
@@ -1009,7 +1010,11 @@ function PropertyPanel({
                                     handlePropChange('columns', columns);
                                   }
                                 }}
-                                className="p-2 border border-gray-200 rounded cursor-pointer hover:border-blue-400 hover:bg-blue-50"
+                                className={`p-2 border rounded cursor-pointer ${
+                                  String(selectedFeature?.id) === String(f.id) 
+                                    ? 'border-blue-500 bg-blue-50' 
+                                    : 'border-gray-200 hover:border-blue-400 hover:bg-blue-50'
+                                }`}
                               >
                                 <div className="text-xs font-medium">{f.name}</div>
                                 <div className="text-xs text-gray-400">{f.tableName}</div>
@@ -1198,7 +1203,7 @@ function PropertyPanel({
                               onClick={() => setColumnsCollapsed(!columnsCollapsed)}
                               className="w-full mt-1 text-xs text-blue-500 hover:text-blue-600"
                             >
-                              {columnsCollapsed ? `展开剩余 ${columns.length - 10} 列` : 'more'}
+                              {columnsCollapsed ? `展开剩余 ${columns.length - 10} 列` : '收拢'}
                             </button>
                           )}
                         </>

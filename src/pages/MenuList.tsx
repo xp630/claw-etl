@@ -23,8 +23,8 @@ import {
   UserPlus, UserX, Video, Volume, Volume2,
   VolumeX, Watch, Wifi, WifiOff, Wind, Zap, ZoomIn, ZoomOut
 } from 'lucide-react';
-import { deleteMenu, getMenuTree, getMenuDetail, saveMenu, getMenuFeatures } from '../lib/api';
-import type { SysMenu, Feature } from '../types';
+import { deleteMenu, getMenuTree, getMenuDetail, saveMenu, getPageConfigList } from '../lib/api';
+import type { SysMenu } from '../types';
 // 图标列表（用于下拉选择）
 const iconList = [
   { name: 'database', label: '数据库', Icon: Database },
@@ -198,7 +198,7 @@ export default function MenuList() {
     status: 1,
   });
   const [parentMenusTree, setParentMenusTree] = useState<SysMenu[]>([]);
-  const [featureList, setFeatureList] = useState<Feature[]>([]);
+  const [pageList, setPageList] = useState<any[]>([]);
   const [formLoading, setFormLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -233,12 +233,12 @@ export default function MenuList() {
     }
   };
 
-  const loadMenuFeatures = async () => {
+  const loadPageList = async () => {
     try {
-      const features = await getMenuFeatures();
-      setFeatureList(features);
+      const res = await getPageConfigList({ page: 1, limit: 100 });
+      setPageList(res.list.filter((p: any) => p.status === 1));
     } catch (error) {
-      console.error('Failed to load menu features:', error);
+      console.error('Failed to load page list:', error);
     }
   };
 
@@ -273,7 +273,7 @@ export default function MenuList() {
     setEditMode('edit');
     setIsEditing(true);
     loadFormData(menu.id!);
-    loadMenuFeatures();
+    loadPageList();
   };
 
   // 加载表单数据
@@ -305,14 +305,19 @@ export default function MenuList() {
       status: 1,
     });
     setIsEditing(true);
-    loadMenuFeatures();
+    loadPageList();
   };
 
   // 保存表单
   const handleSave = async () => {
     setSaving(true);
     try {
-      await saveMenu(formData);
+      // 动态菜单的路径需要拼接 /render/ 前缀
+      let path = formData.path;
+      if (formData.menuFrom === 'dynamic' && path && !path.startsWith('/render/')) {
+        path = `/render/${path}`;
+      }
+      await saveMenu({ ...formData, path });
       loadMenuTree();
       if (editMode === 'create') {
         setIsEditing(false);
@@ -532,10 +537,10 @@ export default function MenuList() {
                             onChange={(e) => setFormData({ ...formData, path: e.target.value })}
                             className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-light)]"
                           >
-                            <option value="">请选择功能</option>
-                            {featureList.map(f => (
-                              <option key={f.id} value={`/dynamic/${f.code}`}>
-                                {f.name} (/dynamic/{f.code})
+                            <option value="">请选择页面</option>
+                            {pageList.map(p => (
+                              <option key={p.id} value={p.code}>
+                                {p.name} ({p.code})
                               </option>
                             ))}
                           </select>
@@ -596,8 +601,8 @@ export default function MenuList() {
                           onChange={(e) => {
                             const val = e.target.value as 'static' | 'dynamic';
                             setFormData({ ...formData, menuFrom: val, path: '' });
-                            if (val === 'dynamic' && featureList.length === 0) {
-                              loadMenuFeatures();
+                            if (val === 'dynamic' && pageList.length === 0) {
+                              loadPageList();
                             }
                           }}
                           className="w-full px-4 py-2.5 bg-[var(--bg-primary)] border border-[var(--border-light)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:border-[var(--accent-light)]"
