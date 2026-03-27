@@ -1091,7 +1091,7 @@ export async function getDictItems(dictId: number): Promise<DictItem[]> {
 }
 
 // 根据字典名称获取字典选项
-export async function getDictByName(dictName: string): Promise<DictItem[]> {
+export async function getDictByName(dictName: string): Promise<{ label: string; value: string }[]> {
   try {
     // 先获取字典列表找到对应的字典
     const res = await api.post('/api/dict/list', { name: dictName, page: 1, limit: 50 });
@@ -1101,7 +1101,11 @@ export async function getDictByName(dictName: string): Promise<DictItem[]> {
         // 获取字典项
         const itemsRes = await api.get(`/api/dict/${dict.id}/items`);
         if ((itemsRes.data?.code === 1 || itemsRes.data?.code === 0) && itemsRes.data?.data) {
-          return itemsRes.data.data || [];
+          // 转换为 DataTable 需要的格式
+          return (itemsRes.data.data || []).map((item: any) => ({
+            label: item.itemLabel,
+            value: item.itemValue,
+          }));
         }
       }
     }
