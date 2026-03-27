@@ -562,7 +562,7 @@ function PropertyPanel({
   }
 
   return (
-    <div className="w-72 bg-[var(--bg-primary)] border-l border-[var(--border)] overflow-y-auto">
+    <div className="w-full bg-[var(--bg-primary)] overflow-y-auto">
       <div className="p-4">
         <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => setPropsCollapsed(!propsCollapsed)}>
             <h3 className="text-sm font-medium text-[var(--text-secondary)]">属性配置</h3>
