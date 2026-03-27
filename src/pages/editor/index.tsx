@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { LayoutGrid, Layers, Settings2 } from 'lucide-react';
+import { LayoutGrid, Layers, Settings2, Plus } from 'lucide-react';
 import ComponentPanel from './ComponentPanel';
 import ComponentTree from './ComponentTree';
 import DropCanvas, { generateId } from './DropCanvas';
@@ -569,6 +569,38 @@ function PageEditor() {
         />
         {/* 浮动工具栏 - 横向放在上面 */}
         <div className="flex items-center gap-1">
+          {/* 添加组件按钮 */}
+          <button
+            onClick={() => {
+              const newComponent: CanvasComponent = {
+                id: generateId(),
+                type: 'table',
+                label: '数据表格',
+                props: {
+                  apiId: undefined,
+                  queryApiId: undefined,
+                  columns: [],
+                  pagination: true,
+                  pageSize: 10,
+                  showSearch: true,
+                  showAdd: false,
+                  showExport: false,
+                  showEdit: true,
+                  showDelete: true,
+                  showPagination: true,
+                  showDetail: false,
+                },
+              };
+              setComponents(prev => [...prev, newComponent]);
+              setSelectedId(newComponent.id);
+              setActiveLeftTab('props');
+            }}
+            className="px-3 py-1.5 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors flex items-center gap-1"
+            title="添加数据表格"
+          >
+            <Plus className="w-4 h-4" />
+            添加
+          </button>
           <button
             onClick={() => setActiveLeftTab(activeLeftTab === 'components' ? '' : 'components')}
             className={`px-3 py-1.5 text-xs rounded transition-colors flex items-center gap-1.5 ${activeLeftTab === 'components' ? 'bg-[var(--accent)] text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'}`}
@@ -652,7 +684,7 @@ function PageEditor() {
               <ComponentTree
                 components={components}
                 selectedId={selectedId}
-                onSelect={(id) => { setSelectedId(id); setActiveLeftTab(''); }}
+                onSelect={(id) => { setSelectedId(id); setActiveLeftTab('props'); }}
                 onDelete={handleDelete}
                 onMove={(dragId, dropId, position) => { console.log('Move:', dragId, 'to', dropId, position); }}
                 showHeader={true}
