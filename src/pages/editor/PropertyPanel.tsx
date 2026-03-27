@@ -698,10 +698,12 @@ function PropertyPanel({
                   </div>
                 );
               })()}
-               {/* 分页和每页条数 - 单独处理 */}
+
+              {/* 分页和每页条数 */}
               {selectedComponent.props.pagination !== undefined && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-[var(--text-secondary)]">显示分页</span>
+                <div className="flex items-center justify-between bg-[var(--bg-secondary)] px-2 py-1.5 rounded">
+                  <span className="text-xs text-[var(--text-secondary)]">显示分页</span>
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => handlePropChange('pagination', !selectedComponent.props.pagination)}
@@ -715,21 +717,22 @@ function PropertyPanel({
                         }`}
                       />
                     </button>
-                  {selectedComponent.props.pagination && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-[var(--text-secondary)]">每页条数</span>
-                      <select
-                        value={Number(selectedComponent.props.pageSize) || 10}
-                        onChange={(e) => handlePropChange('pageSize', Number(e.target.value))}
-                        className="px-2 py-1 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
-                      >
-                        <option value={5}>5</option>
-                        <option value={10}>10</option>
-                        <option value={20}>20</option>
-                        <option value={50}>50</option>
-                      </select>
-                    </div>
-                  )}
+                    {selectedComponent.props.pagination && (
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-[var(--text-secondary)]">每页</span>
+                        <select
+                          value={Number(selectedComponent.props.pageSize) || 10}
+                          onChange={(e) => handlePropChange('pageSize', Number(e.target.value))}
+                          className="px-1 py-0.5 border border-[var(--border)] rounded text-xs bg-[var(--input-bg)] text-[var(--text-primary)]"
+                        >
+                          <option value={10}>10</option>
+                          <option value={20}>20</option>
+                          <option value={50}>50</option>
+                        </select>
+                        <span className="text-xs text-[var(--text-secondary)]">条</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
