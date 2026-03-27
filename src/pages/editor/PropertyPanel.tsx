@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Trash2, Box, ChevronDown, ChevronRight } from 'lucide-react';
+import { Trash2, Box, ChevronDown, ChevronRight, Layers } from 'lucide-react';
 import { CanvasComponent, ColumnConfig } from './types';
+import ComponentTree from './ComponentTree';
 import { propLabels } from './constants';
 import { getDataSources, getTableList, getFeatures, getFeatureDetail, getTableColumns } from '../../lib/api';
 import type { Feature, FeatureColumn } from '../../types';
@@ -11,6 +12,7 @@ interface PropertyPanelProps {
   onUpdateProps: (props: Record<string, unknown>) => void;
   onMoveToContainer: (containerId: string, componentId: string, tabIndex?: number) => void;
   onMoveOutOfContainer: (containerId: string, componentId: string) => void;
+  onDeleteComponent?: (id: string) => void;
 }
 
 // Container selector modal
@@ -311,6 +313,7 @@ function PropertyPanel({
   onUpdateProps,
   onMoveToContainer,
   onMoveOutOfContainer,
+  onDeleteComponent,
 }: PropertyPanelProps) {
   // Column config modal state
   const [columnConfigOpen, setColumnConfigOpen] = useState(false);
@@ -318,6 +321,7 @@ function PropertyPanel({
   const [editingColumnIndex, setEditingColumnIndex] = useState<number | null>(null);
   const [columnsCollapsed, setColumnsCollapsed] = useState(false);
   const [propsCollapsed, setPropsCollapsed] = useState(false);
+  const [treeCollapsed, setTreeCollapsed] = useState(false);
 
   // Container selector modal state
   const [containerSelectorOpen, setContainerSelectorOpen] = useState(false);
@@ -589,6 +593,38 @@ function PropertyPanel({
               </button>
             )}
           </div>
+        </div>
+
+        {/* 组件层 */}
+        <div className="mb-4">
+          <div 
+            className="flex items-center justify-between mb-2 cursor-pointer px-1"
+            onClick={() => setTreeCollapsed(!treeCollapsed)}
+          >
+            <div className="flex items-center gap-2">
+              <Layers className="w-4 h-4 text-[var(--text-muted)]" />
+              <span className="text-xs text-[var(--text-secondary)]">组件层</span>
+            </div>
+            {treeCollapsed ? <ChevronRight className="w-4 h-4 text-[var(--text-muted)]" /> : <ChevronDown className="w-4 h-4 text-[var(--text-muted)]" />}
+          </div>
+          {!treeCollapsed && (
+            <div className="border border-[var(--border)] rounded p-2 max-h-[200px] overflow-y-auto">
+              <ComponentTree
+                components={components}
+                selectedId={selectedComponent?.id || null}
+                onSelect={(id) => {
+                  // 当选择组件时，选中它（这里只是更新selectedId的引用）
+                  // 实际上由于我们在属性面板中，selectedComponent已经是当前组件
+                }}
+                onDelete={(id) => {
+                  if (confirm('确定删除该组件?')) {
+                    onDeleteComponent?.(id);
+                  }
+                }}
+                showHeader={false}
+              />
+            </div>
+          )}
         </div>
 
         <div className="border-t border-[var(--border)] my-4" />

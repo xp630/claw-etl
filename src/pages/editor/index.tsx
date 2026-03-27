@@ -724,6 +724,7 @@ function PageEditor() {
                   onMoveOutOfContainer={(containerId, componentId) => {
                     handleMoveChildToRoot(containerId, componentId, -1);
                   }}
+                  onDeleteComponent={handleDelete}
                 />
               </div>
             </div>
