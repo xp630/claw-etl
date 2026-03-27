@@ -171,6 +171,7 @@ function DropCanvas({
         // New component from palette
         const newComponent: CanvasComponent = {
           id: generateId(),
+          componentId: `${parsed.type}_${Date.now()}`,
           type: parsed.type,
           label: parsed.label,
           props: parsed.defaultProps || {},
@@ -233,16 +234,17 @@ function DropCanvas({
         onDragOver={(e) => e.preventDefault()}
         onClick={(e) => {
           e.stopPropagation();
-          // Skip selection if the click target is NOT the container itself
-          // (i.e., the click was on a child component, let it handle itself)
-          if (e.target !== e.currentTarget) return;
-          onSelect(comp.id);
+          console.log('[DropCanvas] Click on component:', comp.id, 'isNested:', isNested);
+          // Use setTimeout to ensure the click is not intercepted
+          setTimeout(() => {
+            onSelect(comp.id);
+          }, 0);
         }}
-        className={`relative bg-white border-2 rounded-md transition-all cursor-pointer group ${
+        className={`relative bg-white border-2 rounded-md transition-all cursor-pointer group ${isNested ? 'nested-component' : ''} ${
           isSelected
-            ? 'border-blue-500 shadow-md'
+            ? 'border-blue-500 shadow-lg ring-2 ring-blue-200'
             : 'border-transparent hover:border-gray-300'
-        } ${isNested ? 'nested-component' : ''}`}
+        }`}
       >
         <div className="flex items-center gap-1 absolute -top-3 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 bg-white rounded shadow">
           {!isNested && (
@@ -311,7 +313,10 @@ function DropCanvas({
                   const tabIndex = comp.type === 'tabs' ? (comp.props.activeTab as number || 0) : undefined;
                   handleContainerDrop(e, comp.id, tabIndex);
                 }}
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelect(comp.id);
+                }}
               >
                 {/* Get children for drop zone - for tabs use childrenMap + comp.children, otherwise use children array */}
                 {(() => {

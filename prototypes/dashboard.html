@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>首页 - 低代码平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+  <!-- Top Navigation -->
+  <nav class="bg-white shadow-sm border-b border-gray-200">
+    <div class="flex items-center justify-between px-6 py-3">
+      <div class="flex items-center gap-4">
+        <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+        </div>
+        <span class="font-semibold text-gray-800">低代码平台</span>
+      </div>
+      <div class="flex items-center gap-4">
+        <button class="text-gray-500 hover:text-gray-700">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+          </svg>
+        </button>
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center">
+            <span class="text-indigo-600 font-medium text-sm">霆</span>
+          </div>
+          <span class="text-sm text-gray-700">大霆</span>
+          <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="flex">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-gray-200 min-h-screen">
+      <nav class="p-4 space-y-1">
+        <a href="dashboard.html" class="flex items-center gap-3 px-3 py-2 bg-indigo-50 text-indigo-700 rounded-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+          </svg>
+          <span class="font-medium">首页</span>
+        </a>
+        <a href="editor.html" class="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+          </svg>
+          <span>页面编辑器</span>
+        </a>
+        <a href="datasource.html" class="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>
+          </svg>
+          <span>数据源管理</span>
+        </a>
+        <a href="users.html" class="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
+          <span>用户管理</span>
+        </a>
+        <a href="settings.html" class="flex items-center gap-3 px-3 py-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <span>系统设置</span>
+        </a>
+      </nav>
+
+      <div class="absolute bottom-4 left-4 w-56 p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <p class="text-xs text-gray-500 mb-2">当前环境</p>
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+          <span class="text-sm font-medium text-gray-700">开发环境</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-6">
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-800">我的页面</h1>
+          <p class="text-gray-500 mt-1">共 8 个页面</p>
+        </div>
+        <button id="btn-new-page" class="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          新建页面
+        </button>
+      </div>
+
+      <!-- 新建页面模态框 -->
+      <div id="modal-new-page" class="fixed inset-0 z-50 hidden">
+        <!-- 遮罩层 -->
+        <div id="modal-overlay" class="absolute inset-0 bg-black/50"></div>
+        <!-- 模态框内容 -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-xl shadow-xl">
+          <!-- 头部 -->
+          <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-800">新建页面</h2>
+            <button id="btn-close-modal" class="p-1 text-gray-400 hover:text-gray-600 rounded">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+          <!-- 表单 -->
+          <form id="form-new-page" class="p-6 space-y-4">
+            <div>
+              <label for="page-name" class="block text-sm font-medium text-gray-700 mb-1">页面名称 <span class="text-red-500">*</span></label>
+              <input type="text" id="page-name" name="pageName" required
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                placeholder="请输入页面名称">
+            </div>
+            <div>
+              <label for="page-id" class="block text-sm font-medium text-gray-700 mb-1">页面标识</label>
+              <input type="text" id="page-id" name="pageId"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
+                placeholder="如 my-page（留空自动生成）">
+              <p class="mt-1 text-xs text-gray-500">用于 URL，只能包含字母、数字和连字符</p>
+            </div>
+            <div>
+              <label for="page-desc" class="block text-sm font-medium text-gray-700 mb-1">页面描述</label>
+              <textarea id="page-desc" name="pageDesc" rows="3"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none resize-none"
+                placeholder="可选，简要描述页面用途"></textarea>
+            </div>
+            <div class="flex justify-end gap-3 pt-4">
+              <button type="button" id="btn-cancel" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition">取消</button>
+              <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">创建页面</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Filter Tabs -->
+      <div class="flex items-center gap-4 mb-6">
+        <button class="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium">全部</button>
+        <button class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium">已发布</button>
+        <button class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium">草稿</button>
+      </div>
+
+      <!-- Page Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <!-- Card 1 -->
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition">
+          <div class="h-32 bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center">
+            <svg class="w-12 h-12 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
+            </svg>
+          </div>
+          <div class="p-4">
+            <div class="flex items-center justify-between">
+              <h3 class="font-medium text-gray-800">用户管理后台</h3>
+              <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">已发布</span>
+            </div>
+            <p class="text-sm text-gray-500 mt-1">员工信息管理 / 权限配置</p>
+            <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
+              <span class="text-xs text-gray-400">更新于 2小时前</span>
+              <div class="flex gap-1">
+                <a href="editor.html" class="p-1.5 text-gray-400 hover:text-indigo-600 rounded">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                  </svg>
+                </a>
+                <a href="preview.html" class="p-1.5 text-gray-400 hover:text-indigo-600 rounded">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition">
+          <div class="h-32 bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center">
+            <svg class="w-12 h-12 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
+            </svg>
+          </div>
+          <div class="p-4">
+            <div class="flex items-center justify-between">
+              <h3 class="font-medium text-gray-800">订单管理系统</h3>
+              <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">已发布</span>
+            </div>
+            <p class="text-sm text-gray-500 mt-1">订单查询 / 数据统计</p>
+            <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
+              <span class="text-xs text-gray-400">更新于 昨天</span>
+              <div class="flex gap-1">
+                <a href="editor.html" class="p-1.5 text-gray-400 hover:text-indigo-600 rounded">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                  </svg>
+                </a>
+                <a href="preview.html" class="p-1.5 text-gray-400 hover:text-indigo-600 rounded">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition">
+          <div class="h-32 bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+            <svg class="w-12 h-12 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
+            </svg>
+          </div>
+          <div class="p-4">
+            <div class="flex items-center justify-between">
+              <h3 class="font-medium text-gray-800">数据报表</h3>
+              <span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full">草稿</span>
+            </div>
+            <p class="text-sm text-gray-500 mt-1">销售数据 / 可视化图表</p>
+            <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
+              <span class="text-xs text-gray-400">更新于 3天前</span>
+              <div class="flex gap-1">
+                <a href="editor.html" class="p-1.5 text-gray-400 hover:text-indigo-600 rounded">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                  </svg>
+                </a>
+                <a href="preview.html" class="p-1.5 text-gray-400 hover:text-indigo-600 rounded">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition">
+          <div class="h-32 bg-gradient-to-br from-rose-400 to-pink-500 flex items-center justify-center">
+            <svg class="w-12 h-12 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
+            </svg>
+          </div>
+          <div class="p-4">
+            <div class="flex items-center justify-between">
+              <h3 class="font-medium text-gray-800">工单系统</h3>
+              <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">已发布</span>
+            </div>
+            <p class="text-sm text-gray-500 mt-1">问题提交 / 进度跟踪</p>
+            <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
+              <span class="text-xs text-gray-400">更新于 1周前</span>
+              <div class="flex gap-1">
+                <a href="editor.html" class="p-1.5 text-gray-400 hover:text-indigo-600 rounded">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                  </svg>
+                </a>
+                <a href="preview.html" class="p-1.5 text-gray-400 hover:text-indigo-600 rounded">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition">
+          <div class="h-32 bg-gradient-to-br from-violet-400 to-purple-500 flex items-center justify-center">
+            <svg class="w-12 h-12 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
+            </svg>
+          </div>
+          <div class="p-4">
+            <div class="flex items-center justify-between">
+              <h3 class="font-medium text-gray-800">配置中心</h3>
+              <span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full">草稿</span>
+            </div>
+            <p class="text-sm text-gray-500 mt-1">系统参数 / 功能开关</p>
+            <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
+              <span class="text-xs text-gray-400">更新于 1周前</span>
+              <div class="flex gap-1">
+                <a href="editor.html" class="p-1.5 text-gray-400 hover:text-indigo-600 rounded">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                  </svg>
+                </a>
+                <a href="preview.html" class="p-1.5 text-gray-400 hover:text-indigo-600 rounded">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition">
+          <div class="h-32 bg-gradient-to-br from-cyan-400 to-sky-500 flex items-center justify-center">
+            <svg class="w-12 h-12 text-white opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/>
+            </svg>
+          </div>
+          <div class="p-4">
+            <div class="flex items-center justify-between">
+              <h3 class="font-medium text-gray-800">日程管理</h3>
+              <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">已发布</span>
+            </div>
+            <p class="text-sm text-gray-500 mt-1">会议预约 / 提醒通知</p>
+            <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
+              <span class="text-xs text-gray-400">更新于 2周前</span>
+              <div class="flex gap-1">
+                <a href="editor.html" class="p-1.5 text-gray-400 hover:text-indigo-600 rounded">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                  </svg>
+                </a>
+                <a href="preview.html" class="p-1.5 text-gray-400 hover:text-indigo-600 rounded">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const modal = document.getElementById('modal-new-page');
+    const btnNewPage = document.getElementById('btn-new-page');
+    const btnCloseModal = document.getElementById('btn-close-modal');
+    const btnCancel = document.getElementById('btn-cancel');
+    const modalOverlay = document.getElementById('modal-overlay');
+    const formNewPage = document.getElementById('form-new-page');
+    const pageIdInput = document.getElementById('page-id');
+
+    // 生成页面标识
+    function generatePageId(name) {
+      if (!name) return 'page-' + Date.now();
+      return name.toLowerCase()
+        .replace(/[^a-z0-9\u4e00-\u9fa5]+/g, '-')
+        .replace(/^-|-$/g, '') || 'page-' + Date.now();
+    }
+
+    // 打开模态框
+    function openModal() {
+      modal.classList.remove('hidden');
+      document.getElementById('page-name').focus();
+    }
+
+    // 关闭模态框
+    function closeModal() {
+      modal.classList.add('hidden');
+      formNewPage.reset();
+    }
+
+    btnNewPage.addEventListener('click', openModal);
+    btnCloseModal.addEventListener('click', closeModal);
+    btnCancel.addEventListener('click', closeModal);
+    modalOverlay.addEventListener('click', closeModal);
+
+    // 点击确认创建，跳转到编辑器
+    formNewPage.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('page-name').value.trim();
+      const desc = document.getElementById('page-desc').value.trim();
+      let pageId = pageIdInput.value.trim() || generatePageId(name);
+
+      // 验证页面标识格式
+      if (!/^[a-z0-9-]+$/.test(pageId)) {
+        alert('页面标识只能包含小写字母、数字和连字符');
+        return;
+      }
+
+      // 跳转编辑器（这里可扩展为实际创建 API）
+      window.location.href = 'editor.html?page=' + encodeURIComponent(pageId) + '&name=' + encodeURIComponent(name);
+    });
+  </script>
+</body>
+</html>

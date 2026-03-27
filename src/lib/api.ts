@@ -30,7 +30,7 @@ api.interceptors.request.use((config) => {
   }
   curl += ` \\\n  -H 'Content-Type: application/json'`;
   
-  console.log('🔗 API Request:\n', curl);
+  //console.log('🔗 API Request:\n', curl);
   return config;
 });
 
@@ -1466,4 +1466,47 @@ export async function getMenuTreeByRoleId(roleId: number): Promise<SysMenu[]> {
     console.error('Failed to load role menus:', error);
     return [];
   }
+}
+
+// ==================== Page Config APIs ====================
+
+export async function getPageConfigList(params?: { page?: number; limit?: number; keyword?: string }): Promise<{ list: any[]; total: number }> {
+  try {
+    const res = await api.post('/pageConfig/list', { page: params?.page || 1, limit: params?.limit || 20, keyword: params?.keyword || '' });
+    let list = res.data?.list || res.data?.data?.list || [];
+    if (!Array.isArray(list)) list = [];
+    const total = res.data?.total || res.data?.data?.total || list.length;
+    return { list, total };
+  } catch (error) {
+    console.error('Failed to get page config list:', error);
+    return { list: [], total: 0 };
+  }
+}
+
+export async function getPageConfig(id: number): Promise<any | null> {
+  try {
+    const res = await api.post('/pageConfig/detail', { id });
+    return res.data?.data || null;
+  } catch (error) {
+    console.error('Failed to get page config:', error);
+    return null;
+  }
+}
+
+export async function savePageConfig(data: any): Promise<any | null> {
+  try {
+    const res = await api.post('/pageConfig/save', data);
+    return res.data?.data || null;
+  } catch (error) {
+    console.error('Failed to save page config:', error);
+    throw error;
+  }
+}
+
+export async function deletePageConfig(id: number): Promise<void> {
+  await api.post('/pageConfig/delete', { id });
+}
+
+export async function togglePageStatus(id: number): Promise<void> {
+  await api.post('/pageConfig/toggleStatus', { id });
 }

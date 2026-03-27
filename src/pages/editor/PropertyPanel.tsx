@@ -9,7 +9,6 @@ interface PropertyPanelProps {
   selectedComponent: CanvasComponent | null;
   components: CanvasComponent[];
   onUpdateProps: (props: Record<string, unknown>) => void;
-  onDelete: () => void;
   onMoveToContainer: (containerId: string, componentId: string, tabIndex?: number) => void;
   onMoveOutOfContainer: (containerId: string, componentId: string) => void;
 }
@@ -310,7 +309,6 @@ function PropertyPanel({
   selectedComponent,
   components,
   onUpdateProps,
-  onDelete,
   onMoveToContainer,
   onMoveOutOfContainer,
 }: PropertyPanelProps) {
@@ -566,19 +564,6 @@ function PropertyPanel({
     <div className="w-72 bg-white border-l border-gray-200 overflow-y-auto">
       <div className="p-4">
         <h3 className="text-sm font-medium text-gray-600 mb-4">属性配置</h3>
-        
-        <div className="flex items-center justify-between mb-4">
-          <span className="px-2 py-1 bg-gray-100 rounded text-xs text-gray-600">
-            {selectedComponent.label}
-          </span>
-          <button
-            onClick={onDelete}
-            className="p-1.5 text-red-500 hover:bg-red-50 rounded transition-colors"
-            title="删除组件"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
-        </div>
 
         {/* Quick Actions - Move In/Out of Container */}
         <div className="mb-4 p-2 bg-blue-50 rounded border border-blue-200">
@@ -605,14 +590,11 @@ function PropertyPanel({
         <div className="border-t border-gray-200 my-4" />
 
         <div className="space-y-4">
-          <div>
-            <div className="text-xs text-gray-400 mb-2">基础属性</div>
-            
+          <div>            
             <div className="space-y-3">
               <div>
-                <label className="block text-xs text-gray-500 mb-1">组件ID</label>
                 <input
-                  type="text"
+                  type="hidden"
                   value={selectedComponent.id}
                   disabled
                   className="w-full px-2 py-1.5 border border-gray-200 rounded text-xs bg-gray-50 text-gray-400"
@@ -926,6 +908,136 @@ function PropertyPanel({
             <div className="border-t border-gray-200 pt-4">
               <div className="text-xs text-gray-400 mb-2">{selectedComponent.type === 'table' ? '表格配置' : '表单配置'}</div>
               <div className="space-y-3">
+                {/* Feature 绑定 - 放在最前面 */}
+                <div className="border-t border-gray-200 pt-4 mt-4">
+                  <label className="block text-xs text-gray-500 mb-1">Feature 绑定</label>
+                  <div className="space-y-2">
+                    {/* 数据源选择 */}
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-0.5">数据源</label>
+                      <select
+                        value={selectedDatasource || ''}
+                        onChange={async (e) => {
+                          const dsId = Number(e.target.value);
+                          setSelectedDatasource(dsId);
+                          handlePropChange('datasourceId', dsId);
+                          setFeatures([]);
+                          setSelectedFeature(null);
+                          if (dsId) {
+                            const ds = dataSources.find(d => d.id === dsId);
+                            if (ds) {
+                              const dbName = (ds as Record<string, unknown>).database_name || (ds as Record<string, unknown>).databaseName || ds.name;
+                              const tablesData = await getTableList(dbName as string);
+                              setTables(tablesData);
+                            }
+                          }
+                        }}
+                        className="w-full px-2 py-1 border border-gray-200 rounded text-xs focus:outline-none focus:border-blue-500"
+                      >
+                        <option value="">请选择数据源</option>
+                        {dataSources.map(ds => (
+                          <option key={ds.id} value={ds.id}>{ds.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    
+                    {/* 表选择 */}
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-0.5">表名</label>
+                      <input
+                        list="table-list"
+                        value={selectedComponent.props.tableName as string || ''}
+                        onChange={async (e) => {
+                          const tableName = e.target.value;
+                          handlePropChange('tableName', tableName);
+                          if (selectedDatasource && tableName) {
+                            await loadFeaturesByTable(selectedDatasource, tableName);
+                          }
+                        }}
+                        placeholder="搜索或选择表..."
+                        className="w-full px-2 py-1 border border-gray-200 rounded text-xs focus:outline-none focus:border-blue-500"
+                      />
+                      <datalist id="table-list">
+                        {tables.map(t => (
+                          <option key={t.tableName} value={t.tableName}>{t.tableName}{t.tableComment ? ` (${t.tableComment})` : ''}</option>
+                        ))}
+                      </datalist>
+                    </div>
+                    
+                    {/* Feature 列表 */}
+                    {selectedComponent.props.tableName && (
+                      <div>
+                        <label className="block text-xs text-gray-400 mb-0.5">已有 Feature</label>
+                        {features.length > 0 ? (
+                          <div className="space-y-1">
+                            {features.map(f => (
+                              <div 
+                                key={f.id as number}
+                                onClick={async () => {
+                                  setSelectedFeature(f);
+                                  handlePropChange('queryApiId', f.queryApiId);
+                                  handlePropChange('createApiId', f.createApiId);
+                                  handlePropChange('updateApiId', f.updateApiId);
+                                  handlePropChange('deleteApiId', f.deleteApiId);
+                                  handlePropChange('detailApiId', f.detailApiId);
+                                  
+                                  const fullFeature = await getFeatureDetail(f.id as number);
+                                  if (fullFeature?.columns && Array.isArray(fullFeature.columns) && fullFeature.columns.length > 0) {
+                                    const isFormComponent = selectedComponent.type === 'form';
+                                    const columns = fullFeature.columns
+                                      .filter((col) => col.visible !== false && col.fieldType !== 'action')
+                                      .map((col) => ({
+                                        key: col.fieldName,
+                                        label: col.fieldLabel,
+                                        fieldType: col.fieldType === 'text' ? 'text' : 
+                                                  col.fieldType === 'number' ? 'number' :
+                                                  col.fieldType === 'date' ? 'date' :
+                                                  col.fieldType === 'select' ? 'select' : 'text',
+                                        width: 120,
+                                        visible: true,
+                                        sortable: col.sortable !== false,
+                                        align: 'left',
+                                        frozen: false,
+                                        ellipsis: true,
+                                        tooltip: false,
+                                        required: false,
+                                        defaultValue: undefined,
+                                        placeholder: '',
+                                        queryCondition: true,
+                                        dataDictionary: ''
+                                      }));
+                                    handlePropChange('columns', columns);
+                                  }
+                                }}
+                                className="p-2 border border-gray-200 rounded cursor-pointer hover:border-blue-400 hover:bg-blue-50"
+                              >
+                                <div className="text-xs font-medium">{f.name}</div>
+                                <div className="text-xs text-gray-400">{f.tableName}</div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-xs text-gray-400 py-2">
+                            暂无关联的 Feature
+                          </div>
+                        )}
+                        
+                        {/* 创建新 Feature 按钮 */}
+                        <button
+                          onClick={() => {
+                            const datasource = dataSources.find(d => d.id === selectedDatasource);
+                            const url = `/#/feature/new?datasourceId=${selectedDatasource}&tableName=${selectedComponent.props.tableName}&datasourceName=${encodeURIComponent(datasource?.name || '')}`;
+                            window.open(url, '_blank');
+                          }}
+                          className="w-full mt-2 px-3 py-1.5 text-xs border-2 border-dashed border-gray-300 rounded text-gray-500 hover:border-blue-400 hover:text-blue-500"
+                        >
+                          ➕ 创建新 Feature
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
                 {/* Columns config */}
                 <div>
                   <div className="flex items-center justify-between mb-1">
@@ -1092,140 +1204,6 @@ function PropertyPanel({
                         </>
                       );
                     })()}
-                  </div>
-                </div>
-
-                {/* DataSource & Table & Feature Selection */}
-                <div className="border-t border-gray-200 pt-4 mt-4">
-                  <label className="block text-xs text-gray-500 mb-1">Feature 绑定</label>
-                  <div className="space-y-2">
-                    {/* 数据源选择 */}
-                    <div>
-                      <label className="block text-xs text-gray-400 mb-0.5">数据源</label>
-                      <select
-                        value={selectedDatasource || ''}
-                        onChange={async (e) => {
-                          const dsId = Number(e.target.value);
-                          setSelectedDatasource(dsId);
-                          handlePropChange('datasourceId', dsId);
-                          setFeatures([]);
-                          setSelectedFeature(null);
-                          if (dsId) {
-                            const ds = dataSources.find(d => d.id === dsId);
-                            if (ds) {
-                              const dbName = (ds as Record<string, unknown>).database_name || (ds as Record<string, unknown>).databaseName || ds.name;
-                              const tablesData = await getTableList(dbName as string);
-                              setTables(tablesData);
-                            }
-                          }
-                        }}
-                        className="w-full px-2 py-1 border border-gray-200 rounded text-xs focus:outline-none focus:border-blue-500"
-                      >
-                        <option value="">请选择数据源</option>
-                        {dataSources.map(ds => (
-                          <option key={ds.id} value={ds.id}>{ds.name}</option>
-                        ))}
-                      </select>
-                    </div>
-                    
-                    {/* 表选择 */}
-                    <div>
-                      <label className="block text-xs text-gray-400 mb-0.5">表名</label>
-                      <input
-                        list="table-list"
-                        value={selectedComponent.props.tableName as string || ''}
-                        onChange={async (e) => {
-                          const tableName = e.target.value;
-                          handlePropChange('tableName', tableName);
-                          if (selectedDatasource && tableName) {
-                            await loadFeaturesByTable(selectedDatasource, tableName);
-                          }
-                        }}
-                        placeholder="搜索或选择表..."
-                        className="w-full px-2 py-1 border border-gray-200 rounded text-xs focus:outline-none focus:border-blue-500"
-                      />
-                      <datalist id="table-list">
-                        {tables.map(t => (
-                          <option key={t.tableName} value={t.tableName}>{t.tableName}{t.tableComment ? ` (${t.tableComment})` : ''}</option>
-                        ))}
-                      </datalist>
-                    </div>
-                    
-                    {/* Feature 列表 */}
-                    {selectedComponent.props.tableName && (
-                      <div>
-                        <label className="block text-xs text-gray-400 mb-0.5">已有 Feature</label>
-                        {features.length > 0 ? (
-                          <div className="space-y-1">
-                            {features.map(f => (
-                              <div 
-                                key={f.id as number}
-                                onClick={async () => {
-                                  setSelectedFeature(f);
-                                  handlePropChange('queryApiId', f.queryApiId);
-                                  handlePropChange('createApiId', f.createApiId);
-                                  handlePropChange('updateApiId', f.updateApiId);
-                                  handlePropChange('deleteApiId', f.deleteApiId);
-                                  handlePropChange('detailApiId', f.detailApiId);
-                                  
-                                  const fullFeature = await getFeatureDetail(f.id as number);
-                                  if (fullFeature?.columns && Array.isArray(fullFeature.columns) && fullFeature.columns.length > 0) {
-                                    const isFormComponent = selectedComponent.type === 'form';
-                                    const columns = fullFeature.columns
-                                      .filter((col) => col.visible !== false && col.fieldType !== 'action')
-                                      .map((col) => ({
-                                        key: col.fieldName,
-                                        label: col.fieldLabel,
-                                        fieldType: col.fieldType,
-                                        width: 100,
-                                        visible: col.visible !== false,
-                                        sortable: col.sortable,
-                                        align: col.align || 'left',
-                                        frozen: false,
-                                        ellipsis: true,
-                                        tooltip: false,
-                                        required: false,
-                                        defaultValue: undefined,
-                                        placeholder: '',
-                                        // For form components, default queryCondition to false; for table components, inherit from column config
-                                        queryCondition: isFormComponent ? false : (col.queryCondition !== false),
-                                        dataDictionary: col.dataDictionary || ''
-                                      }));
-                                    handlePropChange('columns', columns);
-                                  }
-                                }}
-                                className={`p-2 border rounded cursor-pointer text-xs ${
-                                  selectedFeature?.id === f.id 
-                                    ? 'border-blue-500 bg-blue-50' 
-                                    : 'border-gray-200 hover:border-blue-300'
-                                }`}
-                              >
-                                <div className="font-medium">{String(f.name)}</div>
-                                <div className="text-gray-400 text-xs">
-                                  APIs: 查询={f.queryApiId} 新增={f.createApiId} 更新={f.updateApiId} 删除={f.deleteApiId} 详情={f.detailApiId}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="text-xs text-gray-400 py-2">
-                            暂无关联的 Feature
-                          </div>
-                        )}
-                        
-                        {/* 创建新 Feature 按钮 */}
-                        <button
-                          onClick={() => {
-                            const datasource = dataSources.find(d => d.id === selectedDatasource);
-                            const url = `/#/feature/new?datasourceId=${selectedDatasource}&tableName=${selectedComponent.props.tableName}&datasourceName=${encodeURIComponent(datasource?.name || '')}`;
-                            window.open(url, '_blank');
-                          }}
-                          className="w-full mt-2 px-3 py-1.5 text-xs border-2 border-dashed border-gray-300 rounded text-gray-500 hover:border-blue-400 hover:text-blue-500"
-                        >
-                          ➕ 创建新 Feature
-                        </button>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>

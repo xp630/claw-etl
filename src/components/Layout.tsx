@@ -41,6 +41,9 @@ import RoleList from '../pages/RoleList';
 import RoleForm from '../pages/RoleForm';
 import MenuList from '../pages/MenuList';
 import MenuForm from '../pages/MenuForm';
+import PageList from '../pages/PageList';
+import PageEditor from '../pages/PageEditor';
+import PagePreview from '../pages/PagePreview';
 import UserList from '../pages/UserList';
 import UserForm from '../pages/UserForm';
 import DatasetList from '../pages/report/DatasetList';
@@ -303,6 +306,12 @@ function renderPage(path: string, resourceId?: string) {
       return <MenuList />;
     case '/menus/new':
       return <MenuForm />;
+    case '/pages':
+      return <PageList />;
+    case '/page-editor':
+      return <PageEditor />;
+    case '/preview':
+      return <PagePreview />;
     case '/users':
       return <UserList />;
     case '/users/new':

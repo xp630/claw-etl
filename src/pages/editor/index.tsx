@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import ComponentPanel from './ComponentPanel';
+import ComponentTree from './ComponentTree';
 import DropCanvas, { generateId } from './DropCanvas';
 import PropertyPanel from './PropertyPanel';
 import { CanvasComponent } from './types';
@@ -18,6 +19,7 @@ function PageEditor() {
   const [pageId, setPageId] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [isNewPage, setIsNewPage] = useState(false);
+  const [activeLeftTab, setActiveLeftTab] = useState<'layer' | 'components'>('layer');
 
   const findComponent = (comps: CanvasComponent[], id: string | null): CanvasComponent | null => {
     if (!id) return null;
@@ -55,6 +57,8 @@ function PageEditor() {
     } catch {}
     return {
       id: String(c.id) || `comp_${Date.now()}`,
+      componentId: c.componentId as string || undefined,
+      parentId: c.parentId as string || undefined,
       type: c.type as string,
       label: (c.label as string) || '',
       props,
@@ -201,11 +205,15 @@ function PageEditor() {
       console.log('💾 [Save] components 数量:', components.length);
       console.log('💾 [Save] components 内容:', JSON.stringify(components, null, 2));
 
+      // 扁平化组件树，保存 parentId 层级关系
+      const flatComponents = flattenComponentsWithParentId(components);
+      console.log('💾 [Save] 扁平化后 components:', flatComponents);
+
       const result = await savePageConfig({
         id: pageId || undefined,
         name: pageName,
         code: pageCode || `page_${Date.now()}`,
-        components
+        components: flatComponents
       });
 
       console.log('💾 [Save] savePageConfig 返回结果:', result);
@@ -500,6 +508,23 @@ function PageEditor() {
     });
   }, []);
 
+  // Flatten tree to flat list with parentId for saving
+  const flattenComponentsWithParentId = (comps: CanvasComponent[], parentId: string | null = null): Record<string, unknown>[] => {
+    const result: Record<string, unknown>[] = [];
+    for (const c of comps) {
+      const { children, ...rest } = c;
+      const item: Record<string, unknown> = { ...rest };
+      if (parentId) {
+        item.parentId = parentId;
+      }
+      result.push(item);
+      if (children && children.length > 0) {
+        result.push(...flattenComponentsWithParentId(children, c.id));
+      }
+    }
+    return result;
+  };
+
   // 递归打平组件，将所有嵌套的 children 展开到根层级
   const flattenComponents = useCallback((comps: CanvasComponent[]): CanvasComponent[] => {
     const result: CanvasComponent[] = [];
@@ -595,7 +620,43 @@ function PageEditor() {
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
-        <ComponentPanel onDragStart={() => {}} />
+        {/* 左侧：组件面板 + 组件层 Tab 切换 */}
+        <div className="w-56 flex flex-col bg-gray-50">
+          {/* Tab 切换 */}
+          <div className="flex border-b border-gray-200 bg-white">
+            <button
+              id="tab-layer"
+              onClick={() => setActiveLeftTab('layer')}
+              className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${activeLeftTab === 'layer' ? 'text-blue-600 border-b-2 border-blue-500' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+              组件层
+            </button>
+            <button
+              id="tab-components"
+              onClick={() => setActiveLeftTab('components')}
+              className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${activeLeftTab === 'components' ? 'text-blue-600 border-b-2 border-blue-500' : 'text-gray-500 hover:text-gray-700'}`}
+            >
+              组件库
+            </button>
+          </div>
+          {/* Tab 内容 */}
+          <div className="flex-1 overflow-hidden">
+            {activeLeftTab === 'layer' ? (
+              <ComponentTree
+                components={components}
+                selectedId={selectedId}
+                onSelect={setSelectedId}
+                onDelete={handleDelete}
+                onMove={(dragId, dropId, position) => {
+                  console.log('Move:', dragId, 'to', dropId, position);
+                }}
+                showHeader={false}
+              />
+            ) : (
+              <ComponentPanel onDragStart={() => {}} />
+            )}
+          </div>
+        </div>
         <DropCanvas
           components={components}
           allComponents={components}
@@ -618,7 +679,6 @@ function PageEditor() {
           selectedComponent={selectedComponent}
           components={components}
           onUpdateProps={handleUpdateProps}
-          onDelete={() => selectedId && handleDelete(selectedId)}
           onMoveToContainer={(containerId, componentId, tabIndex) => {
             // Find the component first
             const comp = findComponent(components, componentId);

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>页面预览 - 低代码平台</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .preview-pc { width: 1280px; }
+    .preview-tablet { width: 768px; }
+    .preview-mobile { width: 375px; }
+    .preview-frame { transition: all 0.3s ease; }
+  </style>
+</head>
+<body class="bg-gray-800 min-h-screen">
+  <!-- Preview Toolbar -->
+  <nav class="bg-gray-900 border-b border-gray-700">
+    <div class="flex items-center justify-between px-4 py-3">
+      <div class="flex items-center gap-4">
+        <a href="editor.html" class="flex items-center gap-2 text-gray-300 hover:text-white">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+          返回编辑器
+        </a>
+        <div class="h-6 w-px bg-gray-700"></div>
+        <span class="text-gray-300">用户管理后台</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <!-- Device Size Toggle -->
+        <div class="flex items-center gap-1 bg-gray-800 rounded-lg p-1">
+          <button onclick="setPreviewSize('pc')" class="preview-btn px-3 py-1.5 rounded text-sm font-medium transition" data-size="pc">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+          </button>
+          <button onclick="setPreviewSize('tablet')" class="preview-btn px-3 py-1.5 rounded text-sm font-medium transition" data-size="tablet">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+            </svg>
+          </button>
+          <button onclick="setPreviewSize('mobile')" class="preview-btn px-3 py-1.5 rounded text-sm font-medium transition" data-size="mobile">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="h-6 w-px bg-gray-700"></div>
+        <button class="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+          </svg>
+          发布页面
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Preview Content -->
+  <div class="flex items-start justify-center p-8">
+    <div id="preview-frame" class="preview-frame preview-pc bg-white rounded-lg shadow-2xl overflow-hidden">
+      <!-- Preview Header -->
+      <div class="bg-white border-b border-gray-200 px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h1 class="text-xl font-bold text-gray-800">用户列表</h1>
+            <p class="text-sm text-gray-500">管理所有员工信息</p>
+          </div>
+          <div class="flex gap-2">
+            <button class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">添加用户</button>
+            <button class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">导出</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search & Filter -->
+      <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+        <div class="flex items-center gap-4">
+          <input type="text" placeholder="搜索用户姓名或邮箱..." class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none">
+          <select class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none">
+            <option>全部部门</option>
+            <option>技术部</option>
+            <option>产品部</option>
+            <option>运营部</option>
+          </select>
+          <button class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">筛选</button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="px-6 py-4">
+        <div class="border border-gray-200 rounded-lg overflow-hidden">
+          <table class="w-full">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">姓名</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">邮箱</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">部门</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">角色</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">状态</th>
+                <th class="px-4 py-3 text-left text-sm font-medium text-gray-600">操作</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+              <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 text-sm text-gray-800">张三</td>
+                <td class="px-4 py-3 text-sm text-gray-600">zhangsan@company.com</td>
+                <td class="px-4 py-3 text-sm text-gray-600">技术部</td>
+                <td class="px-4 py-3 text-sm text-gray-600">管理员</td>
+                <td class="px-4 py-3"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">在职</span></td>
+                <td class="px-4 py-3 text-sm"><button class="text-indigo-600 hover:text-indigo-800">编辑</button></td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 text-sm text-gray-800">李四</td>
+                <td class="px-4 py-3 text-sm text-gray-600">lisi@company.com</td>
+                <td class="px-4 py-3 text-sm text-gray-600">产品部</td>
+                <td class="px-4 py-3 text-sm text-gray-600">编辑者</td>
+                <td class="px-4 py-3"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">在职</span></td>
+                <td class="px-4 py-3 text-sm"><button class="text-indigo-600 hover:text-indigo-800">编辑</button></td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 text-sm text-gray-800">王五</td>
+                <td class="px-4 py-3 text-sm text-gray-600">wangwu@company.com</td>
+                <td class="px-4 py-3 text-sm text-gray-600">运营部</td>
+                <td class="px-4 py-3 text-sm text-gray-600">查看者</td>
+                <td class="px-4 py-3"><span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full">休假</span></td>
+                <td class="px-4 py-3 text-sm"><button class="text-indigo-600 hover:text-indigo-800">编辑</button></td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 text-sm text-gray-800">赵六</td>
+                <td class="px-4 py-3 text-sm text-gray-600">zhaoliu@company.com</td>
+                <td class="px-4 py-3 text-sm text-gray-600">技术部</td>
+                <td class="px-4 py-3 text-sm text-gray-600">查看者</td>
+                <td class="px-4 py-3"><span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">在职</span></td>
+                <td class="px-4 py-3 text-sm"><button class="text-indigo-600 hover:text-indigo-800">编辑</button></td>
+              </tr>
+              <tr class="hover:bg-gray-50">
+                <td class="px-4 py-3 text-sm text-gray-800">钱七</td>
+                <td class="px-4 py-3 text-sm text-gray-600">qianqi@company.com</td>
+                <td class="px-4 py-3 text-sm text-gray-600">市场部</td>
+                <td class="px-4 py-3 text-sm text-gray-600">编辑者</td>
+                <td class="px-4 py-3"><span class="px-2 py-1 bg-red-100 text-red-700 text-xs rounded-full">离职</span></td>
+                <td class="px-4 py-3 text-sm"><button class="text-indigo-600 hover:text-indigo-800">编辑</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="flex items-center justify-between mt-4">
+          <span class="text-sm text-gray-500">显示 1-5 条，共 23 条</span>
+          <div class="flex gap-1">
+            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50" disabled>上一页</button>
+            <button class="px-3 py-1 bg-indigo-600 text-white border border-indigo-600 rounded text-sm">1</button>
+            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">2</button>
+            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">3</button>
+            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">4</button>
+            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">5</button>
+            <button class="px-3 py-1 border border-gray-300 rounded text-sm text-gray-600 hover:bg-gray-50">下一页</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function setPreviewSize(size) {
+      const frame = document.getElementById('preview-frame');
+      const buttons = document.querySelectorAll('.preview-btn');
+      
+      buttons.forEach(btn => {
+        btn.classList.remove('bg-indigo-600', 'text-white');
+        btn.classList.add('text-gray-400');
+      });
+      
+      const activeBtn = document.querySelector(`[data-size="${size}"]`);
+      activeBtn.classList.remove('text-gray-400');
+      activeBtn.classList.add('bg-indigo-600', 'text-white');
+      
+      frame.classList.remove('preview-pc', 'preview-tablet', 'preview-mobile');
+      frame.classList.add(`preview-${size}`);
+    }
+    
+    // Initialize PC as default
+    setPreviewSize('pc');
+  </script>
+</body>
+</html>

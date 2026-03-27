@@ -30,6 +30,9 @@ import UserList from './pages/UserList';
 import UserForm from './pages/UserForm';
 import MenuList from './pages/MenuList';
 import MenuForm from './pages/MenuForm';
+import PageList from './pages/PageList';
+import PageEditor from './pages/PageEditor';
+import PagePreview from './pages/PagePreview';
 
 function App() {
   // 从localStorage检查登录状态
@@ -77,6 +80,9 @@ function App() {
           <Route path="roles/:id" element={<RoleForm />} />
           <Route path="menus" element={<MenuList />} />
           <Route path="menus/new" element={<MenuForm />} />
+          <Route path="pages" element={<PageList />} />
+          <Route path="page-editor" element={<PageEditor />} />
+          <Route path="preview" element={<PagePreview />} />
           <Route path="menus/:id" element={<MenuForm />} />
           <Route path="users" element={<UserList />} />
           <Route path="users/new" element={<UserForm />} />

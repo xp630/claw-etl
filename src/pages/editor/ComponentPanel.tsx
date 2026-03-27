@@ -21,7 +21,7 @@ function ComponentPanel({ onDragStart }: ComponentPanelProps) {
   };
 
   return (
-    <div className="w-56 bg-white border-r border-gray-200 overflow-y-auto">
+    <div className="h-full bg-white overflow-y-auto">
       <div className="p-4">
         <h3 className="text-sm font-medium text-gray-600 mb-4">组件库</h3>
         
