@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { LayoutGrid, Layers, Settings2 } from 'lucide-react';
 import ComponentPanel from './ComponentPanel';
 import ComponentTree from './ComponentTree';
 import DropCanvas, { generateId } from './DropCanvas';
@@ -19,7 +20,7 @@ function PageEditor() {
   const [pageId, setPageId] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [isNewPage, setIsNewPage] = useState(false);
-  const [activeLeftTab, setActiveLeftTab] = useState<'layer' | 'components'>('layer');
+  const [activeLeftTab, setActiveLeftTab] = useState<'layer' | 'components' | 'props' | ''>('');
 
   const findComponent = (comps: CanvasComponent[], id: string | null): CanvasComponent | null => {
     if (!id) return null;
@@ -618,44 +619,86 @@ function PageEditor() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* 左侧：组件面板 + 组件层 Tab 切换 */}
-        <div className="w-48 flex flex-col bg-[var(--bg-secondary)]">
-          {/* Tab 切换 */}
-          <div className="flex border-b border-[var(--border-light)] bg-[var(--bg-primary)]">
-            <button
-              id="tab-layer"
-              onClick={() => setActiveLeftTab('layer')}
-              className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${activeLeftTab === 'layer' ? 'text-[var(--accent)] border-b-2 border-[var(--accent)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
-            >
-              组件层
-            </button>
-            <button
-              id="tab-components"
-              onClick={() => setActiveLeftTab('components')}
-              className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${activeLeftTab === 'components' ? 'text-[var(--accent)] border-b-2 border-[var(--accent)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
-            >
-              组件库
-            </button>
-          </div>
-          {/* Tab 内容 */}
-          <div className="flex-1 overflow-hidden">
-            {activeLeftTab === 'layer' ? (
+      <div className="flex-1 flex overflow-hidden relative">
+        {/* 浮动工具栏 */}
+        <div className="absolute left-2 top-2 z-50 flex flex-col gap-2">
+          {/* 组件库按钮 */}
+          <button
+            onClick={() => setActiveLeftTab('components')}
+            className="w-10 h-10 bg-[var(--bg-primary)] border border-[var(--border)] rounded-lg shadow-lg flex items-center justify-center hover:bg-[var(--bg-hover)] transition-colors"
+            title="组件库"
+          >
+            <LayoutGrid className="w-5 h-5 text-[var(--text-secondary)]" />
+          </button>
+          {/* 组件层按钮 */}
+          <button
+            onClick={() => setActiveLeftTab('layer')}
+            className="w-10 h-10 bg-[var(--bg-primary)] border border-[var(--border)] rounded-lg shadow-lg flex items-center justify-center hover:bg-[var(--bg-hover)] transition-colors"
+            title="组件层"
+          >
+            <Layers className="w-5 h-5 text-[var(--text-secondary)]" />
+          </button>
+          {/* 属性配置按钮 */}
+          <button
+            onClick={() => setActiveLeftTab('props')}
+            className="w-10 h-10 bg-[var(--bg-primary)] border border-[var(--border)] rounded-lg shadow-lg flex items-center justify-center hover:bg-[var(--bg-hover)] transition-colors"
+            title="属性配置"
+          >
+            <Settings2 className="w-5 h-5 text-[var(--text-secondary)]" />
+          </button>
+        </div>
+
+        {/* 浮动面板 */}
+        {(activeLeftTab === 'layer' || activeLeftTab === 'components' || activeLeftTab === 'props') && (
+          <div 
+            className="absolute left-16 top-2 z-40 w-72 max-h-[calc(100vh-120px)] bg-[var(--bg-primary)] border border-[var(--border)] rounded-lg shadow-xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {activeLeftTab === 'layer' && (
               <ComponentTree
                 components={components}
                 selectedId={selectedId}
-                onSelect={setSelectedId}
+                onSelect={(id) => { setSelectedId(id); setActiveLeftTab(''); }}
                 onDelete={handleDelete}
-                onMove={(dragId, dropId, position) => {
-                  console.log('Move:', dragId, 'to', dropId, position);
-                }}
-                showHeader={false}
+                onMove={(dragId, dropId, position) => { console.log('Move:', dragId, 'to', dropId, position); }}
+                showHeader={true}
               />
-            ) : (
-              <ComponentPanel onDragStart={() => {}} />
+            )}
+            {activeLeftTab === 'components' && (
+              <ComponentPanel onDragStart={() => { setActiveLeftTab(''); }} />
+            )}
+            {activeLeftTab === 'props' && selectedComponent && (
+              <div className="p-3 overflow-y-auto max-h-[calc(100vh-180px)]">
+                <PropertyPanel
+                  selectedComponent={selectedComponent}
+                  components={components}
+                  onUpdateProps={handleUpdateProps}
+                  onMoveToContainer={(containerId, componentId, tabIndex) => {
+                    const comp = findComponent(components, componentId);
+                    if (comp) {
+                      const parentId = findParentContainerId(components, componentId);
+                      if (parentId) { handleRemoveChildFromContainer(parentId, componentId); }
+                      else { setComponents(prev => prev.filter(c => c.id !== componentId)); }
+                      handleAddChildToContainer(containerId, comp, tabIndex);
+                    }
+                  }}
+                  onMoveOutOfContainer={(containerId, componentId) => {
+                    handleMoveChildToRoot(containerId, componentId, -1);
+                  }}
+                />
+              </div>
             )}
           </div>
-        </div>
+        )}
+
+        {/* 点击其他地方关闭浮动面板 */}
+        {activeLeftTab && (
+          <div 
+            className="absolute inset-0 z-30" 
+            onClick={() => setActiveLeftTab('')}
+          />
+        )}
+
         <DropCanvas
           components={components}
           allComponents={components}
@@ -672,30 +715,6 @@ function PageEditor() {
           }}
           onUpdateProps={(id, props) => {
             setComponents(prev => updateComponentProps(prev, id, props));
-          }}
-        />
-        <PropertyPanel
-          selectedComponent={selectedComponent}
-          components={components}
-          onUpdateProps={handleUpdateProps}
-          onMoveToContainer={(containerId, componentId, tabIndex) => {
-            // Find the component first
-            const comp = findComponent(components, componentId);
-            if (comp) {
-              // Remove from current location
-              const parentId = findParentContainerId(components, componentId);
-              if (parentId) {
-                handleRemoveChildFromContainer(parentId, componentId);
-              } else {
-                // It's at root level, remove from root
-                setComponents(prev => prev.filter(c => c.id !== componentId));
-              }
-              // Add to target container (with optional tabIndex for tabs)
-              handleAddChildToContainer(containerId, comp, tabIndex);
-            }
-          }}
-          onMoveOutOfContainer={(containerId, componentId) => {
-            handleMoveChildToRoot(containerId, componentId, -1);
           }}
         />
       </div>
