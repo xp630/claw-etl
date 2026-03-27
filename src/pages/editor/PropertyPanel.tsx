@@ -625,6 +625,17 @@ function PropertyPanel({
           <div className="border-t border-[var(--border)] pt-4">
             <div className="text-xs text-[var(--text-muted)] mb-2">组件配置</div>
             
+            {/* 组件层 */}
+            <div className="border border-[var(--border)] rounded p-2 max-h-[200px] overflow-y-auto mb-3">
+              <ComponentTree
+                components={components}
+                selectedId={selectedComponent?.id || null}
+                onSelect={(id) => { onSelectComponent?.(id); }}
+                onDelete={(id) => { if (confirm('确定删除该组件?')) { onDeleteComponent?.(id); } }}
+                showHeader={false}
+              />
+            </div>
+            
             <div className="space-y-3">
               {/* 所有开关属性一行 */}
               <div className="flex items-center gap-2 overflow-x-auto">
