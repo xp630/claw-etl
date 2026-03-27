@@ -544,7 +544,7 @@ export default function DataTable({
             <select
               value={currentPageSize}
               onChange={(e) => onPageSizeChange?.(Number(e.target.value))}
-              className="px-2 py-1 border border-[var(--border)] rounded text-xs"
+              className="px-2 py-1 border border-[var(--border)] rounded text-xs bg-[var(--input-bg)] text-[var(--text-primary)]"
             >
               <option value={10}>10条/页</option>
               <option value={20}>20条/页</option>
