@@ -55,7 +55,7 @@ const PageList: React.FC = () => {
   }, [loadPages]);
 
   const handleEdit = (row: PageItem) => {
-    navigate(`/page-editor?pageId=${row.id}`);
+    window.open(`/page-editor?pageId=${row.id}`, '_blank');
   };
 
   const handlePreview = (row: PageItem) => {
