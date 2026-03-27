@@ -685,14 +685,6 @@ function PageEditor() {
           </div>
         )}
 
-        {/* 点击其他地方关闭浮动面板 */}
-        {activeLeftTab && (
-          <div 
-            className="absolute inset-0 z-30" 
-            onClick={() => setActiveLeftTab('')}
-          />
-        )}
-
         <DropCanvas
           components={components}
           allComponents={components}
