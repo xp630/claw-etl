@@ -638,7 +638,7 @@ function PropertyPanel({
             
             <div className="space-y-3">
               {/* 所有开关属性一行 */}
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2 overflow-x-auto">
                 {/* 显示分页 + 每页条数 */}
                 {selectedComponent.props.pagination !== undefined && (
                   <div className="flex items-center gap-1 bg-[var(--bg-secondary)] px-2 py-1.5 rounded">
