@@ -664,6 +664,7 @@ function PropertyPanel({
                         onChange={(e) => handlePropChange('pageSize', Number(e.target.value))}
                         className="px-2 py-1 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                       >
+                        <option value={5}>5</option>
                         <option value={10}>10</option>
                         <option value={20}>20</option>
                         <option value={50}>50</option>
