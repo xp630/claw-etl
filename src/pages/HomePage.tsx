@@ -18,11 +18,11 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen bg-[var(--bg-secondary)] p-6">
       {/* 顶部标题 */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-800">欢迎回来</h1>
-        <p className="text-gray-500 mt-1">美好的一天，从这里开始</p>
+        <p className="text-[var(--text-muted)] mt-1">美好的一天，从这里开始</p>
       </div>
 
       {/* 彩色卡片区域 */}
@@ -36,23 +36,23 @@ export default function HomePage() {
           >
             <div className="text-2xl mb-2">{card.icon}</div>
             <h3 className="font-medium text-gray-800">{card.title}</h3>
-            <p className="text-sm text-gray-500 mt-1">{card.desc}</p>
+            <p className="text-sm text-[var(--text-muted)] mt-1">{card.desc}</p>
           </div>
         ))}
       </div>
 
       {/* 快捷入口 */}
-      <div className="bg-white rounded-xl p-4 shadow-sm">
-        <h2 className="text-lg font-medium text-gray-700 mb-4">快捷入口</h2>
+      <div className="bg-[var(--bg-primary)] rounded-xl p-4 shadow-sm">
+        <h2 className="text-lg font-medium text-[var(--text-primary)] mb-4">快捷入口</h2>
         <div className="grid grid-cols-4 gap-4">
           {shortcuts.map((s, i) => (
             <div
               key={i}
-              className="flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-blue-400 hover:bg-blue-50 cursor-pointer transition-colors"
+              className="flex items-center gap-3 p-3 rounded-lg border border-[var(--border)] hover:border-[var(--info)] hover:bg-[var(--info)]/10 cursor-pointer transition-colors"
               onClick={() => navigate(s.path)}
             >
               <span className="text-xl">{s.icon}</span>
-              <span className="text-sm text-gray-700">{s.name}</span>
+              <span className="text-sm text-[var(--text-primary)]">{s.name}</span>
             </div>
           ))}
         </div>
