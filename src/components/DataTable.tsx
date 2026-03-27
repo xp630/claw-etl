@@ -8,7 +8,7 @@ export interface ColumnDef {
   minWidth?: number;
   visible?: boolean;
   sortable?: boolean;
-  fieldType?: 'text' | 'number' | 'select' | 'date' | 'datetime' | 'switch' | 'image' | 'currency' | 'action' | 'custom';
+  fieldType?: 'text' | 'number' | 'select' | 'date' | 'datetime' | 'switch' | 'image' | 'currency' | 'action' | 'fixed' | 'custom';
   align?: 'left' | 'center' | 'right';
   ellipsis?: boolean;
   frozen?: boolean;
@@ -24,6 +24,9 @@ export interface ColumnDef {
   // 自定义查询控件类型
   queryType?: 'input' | 'select' | 'date' | 'daterange' | 'number';
   queryOperator?: 'eq' | 'like' | 'gt' | 'lt' | 'between';
+  // 固定值和自定义函数
+  fixedValue?: any;
+  customFunction?: string;
 }
 
 export interface PaginationConfig {
@@ -278,6 +281,18 @@ export default function DataTable({
         return value ? '是' : '否';
       case 'image':
         return value ? <img src={value} alt="" className="w-8 h-8 object-cover rounded" /> : '-';
+      case 'fixed':
+        return col.fixedValue ?? '-';
+      case 'custom':
+        if (col.customFunction) {
+          try {
+            const fn = new Function('row', 'index', col.customFunction);
+            return <span dangerouslySetInnerHTML={{ __html: fn(row, index) || '-' }} />;
+          } catch {
+            return '-';
+          }
+        }
+        return String(value);
       default:
         return String(value);
     }
