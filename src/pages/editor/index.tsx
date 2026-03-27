@@ -575,38 +575,6 @@ function PageEditor() {
         />
         {/* 浮动工具栏 - 横向放在上面 */}
         <div className="flex items-center gap-1">
-          {/* 添加组件按钮 */}
-          <button
-            onClick={() => {
-              const newComponent: CanvasComponent = {
-                id: generateId(),
-                type: 'table',
-                label: '数据表格',
-                props: {
-                  apiId: undefined,
-                  queryApiId: undefined,
-                  columns: [],
-                  pagination: true,
-                  pageSize: 10,
-                  showSearch: true,
-                  showAdd: false,
-                  showExport: false,
-                  showEdit: true,
-                  showDelete: true,
-                  showPagination: true,
-                  showDetail: false,
-                },
-              };
-              setComponents(prev => [...prev, newComponent]);
-              setSelectedId(newComponent.id);
-              setActiveLeftTab('props');
-            }}
-            className="px-3 py-1.5 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors flex items-center gap-1"
-            title="添加数据表格"
-          >
-            <Plus className="w-4 h-4" />
-            添加
-          </button>
           <button
             onClick={() => setActiveLeftTab(activeLeftTab === 'components' ? '' : 'components')}
             className={`px-3 py-1.5 text-xs rounded transition-colors flex items-center gap-1.5 ${activeLeftTab === 'components' ? 'bg-[var(--accent)] text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'}`}
@@ -697,7 +665,40 @@ function PageEditor() {
               />
             )}
             {activeLeftTab === 'components' && (
-              <ComponentPanel onDragStart={() => { setActiveLeftTab(''); }} />
+              <div>
+                {/* 添加组件按钮 */}
+                <button
+                  onClick={() => {
+                    const newComponent: CanvasComponent = {
+                      id: generateId(),
+                      type: 'table',
+                      label: '数据表格',
+                      props: {
+                        apiId: undefined,
+                        queryApiId: undefined,
+                        columns: [],
+                        pagination: true,
+                        pageSize: 10,
+                        showSearch: true,
+                        showAdd: false,
+                        showExport: false,
+                        showEdit: true,
+                        showDelete: true,
+                        showPagination: true,
+                        showDetail: false,
+                      },
+                    };
+                    setComponents(prev => [...prev, newComponent]);
+                    setSelectedId(newComponent.id);
+                    setActiveLeftTab('props');
+                  }}
+                  className="w-full px-3 py-2 text-xs bg-blue-500 text-white rounded-t-lg hover:bg-blue-600 transition-colors flex items-center justify-center gap-1"
+                >
+                  <Plus className="w-4 h-4" />
+                  添加数据表格
+                </button>
+                <ComponentPanel onDragStart={() => { setActiveLeftTab(''); }} />
+              </div>
             )}
             {activeLeftTab === 'props' && selectedComponent && (
               <div className="p-3 overflow-y-auto max-h-[calc(100vh-200px)]">
