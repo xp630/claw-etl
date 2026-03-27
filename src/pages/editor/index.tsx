@@ -660,7 +660,7 @@ function PageEditor() {
               <ComponentTree
                 components={components}
                 selectedId={selectedId}
-                onSelect={(id) => { setSelectedId(id); }}
+                onSelect={(id) => { setSelectedId(id); setShowPropsModal(true); }}
                 onDelete={handleDelete}
                 onMove={(dragId, dropId, position) => { console.log('Move:', dragId, 'to', dropId, position); }}
                 showHeader={true}
@@ -767,7 +767,7 @@ function PageEditor() {
           components={components}
           allComponents={components}
           selectedId={selectedId}
-          onSelect={setSelectedId}
+          onSelect={(id) => { setSelectedId(id); setShowPropsModal(true); }}
           onReorder={handleReorder}
           onDelete={handleDelete}
           onDrop={handleDrop}
