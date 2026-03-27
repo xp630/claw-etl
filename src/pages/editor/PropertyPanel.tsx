@@ -566,13 +566,13 @@ function PropertyPanel({
         <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-4">属性配置</h3>
 
         {/* Quick Actions - Move In/Out of Container */}
-        <div className="mb-4 p-2 bg-[var(--accent-light)] rounded border border-[var(--accent)]/30">
-          <div className="text-xs text-blue-600 mb-2">快捷操作</div>
+        <div className="mb-4 p-2 bg-[var(--info)]/10 rounded border border-[var(--info)]/30">
+          <div className="text-xs text-[var(--info)] mb-2">快捷操作</div>
           <div className="flex gap-2">
             <button
               onClick={() => setContainerSelectorOpen(true)}
               disabled={availableContainers.length === 0}
-              className="px-2 py-1 bg-[var(--bg-primary)] border border-[var(--accent)]/30 rounded text-xs text-[var(--accent)] hover:bg-[var(--accent-light)] disabled:bg-[var(--bg-tertiary)] disabled:text-[var(--text-muted)] disabled:cursor-not-allowed"
+              className="px-2 py-1 bg-[var(--bg-primary)] border border-[var(--info)]/30 rounded text-xs text-[var(--info)] hover:bg-[var(--info)]/10 disabled:bg-[var(--bg-tertiary)] disabled:text-[var(--text-muted)] disabled:cursor-not-allowed"
             >
               移入容器
             </button>
