@@ -1090,6 +1090,28 @@ export async function getDictItems(dictId: number): Promise<DictItem[]> {
   }
 }
 
+// 根据字典名称获取字典选项
+export async function getDictByName(dictName: string): Promise<DictItem[]> {
+  try {
+    // 先获取字典列表找到对应的字典
+    const res = await api.post('/api/dict/list', { name: dictName, page: 1, limit: 50 });
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data?.list) {
+      const dict = res.data.data.list.find((d: any) => d.name === dictName || d.code === dictName);
+      if (dict) {
+        // 获取字典项
+        const itemsRes = await api.get(`/api/dict/${dict.id}/items`);
+        if ((itemsRes.data?.code === 1 || itemsRes.data?.code === 0) && itemsRes.data?.data) {
+          return itemsRes.data.data || [];
+        }
+      }
+    }
+    return [];
+  } catch (error) {
+    console.error('Failed to load dict by name:', error);
+    return [];
+  }
+}
+
 export async function saveDictItem(item: Partial<DictItem>): Promise<DictItem | null> {
   try {
     const res = await api.post('/api/dict/item', item);
