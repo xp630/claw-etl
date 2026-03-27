@@ -1162,15 +1162,51 @@ function PropertyPanel({
                         <>
                           {columns.map((col, idx) => (
                             <div key={idx} className="flex items-center gap-2 p-2 bg-[var(--bg-secondary)] rounded">
-                              <span className="flex-1 text-xs truncate">{col.label}</span>
-                              <span className="text-xs text-[var(--text-muted)]">{col.fieldType || 'text'}</span>
+                              <span className="flex-1 text-xs truncate min-w-[60px]">{col.label}</span>
+                              <span className="text-xs text-[var(--text-muted)] w-12 text-center">{col.fieldType || 'text'}</span>
+                              {/* 可见 */}
+                              <button
+                                onClick={() => {
+                                  const newCols = [...(selectedComponent.props.columns as ColumnConfig[])];
+                                  newCols[idx] = { ...newCols[idx], visible: !newCols[idx].visible };
+                                  handlePropChange('columns', newCols);
+                                }}
+                                className={`w-6 h-4 rounded-full text-[8px] ${col.visible !== false ? 'bg-blue-500 text-white' : 'bg-[var(--bg-tertiary)] text-[var(--text-muted)]'}`}
+                                title="可见"
+                              >
+                                可见
+                              </button>
+                              {/* 排序 */}
+                              <button
+                                onClick={() => {
+                                  const newCols = [...(selectedComponent.props.columns as ColumnConfig[])];
+                                  newCols[idx] = { ...newCols[idx], sortable: !newCols[idx].sortable };
+                                  handlePropChange('columns', newCols);
+                                }}
+                                className={`w-6 h-4 rounded-full text-[8px] ${col.sortable ? 'bg-blue-500 text-white' : 'bg-[var(--bg-tertiary)] text-[var(--text-muted)]'}`}
+                                title="排序"
+                              >
+                                排序
+                              </button>
+                              {/* 查询 */}
+                              <button
+                                onClick={() => {
+                                  const newCols = [...(selectedComponent.props.columns as ColumnConfig[])];
+                                  newCols[idx] = { ...newCols[idx], queryCondition: col.queryCondition === false ? true : (col.queryCondition === true ? false : true) };
+                                  handlePropChange('columns', newCols);
+                                }}
+                                className={`w-6 h-4 rounded-full text-[8px] ${col.queryCondition ? 'bg-blue-500 text-white' : 'bg-[var(--bg-tertiary)] text-[var(--text-muted)]'}`}
+                                title="查询条件"
+                              >
+                                查
+                              </button>
                               <button
                                 onClick={() => {
                                   setEditingColumn(col);
                                   setEditingColumnIndex(idx);
                                   setColumnConfigOpen(true);
                                 }}
-                                className="text-blue-500 hover:text-blue-600"
+                                className="text-blue-500 hover:text-blue-600 text-xs"
                               >
                                 编辑
                               </button>
