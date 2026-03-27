@@ -288,9 +288,9 @@ export default function DataTable({
   );
 
   return (
-    <div className={`bg-white rounded ${bordered ? 'border border-gray-200' : ''} flex flex-col`}>
+    <div className={`bg-[var(--bg-primary)] rounded ${bordered ? 'border border-[var(--border)]' : ''} flex flex-col`}>
       {/* 工具栏 */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
         <div className="flex items-center gap-2">
           {customToolbar}
         </div>
@@ -299,7 +299,7 @@ export default function DataTable({
           {showRefresh && (
             <button
               onClick={onRefresh}
-              className="p-1.5 hover:bg-gray-200 rounded text-gray-500 hover:text-gray-700"
+              className="p-1.5 hover:bg-[var(--bg-hover)] rounded text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               title="刷新"
             >
               <RefreshCw className="w-4 h-4" />
@@ -308,7 +308,7 @@ export default function DataTable({
           {showColumnSelector && (
             <button
               onClick={() => setShowColSelector(!showColSelector)}
-              className="p-1.5 hover:bg-gray-200 rounded text-gray-500 hover:text-gray-700"
+              className="p-1.5 hover:bg-[var(--bg-hover)] rounded text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               title="列配置"
             >
               <Eye className="w-4 h-4" />
@@ -319,16 +319,16 @@ export default function DataTable({
 
       {/* 列选择器 */}
       {showColSelector && (
-        <div className="px-4 py-2 bg-gray-50 border-b border-gray-200 flex flex-wrap gap-2">
+        <div className="px-4 py-2 bg-[var(--bg-secondary)] border-b border-[var(--border)] flex flex-wrap gap-2">
           {columns.filter(c => c.fieldType !== 'action').map(col => (
             <label key={col.key} className="flex items-center gap-1.5 text-xs cursor-pointer">
               <input
                 type="checkbox"
                 checked={selectedColumns.includes(col.key)}
                 onChange={() => handleColumnToggle(col.key)}
-                className="w-3.5 h-3.5 rounded border-gray-300"
+                className="w-3.5 h-3.5 rounded border-[var(--border)]"
               />
-              <span className="text-gray-600">{col.label}</span>
+              <span className="text-[var(--text-secondary)]">{col.label}</span>
             </label>
           ))}
         </div>
@@ -336,19 +336,19 @@ export default function DataTable({
 
       {/* 查询和按钮区域 */}
       {showSearchBar && effectiveQueryFields.length > 0 && (
-        <div className="px-4 py-3 border-b border-gray-200 bg-gray-50">
+        <div className="px-4 py-3 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
           <div className="flex items-center gap-2 flex-wrap">
             <div className="flex items-center gap-2 flex-wrap flex-1">
               {displayQueryFields.slice(0, 3).map(col => (
                 <div key={col.key} className="flex items-center gap-1.5">
-                  <label className={`text-xs text-gray-500 whitespace-nowrap ${compact ? 'text-[10px]' : ''}`}>
+                  <label className={`text-xs text-[var(--text-muted)] whitespace-nowrap ${compact ? 'text-[10px]' : ''}`}>
                     {col.label}:
                   </label>
                   {col.queryType === 'select' || col.fieldType === 'select' ? (
                     <select
                       value={searchParams[col.key] || ''}
                       onChange={(e) => setSearchParams({ ...searchParams, [col.key]: e.target.value })}
-                      className={`px-2 ${compact ? 'py-1' : 'py-1.5'} border border-gray-300 rounded text-xs w-24`}
+                      className={`px-2 ${compact ? 'py-1' : 'py-1.5'} border border-[var(--border)] rounded text-xs w-24`}
                     >
                       <option value="">请选择</option>
                       {col.options?.map(opt => (
@@ -364,7 +364,7 @@ export default function DataTable({
                       value={searchParams[col.key] || ''}
                       onChange={(e) => setSearchParams({ ...searchParams, [col.key]: e.target.value })}
                       placeholder={`请输入`}
-                      className={`px-2 ${compact ? 'py-1' : 'py-1.5'} border border-gray-300 rounded text-xs w-24`}
+                      className={`px-2 ${compact ? 'py-1' : 'py-1.5'} border border-[var(--border)] rounded text-xs w-24`}
                     />
                   )}
                 </div>
@@ -377,14 +377,14 @@ export default function DataTable({
                 <>
                   <button
                     onClick={handleSearch}
-                    className={`px-3 ${compact ? 'py-1' : 'py-1.5'} text-xs bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-1`}
+                    className={`px-3 ${compact ? 'py-1' : 'py-1.5'} text-xs bg-[var(--accent-light)]0 text-white rounded hover:bg-[var(--accent-hover)] flex items-center gap-1`}
                   >
                     <Search className="w-3 h-3" />
                     查询
                   </button>
                   <button
                     onClick={handleReset}
-                    className={`px-3 ${compact ? 'py-1' : 'py-1.5'} text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200`}
+                    className={`px-3 ${compact ? 'py-1' : 'py-1.5'} text-xs bg-[var(--bg-tertiary)] text-[var(--text-secondary)] rounded hover:bg-[var(--bg-hover)]`}
                   >
                     重置
                   </button>
@@ -401,7 +401,7 @@ export default function DataTable({
               {showAdd && (
                 <button
                   onClick={openAddModal}
-                  className={`px-3 ${compact ? 'py-1' : 'py-1.5'} text-xs bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center gap-1`}
+                  className={`px-3 ${compact ? 'py-1' : 'py-1.5'} text-xs bg-[var(--accent-light)]0 text-white rounded hover:bg-[var(--accent-hover)] flex items-center gap-1`}
                 >
                   <Plus className="w-3 h-3" />
                   新增
@@ -410,7 +410,7 @@ export default function DataTable({
               {showExport && (
                 <button
                   onClick={() => onExport?.('current')}
-                  className={`px-3 ${compact ? 'py-1' : 'py-1.5'} text-xs bg-green-500 text-white rounded hover:bg-green-600 flex items-center gap-1`}
+                  className={`px-3 ${compact ? 'py-1' : 'py-1.5'} text-xs bg-[var(--success)] text-white rounded hover:bg-[var(--success)] flex items-center gap-1`}
                 >
                   <Download className="w-3 h-3" />
                   导出
@@ -424,8 +424,8 @@ export default function DataTable({
       {/* 表格 */}
       <div className="overflow-auto flex-1" style={tableStyle}>
         <table className="w-full min-w-[600px]">
-          <thead className="sticky top-0 bg-gray-100 z-10">
-            <tr className="border-b border-gray-200">
+          <thead className="sticky top-0 bg-[var(--bg-tertiary)] z-10">
+            <tr className="border-b border-[var(--border)]">
               {visibleColumns.map(col => (
                 <th
                   key={col.key}
@@ -434,14 +434,14 @@ export default function DataTable({
                     minWidth: col.minWidth || col.width || 150,
                     textAlign: col.align || 'left'
                   }}
-                  className={`${paddingClass} text-left ${textSizeClass} font-medium text-gray-600 truncate`}
+                  className={`${paddingClass} text-left ${textSizeClass} font-medium text-[var(--text-secondary)] truncate`}
                 >
                   <div className="flex items-center gap-1">
                     <span className="truncate">{col.label}</span>
                     {col.sortable && (
                       <button 
                         onClick={() => onSort?.(col.key, 'asc')}
-                        className="p-0.5 hover:bg-gray-200 rounded"
+                        className="p-0.5 hover:bg-[var(--bg-hover)] rounded"
                       >
                         ↕
                       </button>
@@ -450,7 +450,7 @@ export default function DataTable({
                 </th>
               ))}
               {(showEdit || showDelete || showDetail) && (
-                <th className={`${paddingClass} text-left ${textSizeClass} font-medium text-gray-600`} style={{ width: 120 }}>
+                <th className={`${paddingClass} text-left ${textSizeClass} font-medium text-[var(--text-secondary)]`} style={{ width: 120 }}>
                   操作
                 </th>
               )}
@@ -459,7 +459,7 @@ export default function DataTable({
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={visibleColumns.length + (showEdit || showDelete || showDetail ? 1 : 0)} className={`${paddingClass} text-center text-gray-400`}>
+                <td colSpan={visibleColumns.length + (showEdit || showDelete || showDetail ? 1 : 0)} className={`${paddingClass} text-center text-[var(--text-muted)]`}>
                   <div className="flex items-center justify-center gap-2">
                     <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
                     加载中...
@@ -468,7 +468,7 @@ export default function DataTable({
               </tr>
             ) : data.length === 0 ? (
               <tr>
-                <td colSpan={visibleColumns.length + (showEdit || showDelete || showDetail ? 1 : 0)} className={`${paddingClass} text-center text-gray-400`}>
+                <td colSpan={visibleColumns.length + (showEdit || showDelete || showDetail ? 1 : 0)} className={`${paddingClass} text-center text-[var(--text-muted)]`}>
                   暂无数据
                 </td>
               </tr>
@@ -476,12 +476,12 @@ export default function DataTable({
               data.map((row, idx) => (
                 <tr
                   key={row[rowKey] || idx}
-                  className={`border-b border-gray-100 ${hoverable ? 'hover:bg-gray-50' : ''} ${striped && idx % 2 === 1 ? 'bg-gray-50/50' : ''}`}
+                  className={`border-b border-[var(--border-light)] ${hoverable ? 'hover:bg-[var(--bg-secondary)]' : ''} ${striped && idx % 2 === 1 ? 'bg-[var(--bg-secondary)]/50' : ''}`}
                 >
                   {visibleColumns.map(col => (
                     <td
                       key={col.key}
-                      className={`${paddingClass} ${textSizeClass} text-gray-700`}
+                      className={`${paddingClass} ${textSizeClass} text-[var(--text-primary)]`}
                       style={{ 
                         textAlign: col.align || 'left',
                         maxWidth: col.ellipsis !== false ? (col.width || 150) : undefined,
@@ -500,7 +500,7 @@ export default function DataTable({
                         {showDetail && (
                           <button
                             onClick={() => openDetailModal(row)}
-                            className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-blue-500"
+                            className="p-1 hover:bg-[var(--bg-hover)] rounded text-[var(--text-muted)] hover:text-blue-500"
                             title="查看"
                           >
                             <Eye className="w-4 h-4" />
@@ -509,7 +509,7 @@ export default function DataTable({
                         {showEdit && (
                           <button
                             onClick={() => openEditModal(row)}
-                            className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-blue-500"
+                            className="p-1 hover:bg-[var(--bg-hover)] rounded text-[var(--text-muted)] hover:text-blue-500"
                             title="编辑"
                           >
                             <Edit2 className="w-4 h-4" />
@@ -518,7 +518,7 @@ export default function DataTable({
                         {showDelete && (
                           <button
                             onClick={() => handleDelete(row)}
-                            className="p-1 hover:bg-gray-200 rounded text-gray-400 hover:text-red-500"
+                            className="p-1 hover:bg-[var(--bg-hover)] rounded text-[var(--text-muted)] hover:text-red-500"
                             title="删除"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -536,15 +536,15 @@ export default function DataTable({
 
       {/* 分页 */}
       {paginationConfig && totalPages > 1 && (
-        <div className="flex items-center justify-between px-4 py-2 border-t border-gray-200 bg-gray-50">
-          <div className="text-xs text-gray-500">
+        <div className="flex items-center justify-between px-4 py-2 border-t border-[var(--border)] bg-[var(--bg-secondary)]">
+          <div className="text-xs text-[var(--text-muted)]">
             共 {total} 条
           </div>
           <div className="flex items-center gap-2">
             <select
               value={currentPageSize}
               onChange={(e) => onPageSizeChange?.(Number(e.target.value))}
-              className="px-2 py-1 border border-gray-300 rounded text-xs"
+              className="px-2 py-1 border border-[var(--border)] rounded text-xs"
             >
               <option value={10}>10条/页</option>
               <option value={20}>20条/页</option>
@@ -554,7 +554,7 @@ export default function DataTable({
             <button
               onClick={() => onPageChange?.(currentPage - 1)}
               disabled={currentPage <= 1}
-              className="px-3 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
+              className="px-3 py-1 text-xs bg-[var(--bg-primary)] border border-[var(--border)] rounded hover:bg-[var(--bg-secondary)] disabled:opacity-50"
             >
               上一页
             </button>
@@ -564,7 +564,7 @@ export default function DataTable({
             <button
               onClick={() => onPageChange?.(currentPage + 1)}
               disabled={currentPage >= totalPages}
-              className="px-3 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
+              className="px-3 py-1 text-xs bg-[var(--bg-primary)] border border-[var(--border)] rounded hover:bg-[var(--bg-secondary)] disabled:opacity-50"
             >
               下一页
             </button>
@@ -576,17 +576,17 @@ export default function DataTable({
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div 
-            className="bg-white rounded-lg shadow-xl max-h-[80vh] overflow-hidden flex flex-col"
+            className="bg-[var(--bg-primary)] rounded-lg shadow-xl max-h-[80vh] overflow-hidden flex flex-col"
             style={{ width: typeof modalWidth === 'number' ? `${modalWidth}px` : modalWidth }}
           >
             {/* 弹窗头部 */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
-              <h3 className="text-lg font-medium text-gray-800">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)] bg-[var(--bg-secondary)]">
+              <h3 className="text-lg font-medium text-[var(--text-primary)]">
                 {modalTitle[modalType] || (modalType === 'add' ? '新增' : modalType === 'edit' ? '编辑' : '详情')}
               </h3>
               <button
                 onClick={() => setShowModal(false)}
-                className="p-1 hover:bg-gray-200 rounded text-gray-500 hover:text-gray-700"
+                className="p-1 hover:bg-[var(--bg-hover)] rounded text-[var(--text-muted)] hover:text-[var(--text-primary)]"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -601,7 +601,7 @@ export default function DataTable({
                       key={col.key} 
                       className={col.span && col.span > 1 ? 'col-span-2' : ''}
                     >
-                      <label className="block text-sm text-gray-600 mb-1">
+                      <label className="block text-sm text-[var(--text-secondary)] mb-1">
                         {col.label}
                         {col.required && <span className="text-red-500 ml-1">*</span>}
                       </label>
@@ -609,7 +609,7 @@ export default function DataTable({
                         <select
                           value={formData[col.key] ?? ''}
                           onChange={(e) => handleFormChange(col.key, e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-[var(--border)] rounded text-sm focus:outline-none focus:border-blue-500"
                           disabled={modalType === 'detail'}
                         >
                           <option value="">请选择</option>
@@ -625,7 +625,7 @@ export default function DataTable({
                           type="date"
                           value={formData[col.key] ?? ''}
                           onChange={(e) => handleFormChange(col.key, e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-[var(--border)] rounded text-sm focus:outline-none focus:border-blue-500"
                           disabled={modalType === 'detail'}
                         />
                       ) : col.fieldType === 'datetime' ? (
@@ -633,7 +633,7 @@ export default function DataTable({
                           type="datetime-local"
                           value={formData[col.key] ? String(formData[col.key]).substring(0, 16) : ''}
                           onChange={(e) => handleFormChange(col.key, e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-[var(--border)] rounded text-sm focus:outline-none focus:border-blue-500"
                           disabled={modalType === 'detail'}
                         />
                       ) : col.fieldType === 'number' ? (
@@ -641,14 +641,14 @@ export default function DataTable({
                           type="number"
                           value={formData[col.key] ?? ''}
                           onChange={(e) => handleFormChange(col.key, e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-[var(--border)] rounded text-sm focus:outline-none focus:border-blue-500"
                           disabled={modalType === 'detail'}
                         />
                       ) : col.fieldType === 'switch' ? (
                         <select
                           value={formData[col.key] ?? ''}
                           onChange={(e) => handleFormChange(col.key, e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-[var(--border)] rounded text-sm focus:outline-none focus:border-blue-500"
                           disabled={modalType === 'detail'}
                         >
                           <option value="">请选择</option>
@@ -661,7 +661,7 @@ export default function DataTable({
                           value={formData[col.key] ?? ''}
                           onChange={(e) => handleFormChange(col.key, e.target.value)}
                           placeholder={col.placeholder || `请输入${col.label}`}
-                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                          className="w-full px-3 py-2 border border-[var(--border)] rounded text-sm focus:outline-none focus:border-blue-500"
                           disabled={modalType === 'detail'}
                         />
                       )}
@@ -676,8 +676,8 @@ export default function DataTable({
                       key={col.key} 
                       className={`${col.span && col.span > 1 ? 'col-span-2' : ''}`}
                     >
-                      <label className="block text-sm text-gray-500 mb-1">{col.label}</label>
-                      <div className="text-sm text-gray-800 px-3 py-2 bg-gray-50 rounded">
+                      <label className="block text-sm text-[var(--text-muted)] mb-1">{col.label}</label>
+                      <div className="text-sm text-gray-800 px-3 py-2 bg-[var(--bg-secondary)] rounded">
                         {renderCellValue(formData[col.key], col, formData, 0)}
                       </div>
                     </div>
@@ -687,10 +687,10 @@ export default function DataTable({
             </div>
 
             {/* 弹窗底部 */}
-            <div className="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+            <div className="flex justify-end gap-3 px-6 py-4 border-t border-[var(--border)] bg-[var(--bg-secondary)]">
               <button
                 onClick={() => setShowModal(false)}
-                className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded hover:bg-gray-50"
+                className="px-4 py-2 text-sm text-[var(--text-secondary)] bg-[var(--bg-primary)] border border-[var(--border)] rounded hover:bg-[var(--bg-secondary)]"
               >
                 取消
               </button>
@@ -698,7 +698,7 @@ export default function DataTable({
                 <button
                   onClick={handleSubmit}
                   disabled={submitting}
-                  className="px-4 py-2 text-sm text-white bg-blue-500 rounded hover:bg-blue-600 disabled:opacity-50"
+                  className="px-4 py-2 text-sm text-white bg-[var(--accent-light)]0 rounded hover:bg-[var(--accent-hover)] disabled:opacity-50"
                 >
                   {submitting ? '提交中...' : '确定'}
                 </button>
