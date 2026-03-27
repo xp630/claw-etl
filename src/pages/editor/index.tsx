@@ -620,7 +620,7 @@ function PageEditor() {
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
         {/* 左侧：组件面板 + 组件层 Tab 切换 */}
-        <div className="w-56 flex flex-col bg-[var(--bg-secondary)]">
+        <div className="w-48 flex flex-col bg-[var(--bg-secondary)]">
           {/* Tab 切换 */}
           <div className="flex border-b border-[var(--border-light)] bg-[var(--bg-primary)]">
             <button
