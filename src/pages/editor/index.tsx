@@ -653,7 +653,7 @@ function PageEditor() {
         {/* 浮动面板 */}
         {(activeLeftTab === 'layer' || activeLeftTab === 'components') && (
           <div 
-            className="absolute left-4 top-4 z-40 w-72 h-[calc(100vh-140px)] bg-[var(--bg-primary)] border border-[var(--border)] rounded-lg shadow-xl overflow-hidden flex flex-col"
+            className="absolute left-4 top-4 z-40 w-72 h-[calc(100vh-140px)] bg-[var(--bg-primary)] border border-[var(--border)] rounded-lg shadow-xl flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {activeLeftTab === 'layer' && (
