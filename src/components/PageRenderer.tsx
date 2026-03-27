@@ -216,7 +216,7 @@ function TableRenderer({
                 <select
                   value={searchParams[col.key] || ''}
                   onChange={(e) => setSearchParams({ ...searchParams, [col.key]: e.target.value })}
-                  className="px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-blue-500"
+                  className="px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                 >
                   <option value="">请选择</option>
                 </select>
@@ -227,14 +227,14 @@ function TableRenderer({
                     type="date"
                     value={searchParams[col.key + 'Start'] || ''}
                     onChange={(e) => setSearchParams({ ...searchParams, [col.key + 'Start']: e.target.value })}
-                    className="px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-blue-500"
+                    className="px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                   />
                   <span className="text-xs text-[var(--text-muted)]">至</span>
                   <input
                     type="date"
                     value={searchParams[col.key + 'End'] || ''}
                     onChange={(e) => setSearchParams({ ...searchParams, [col.key + 'End']: e.target.value })}
-                    className="px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-blue-500"
+                    className="px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                   />
                 </div>
               ) : (
@@ -243,7 +243,7 @@ function TableRenderer({
                   value={searchParams[col.key] || ''}
                   onChange={(e) => setSearchParams({ ...searchParams, [col.key]: e.target.value })}
                   placeholder={`请输入${col.label}`}
-                  className="px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-blue-500 w-24"
+                  className="px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] w-24 bg-[var(--input-bg)] text-[var(--text-primary)]"
                 />
               )}
             </div>
@@ -462,7 +462,7 @@ function TableRenderer({
                         type={col.fieldType === 'number' ? 'number' : 'text'}
                         value={formData[col.key] || ''}
                         onChange={(e) => setFormData({ ...formData, [col.key]: e.target.value })}
-                        className="w-full px-3 py-1.5 border border-[var(--border)] rounded text-sm focus:outline-none focus:border-blue-500"
+                        className="w-full px-3 py-1.5 border border-[var(--border)] rounded text-sm focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                       />
                     </div>
                   ))}
@@ -640,7 +640,7 @@ function ComponentRenderer({ type, props, children, onEvent }: { type: string; p
           <input
             type="text"
             placeholder={String(props.placeholder || '')}
-            className={cn('px-3 py-1.5 border border-[var(--border)] rounded text-sm focus:outline-none focus:border-blue-500 transition-colors', props.className as string)}
+            className={cn('px-3 py-1.5 border border-[var(--border)] rounded text-sm focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)] transition-colors', props.className as string)}
           />
         </div>
       );
@@ -740,7 +740,7 @@ function ComponentRenderer({ type, props, children, onEvent }: { type: string; p
       return (
         <div className="flex flex-col gap-1">
           {props.label && <label className="text-xs text-[var(--text-muted)]">{String(props.label)}</label>}
-          <select className="px-3 py-1.5 border border-[var(--border)] rounded text-sm focus:outline-none focus:border-blue-500 bg-[var(--bg-primary)]">
+          <select className="px-3 py-1.5 border border-[var(--border)] rounded text-sm focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]">
             <option value="">{String(props.placeholder || '请选择')}</option>
             {((props.options as string[]) || []).map((opt, i) => (
               <option key={i} value={opt}>{opt}</option>
@@ -755,7 +755,7 @@ function ComponentRenderer({ type, props, children, onEvent }: { type: string; p
           {props.label && <label className="text-xs text-[var(--text-muted)]">{String(props.label)}</label>}
           <input
             type="date"
-            className="px-3 py-1.5 border border-[var(--border)] rounded text-sm focus:outline-none focus:border-blue-500"
+            className="px-3 py-1.5 border border-[var(--border)] rounded text-sm focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
           />
         </div>
       );
