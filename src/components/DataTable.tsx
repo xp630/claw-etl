@@ -210,11 +210,15 @@ export default function DataTable({
   };
 
   const openEditModal = (row: Record<string, any>) => {
+    // 如果有 onEdit 回调（外部处理），则不显示内部弹窗
+    if (onEdit) {
+      onEdit(row);
+      return;
+    }
     setModalType('edit');
     setEditRow(row);
     setFormData({ ...row });
     setShowModal(true);
-    onEdit?.(row);
   };
 
   const openDetailModal = (row: Record<string, any>) => {
@@ -512,7 +516,7 @@ export default function DataTable({
                         )}
                         {showEdit && (
                           <button
-                            onClick={() => openEditModal(row)}
+                            onClick={(e) => { e.stopPropagation(); openEditModal(row); }}
                             className="p-1 hover:bg-[var(--bg-hover)] rounded text-[var(--text-muted)] hover:text-blue-500"
                             title="编辑"
                           >
