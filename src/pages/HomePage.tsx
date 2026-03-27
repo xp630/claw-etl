@@ -4,10 +4,10 @@ export default function HomePage() {
   const navigate = useNavigate();
 
   const cards = [
-    { title: '欢迎使用', desc: '系统首页', color: '#e3f2fd', icon: '🏠' },
-    { title: '快捷入口', desc: '常用功能', color: '#f3e5f5', icon: '⚡' },
-    { title: '数据统计', desc: '运营概览', color: '#e8f5e9', icon: '📊' },
-    { title: '最近更新', desc: '最新动态', color: '#fff3e0', icon: '🕐' },
+    { title: '欢迎使用', desc: '系统首页', bgVar: '--accent', icon: '🏠' },
+    { title: '快捷入口', desc: '常用功能', bgVar: '--warning', icon: '⚡' },
+    { title: '数据统计', desc: '运营概览', bgVar: '--success', icon: '📊' },
+    { title: '最近更新', desc: '最新动态', bgVar: '--info', icon: '🕐' },
   ];
 
   const shortcuts = [
@@ -30,12 +30,12 @@ export default function HomePage() {
         {cards.map((card, i) => (
           <div
             key={i}
-            className="rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-            style={{ backgroundColor: card.color }}
+            className="rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer border border-[var(--border)]"
+            style={{ backgroundColor: `var(--bg-tertiary)` }}
             onClick={() => navigate(`/${card.title.includes('欢迎') ? 'datasources' : card.title.includes('快捷') ? 'tasks' : card.title.includes('数据') ? 'pages' : 'config'}`)}
           >
             <div className="text-2xl mb-2">{card.icon}</div>
-            <h3 className="font-medium text-gray-800">{card.title}</h3>
+            <h3 className="font-medium text-[var(--text-primary)]">{card.title}</h3>
             <p className="text-sm text-[var(--text-muted)] mt-1">{card.desc}</p>
           </div>
         ))}
