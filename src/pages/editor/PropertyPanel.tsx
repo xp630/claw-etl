@@ -1200,6 +1200,22 @@ function PropertyPanel({
                               >
                                 查
                               </button>
+                              {/* 格式化: default/千分位/百分比/日期 */}
+                              <select
+                                value={col.format || 'default'}
+                                onChange={(e) => {
+                                  const newCols = [...(selectedComponent.props.columns as ColumnConfig[])];
+                                  newCols[idx] = { ...newCols[idx], format: e.target.value };
+                                  handlePropChange('columns', newCols);
+                                }}
+                                className="px-1 py-0.5 border border-[var(--border)] rounded text-[10px] bg-[var(--input-bg)] text-[var(--text-primary)]"
+                                title="数据显示格式"
+                              >
+                                <option value="default">默认</option>
+                                <option value="thousandSeparator">千分位</option>
+                                <option value="percent">百分比</option>
+                                <option value="date">日期</option>
+                              </select>
                               <button
                                 onClick={() => {
                                   setEditingColumn(col);
