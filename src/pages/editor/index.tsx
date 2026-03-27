@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { LayoutGrid, Layers, Settings2, Plus } from 'lucide-react';
+import { LayoutGrid, Layers, Settings2, Plus, X } from 'lucide-react';
 import ComponentPanel from './ComponentPanel';
 import ComponentTree from './ComponentTree';
 import DropCanvas, { generateId } from './DropCanvas';
@@ -15,6 +15,7 @@ function PageEditor() {
   const { showToast } = useToast();
   const [components, setComponents] = useState<CanvasComponent[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [showPropsModal, setShowPropsModal] = useState(false);
   const [pageName, setPageName] = useState('未命名页面');
   const [pageCode, setPageCode] = useState('');
   const [pageId, setPageId] = useState<number | null>(null);
@@ -590,8 +591,9 @@ function PageEditor() {
             组件层
           </button>
           <button
-            onClick={() => setActiveLeftTab(activeLeftTab === 'props' ? '' : 'props')}
-            className={`px-3 py-1.5 text-xs rounded transition-colors flex items-center gap-1.5 ${activeLeftTab === 'props' ? 'bg-[var(--accent)] text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'}`}
+            onClick={() => selectedId && setShowPropsModal(true)}
+            disabled={!selectedId}
+            className={`px-3 py-1.5 text-xs rounded transition-colors flex items-center gap-1.5 ${!selectedId ? 'opacity-50 cursor-not-allowed' : 'bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]'}`}
           >
             <Settings2 className="w-4 h-4" />
             属性
@@ -649,7 +651,7 @@ function PageEditor() {
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden relative">
         {/* 浮动面板 */}
-        {(activeLeftTab === 'layer' || activeLeftTab === 'components' || activeLeftTab === 'props') && (
+        {(activeLeftTab === 'layer' || activeLeftTab === 'components') && (
           <div 
             className="absolute left-4 top-4 z-40 w-72 max-h-[calc(100vh-140px)] bg-[var(--bg-primary)] border border-[var(--border)] rounded-lg shadow-xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
@@ -658,7 +660,7 @@ function PageEditor() {
               <ComponentTree
                 components={components}
                 selectedId={selectedId}
-                onSelect={(id) => { setSelectedId(id); setActiveLeftTab('props'); }}
+                onSelect={(id) => { setSelectedId(id); }}
                 onDelete={handleDelete}
                 onMove={(dragId, dropId, position) => { console.log('Move:', dragId, 'to', dropId, position); }}
                 showHeader={true}
@@ -700,8 +702,31 @@ function PageEditor() {
                 <ComponentPanel onDragStart={() => { setActiveLeftTab(''); }} />
               </div>
             )}
-            {activeLeftTab === 'props' && selectedComponent && (
-              <div className="p-3 overflow-y-auto max-h-[calc(100vh-200px)]">
+          </div>
+        )}
+
+        {/* 属性配置弹窗 */}
+        {showPropsModal && selectedComponent && (
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+            onClick={() => setShowPropsModal(false)}
+          >
+            <div 
+              className="bg-[var(--bg-primary)] rounded-lg shadow-xl w-[600px] max-h-[80vh] flex flex-col"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
+                <h3 className="font-medium text-[var(--text-primary)]">
+                  属性配置 - {selectedComponent.label}
+                </h3>
+                <button
+                  onClick={() => setShowPropsModal(false)}
+                  className="p-1 hover:bg-[var(--bg-hover)] rounded"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4">
                 <PropertyPanel
                   selectedComponent={selectedComponent}
                   components={components}
@@ -720,7 +745,7 @@ function PageEditor() {
                   }}
                 />
               </div>
-            )}
+            </div>
           </div>
         )}
 
