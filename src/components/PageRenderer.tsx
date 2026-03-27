@@ -2,6 +2,8 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, ChevronDown, Search, Download, Plus, Edit2, Trash2, Eye, X } from 'lucide-react';
 import { dataBridge } from '../lib/DataBridge';
 import cn from 'classnames';
+import DataTable from './DataTable';
+import type { ColumnDef } from './DataTable';
 
 // 组件配置类型
 interface ComponentConfig {

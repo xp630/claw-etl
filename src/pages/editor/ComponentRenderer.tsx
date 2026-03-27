@@ -3,6 +3,8 @@ import { CanvasComponent, ColumnConfig } from './types';
 import ContainerRenderer from './ContainerRenderer';
 import FormRenderer from './FormRenderer';
 import { dataBridge } from '../../lib/DataBridge';
+import DataTable from '../../components/DataTable';
+import type { ColumnDef } from '../../components/DataTable';
 
 interface ComponentRendererProps {
   component: CanvasComponent;
@@ -210,36 +212,38 @@ function ComponentRenderer({ component, children, allComponents, onResize, onUpd
     
     case 'table': {
       const apiId = props.queryApiId || props.apiId;
-      const [tableData, setTableData] = useState<Record<string, unknown>[]>([]);
+      const [tableData, setTableData] = useState<Record<string, any>[]>([]);
       const [tableLoading, setTableLoading] = useState(false);
       const [currentPage, setCurrentPage] = useState(1);
       const [currentPageSize, setCurrentPageSize] = useState((props.pageSize as number) || 10);
+      const [tableTotal, setTableTotal] = useState(0);
 
-      const loadTableData = useCallback(async () => {
+      const loadTableData = useCallback(async (pageNum: number = 1, pageSz: number = currentPageSize, params?: Record<string, any>) => {
         if (!apiId) return;
         setTableLoading(true);
         try {
-          const result = await dataBridge.request(Number(apiId), { page: 1, pageSize: 2 });
+          const result = await dataBridge.request(Number(apiId), { page: pageNum, pageSize: pageSz, ...params });
           setTableData(result.list || []);
+          setTableTotal(result.total || 0);
         } catch (error) {
           console.error('Failed to load table data:', error);
         } finally {
           setTableLoading(false);
         }
-      }, [apiId]);
+      }, [apiId, currentPageSize]);
 
       useEffect(() => {
         if (apiId) {
-          loadTableData();
+          loadTableData(1, currentPageSize);
         }
-      }, [apiId, loadTableData]);
+      }, [apiId]);
 
       const columns = (props.columns as ColumnConfig[]) || [];
-      const data = apiId ? tableData : ((props.data as Record<string, unknown>[]) || []);
-      const bordered = props.bordered as boolean;
-      const striped = props.striped as boolean;
-      const hoverable = props.hoverable as boolean;
-      const pagination = props.pagination as boolean;
+      const data = apiId ? tableData : ((props.data as Record<string, any>[]) || []);
+      const bordered = props.bordered !== false;
+      const striped = props.striped !== false;
+      const hoverable = props.hoverable !== false;
+      const pagination = props.pagination !== false;
       const showAdd = props.showAdd as boolean;
       const showExport = props.showExport as boolean;
       const showDetail = props.showDetail as boolean;
@@ -247,182 +251,58 @@ function ComponentRenderer({ component, children, allComponents, onResize, onUpd
       const showDelete = props.showDelete as boolean;
 
       const queryFields = columns.filter(col => col.queryCondition);
-      const [searchParams, setSearchParams] = useState<Record<string, string>>({});
 
-      const page = currentPage;
-      const total = data.length;
-      const totalPages = Math.ceil(total / currentPageSize) || 1;
-      const paginatedData = pagination
-        ? data.slice((page - 1) * currentPageSize, page * currentPageSize)
-        : data;
+      // 转换列格式
+      const tableColumns: ColumnDef[] = columns
+        .filter(col => col.visible !== false)
+        .map(col => ({
+          key: col.key,
+          label: col.label,
+          width: col.width,
+          visible: col.visible,
+          sortable: col.sortable,
+          fieldType: col.fieldType as any,
+          align: col.align as any,
+          ellipsis: col.ellipsis,
+          dataDictionary: col.dataDictionary,
+          dateFormat: col.dateFormat,
+        }));
 
       return (
-        <div className="border border-gray-200 rounded bg-white">
-          {/* 查询条件 + 操作按钮 - 同一行 */}
-          <div className="flex gap-2 p-3 border-b border-gray-200 bg-gray-50 items-center flex-wrap">
-            {/* 查询条件区域 - 靠左 */}
-            <div className="flex gap-2 items-center flex-wrap">
-              {queryFields.slice(0, 4).map(col => (
-                <div key={col.key} className="flex items-center gap-1">
-                  <label className="text-xs text-gray-500 whitespace-nowrap">{col.label}:</label>
-                  {col.fieldType === 'select' ? (
-                    <select
-                      value={searchParams[col.key] || ''}
-                      onChange={(e) => setSearchParams({ ...searchParams, [col.key]: e.target.value })}
-                      className="px-2 py-1 border border-gray-300 rounded text-xs"
-                    >
-                      <option value="">请选择</option>
-                    </select>
-                  ) : (col.fieldType === 'date' || col.fieldType === 'datetime') ? (
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="date"
-                        value={searchParams[col.key + 'Start'] || ''}
-                        onChange={(e) => setSearchParams({ ...searchParams, [col.key + 'Start']: e.target.value })}
-                        className="px-2 py-1 border border-gray-300 rounded text-xs"
-                      />
-                      <span className="text-xs text-gray-400">至</span>
-                      <input
-                        type="date"
-                        value={searchParams[col.key + 'End'] || ''}
-                        onChange={(e) => setSearchParams({ ...searchParams, [col.key + 'End']: e.target.value })}
-                        className="px-2 py-1 border border-gray-300 rounded text-xs"
-                      />
-                    </div>
-                  ) : (
-                    <input
-                      type={col.fieldType === 'number' ? 'number' : 'text'}
-                      value={searchParams[col.key] || ''}
-                      onChange={(e) => setSearchParams({ ...searchParams, [col.key]: e.target.value })}
-                      placeholder={`请输入${col.label}`}
-                      className="px-2 py-1 border border-gray-300 rounded text-xs w-24"
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {/* 操作按钮区域 - 靠右 */}
-            <div className="flex gap-2 ml-auto items-center">
-              {queryFields.length > 0 && (
-                <button className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600">查询</button>
-              )}
-              {showAdd && <button className="px-3 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600">新增</button>}
-              {showExport && <button className="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600">导出</button>}
-            </div>
-          </div>
-
-          {/* 表格 */}
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[600px]">
-              <thead>
-                <tr className="border-b border-[var(--border-light)] bg-[var(--bg-hover-light)]">
-                  {columns.filter(col => col.visible !== false).map(col => (
-                    <th key={col.key}
-                        style={{ width: '150px', minWidth: '150px' }}
-                        className={`px-4 py-2 text-left text-sm font-medium text-[var(--text-muted)] truncate overflow-hidden border-b border-[var(--border-light)] ${col.sortable ? 'cursor-pointer hover:bg-gray-100' : ''}`}
-                        title={col.label}>
-                      <span className="block truncate">{col.label}</span>
-                    </th>
-                  ))}
-                  {(showDetail || showEdit || showDelete) && (
-                    <th className="px-4 py-2 text-left text-sm font-medium text-[var(--text-muted)] truncate overflow-hidden border-b border-[var(--border-light)]" style={{ width: '150px', minWidth: '150px' }}>操作</th>
-                  )}
-                </tr>
-              </thead>
-              <tbody>
-                {tableLoading ? (
-                  <tr>
-                    <td colSpan={columns.filter(col => col.visible !== false).length + (showDetail || showEdit || showDelete ? 1 : 0)} className="text-center py-8 text-gray-400">
-                      加载中...
-                    </td>
-                  </tr>
-                ) : paginatedData.length === 0 ? (
-                  <tr>
-                    <td colSpan={columns.filter(col => col.visible !== false).length + (showDetail || showEdit || showDelete ? 1 : 0)} className="text-center py-8 text-gray-400">
-                      暂无数据
-                    </td>
-                  </tr>
-                ) : (
-                  paginatedData.map((row, i) => (
-                    <tr key={i} className={`${striped && i % 2 === 1 ? 'bg-gray-50' : ''} ${hoverable ? 'hover:bg-gray-100' : ''}`}>
-                      {columns.filter(col => col.visible !== false).map(col => (
-                        <td key={col.key}
-                            style={{ width: '150px', minWidth: '150px' }}
-                            className={`px-4 py-3 text-sm text-[var(--text-primary)] truncate overflow-hidden border-b border-[var(--border-light)] ${col.align === 'center' ? 'text-center' : col.align === 'right' ? 'text-right' : ''}`}
-                            title={String(row[col.key] ?? '-')}>
-                          {col.fieldType === 'image' ? (
-                            row[col.key] ? <img src={row[col.key] as string} className="h-8 w-8 object-cover rounded" /> : <span className="text-gray-300">-</span>
-                          ) : col.fieldType === 'date' ? (
-                            row[col.key] ? (col.dateFormat ? new Date(row[col.key] as string).toLocaleDateString() : String(row[col.key])) : <span className="text-gray-300">-</span>
-                          ) : col.fieldType === 'fixed' ? (
-                            <span>{col.fixedValue || '-'}</span>
-                          ) : col.fieldType === 'custom' && col.customFunction ? (
-                            <span dangerouslySetInnerHTML={{ __html: (() => { try { const fn = new Function('row', col.customFunction); return fn(row) || '-'; } catch { return '-'; } })() }} />
-                          ) : (
-                            String(row[col.key] ?? '-')
-                          )}
-                        </td>
-                      ))}
-                      {(showDetail || showEdit || showDelete) && (
-                        <td className="px-4 py-3 border-b border-[var(--border-light)]">
-                          <div className="flex gap-1">
-                            {showDetail && <button className="px-2 py-0.5 text-xs text-gray-500 hover:bg-gray-50 rounded">详情</button>}
-                            {showEdit && <button className="px-2 py-0.5 text-xs text-blue-500 hover:bg-blue-50 rounded">编辑</button>}
-                            {showDelete && <button className="px-2 py-0.5 text-xs text-red-500 hover:bg-red-50 rounded">删除</button>}
-                          </div>
-                        </td>
-                      )}
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* 分页 */}
-          {pagination && total > 0 && (
-            <div className="flex items-center justify-between px-3 py-2 border-t border-gray-200 text-xs text-gray-500">
-              <span>共 {total} 条</span>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1">
-                  <span>每页</span>
-                  <select
-                    value={currentPageSize}
-                    onChange={(e) => {
-                      const newSize = Number(e.target.value);
-                      setCurrentPageSize(newSize);
-                      setCurrentPage(1);
-                    }}
-                    className="px-1 py-0.5 border border-gray-200 rounded text-xs focus:outline-none"
-                  >
-                    <option value={10}>10</option>
-                    <option value={20}>20</option>
-                    <option value={50}>50</option>
-                  </select>
-                  <span>条</span>
-                </div>
-                <div className="flex gap-1">
-                  <button
-                    className="px-2 py-1 border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-50"
-                    disabled={page <= 1}
-                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                  >
-                    上一页
-                  </button>
-                  <span className="px-2 py-1">{page} / {totalPages}</span>
-                  <button
-                    className="px-2 py-1 border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-50"
-                    disabled={page >= totalPages}
-                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                  >
-                    下一页
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+        <DataTable
+          columns={tableColumns}
+          data={data}
+          loading={tableLoading}
+          pagination={pagination ? { page: currentPage, pageSize: currentPageSize, total: tableTotal } : false}
+          queryFields={queryFields.map(q => ({
+            key: q.key,
+            label: q.label,
+            fieldType: q.fieldType as any,
+            dataDictionary: q.dataDictionary,
+          }))}
+          showSearch
+          showAdd={showAdd}
+          showExport={showExport}
+          showEdit={showEdit}
+          showDelete={showDelete}
+          showDetail={showDetail}
+          bordered={bordered}
+          striped={striped}
+          compact
+          onPageChange={(page) => {
+            setCurrentPage(page);
+            loadTableData(page, currentPageSize);
+          }}
+          onPageSizeChange={(size) => {
+            setCurrentPageSize(size);
+            setCurrentPage(1);
+            loadTableData(1, size);
+          }}
+          onSearch={(params) => {
+            setCurrentPage(1);
+            loadTableData(1, currentPageSize, params);
+          }}
+        />
       );
     }
     
