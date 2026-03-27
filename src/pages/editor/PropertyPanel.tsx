@@ -144,7 +144,7 @@ function ColumnConfigModal({
               <input
                 value={localColumn.key || ''}
                 onChange={(e) => setLocalColumn({ ...localColumn, key: e.target.value })}
-                className="w-full px-2 py-1 border rounded text-xs"
+                className="w-full px-2 py-1 border rounded text-xs bg-[var(--input-bg)] text-[var(--text-primary)]"
                 disabled={editingColumnIndex !== null}
               />
             </div>
@@ -154,7 +154,7 @@ function ColumnConfigModal({
               <input
                 value={localColumn.label || ''}
                 onChange={(e) => setLocalColumn({ ...localColumn, label: e.target.value })}
-                className="w-full px-2 py-1 border rounded text-xs"
+                className="w-full px-2 py-1 border rounded text-xs bg-[var(--input-bg)] text-[var(--text-primary)]"
               />
             </div>
             {/* 字段类型 */}
@@ -163,7 +163,7 @@ function ColumnConfigModal({
               <select
                 value={localColumn.fieldType || 'text'}
                 onChange={(e) => setLocalColumn({ ...localColumn, fieldType: e.target.value })}
-                className="w-full px-2 py-1 border rounded text-xs"
+                className="w-full px-2 py-1 border rounded text-xs bg-[var(--input-bg)] text-[var(--text-primary)]"
               >
                 <option value="text">文本</option>
                 <option value="number">数字</option>
@@ -182,7 +182,7 @@ function ColumnConfigModal({
                   value={localColumn.dateFormat || 'YYYY-MM-DD'}
                   onChange={(e) => setLocalColumn({ ...localColumn, dateFormat: e.target.value })}
                   placeholder="YYYY-MM-DD HH:mm:ss"
-                  className="w-full px-2 py-1 border rounded text-xs"
+                  className="w-full px-2 py-1 border rounded text-xs bg-[var(--input-bg)] text-[var(--text-primary)]"
                 />
               </div>
             )}
@@ -194,7 +194,7 @@ function ColumnConfigModal({
                   value={localColumn.fixedValue || ''}
                   onChange={(e) => setLocalColumn({ ...localColumn, fixedValue: e.target.value })}
                   placeholder="输入固定显示的值"
-                  className="w-full px-2 py-1 border rounded text-xs"
+                  className="w-full px-2 py-1 border rounded text-xs bg-[var(--input-bg)] text-[var(--text-primary)]"
                 />
               </div>
             )}
@@ -218,7 +218,7 @@ function ColumnConfigModal({
                   value={localColumn.dataDictionary || ''}
                   onChange={(e) => setLocalColumn({ ...localColumn, dataDictionary: e.target.value })}
                   placeholder="输入数据字典编码"
-                  className="w-full px-2 py-1 border rounded text-xs"
+                  className="w-full px-2 py-1 border rounded text-xs bg-[var(--input-bg)] text-[var(--text-primary)]"
                 />
               </div>
             )}
@@ -229,7 +229,7 @@ function ColumnConfigModal({
                 type="number"
                 value={localColumn.width || 100}
                 onChange={(e) => setLocalColumn({ ...localColumn, width: Number(e.target.value) })}
-                className="w-full px-2 py-1 border rounded text-xs"
+                className="w-full px-2 py-1 border rounded text-xs bg-[var(--input-bg)] text-[var(--text-primary)]"
               />
             </div>
             {/* 对齐方式 */}
@@ -238,7 +238,7 @@ function ColumnConfigModal({
               <select
                 value={localColumn.align || 'left'}
                 onChange={(e) => setLocalColumn({ ...localColumn, align: e.target.value })}
-                className="w-full px-2 py-1 border rounded text-xs"
+                className="w-full px-2 py-1 border rounded text-xs bg-[var(--input-bg)] text-[var(--text-primary)]"
               >
                 <option value="left">左对齐</option>
                 <option value="center">居中</option>
@@ -251,7 +251,7 @@ function ColumnConfigModal({
               <input
                 value={localColumn.placeholder || ''}
                 onChange={(e) => setLocalColumn({ ...localColumn, placeholder: e.target.value })}
-                className="w-full px-2 py-1 border rounded text-xs"
+                className="w-full px-2 py-1 border rounded text-xs bg-[var(--input-bg)] text-[var(--text-primary)]"
               />
             </div>
             {/* 布尔选项 */}
