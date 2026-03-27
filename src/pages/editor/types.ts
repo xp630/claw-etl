@@ -26,8 +26,7 @@ export interface CanvasComponent {
 export interface ColumnConfig {
   key: string;
   label: string;
-  fieldType?: string;      // 字段类型: text, number, date, select
-  format?: string;         // 数据显示格式: default, thousandSeparator, percent, date
+  fieldType?: string;
   width?: number;
   visible?: boolean;
   sortable?: boolean;
