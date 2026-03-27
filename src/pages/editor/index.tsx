@@ -725,6 +725,7 @@ function PageEditor() {
                     handleMoveChildToRoot(containerId, componentId, -1);
                   }}
                   onDeleteComponent={handleDelete}
+                  onSelectComponent={setSelectedId}
                 />
               </div>
             </div>

@@ -13,6 +13,7 @@ interface PropertyPanelProps {
   onMoveToContainer: (containerId: string, componentId: string, tabIndex?: number) => void;
   onMoveOutOfContainer: (containerId: string, componentId: string) => void;
   onDeleteComponent?: (id: string) => void;
+  onSelectComponent?: (id: string) => void;
 }
 
 // Container selector modal
@@ -314,6 +315,7 @@ function PropertyPanel({
   onMoveToContainer,
   onMoveOutOfContainer,
   onDeleteComponent,
+  onSelectComponent,
 }: PropertyPanelProps) {
   // Column config modal state
   const [columnConfigOpen, setColumnConfigOpen] = useState(false);
@@ -744,6 +746,20 @@ function PropertyPanel({
               })()}
 
               {/* 非布尔属性 - 隐藏 API ID 字段，pageSize 已在上方分页区块处理 */}
+              
+              {/* 组件层 */}
+              {!treeCollapsed && (
+                <div className="border border-[var(--border)] rounded p-2 max-h-[200px] overflow-y-auto">
+                  <ComponentTree
+                    components={components}
+                    selectedId={selectedComponent?.id || null}
+                    onSelect={(id) => { onSelectComponent?.(id); }}
+                    onDelete={(id) => { if (confirm('确定删除该组件?')) { onDeleteComponent?.(id); } }}
+                    showHeader={false}
+                  />
+                </div>
+              )}
+
               {Object.entries(selectedComponent.props)
                 .filter(([key, value]) => typeof value !== 'boolean' && key !== 'id' && key !== 'datasourceId' && key !== 'featureId' && key !== 'pageSize' && !key.endsWith('ApiId'))
                 .map(([key, value]) => {
