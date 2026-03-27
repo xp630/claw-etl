@@ -32,7 +32,7 @@ function ContainerSelectorModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-[400px] max-h-[60vh] overflow-hidden">
+      <div className="bg-[var(--bg-primary)] rounded-lg w-[400px] max-h-[60vh] overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b">
           <h3 className="font-medium">选择目标容器</h3>
           <button onClick={onClose} className="text-xl text-[var(--text-muted)] hover:text-[var(--text-secondary)]">×</button>
@@ -131,7 +131,7 @@ function ColumnConfigModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-[600px] max-h-[80vh] overflow-hidden">
+      <div className="bg-[var(--bg-primary)] rounded-lg w-[600px] max-h-[80vh] overflow-hidden">
         <div className="flex items-center justify-between px-4 py-3 border-b">
           <h3 className="font-medium">{editingColumnIndex !== null ? '编辑列' : '添加列'}</h3>
           <button onClick={onClose} className="text-xl text-[var(--text-muted)] hover:text-[var(--text-secondary)]">×</button>
@@ -546,7 +546,7 @@ function PropertyPanel({
 
   if (!selectedComponent) {
     return (
-      <div className="w-72 bg-white border-l border-[var(--border)] overflow-y-auto">
+      <div className="w-72 bg-[var(--bg-primary)] border-l border-[var(--border)] overflow-y-auto">
         <div className="p-4">
           <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-4">属性配置</h3>
           <div className="flex items-center justify-center h-64 text-[var(--text-muted)]">
@@ -561,7 +561,7 @@ function PropertyPanel({
   }
 
   return (
-    <div className="w-72 bg-white border-l border-[var(--border)] overflow-y-auto">
+    <div className="w-72 bg-[var(--bg-primary)] border-l border-[var(--border)] overflow-y-auto">
       <div className="p-4">
         <h3 className="text-sm font-medium text-[var(--text-secondary)] mb-4">属性配置</h3>
 
@@ -572,14 +572,14 @@ function PropertyPanel({
             <button
               onClick={() => setContainerSelectorOpen(true)}
               disabled={availableContainers.length === 0}
-              className="px-2 py-1 bg-white border border-blue-300 rounded text-xs text-blue-600 hover:bg-blue-50 disabled:bg-[var(--bg-tertiary)] disabled:text-[var(--text-muted)] disabled:cursor-not-allowed"
+              className="px-2 py-1 bg-[var(--bg-primary)] border border-[var(--accent)]/30 rounded text-xs text-[var(--accent)] hover:bg-[var(--accent-light)] disabled:bg-[var(--bg-tertiary)] disabled:text-[var(--text-muted)] disabled:cursor-not-allowed"
             >
               移入容器
             </button>
             {isInsideContainer && (
               <button
                 onClick={() => parentContainerId && onMoveOutOfContainer(parentContainerId, selectedComponent.id)}
-                className="px-2 py-1 bg-white border border-orange-300 rounded text-xs text-orange-600 hover:bg-orange-50"
+                className="px-2 py-1 bg-[var(--bg-primary)] border border-[var(--warning)]/30 rounded text-xs text-[var(--warning)] hover:bg-[var(--warning)]/10"
               >
                 移出容器
               </button>
