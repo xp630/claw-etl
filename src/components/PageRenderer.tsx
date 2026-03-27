@@ -44,6 +44,8 @@ interface TableProps {
 }
 
 // 表格组件渲染 - Tailwind 样式，与编辑器保持一致
+
+// 表格组件渲染 - 使用 DataTable 组件
 function TableRenderer({
   apiId,
   queryApiId,
@@ -71,10 +73,6 @@ function TableRenderer({
   const [currentPageSize, setCurrentPageSize] = useState(initialPageSize || 10);
   const [total, setTotal] = useState(0);
   const [searchParams, setSearchParams] = useState<Record<string, string>>({});
-  const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState<'add' | 'edit'>('add');
-  const [editRow, setEditRow] = useState<any>(null);
-  const [formData, setFormData] = useState<Record<string, any>>({});
 
   const effectiveApiId = queryApiId || apiId;
 
@@ -102,55 +100,30 @@ function TableRenderer({
     loadData(1);
   }, [loadData]);
 
-  const handleSearch = () => {
-    loadData(1, searchParams);
+  // 转换列格式
+  const tableColumns: ColumnDef[] = columns
+    .filter(col => col.visible !== false)
+    .map(col => ({
+      key: col.key,
+      label: col.label,
+      width: col.width,
+      visible: col.visible,
+      sortable: col.sortable,
+      fieldType: col.fieldType as any,
+      align: col.align as any,
+      ellipsis: col.ellipsis,
+      dateFormat: col.dateFormat,
+    }));
+
+  // 查询字段
+  const queryFields = columns.filter(col => col.queryCondition);
+
+  // 加载完成后的回调
+  const handleLoad = (params: Record<string, any>) => {
+    loadData(1, params);
   };
 
-  const handleAdd = () => {
-    setModalType('add');
-    setEditRow(null);
-    setFormData({});
-    setShowModal(true);
-  };
-
-  const handleEdit = (row: any) => {
-    setModalType('edit');
-    setEditRow(row);
-    setFormData({ ...row });
-    setShowModal(true);
-  };
-
-  const handleDelete = async (row: any) => {
-    if (!confirm('确定删除？')) return;
-    if (!deleteApiId) {
-      alert('未配置删除 API');
-      return;
-    }
-    try {
-      await dataBridge.request(deleteApiId, { id: row.id });
-      alert('删除成功');
-      loadData(page);
-    } catch (error) {
-      alert('删除失败');
-    }
-  };
-
-  const handleSubmit = async () => {
-    const targetApiId = modalType === 'add' ? createApiId : updateApiId;
-    if (!targetApiId) {
-      alert('未配置 API');
-      return;
-    }
-    try {
-      await dataBridge.request(targetApiId, formData);
-      alert('操作成功');
-      setShowModal(false);
-      loadData(page);
-    } catch (error) {
-      alert('操作失败');
-    }
-  };
-
+  // 导出
   const handleExport = () => {
     import('xlsx').then(XLSX => {
       const ws = XLSX.utils.json_to_sheet(data);
@@ -160,332 +133,54 @@ function TableRenderer({
     });
   };
 
-  const handleRowClick = (row: any) => {
-    if (onEvent) {
-      onEvent('table', 'onRowClick', row);
-    }
-  };
-
-  const visibleColumns = columns.filter(col => col.visible !== false);
-  const queryFields = visibleColumns.filter(col => col.queryCondition);
-  const totalPages = Math.ceil(total / currentPageSize) || 1;
-
-  const renderCell = (col: typeof visibleColumns[0], row: Record<string, any>) => {
-    const value = row[col.key];
-    if (col.fieldType === 'image') {
-      return value ? (
-        <img src={value} alt="" className="h-8 w-8 object-cover rounded" />
-      ) : (
-        <span className="text-[var(--text-muted)]">-</span>
-      );
-    }
-    if (col.fieldType === 'date') {
-      if (!value) return <span className="text-[var(--text-muted)]">-</span>;
-      try {
-        const date = new Date(value);
-        return col.dateFormat ? date.toLocaleDateString() : String(value);
-      } catch {
-        return String(value);
-      }
-    }
-    if (col.fieldType === 'fixed') {
-      return <span>{col.fixedValue || '-'}</span>;
-    }
-    if (col.fieldType === 'custom' && col.customFunction) {
-      try {
-        const fn = new Function('row', col.customFunction);
-        const result = fn(row);
-        return <span dangerouslySetInnerHTML={{ __html: result || '-' }} />;
-      } catch {
-        return <span>-</span>;
-      }
-    }
-    return value != null ? String(value) : '-';
-  };
-
   return (
-    <div className="border border-[var(--border)] rounded bg-[var(--bg-primary)] flex flex-col h-full">
-      {/* 查询和操作按钮区域 - 合并到同一行 */}
-      <div className="flex flex-wrap gap-2 p-3 border-b border-[var(--border)] bg-[var(--bg-secondary)] items-center flex-shrink-0">
-        {/* 查询条件区域 - 靠左 */}
-        <div className="flex flex-wrap gap-2 items-center">
-          {queryFields.slice(0, 4).map(col => (
-            <div key={col.key} className="flex items-center gap-1.5">
-              <label className="text-xs text-[var(--text-muted)] whitespace-nowrap">{col.label}:</label>
-              {col.fieldType === 'select' ? (
-                <select
-                  value={searchParams[col.key] || ''}
-                  onChange={(e) => setSearchParams({ ...searchParams, [col.key]: e.target.value })}
-                  className="px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
-                >
-                  <option value="">请选择</option>
-                </select>
-              ) : (col.fieldType === 'date' || col.fieldType === 'datetime') ? (
-                // 时间字段显示开始和结束两个日期框
-                <div className="flex items-center gap-1">
-                  <input
-                    type="date"
-                    value={searchParams[col.key + 'Start'] || ''}
-                    onChange={(e) => setSearchParams({ ...searchParams, [col.key + 'Start']: e.target.value })}
-                    className="px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
-                  />
-                  <span className="text-xs text-[var(--text-muted)]">至</span>
-                  <input
-                    type="date"
-                    value={searchParams[col.key + 'End'] || ''}
-                    onChange={(e) => setSearchParams({ ...searchParams, [col.key + 'End']: e.target.value })}
-                    className="px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
-                  />
-                </div>
-              ) : (
-                <input
-                  type={col.fieldType === 'number' ? 'number' : 'text'}
-                  value={searchParams[col.key] || ''}
-                  onChange={(e) => setSearchParams({ ...searchParams, [col.key]: e.target.value })}
-                  placeholder={`请输入${col.label}`}
-                  className="px-2 py-1.5 border border-[var(--border)] rounded text-xs focus:outline-none focus:border-[var(--accent)] w-24 bg-[var(--input-bg)] text-[var(--text-primary)]"
-                />
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* 操作按钮区域 - 靠右 */}
-        <div className="flex gap-2 ml-auto items-center">
-          {queryFields.length > 0 && (
-            <button
-              onClick={handleSearch}
-              className="px-3 py-1.5 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors flex items-center gap-1"
-            >
-              <Search className="w-3 h-3" />
-              查询
-            </button>
-          )}
-          {showAdd && (
-            <button
-              onClick={handleAdd}
-              className="px-3 py-1.5 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors flex items-center gap-1"
-            >
-              <Plus className="w-3 h-3" />
-              新增
-            </button>
-          )}
-          {showExport && (
-            <button
-              onClick={handleExport}
-              className="px-3 py-1.5 text-xs bg-green-500 text-white rounded hover:bg-green-600 transition-colors flex items-center gap-1"
-            >
-              <Download className="w-3 h-3" />
-              导出
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* 表格 */}
-      <div className="overflow-auto flex-1 min-h-0">
-        <table className="w-full min-w-[600px] h-full">
-          <thead className="sticky top-0">
-            <tr className="border-b border-[var(--border)] bg-[var(--bg-secondary)]">
-              {visibleColumns.map(col => (
-                <th
-                  key={col.key}
-                  style={{ width: col.width || 150, minWidth: col.width || 150 }}
-                  className={cn(
-                    'px-4 py-2.5 text-left text-xs font-medium text-[var(--text-muted)] truncate',
-                    col.sortable ? 'cursor-pointer hover:bg-[var(--bg-tertiary)]' : '',
-                    col.align === 'center' ? 'text-center' : col.align === 'right' ? 'text-right' : ''
-                  )}
-                >
-                  {col.label}
-                </th>
-              ))}
-              {(showDetail || showEdit || showDelete) && (
-                <th
-                  style={{ width: 150, minWidth: 150 }}
-                  className="px-4 py-2.5 text-left text-xs font-medium text-[var(--text-muted)]"
-                >
-                  操作
-                </th>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan={visibleColumns.length + (showDetail || showEdit || showDelete ? 1 : 0)} className="text-center py-12 text-[var(--text-muted)]">
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                    加载中...
-                  </div>
-                </td>
-              </tr>
-            ) : data.length === 0 ? (
-              <tr>
-                <td colSpan={visibleColumns.length + (showDetail || showEdit || showDelete ? 1 : 0)} className="text-center py-12 text-[var(--text-muted)]">
-                  暂无数据
-                </td>
-              </tr>
-            ) : (
-              data.map((row, i) => (
-                <tr
-                  key={i}
-                  className={cn(
-                    'border-b border-[var(--border-light)] transition-colors',
-                    striped && i % 2 === 1 ? 'bg-[var(--bg-secondary)]' : '',
-                    hoverable ? 'hover:bg-[var(--bg-secondary)] cursor-pointer' : ''
-                  )}
-                  onClick={() => handleRowClick(row)}
-                >
-                  {visibleColumns.map(col => (
-                    <td
-                      key={col.key}
-                      style={{ width: col.width || 150, minWidth: col.width || 150 }}
-                      className={cn(
-                        'px-4 py-2.5 text-sm text-[var(--text-primary)] truncate',
-                        col.align === 'center' ? 'text-center' : col.align === 'right' ? 'text-right' : ''
-                      )}
-                      title={String(row[col.key] ?? '-')}
-                    >
-                      {renderCell(col, row)}
-                    </td>
-                  ))}
-                  {(showDetail || showEdit || showDelete) && (
-                    <td className="px-4 py-2.5">
-                      <div className="flex gap-1">
-                        {showDetail && (
-                          <button
-                            className="px-2 py-1 text-xs text-[var(--text-muted)] hover:bg-[var(--bg-tertiary)] rounded transition-colors flex items-center gap-0.5"
-                            onClick={(e) => { e.stopPropagation(); }}
-                          >
-                            <Eye className="w-3 h-3" />
-                            详情
-                          </button>
-                        )}
-                        {showEdit && (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleEdit(row); }}
-                            className="px-2 py-1 text-xs text-blue-500 hover:bg-blue-50 rounded transition-colors flex items-center gap-0.5"
-                          >
-                            <Edit2 className="w-3 h-3" />
-                            编辑
-                          </button>
-                        )}
-                        {showDelete && (
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleDelete(row); }}
-                            className="px-2 py-1 text-xs text-red-500 hover:bg-red-50 rounded transition-colors flex items-center gap-0.5"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                            删除
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  )}
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* 分页 */}
-      {showPagination && total > 0 && (
-        <div className="flex items-center justify-between px-4 py-2.5 border-t border-[var(--border)] text-xs text-[var(--text-muted)] flex-shrink-0">
-          <span>共 {total} 条</span>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1">
-              <span>每页</span>
-              <select
-                value={currentPageSize}
-                onChange={(e) => {
-                  const newSize = Number(e.target.value);
-                  setCurrentPageSize(newSize);
-                  setPage(1);
-                }}
-                className="px-1 py-0.5 border border-[var(--border)] rounded text-xs focus:outline-none"
-              >
-                <option value={10}>10</option>
-                <option value={20}>20</option>
-                <option value={50}>50</option>
-              </select>
-              <span>条</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <button
-                className="px-2 py-1 border border-[var(--border)] rounded hover:bg-[var(--bg-secondary)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                disabled={page <= 1}
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-              >
-                上一页
-              </button>
-              <span className="px-2 py-1">{page} / {totalPages}</span>
-              <button
-                className="px-2 py-1 border border-[var(--border)] rounded hover:bg-[var(--bg-secondary)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                disabled={page >= totalPages}
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-              >
-                下一页
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* 弹窗 */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setShowModal(false)}>
-          <div
-            className="bg-[var(--bg-primary)] rounded-lg w-[500px] max-h-[80vh] overflow-hidden shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
-              <h3 className="font-medium text-[var(--text-primary)]">
-                {modalType === 'add' ? '新增' : '编辑'}
-              </h3>
-              <button
-                onClick={() => setShowModal(false)}
-                className="p-1 text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] rounded transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="p-4 overflow-y-auto max-h-[50vh]">
-              <div className="space-y-3">
-                {visibleColumns
-                  .filter(col => col.key !== 'id' && col.fieldType !== 'action')
-                  .map(col => (
-                    <div key={col.key}>
-                      <label className="block text-xs text-[var(--text-muted)] mb-1">{col.label}</label>
-                      <input
-                        type={col.fieldType === 'number' ? 'number' : 'text'}
-                        value={formData[col.key] || ''}
-                        onChange={(e) => setFormData({ ...formData, [col.key]: e.target.value })}
-                        className="w-full px-3 py-1.5 border border-[var(--border)] rounded text-sm focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
-                      />
-                    </div>
-                  ))}
-              </div>
-            </div>
-            <div className="flex justify-end gap-2 px-4 py-3 border-t border-[var(--border)] bg-[var(--bg-secondary)]">
-              <button
-                onClick={() => setShowModal(false)}
-                className="px-4 py-1.5 text-xs border border-[var(--border)] rounded hover:bg-[var(--bg-tertiary)] transition-colors"
-              >
-                取消
-              </button>
-              <button
-                onClick={handleSubmit}
-                className="px-4 py-1.5 text-xs bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-              >
-                确定
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    <DataTable
+      columns={tableColumns}
+      data={data}
+      loading={loading}
+      pagination={showPagination ? { page, pageSize: currentPageSize, total } : false}
+      queryFields={queryFields.map(q => ({
+        key: q.key,
+        label: q.label,
+        fieldType: q.fieldType as any,
+      }))}
+      showSearchBar={true}
+      showSearch={showSearch}
+      showAdd={showAdd}
+      showExport={showExport}
+      showEdit={showEdit}
+      showDelete={showDelete}
+      showDetail={showDetail}
+      bordered={bordered}
+      striped={striped}
+      hoverable={hoverable}
+      onSearch={handleLoad}
+      onPageChange={(p) => loadData(p)}
+      onPageSizeChange={(size) => { setCurrentPageSize(size); loadData(1); }}
+      onSubmit={async (type, formData, done) => {
+        const targetApiId = type === 'add' ? createApiId : updateApiId;
+        if (!targetApiId) { alert('未配置 API'); done(); return; }
+        try {
+          await dataBridge.request(targetApiId, formData);
+          alert('操作成功');
+          loadData(page);
+        } catch (error) {
+          alert('操作失败');
+        } finally {
+          done();
+        }
+      }}
+      onDelete={async (row) => {
+        if (!deleteApiId) { alert('未配置删除 API'); return; }
+        try {
+          await dataBridge.request(deleteApiId, { id: row.id });
+          alert('删除成功');
+          loadData(page);
+        } catch (error) {
+          alert('删除失败');
+        }
+      }}
+    />
   );
 }
 
