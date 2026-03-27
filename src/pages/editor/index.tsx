@@ -553,10 +553,10 @@ function PageEditor() {
   }, [selectedId, updateComponentProps]);
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
+    <div className="h-screen flex flex-col bg-[var(--bg-secondary)]">
       {/* Header */}
-      <div className="h-14 bg-white border-b border-gray-200 flex items-center px-4">
-        <h1 className="text-lg font-medium text-gray-700">
+      <div className="h-14 bg-[var(--bg-primary)] border-b border-[var(--border-light)] flex items-center px-4">
+        <h1 className="text-lg font-medium text-[var(--text-primary)]">
           {isNewPage ? '新建页面' : '页面编辑器'}
         </h1>
         <div className="ml-4 flex items-center gap-2">
@@ -565,11 +565,11 @@ function PageEditor() {
             value={pageName}
             onChange={(e) => setPageName(e.target.value)}
             placeholder="输入页面名称"
-            className="px-3 py-1.5 border border-gray-200 rounded text-sm w-48"
+            className="px-3 py-1.5 border border-[var(--border)] rounded text-sm w-48 bg-[var(--input-bg)] text-[var(--text-primary)]"
           />
         </div>
         <div className="ml-auto flex items-center gap-2">
-          <span className="text-xs text-gray-400">
+          <span className="text-xs text-[var(--text-muted)]">
             {components.length} 个组件
           </span>
           <button
@@ -598,13 +598,13 @@ function PageEditor() {
                 setSelectedId(null);
               }
             }}
-            className="px-3 py-1.5 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition-colors"
+            className="px-3 py-1.5 text-xs bg-[var(--bg-tertiary)] text-[var(--text-secondary)] rounded hover:bg-[var(--bg-hover)] transition-colors"
           >
             清空
           </button>
           <button
             onClick={() => navigate('/pages')}
-            className="px-3 py-1.5 text-xs bg-gray-100 text-gray-600 rounded hover:bg-gray-200 transition-colors"
+            className="px-3 py-1.5 text-xs bg-[var(--bg-tertiary)] text-[var(--text-secondary)] rounded hover:bg-[var(--bg-hover)] transition-colors"
           >
             返回列表
           </button>
@@ -620,20 +620,20 @@ function PageEditor() {
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
         {/* 左侧：组件面板 + 组件层 Tab 切换 */}
-        <div className="w-56 flex flex-col bg-gray-50">
+        <div className="w-56 flex flex-col bg-[var(--bg-secondary)]">
           {/* Tab 切换 */}
-          <div className="flex border-b border-gray-200 bg-white">
+          <div className="flex border-b border-[var(--border-light)] bg-[var(--bg-primary)]">
             <button
               id="tab-layer"
               onClick={() => setActiveLeftTab('layer')}
-              className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${activeLeftTab === 'layer' ? 'text-blue-600 border-b-2 border-blue-500' : 'text-gray-500 hover:text-gray-700'}`}
+              className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${activeLeftTab === 'layer' ? 'text-[var(--accent)] border-b-2 border-[var(--accent)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
             >
               组件层
             </button>
             <button
               id="tab-components"
               onClick={() => setActiveLeftTab('components')}
-              className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${activeLeftTab === 'components' ? 'text-blue-600 border-b-2 border-blue-500' : 'text-gray-500 hover:text-gray-700'}`}
+              className={`flex-1 px-3 py-2 text-xs font-medium transition-colors ${activeLeftTab === 'components' ? 'text-[var(--accent)] border-b-2 border-[var(--accent)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
             >
               组件库
             </button>

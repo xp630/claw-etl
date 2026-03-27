@@ -240,13 +240,13 @@ function DropCanvas({
             onSelect(comp.id);
           }, 0);
         }}
-        className={`relative bg-white border-2 rounded-md transition-all cursor-pointer group ${isNested ? 'nested-component' : ''} ${
+        className={`relative bg-[var(--bg-primary)] border-2 rounded-md transition-all cursor-pointer group ${isNested ? 'nested-component' : ''} ${
           isSelected
-            ? 'border-blue-500 shadow-lg ring-2 ring-blue-200'
-            : 'border-transparent hover:border-gray-300'
+            ? 'border-[var(--accent)] shadow-lg ring-2 ring-[var(--accent-light)]'
+            : 'border-transparent hover:border-[var(--border)]'
         }`}
       >
-        <div className="flex items-center gap-1 absolute -top-3 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 bg-white rounded shadow">
+        <div className="flex items-center gap-1 absolute -top-3 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 bg-[var(--bg-primary)] rounded shadow">
           {!isNested && (
             <>
               <button
@@ -255,7 +255,7 @@ function DropCanvas({
                   if (index > 0) onReorder(index, index - 1);
                 }}
                 disabled={index === 0}
-                className="p-1 border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-30"
+                className="p-1 border border-[var(--border)] rounded hover:bg-[var(--bg-hover)] disabled:opacity-30"
                 title="上移"
               >
                 <ArrowUp className="w-3 h-3" />
@@ -266,7 +266,7 @@ function DropCanvas({
                   if (index < components.length - 1) onReorder(index, index + 1);
                 }}
                 disabled={index === components.length - 1}
-                className="p-1 border border-gray-200 rounded hover:bg-gray-50 disabled:opacity-30"
+                className="p-1 border border-[var(--border)] rounded hover:bg-[var(--bg-hover)] disabled:opacity-30"
                 title="下移"
               >
                 <ArrowDown className="w-3 h-3" />
@@ -282,12 +282,12 @@ function DropCanvas({
                 onDelete(comp.id);
               }
             }}
-            className="p-1 border border-red-200 rounded hover:bg-red-50 text-red-500"
+            className="p-1 border border-[var(--danger)]/30 rounded hover:bg-[var(--danger)]/10 text-[var(--danger)]"
             title={isNested ? "移除" : "删除"}
           >
             <Trash2 className="w-3 h-3" />
           </button>
-          <div className="p-1 border border-gray-200 rounded text-gray-400 cursor-grab" title="拖拽">
+          <div className="p-1 border border-[var(--border)] rounded text-[var(--text-muted)] cursor-grab" title="拖拽">
             <GripVertical className="w-3 h-3" />
           </div>
         </div>
@@ -303,8 +303,8 @@ function DropCanvas({
               <div 
                 className={`min-h-16 border-2 border-dashed rounded m-2 p-2 transition-colors ${
                   isDragOverContainer 
-                    ? 'border-blue-400 bg-blue-50' 
-                    : 'border-gray-300 bg-gray-50 hover:border-blue-300'
+                    ? 'border-[var(--accent)] bg-[var(--accent-light)]' 
+                    : 'border-[var(--border)] bg-[var(--bg-secondary)] hover:border-[var(--accent)]'
                 }`}
                 onDragOver={(e) => handleContainerDragOver(e, comp.id)}
                 onDragLeave={handleContainerDragLeave}
@@ -377,12 +377,12 @@ function DropCanvas({
         }
       }}
       className={`flex-1 p-5 overflow-y-auto ${
-        isDragOver ? 'bg-blue-50 border-2 border-dashed border-blue-400' : 'bg-gray-100'
+        isDragOver ? 'bg-[var(--accent-light)] border-2 border-dashed border-[var(--accent)]' : 'bg-[var(--bg-secondary)]'
       }`}
     >
       {components.length === 0 ? (
-        <div className="flex items-center justify-center min-h-96 bg-white border-2 border-dashed border-gray-300 rounded-lg">
-          <div className="text-center text-gray-400">
+        <div className="flex items-center justify-center min-h-96 bg-[var(--bg-primary)] border-2 border-dashed border-[var(--border)] rounded-lg">
+          <div className="text-center text-[var(--text-muted)]">
             <View className="w-12 h-12 mx-auto mb-2 opacity-50" />
             <p>拖拽组件到此处构建页面</p>
           </div>

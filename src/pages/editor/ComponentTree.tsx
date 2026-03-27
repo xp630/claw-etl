@@ -16,10 +16,10 @@ const typeIcons: Record<string, React.ReactNode> = {
   tabs: <Folder className="w-3 h-3 text-purple-500" />,
   table: <Table className="w-3 h-3 text-green-500" />,
   form: <File className="w-3 h-3 text-orange-500" />,
-  text: <File className="w-3 h-3 text-gray-400" />,
-  button: <File className="w-3 h-3 text-gray-400" />,
-  input: <File className="w-3 h-3 text-gray-400" />,
-  default: <File className="w-3 h-3 text-gray-400" />,
+  text: <File className="w-3 h-3 text-[var(--text-muted)]" />,
+  button: <File className="w-3 h-3 text-[var(--text-muted)]" />,
+  input: <File className="w-3 h-3 text-[var(--text-muted)]" />,
+  default: <File className="w-3 h-3 text-[var(--text-muted)]" />,
 };
 
 function getIcon(type: string) {
@@ -59,12 +59,12 @@ interface TreeNodeProps {
   onSelect: (id: string) => void;
   onDelete: (id: string) => void;
   onMove: (dragId: string, dropId: string, position: 'before' | 'after' | 'inside') => void;
-  depth: number;
+  depth?: number;
   defaultExpanded?: boolean;
-  dragState: { dragId: string | null; dropId: string | null; position: 'before' | 'after' | 'inside' } | null;
-  onDragStart: (id: string) => void;
-  onDragEnd: () => void;
-  onDragEnter: (id: string, position: 'before' | 'after' | 'inside') => void;
+  dragState?: { dragId: string | null; dropId: string | null; position: string } | null;
+  onDragStart?: (id: string) => void;
+  onDragEnd?: () => void;
+  onDragEnter?: (id: string, position: 'before' | 'after' | 'inside') => void;
 }
 
 function TreeNode({
@@ -73,65 +73,67 @@ function TreeNode({
   onSelect,
   onDelete,
   onMove,
-  depth,
-  defaultExpanded = true,
+  depth = 0,
+  defaultExpanded = false,
   dragState,
   onDragStart,
   onDragEnd,
   onDragEnter,
 }: TreeNodeProps) {
   const [expanded, setExpanded] = useState(defaultExpanded);
-  const hasChildren = component.children && component.children.length > 0;
-  const isContainer = isContainerType(component.type);
   const isSelected = selectedId === component.id;
+  const isContainer = isContainerType(component.type);
+  const hasChildren = component.children && component.children.length > 0;
   const isDragging = dragState?.dragId === component.id;
-  const isDropTarget = dragState?.dropId === component.id;
 
   const handleDragStart = (e: DragEvent) => {
     e.dataTransfer.setData('text/plain', component.id);
     e.dataTransfer.effectAllowed = 'move';
-    onDragStart(component.id);
+    onDragStart?.(component.id);
   };
 
   const handleDragOver = (e: DragEvent) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
+    if (!dragState?.dragId || dragState.dragId === component.id) return;
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     const y = e.clientY - rect.top;
-    const h = rect.height;
+    const threshold = rect.height / 4;
     let position: 'before' | 'after' | 'inside' = 'inside';
-    if (y < h * 0.25) {
-      position = 'before';
-    } else if (y > h * 0.75) {
-      position = 'after';
-    }
-    onDragEnter(component.id, position);
+    if (y < threshold) position = 'before';
+    else if (y > rect.height - threshold) position = 'after';
+    else position = 'inside';
+    onDragEnter?.(component.id, position);
   };
 
   const handleDrop = (e: DragEvent) => {
     e.preventDefault();
     const dragId = e.dataTransfer.getData('text/plain');
-    if (dragId && dragState) {
-      onMove(dragId, component.id, dragState.position);
-    }
-    onDragEnd();
+    if (!dragId || dragId === component.id) return;
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const threshold = rect.height / 4;
+    let position: 'before' | 'after' | 'inside' = 'inside';
+    if (y < threshold) position = 'before';
+    else if (y > rect.height - threshold) position = 'after';
+    onMove(dragId, component.id, position);
   };
 
   const handleDragEnd = () => {
-    onDragEnd();
+    onDragEnd?.();
   };
 
+  const isDropTarget = dragState?.dropId === component.id && dragState?.dragId !== component.id;
+  const position = dragState?.position as 'before' | 'after' | 'inside' | undefined;
+
   const getDropIndicator = () => {
-    if (!isDropTarget || !dragState) return null;
-    const { position } = dragState;
     if (position === 'before') {
-      return <div className="absolute left-0 top-0 right-0 h-0.5 bg-blue-500 -mt-0.5" />;
+      return <div className="absolute left-0 top-0 bottom-0 right-0 h-0.5 bg-[var(--accent)] -mt-0.5" />;
     }
     if (position === 'after') {
-      return <div className="absolute left-0 bottom-0 right-0 h-0.5 bg-blue-500 -mb-0.5" />;
+      return <div className="absolute left-0 bottom-0 right-0 h-0.5 bg-[var(--accent)] -mb-0.5" />;
     }
     if (position === 'inside' && isContainer) {
-      return <div className="absolute inset-0 border-2 border-blue-500 rounded bg-blue-50" />;
+      return <div className="absolute inset-0 border-2 border-[var(--accent)] rounded bg-[var(--accent-light)]" />;
     }
     return null;
   };
@@ -140,7 +142,7 @@ function TreeNode({
     <div className="group relative">
       <div
         className={`flex items-center gap-1 px-2 py-1 rounded cursor-pointer transition-colors ${
-          isSelected ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'
+          isSelected ? 'bg-[var(--accent-light)] text-[var(--accent)]' : 'hover:bg-[var(--bg-hover)]'
         } ${isDragging ? 'opacity-50' : ''}`}
         style={{ paddingLeft: `${depth * 16 + 8}px` }}
         draggable
@@ -151,14 +153,14 @@ function TreeNode({
         onClick={() => onSelect(component.id)}
       >
         {isDropTarget && getDropIndicator()}
-        <GripVertical className="w-3 h-3 text-gray-300 cursor-grab opacity-0 group-hover:opacity-100" />
+        <GripVertical className="w-3 h-3 text-[var(--text-muted)] cursor-grab opacity-0 group-hover:opacity-100" />
         {isContainer && hasChildren ? (
           <button
             onClick={(e) => {
               e.stopPropagation();
               setExpanded(!expanded);
             }}
-            className="p-0.5 hover:bg-gray-200 rounded"
+            className="p-0.5 hover:bg-[var(--bg-hover)] rounded"
           >
             {expanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
           </button>
@@ -166,17 +168,17 @@ function TreeNode({
           <span className="w-4" />
         )}
         {getIcon(component.type)}
-        <span className="text-xs truncate flex-1">{component.label || typeLabels[component.type] || component.type}</span>
+        <span className="text-xs truncate flex-1 text-[var(--text-primary)]">{component.label || typeLabels[component.type] || component.type}</span>
         <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={(e) => {
               e.stopPropagation();
               onDelete(component.id);
             }}
-            className="p-0.5 hover:bg-red-100 rounded"
+            className="p-0.5 hover:bg-red-500/20 rounded"
             title="删除"
           >
-            <Trash2 className="w-3 h-3 text-red-400" />
+            <Trash2 className="w-3 h-3 text-[var(--danger)]" />
           </button>
         </div>
       </div>
@@ -231,15 +233,15 @@ function ComponentTree({
   };
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-[var(--bg-primary)]">
       {showHeader && (
-        <div className="px-3 py-2 border-b border-gray-200 bg-gray-50">
-          <h3 className="text-xs font-medium text-gray-600">组件层</h3>
+        <div className="px-3 py-2 border-b border-[var(--border-light)] bg-[var(--bg-secondary)]">
+          <h3 className="text-xs font-medium text-[var(--text-primary)]">组件层</h3>
         </div>
       )}
       <div className="flex-1 overflow-auto py-1">
         {components.length === 0 ? (
-          <div className="text-xs text-gray-400 px-3 py-2">暂无组件</div>
+          <div className="text-xs text-[var(--text-muted)] px-3 py-2">暂无组件</div>
         ) : (
           components.map(comp => (
             <TreeNode

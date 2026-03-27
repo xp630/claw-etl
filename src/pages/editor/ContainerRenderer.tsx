@@ -63,7 +63,7 @@ function ResizeHandle({ onResize }: { onResize: (deltaW: number, deltaH: number)
 
   return (
     <div
-      className={`absolute bottom-0 right-0 w-4 h-4 cursor-se-resize flex items-center justify-center ${isDragging ? 'text-blue-500' : 'text-gray-400 hover:text-blue-500'}`}
+      className={`absolute bottom-0 right-0 w-4 h-4 cursor-se-resize flex items-center justify-center ${isDragging ? 'text-[var(--accent)]' : 'text-[var(--text-muted)] hover:text-[var(--accent)]'}`}
       style={{ pointerEvents: isDragging ? 'auto' : 'none' }}
       onMouseDown={handleMouseDown}
       title="拖动调整尺寸"
@@ -145,7 +145,7 @@ function ContainerRenderer({ type, props, children, componentId, childComponents
       };
       return (
         <div className="card" style={cardContainerStyle}>
-          {props.title && <div className="card-title font-medium text-gray-700 mb-2 flex-shrink-0">{String(props.title)}</div>}
+          {props.title && <div className="card-title font-medium text-[var(--text-primary)] mb-2 flex-shrink-0">{String(props.title)}</div>}
           <div className="card-content flex-1 min-h-0">
             {childComponents && childComponents.length > 0 && renderChild ? (
               childComponents.map(child => renderChild(child))
@@ -188,15 +188,15 @@ function ContainerRenderer({ type, props, children, componentId, childComponents
       
       return (
         <div className="tabs" style={tabsContainerStyle}>
-          <div className="tab-header flex border-b border-gray-200 mb-3 flex-shrink-0">
+          <div className="tab-header flex border-b border-[var(--border-light)] mb-3 flex-shrink-0">
             {tabs.map((tab, i) => (
               <div 
                 key={i} 
                 onClick={() => handleTabClick(i)}
                 className={`tab-item px-4 py-2 text-sm cursor-pointer transition-colors flex items-center gap-1 group ${
                   i === activeTab 
-                    ? 'text-blue-500 border-b-2 border-blue-500 -mb-px font-medium' 
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'text-[var(--accent)] border-b-2 border-[var(--accent)] -mb-px font-medium' 
+                    : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                 }`}
               >
                 <span>{tab}</span>
@@ -222,13 +222,13 @@ function ContainerRenderer({ type, props, children, componentId, childComponents
                     onBlur={handleAddTab}
                     autoFocus
                     placeholder="标签名"
-                    className="w-20 px-1 py-0.5 text-sm border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+                    className="w-20 px-1 py-0.5 text-sm border border-[var(--border)] rounded focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)]"
                   />
                 </div>
               ) : (
                 <button
                   onClick={() => setAddingTab(true)}
-                  className="px-2 py-1 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded transition-colors"
+                  className="px-2 py-1 text-[var(--text-muted)] hover:text-[var(--accent)] hover:bg-[var(--accent-light)] rounded transition-colors"
                   title="添加标签"
                 >
                   <Plus className="w-4 h-4" />
@@ -275,10 +275,10 @@ function ContainerRenderer({ type, props, children, componentId, childComponents
       return (
         <div className="collapse" style={collapseContainerStyle}>
           {((props.panels as Array<{ title: string; content: string }>) || []).map((panel, i) => (
-            <div key={i} className="collapse-item border border-gray-200 rounded mb-2 last:mb-0 flex-shrink-0">
-              <div className="collapse-header px-4 py-3 bg-gray-50 flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700">{panel.title}</span>
-                <ChevronDown className="w-4 h-4 text-gray-400" />
+            <div key={i} className="collapse-item border border-[var(--border)] rounded mb-2 last:mb-0 flex-shrink-0">
+              <div className="collapse-header px-4 py-3 bg-[var(--bg-secondary)] flex items-center justify-between">
+                <span className="text-sm font-medium text-[var(--text-primary)]">{panel.title}</span>
+                <ChevronDown className="w-4 h-4 text-[var(--text-muted)]" />
               </div>
               <div className="collapse-content p-4">
                 {i === 0 ? (
