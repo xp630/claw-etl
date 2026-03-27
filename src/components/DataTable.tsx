@@ -1,4 +1,4 @@
-import { useState, useEffect, ReactNode } from 'react';
+import { useState, useEffect, useRef, ReactNode } from 'react';
 import { Search, Plus, Download, ChevronDown, ChevronUp, Edit2, Trash2, Eye, RefreshCw, X } from 'lucide-react';
 
 export interface ColumnDef {
