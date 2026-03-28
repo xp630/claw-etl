@@ -246,7 +246,7 @@ export async function getDataSources(params: {
 
 export async function getDataSource(id: number): Promise<DataSource | undefined> {
   try {
-    const res = await api.post('/etl-admin/dataSourceManager/dbSourceDetail', { id: String(id) })
+    const res = await api.post('/dataSourceManager/dbSourceDetail', { id: String(id) })
     const data = res.data?.data
     if (data) {
       return {
@@ -282,7 +282,7 @@ export async function getDataSource(id: number): Promise<DataSource | undefined>
 
 export async function createDataSource(data: Partial<DataSource>): Promise<DataSource | null> {
   try {
-    const res = await api.post('/etl-admin/dataSourceManager/addDataSource', data)
+    const res = await api.post('/dataSourceManager/addDataSource', data)
     if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
       return res.data.data
     }
@@ -295,7 +295,7 @@ export async function createDataSource(data: Partial<DataSource>): Promise<DataS
 
 export async function updateDataSource(id: number, data: Partial<DataSource>): Promise<DataSource | null> {
   try {
-    const res = await api.post('/etl-admin/dataSourceManager/addDataSource', { ...data, id })
+    const res = await api.post('/dataSourceManager/addDataSource', { ...data, id })
     if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
       return res.data.data
     }
@@ -308,7 +308,7 @@ export async function updateDataSource(id: number, data: Partial<DataSource>): P
 
 export async function deleteDataSource(id: number): Promise<void> {
   try {
-    await api.post('/etl-admin/dataSourceManager/deleteDataSource', { id })
+    await api.post('/dataSourceManager/deleteDataSource', { id })
   } catch (error) {
     console.error('Failed to delete datasource:', error)
     throw error
@@ -317,7 +317,7 @@ export async function deleteDataSource(id: number): Promise<void> {
 
 export async function toggleDataSourceStatus(id: number, dbState: string): Promise<void> {
   try {
-    await api.post('/etl-admin/dataSourceManager/toggleStatus', { id, dbState })
+    await api.post('/etl-admin/dataSourceManager/updateDataSourceState', { id, dbState })
   } catch (error) {
     console.error('Failed to toggle datasource status:', error)
     throw error
@@ -364,7 +364,7 @@ export async function testDataSource(idOrData: number | any): Promise<{ success:
       }
     }
 
-    const res = await api.post('/etl-admin/dataSourceManager/testDataSource', postData)
+    const res = await api.post('/dataSourceManager/testDataSource', postData)
     if (res.data?.code === 1 || res.data?.code === 0) {
       return { success: true, message: res.data?.msg || '连接成功' }
     }
@@ -415,7 +415,7 @@ export async function getAllDictItems(): Promise<Record<string, any[]>> {
 
 export async function getTasks(): Promise<any[]> {
   try {
-    const res = await api.post('/etl-admin/simple/queryTaskListPage', { page: 1, limit: 20 })
+    const res = await api.post('/simple/queryTaskListPage', { page: 1, limit: 20 })
     if (res.data?.list) {
       return res.data.list.map((item: any) => ({
         id: item.id,
@@ -446,7 +446,7 @@ export async function getTasks(): Promise<any[]> {
 
 export async function getTask(id: number): Promise<any | undefined> {
   try {
-    const res = await api.post('/etl-admin/simple/getById', { id: String(id) })
+    const res = await api.post('/simple/getById', { id: String(id) })
     if (res.data?.data) {
       return res.data.data
     }
@@ -474,7 +474,7 @@ export async function createTask(data: any): Promise<any | null> {
       taskCronTimeUnit: data.windowUnit?.toUpperCase() || 'HOURS',
       status: data.status ?? 1,
     }
-    const res = await api.post('/etl-admin/simple/saveTaskData', camelData)
+    const res = await api.post('/simple/saveTaskData', camelData)
     return res.data
   } catch (error) {
     console.error('Failed to create task:', error)
@@ -499,7 +499,7 @@ export async function updateTask(id: number, data: any): Promise<any | null> {
       taskCronTimeUnit: data.windowUnit?.toUpperCase() || 'HOURS',
       status: data.status,
     }
-    const res = await api.post('/etl-admin/simple/saveTaskData', camelData)
+    const res = await api.post('/simple/saveTaskData', camelData)
     return res.data
   } catch (error) {
     console.error('Failed to update task:', error)
@@ -509,7 +509,7 @@ export async function updateTask(id: number, data: any): Promise<any | null> {
 
 export async function deleteTask(id: number): Promise<void> {
   try {
-    await api.post('/etl-admin/simple/updateStatus', { id, status: -1 })
+    await api.post('/simple/updateStatus', { id, status: -1 })
   } catch (error) {
     console.error('Failed to delete task:', error)
     throw error
@@ -518,7 +518,7 @@ export async function deleteTask(id: number): Promise<void> {
 
 export async function toggleTask(id: number): Promise<any | null> {
   try {
-    const res = await api.post('/etl-admin/simple/updateStatus', { id })
+    const res = await api.post('/simple/updateStatus', { id })
     return res.data
   } catch (error) {
     console.error('Failed to toggle task:', error)
@@ -528,7 +528,7 @@ export async function toggleTask(id: number): Promise<any | null> {
 
 export async function generateColumns(querySql: string, sourceDb: string): Promise<string[]> {
   try {
-    const res = await api.post('/etl-admin/simple/generateTargetColumns', { querySql, sourceDb })
+    const res = await api.post('/simple/generateTargetColumns', { querySql, sourceDb })
     return res.data?.data || []
   } catch (error) {
     console.error('Failed to generate columns:', error)
