@@ -315,6 +315,15 @@ export async function deleteDataSource(id: number): Promise<void> {
   }
 }
 
+export async function toggleDataSourceStatus(id: number, dbState: string): Promise<void> {
+  try {
+    await api.post('/etl-admin/dataSourceManager/toggleStatus', { id, dbState })
+  } catch (error) {
+    console.error('Failed to toggle datasource status:', error)
+    throw error
+  }
+}
+
 export async function testDataSource(idOrData: number | any): Promise<{ success: boolean; message: string }> {
   try {
     const driverMap: Record<string, string> = {

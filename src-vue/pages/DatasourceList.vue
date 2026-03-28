@@ -44,20 +44,23 @@
 
       <el-table v-loading="loading" :data="datasources" stripe style="width: 100%">
         <el-table-column prop="name" label="数据源名称" min-width="150" />
+        <el-table-column prop="comment" label="描述" min-width="150" show-overflow-tooltip />
         <el-table-column prop="dataType" label="数据库类型" width="120">
           <template #default="{ row }">
-            {{ getTypeLabel(row.dataType) }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="dbState" label="状态" width="80">
-          <template #default="{ row }">
-            <el-tag :type="row.dbState === '启用' ? 'success' : 'danger'" size="small">
-              {{ row.dbState }}
-            </el-tag>
+            {{ getTypeLabel(row.type || row.dataType) }}
           </template>
         </el-table-column>
         <el-table-column prop="jdbcUrl" label="连接地址" min-width="200" show-overflow-tooltip />
-        <el-table-column prop="dbName" label="数据库" min-width="120" show-overflow-tooltip />
+        <el-table-column prop="dbState" label="状态" width="100">
+          <template #default="{ row }">
+            <el-switch
+              v-model="row.dbState"
+              active-value="启用"
+              inactive-value="禁用"
+              @change="handleStatusChange(row)"
+            />
+          </template>
+        </el-table-column>
         <el-table-column label="操作" width="200" fixed="right">
           <template #default="{ row }">
             <el-button size="small" text type="primary" @click="handleTest(row.id)">测试</el-button>
@@ -88,13 +91,15 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
-import { getDataSources, deleteDataSource, testDataSource } from '@/lib/api'
+import { getDataSources, deleteDataSource, testDataSource, toggleDataSourceStatus } from '@/lib/api'
 
 const router = useRouter()
 
 interface DataSource {
   id?: number
   name?: string
+  comment?: string
+  type?: string
   dataType?: string
   jdbcUrl?: string
   dbName?: string
@@ -113,14 +118,15 @@ const searchForm = reactive({
   dbState: '',
 })
 
-function getTypeLabel(type: string) {
+function getTypeLabel(type?: string) {
+  if (!type) return '-'
   const map: Record<string, string> = {
     mysql: 'MySQL',
     postgresql: 'PostgreSQL',
     oracle: 'Oracle',
     sqlserver: 'SQL Server',
   }
-  return map[type] || type
+  return map[type.toLowerCase()] || type
 }
 
 async function loadData() {
@@ -170,6 +176,16 @@ function handleCreate() {
 
 function handleEdit(id: number) {
   router.push(`/datasources/${id}`)
+}
+
+async function handleStatusChange(row: DataSource) {
+  try {
+    await toggleDataSourceStatus(row.id!, row.dbState!)
+    ElMessage.success('状态更新成功')
+  } catch (error) {
+    ElMessage.error('状态更新失败')
+    loadData()
+  }
 }
 
 async function handleTest(id: number) {
