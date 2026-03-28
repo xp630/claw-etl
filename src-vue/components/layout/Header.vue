@@ -8,6 +8,11 @@
     </div>
 
     <div class="header-right">
+      <!-- 主题切换 -->
+      <el-button text @click="toggleTheme" class="theme-toggle" :title="theme === 'dark' ? '切换亮色主题' : '切换暗色主题'">
+        {{ theme === 'dark' ? '🌙' : '☀️' }}
+      </el-button>
+
       <el-dropdown @command="handleCommand">
         <span class="user-dropdown">
           <el-avatar :size="32" src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" />
@@ -31,10 +36,12 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/auth'
+import { useTheme } from '@/composables/useTheme'
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
+const { theme, toggleTheme } = useTheme()
 
 const currentRoute = computed(() => {
   const name = route.name?.toString() || ''
@@ -74,8 +81,8 @@ function handleCommand(command: string) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #fff;
-  border-bottom: 1px solid #e4e7ed;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
 }
 
 .header-left {
@@ -86,6 +93,12 @@ function handleCommand(command: string) {
 .header-right {
   display: flex;
   align-items: center;
+  gap: 12px;
+}
+
+.theme-toggle {
+  font-size: 18px;
+  padding: 4px 8px;
 }
 
 .user-dropdown {
@@ -99,11 +112,11 @@ function handleCommand(command: string) {
 }
 
 .user-dropdown:hover {
-  background: #f5f7fa;
+  background: var(--bg-hover);
 }
 
 .username {
   font-size: 14px;
-  color: #303133;
+  color: var(--text-primary);
 }
 </style>

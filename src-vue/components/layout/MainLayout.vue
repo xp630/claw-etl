@@ -41,7 +41,7 @@ const sidebarCollapsed = ref(false)
 .page-content {
   flex: 1;
   overflow-y: auto;
-  background: #f5f7fa;
+  background: var(--bg-primary);
   padding: 20px;
 }
 </style>

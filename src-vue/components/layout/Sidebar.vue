@@ -81,8 +81,8 @@ function handleSelect(index: string) {
 .sidebar {
   height: 100vh;
   width: 220px;
-  background: #fff;
-  border-right: 1px solid #e4e7ed;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   transition: width 0.3s;
@@ -98,7 +98,7 @@ function handleSelect(index: string) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #e4e7ed;
+  border-bottom: 1px solid var(--border);
 }
 
 .logo {
@@ -109,13 +109,13 @@ function handleSelect(index: string) {
 
 .logo-icon {
   font-size: 24px;
-  color: #409eff;
+  color: var(--accent);
 }
 
 .logo-text {
   font-size: 18px;
   font-weight: 600;
-  color: #303133;
+  color: var(--text-primary);
 }
 
 .collapse-btn {
@@ -123,15 +123,29 @@ function handleSelect(index: string) {
   border: none;
   cursor: pointer;
   padding: 4px;
-  color: #909399;
+  color: var(--text-muted);
 }
 
 .collapse-btn:hover {
-  color: #409eff;
+  color: var(--accent);
 }
 
 .sidebar-menu {
   flex: 1;
   border-right: none;
+  background: var(--bg-secondary);
+}
+
+:deep(.el-menu-item) {
+  color: var(--text-primary);
+}
+
+:deep(.el-menu-item:hover) {
+  background: var(--bg-hover);
+}
+
+:deep(.el-menu-item.is-active) {
+  color: var(--accent);
+  background: var(--accent-light);
 }
 </style>
