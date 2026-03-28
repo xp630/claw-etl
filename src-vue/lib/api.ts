@@ -854,3 +854,73 @@ export async function deleteSystemConfig(id: number): Promise<void> {
   }
 }
 
+
+// ========== API Manager ==========
+
+export async function getApiList(params?: {
+  page?: number
+  limit?: number
+  datasourceId?: number
+  name?: string
+  path?: string
+}): Promise<{ list: any[]; total: number }> {
+  try {
+    const res = await api.post('/apiManager/list', { page: 1, limit: 100, ...params })
+    if (res.data?.list) {
+      return { list: res.data.list || [], total: res.data.count || 0 }
+    }
+    return { list: [], total: 0 }
+  } catch (error) {
+    console.error('Failed to load API list:', error)
+    return { list: [], total: 0 }
+  }
+}
+
+export async function getApiDetail(id: number): Promise<any | null> {
+  try {
+    const res = await api.post('/apiManager/detail', { id })
+    if (res.data?.data) return res.data.data
+    return res.data || null
+  } catch (error) {
+    console.error('Failed to load API detail:', error)
+    return null
+  }
+}
+
+export async function saveApi(data: any): Promise<any> {
+  try {
+    const res = await api.post('/apiManager/save', data)
+    return res.data
+  } catch (error) {
+    console.error('Failed to save API:', error)
+    throw error
+  }
+}
+
+export async function deleteApi(id: number): Promise<void> {
+  try {
+    await api.post('/apiManager/delete', { id })
+  } catch (error) {
+    console.error('Failed to delete API:', error)
+    throw error
+  }
+}
+
+export async function toggleApi(id: number, status: number): Promise<void> {
+  try {
+    await api.post('/apiManager/toggle', { id, status })
+  } catch (error) {
+    console.error('Failed to toggle API:', error)
+    throw error
+  }
+}
+
+export async function testApi(id: number, testParams: Record<string, any>): Promise<any> {
+  try {
+    const res = await api.post('/apiManager/test', { id, testParams })
+    return res.data
+  } catch (error) {
+    console.error('Failed to test API:', error)
+    throw error
+  }
+}
