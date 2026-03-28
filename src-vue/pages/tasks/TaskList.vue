@@ -97,7 +97,7 @@ api.interceptors.request.use((config) => {
 })
 
 async function getTasks(): Promise<Task[]> {
-  const res = await api.post('/simple/queryTaskListPage')
+  const res = await api.post('/simple/queryTaskListPage', { page: 1, limit: 20 })
   if (res.data?.code === 0 || res.data?.code === 1) {
     return res.data?.list || []
   }
