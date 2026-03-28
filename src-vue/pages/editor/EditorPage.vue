@@ -54,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useEditorStore } from '@/stores/editor'
 import ComponentPanel from '@/components/editor/ComponentPanel.vue'
 import DropCanvas from './DropCanvas.vue'

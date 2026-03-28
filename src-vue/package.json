@@ -8,13 +8,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@element-plus/icons-vue": "^2.3.0",
+    "@vueuse/core": "^10.9.0",
+    "axios": "^1.14.0",
+    "element-plus": "^2.6.0",
+    "lucide-vue-next": "^1.0.0",
+    "pinia": "^2.1.0",
     "vue": "^3.4.0",
     "vue-router": "^4.3.0",
-    "pinia": "^2.1.0",
-    "element-plus": "^2.6.0",
-    "@element-plus/icons-vue": "^2.3.0",
-    "vuedraggable": "^4.1.0",
-    "@vueuse/core": "^10.9.0"
+    "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.0",
