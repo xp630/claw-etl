@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory, type NavigationGuardNext, type RouteRecordRaw } from 'vue-router'
 import EditorPage from '../pages/editor/EditorPage.vue'
+import ApiList from '../pages/ApiList.vue'
 import PageViewer from '../pages/viewer/PageViewer.vue'
 import LoginPage from '../pages/auth/LoginPage.vue'
 import Home from '../pages/Home.vue'
@@ -15,8 +16,10 @@ import DictList from '../pages/dict/DictList.vue'
 import SystemConfigList from '../pages/SystemConfigList.vue'
 import DictForm from '../pages/dict/DictForm.vue'
 import TaskList from '../pages/tasks/TaskList.vue'
+import ApiList from '../pages/apis/ApiList.vue'
 import TaskForm from '../pages/tasks/TaskForm.vue'
 import MainLayout from '../components/layout/MainLayout.vue'
+import FeatureList from '../pages/features/FeatureList.vue'
 import { useAuthStore } from '@/stores/auth'
 
 // 路由配置
@@ -55,6 +58,12 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '页面配置' }
       },
       {
+        path: '/apis',
+        name: 'ApiList',
+        component: ApiList,
+        meta: { title: 'API 管理' }
+      },
+      {
         path: '/menus',
         name: 'MenuList',
         component: MenuList,
@@ -83,6 +92,18 @@ const routes: RouteRecordRaw[] = [
         name: 'TaskList',
         component: TaskList,
         meta: { title: '任务管理' }
+      },
+      {
+        path: '/apis',
+        name: 'ApiList',
+        component: ApiList,
+        meta: { title: 'API管理' }
+      },
+      {
+        path: '/features',
+        name: 'FeatureList',
+        component: FeatureList,
+        meta: { title: '功能管理' }
       },
       {
         path: '/tasks/new',
