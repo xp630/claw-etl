@@ -137,9 +137,12 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { getDataSources, createDataSource, updateDataSource, deleteDataSource, testDataSource } from '@/lib/api'
+
+const router = useRouter()
 
 // 类型定义
 interface DataSource {
@@ -250,26 +253,12 @@ function handlePageChange() {
 
 // 新增
 function handleCreate() {
-  dialogMode.value = 'create'
-  Object.assign(formData, {
-    id: undefined,
-    name: '',
-    dataType: '',
-    dbHost: '',
-    dbPort: '',
-    dbName: '',
-    dbUser: '',
-    dbPassword: '',
-    dbState: '启用',
-  })
-  dialogVisible.value = true
+  router.push('/datasources/new')
 }
 
 // 编辑
 function handleEdit(row: DataSource) {
-  dialogMode.value = 'edit'
-  Object.assign(formData, row)
-  dialogVisible.value = true
+  router.push(`/datasources/${row.id}`)
 }
 
 // 保存
