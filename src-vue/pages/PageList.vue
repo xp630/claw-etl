@@ -35,7 +35,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { getPageConfigList } from '@/lib/api'
+import { getPageConfigList, deletePageConfig } from '@/lib/api'
 
 interface PageItem {
   id: number
@@ -78,7 +78,7 @@ function handlePreview(row: PageItem) {
 async function handleDelete(id: number) {
   try {
     await ElMessageBox.confirm('确定要删除该页面吗？', '提示', { type: 'warning' })
-    // await deletePageConfig(id)
+    await deletePageConfig(id)
     ElMessage.success('删除成功')
     loadPages()
   } catch (error: any) {
