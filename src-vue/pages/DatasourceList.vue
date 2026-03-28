@@ -112,6 +112,7 @@ const loading = ref(false)
 const total = ref(0)
 const page = ref(1)
 const limit = ref(10)
+const switching = ref(false)
 
 const searchForm = reactive({
   name: '',
@@ -180,14 +181,18 @@ function handleEdit(id: number) {
 }
 
 async function handleStatusChange(row: DataSource, newValue: boolean) {
+  if (switching.value) return
+  switching.value = true
   try {
-    const newState = newValue ? '启用' : '禁用'
+    const newState = newValue ? '启用' : '停用'
     await toggleDataSourceStatus(row.id!, newState)
-    row.dbState = newState
     ElMessage.success('状态更新成功')
+    loadData()
   } catch (error) {
     ElMessage.error('状态更新失败')
     loadData()
+  } finally {
+    switching.value = false
   }
 }
 
