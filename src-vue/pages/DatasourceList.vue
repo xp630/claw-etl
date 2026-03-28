@@ -55,10 +55,10 @@
         <el-table-column prop="dbState" label="状态" width="100">
           <template #default="{ row }">
             <el-switch
-              v-model="row.dbState"
-              active-value="启用"
-              inactive-value="禁用"
-              @change="handleStatusChange(row)"
+              :model-value="row.dbState === '启用'"
+              active-value="true"
+              inactive-value="false"
+              @change="handleStatusChange(row, $event)"
             />
           </template>
         </el-table-column>
@@ -179,9 +179,11 @@ function handleEdit(id: number) {
   router.push(`/datasources/${id}`)
 }
 
-async function handleStatusChange(row: DataSource) {
+async function handleStatusChange(row: DataSource, newValue: boolean) {
   try {
-    await toggleDataSourceStatus(row.id!, row.dbState!)
+    const newState = newValue ? '启用' : '禁用'
+    await toggleDataSourceStatus(row.id!, newState)
+    row.dbState = newState
     ElMessage.success('状态更新成功')
   } catch (error) {
     ElMessage.error('状态更新失败')
