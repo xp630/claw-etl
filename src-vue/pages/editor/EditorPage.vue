@@ -346,6 +346,7 @@ function handleDelete(id: string) {
 }
 
 function handleDrop(data: { fromPalette: boolean, type?: string, label?: string, defaultProps?: Record<string, unknown> } | null) {
+  console.log('[EditorPage] handleDrop called with:', data)
   if (data && data.fromPalette) {
     const newComponent: CanvasComponent = {
       id: generateId(),

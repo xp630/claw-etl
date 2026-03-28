@@ -216,12 +216,17 @@ const onDrop = (e: DragEvent) => {
   isDragOver.value = false
   dragOverContainerId.value = null
   
+  console.log('[DropCanvas] onDrop called')
+  
   // Parse drop data before emitting
   const data = e.dataTransfer?.getData('application/json')
+  console.log('[DropCanvas] dataTransfer:', data)
+  
   let parsed = null
   if (data) {
     try {
       parsed = JSON.parse(data)
+      console.log('[DropCanvas] parsed:', parsed)
     } catch (err) {
       console.error('Failed to parse drop data:', err)
     }

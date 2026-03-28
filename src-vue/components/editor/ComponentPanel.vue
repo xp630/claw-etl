@@ -79,13 +79,16 @@ const componentCategories: ComponentCategory[] = [
 ]
 
 function onDragStart(event: DragEvent, comp: ComponentItem) {
+  console.log('[ComponentPanel] onDragStart:', comp.type, comp.label)
   if (event.dataTransfer) {
-    event.dataTransfer.setData('application/json', JSON.stringify({
+    const dragData = {
       fromPalette: true,
       type: comp.type,
       label: comp.label,
       defaultProps: comp.defaultProps || {},
-    }))
+    }
+    console.log('[ComponentPanel] setting dataTransfer:', JSON.stringify(dragData))
+    event.dataTransfer.setData('application/json', JSON.stringify(dragData))
     event.dataTransfer.effectAllowed = 'copy'
   }
   emit('drag-start', event, comp.type, comp.label, comp.defaultProps)
