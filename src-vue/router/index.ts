@@ -64,7 +64,7 @@ router.beforeEach((to, from, next: NavigationGuardNext) => {
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     if (authStore.token) {
       // 有 token，尝试获取用户信息
-      authStore.fetchCurrentUser().then(() => {
+      authStore.fetchUserInfo().then(() => {
         if (authStore.isAuthenticated) {
           next()
         } else {
