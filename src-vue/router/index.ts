@@ -1,8 +1,8 @@
 import { createRouter, createWebHashHistory, type NavigationGuardNext, type RouteRecordRaw } from 'vue-router'
 import EditorPage from '../pages/editor/EditorPage.vue'
 import PageViewer from '../pages/viewer/PageViewer.vue'
-import LoginPage from '../pages/LoginPage.vue'
-import HomePage from '../pages/HomePage.vue'
+import LoginPage from '../pages/auth/LoginPage.vue'
+import Home from '../pages/Home.vue'
 import MainLayout from '../components/layout/MainLayout.vue'
 import { useAuthStore } from '@/stores/auth'
 
@@ -32,7 +32,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '/home',
         name: 'Home',
-        component: HomePage,
+        component: Home,
         meta: { title: '首页' }
       }
     ]
