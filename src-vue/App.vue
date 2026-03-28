@@ -6,12 +6,12 @@
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { useTheme } from '@/composables/useTheme'
+import { useThemeStore } from '@/stores/theme'
 
 // 初始化主题
-const { theme } = useTheme()
+const themeStore = useThemeStore()
 onMounted(() => {
-  document.documentElement.setAttribute('data-theme', theme.value)
+  themeStore.initTheme()
 })
 </script>
 

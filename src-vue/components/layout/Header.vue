@@ -36,12 +36,12 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ArrowDown } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/auth'
-import { useTheme } from '@/composables/useTheme'
+import { useThemeStore } from '@/stores/theme'
 
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
-const { theme, toggleTheme } = useTheme()
+const { theme, toggleTheme } = useThemeStore()
 
 const currentRoute = computed(() => {
   const name = route.name?.toString() || ''
