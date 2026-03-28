@@ -23,7 +23,7 @@
       @select="handleSelect"
     >
       <template v-if="loading">
-        <el-menu-item disabled>
+        <el-menu-item index="/loading" disabled>
           <el-icon><Loading /></el-icon>
           <template #title>加载中...</template>
         </el-menu-item>
