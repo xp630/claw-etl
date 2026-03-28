@@ -7,6 +7,8 @@ import MenuList from '../pages/system/MenuList.vue'
 import DatasourceList from '../pages/DatasourceList.vue'
 import DatasourceForm from '../pages/DatasourceForm.vue'
 import UserList from '../pages/UserList.vue'
+import RoleList from '../pages/RoleList.vue'
+import DictList from '../pages/DictList.vue'
 import TaskList from '../pages/tasks/TaskList.vue'
 import TaskForm from '../pages/tasks/TaskForm.vue'
 import MainLayout from '../components/layout/MainLayout.vue'
@@ -88,6 +90,18 @@ const routes: RouteRecordRaw[] = [
         name: 'UserList',
         component: UserList,
         meta: { title: '用户管理' }
+      },
+      {
+        path: '/roles',
+        name: 'RoleList',
+        component: RoleList,
+        meta: { title: '角色管理' }
+      },
+      {
+        path: '/dicts',
+        name: 'DictList',
+        component: DictList,
+        meta: { title: '数据字典' }
       }
     ]
   },
