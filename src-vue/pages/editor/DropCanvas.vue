@@ -198,6 +198,7 @@ const generateId = () => `comp_${Date.now()}_${Math.random().toString(36).substr
 // Event handlers
 const onDragOver = (e: DragEvent) => {
   e.preventDefault()
+  console.log('[DropCanvas] onDragOver called')
   isDragOver.value = true
 }
 
