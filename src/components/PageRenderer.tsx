@@ -415,7 +415,7 @@ function ComponentRenderer({ type, props, children, onEvent }: { type: string; p
             showDelete={showDelete}
             showPagination={showPagination}
             showDetail={showDetail}
-            dictData={{ ...dictData, ...localDictData }}
+            dictData={dictData}
             onEvent={onEvent as any}
           />
         );
