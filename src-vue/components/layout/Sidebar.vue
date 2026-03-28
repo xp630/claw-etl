@@ -18,6 +18,7 @@
     <el-menu
       :default-active="activeMenu"
       :collapse="collapsed"
+      :expand-on-click-node="false"
       class="sidebar-menu"
       @select="handleSelect"
     >
