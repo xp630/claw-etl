@@ -3,6 +3,7 @@ import EditorPage from '../pages/editor/EditorPage.vue'
 import PageViewer from '../pages/viewer/PageViewer.vue'
 import LoginPage from '../pages/auth/LoginPage.vue'
 import Home from '../pages/Home.vue'
+import PageList from '../pages/PageList.vue'
 import MenuList from '../pages/system/MenuList.vue'
 import DatasourceList from '../pages/DatasourceList.vue'
 import DatasourceForm from '../pages/DatasourceForm.vue'
@@ -46,6 +47,12 @@ const routes: RouteRecordRaw[] = [
         name: 'Home',
         component: Home,
         meta: { title: '首页' }
+      },
+      {
+        path: '/pages',
+        name: 'PageList',
+        component: PageList,
+        meta: { title: '页面配置' }
       },
       {
         path: '/menus',
