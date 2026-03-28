@@ -613,7 +613,7 @@ function PageEditor() {
           <button
             onClick={() => {
               if (isNewPage || !pageCode) {
-                showToast('请先保存页面后再预览', 'warning');
+                showToast('请先保存页面后再预览', 'info');
                 return;
               }
               window.open(`#/render/${pageCode}`, '_blank');

@@ -631,6 +631,7 @@ function PropertyPanel({
                 selectedId={selectedComponent?.id || null}
                 onSelect={(id) => { onSelectComponent?.(id); }}
                 onDelete={(id) => { if (confirm('确定删除该组件?')) { onDeleteComponent?.(id); } }}
+                onMove={() => {}}
                 showHeader={false}
               />
             </div>
@@ -1214,7 +1215,6 @@ function PropertyPanel({
                               >
                                 查
                               </button>
-                              </select>
                               <button
                                 onClick={() => {
                                   setEditingColumn(col);
