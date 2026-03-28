@@ -34,9 +34,9 @@ export const useAuthStore = defineStore('auth', () => {
         password,
       })
 
-      if (response.data.code === 0 || response.data.code === 200) {
-        const data = response.data.data || response.data
-        token.value = data.token || data.access_token
+      if (response.data?.success) {
+        const data = response.data?.data?.user || response.data.data
+        token.value = data.token || data.access_token || response.data.data?.token
         userInfo.value = {
           id: data.id,
           name: data.name || username,
@@ -45,6 +45,7 @@ export const useAuthStore = defineStore('auth', () => {
           roles: data.roles,
         }
         localStorage.setItem('token', token.value)
+        localStorage.setItem('user', JSON.stringify(userInfo.value))
         return true
       } else {
         error.value = response.data.message || '登录失败'
