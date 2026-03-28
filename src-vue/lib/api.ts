@@ -134,3 +134,40 @@ export async function savePageConfig(data: any): Promise<{ success: boolean; mes
     }
   }
 }
+
+// ========== Dict API ==========
+
+export async function getDictByName(dictName: string): Promise<{ label: string; value: string }[]> {
+  try {
+    const res = await api.post('/api/dict/list', { name: dictName, page: 1, limit: 50 })
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data?.list) {
+      const dict = res.data.data.list.find((d: any) => d.name === dictName || d.code === dictName)
+      if (dict) {
+        const itemsRes = await api.get(`/api/dict/${dict.id}/items`)
+        if ((itemsRes.data?.code === 1 || itemsRes.data?.code === 0) && itemsRes.data?.data) {
+          return (itemsRes.data.data || []).map((item: any) => ({
+            label: item.itemLabel,
+            value: item.itemValue,
+          }))
+        }
+      }
+    }
+    return []
+  } catch (error) {
+    console.error('Failed to load dict by name:', error)
+    return []
+  }
+}
+
+export async function getAllDictItems(): Promise<Record<string, any[]>> {
+  try {
+    const res = await api.get('/api/dict/all-items')
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data || {}
+    }
+    return {}
+  } catch (error) {
+    console.error('Failed to load all dict items:', error)
+    return {}
+  }
+}
