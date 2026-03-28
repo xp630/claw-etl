@@ -6,9 +6,12 @@ import Home from '../pages/Home.vue'
 import MenuList from '../pages/system/MenuList.vue'
 import DatasourceList from '../pages/DatasourceList.vue'
 import DatasourceForm from '../pages/DatasourceForm.vue'
-import UserList from '../pages/UserList.vue'
-import RoleList from '../pages/RoleList.vue'
-import DictList from '../pages/DictList.vue'
+import UserList from '../pages/users/UserList.vue'
+import UserForm from '../pages/users/UserForm.vue'
+import RoleList from '../pages/roles/RoleList.vue'
+import RoleForm from '../pages/roles/RoleForm.vue'
+import DictList from '../pages/dict/DictList.vue'
+import DictForm from '../pages/dict/DictForm.vue'
 import TaskList from '../pages/tasks/TaskList.vue'
 import TaskForm from '../pages/tasks/TaskForm.vue'
 import MainLayout from '../components/layout/MainLayout.vue'
@@ -92,16 +95,52 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '用户管理' }
       },
       {
+        path: '/users/new',
+        name: 'UserCreate',
+        component: UserForm,
+        meta: { title: '新增用户' }
+      },
+      {
+        path: '/users/:id',
+        name: 'UserEdit',
+        component: UserForm,
+        meta: { title: '编辑用户' }
+      },
+      {
         path: '/roles',
         name: 'RoleList',
         component: RoleList,
         meta: { title: '角色管理' }
       },
       {
-        path: '/dicts',
+        path: '/roles/new',
+        name: 'RoleCreate',
+        component: RoleForm,
+        meta: { title: '新增角色' }
+      },
+      {
+        path: '/roles/:id',
+        name: 'RoleEdit',
+        component: RoleForm,
+        meta: { title: '编辑角色' }
+      },
+      {
+        path: '/dict',
         name: 'DictList',
         component: DictList,
         meta: { title: '数据字典' }
+      },
+      {
+        path: '/dict/new',
+        name: 'DictCreate',
+        component: DictForm,
+        meta: { title: '新增字典' }
+      },
+      {
+        path: '/dict/:id',
+        name: 'DictEdit',
+        component: DictForm,
+        meta: { title: '编辑字典' }
       }
     ]
   },

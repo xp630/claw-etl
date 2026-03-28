@@ -32,7 +32,20 @@
         <template v-for="menu in menuTree" :key="menu.id">
           <!-- 有子菜单的父菜单 -->
           <div v-if="menu.children && menu.children.length > 0">
+            <!-- 如果父菜单有 path，就直接导航；如果没有 path，就展开 -->
             <el-menu-item
+              v-if="menu.path"
+              :index="getMenuPath(menu)"
+              @click="handleParentMenuClick(menu)"
+            >
+              <el-icon><component :is="getIconComponent(menu.icon)" /></el-icon>
+              <template #title>
+                <span>{{ menu.name }}</span>
+                <el-icon class="ml-auto"><component :is="expandedKeys.has(menu.id) ? ArrowDown : ArrowRight" /></el-icon>
+              </template>
+            </el-menu-item>
+            <el-menu-item
+              v-else
               :index="'parent-' + menu.id"
               @click="toggleExpand(menu.id)"
             >
@@ -116,8 +129,22 @@ function getMenuPath(menu: any): string {
 }
 
 function handleSelect(index: string) {
-  expandedKeys.value.clear()
+  // 忽略 parent- 开头的父菜单项（它们只负责展开/折叠）
+  if (index.startsWith('parent-')) {
+    return
+  }
+  // 正常导航
   router.push(index)
+}
+
+function handleParentMenuClick(menu: any) {
+  // 父菜单有 path，点击时直接导航
+  if (menu.path) {
+    router.push(getMenuPath(menu))
+  } else {
+    // 没有 path 就展开
+    toggleExpand(menu.id)
+  }
 }
 
 function toggleExpand(id: number) {

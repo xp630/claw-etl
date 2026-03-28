@@ -664,6 +664,28 @@ export async function deleteRole(id: number): Promise<void> {
   }
 }
 
+export async function getRoleMenuIds(roleId: number): Promise<number[]> {
+  try {
+    const res = await api.post('/sysRole/menuIds', { roleId })
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data || []
+    }
+    return []
+  } catch (error) {
+    console.error('Failed to load role menu ids:', error)
+    return []
+  }
+}
+
+export async function bindMenus(roleId: number, menuIds: number[]): Promise<void> {
+  try {
+    await api.post('/sysRole/bindMenus', { roleId, menuIds })
+  } catch (error) {
+    console.error('Failed to bind menus:', error)
+    throw error
+  }
+}
+
 // ========== Dict API ==========
 
 export async function getDictList(params?: {
@@ -760,6 +782,15 @@ export async function deleteDictItem(id: number): Promise<void> {
     await api.post('/api/dict/item/delete', { id })
   } catch (error) {
     console.error('Failed to delete dict item:', error)
+    throw error
+  }
+}
+
+export async function saveDictItems(dictId: number, dictCode: string, items: any[]): Promise<void> {
+  try {
+    await api.post(`/api/dict/${dictId}/items?dictCode=${dictCode}`, items)
+  } catch (error) {
+    console.error('Failed to save dict items:', error)
     throw error
   }
 }
