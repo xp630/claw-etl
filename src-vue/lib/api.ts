@@ -202,7 +202,7 @@ export async function getDataSources(params: {
   name?: string
   dataType?: string
   dbState?: string
-}): Promise<{ list: DataSource[]; total: number }> {
+}): Promise<{ list: any[]; total: number }> {
   try {
     const res = await api.post('/dataSourceManager/dataSourceList', {
       page: params.page,
@@ -213,7 +213,27 @@ export async function getDataSources(params: {
     })
     if (res.data?.code === 0 || res.data?.code === 1) {
       return {
-        list: res.data.list || [],
+        list: (res.data.list || []).map((item: any) => ({
+          id: item.id,
+          name: item.dbName,
+          comment: item.comment || item.description,
+          type: item.dbType?.toLowerCase() || 'mysql',
+          dataType: item.dataType || 'source',
+          jdbcUrl: item.dbUrl || '',
+          dbCheckUrl: item.dbCheckUrl || '',
+          username: item.dbAccount,
+          password: item.dbPassword,
+          database_name: item.realDataBaseName || item.dbName,
+          maxConnections: item.maxConnections ?? item.maxActive,
+          maxIdle: item.maxIdle,
+          maxWait: item.maxWait,
+          extraParams: item.extraParams,
+          description: item.comment,
+          status: item.dbState === '启用' ? 1 : 0,
+          dbState: item.dbState,
+          createdAt: item.createTime,
+          updatedAt: item.updateTime,
+        })),
         total: res.data.count || 0,
       }
     }
@@ -417,9 +437,9 @@ export async function getTasks(): Promise<any[]> {
 
 export async function getTask(id: number): Promise<any | undefined> {
   try {
-    const res = await api.post('/etl-admin/simple/queryTaskListPage', { page: 1, limit: 20, id })
-    if (res.data?.list?.length > 0) {
-      return res.data.list[0]
+    const res = await api.post('/etl-admin/simple/getById', { id: String(id) })
+    if (res.data?.data) {
+      return res.data.data
     }
     return undefined
   } catch (error) {
@@ -430,11 +450,23 @@ export async function getTask(id: number): Promise<any | undefined> {
 
 export async function createTask(data: any): Promise<any | null> {
   try {
-    const res = await api.post('/etl-admin/etlTask/save', data)
-    if (res.data?.code === 1 || res.data?.code === 0) {
-      return res.data.data
+    // 转换字段名为后端格式
+    const camelData = {
+      taskName: data.name,
+      sourceDb: data.sourceName,
+      sourceDbId: data.sourceId,
+      targetDb: data.targetName,
+      targetDbId: data.targetId,
+      querySql: data.querySql,
+      targetTable: data.targetTable,
+      columns: data.columns,
+      dynamicParam: data.dynamicSql,
+      taskCronTime: data.windowValue,
+      taskCronTimeUnit: data.windowUnit?.toUpperCase() || 'HOURS',
+      status: data.status ?? 1,
     }
-    return null
+    const res = await api.post('/etl-admin/simple/saveTaskData', camelData)
+    return res.data
   } catch (error) {
     console.error('Failed to create task:', error)
     throw error
@@ -443,11 +475,23 @@ export async function createTask(data: any): Promise<any | null> {
 
 export async function updateTask(id: number, data: any): Promise<any | null> {
   try {
-    const res = await api.post('/etl-admin/etlTask/save', { ...data, id })
-    if (res.data?.code === 1 || res.data?.code === 0) {
-      return res.data.data
+    const camelData = {
+      id,
+      taskName: data.name,
+      sourceDb: data.sourceName,
+      sourceDbId: data.sourceId,
+      targetDb: data.targetName,
+      targetDbId: data.targetId,
+      querySql: data.querySql,
+      targetTable: data.targetTable,
+      columns: data.columns,
+      dynamicParam: data.dynamicSql,
+      taskCronTime: data.windowValue,
+      taskCronTimeUnit: data.windowUnit?.toUpperCase() || 'HOURS',
+      status: data.status,
     }
-    return null
+    const res = await api.post('/etl-admin/simple/saveTaskData', camelData)
+    return res.data
   } catch (error) {
     console.error('Failed to update task:', error)
     throw error
@@ -456,7 +500,7 @@ export async function updateTask(id: number, data: any): Promise<any | null> {
 
 export async function deleteTask(id: number): Promise<void> {
   try {
-    await api.post('/etl-admin/etlTask/delete', { id })
+    await api.post('/etl-admin/simple/updateStatus', { id, status: -1 })
   } catch (error) {
     console.error('Failed to delete task:', error)
     throw error
@@ -465,13 +509,20 @@ export async function deleteTask(id: number): Promise<void> {
 
 export async function toggleTask(id: number): Promise<any | null> {
   try {
-    const res = await api.post('/etl-admin/etlTask/toggleStatus', { id })
-    if (res.data?.code === 1 || res.data?.code === 0) {
-      return res.data.data
-    }
-    return null
+    const res = await api.post('/etl-admin/simple/updateStatus', { id })
+    return res.data
   } catch (error) {
     console.error('Failed to toggle task:', error)
     throw error
+  }
+}
+
+export async function generateColumns(querySql: string, sourceDb: string): Promise<string[]> {
+  try {
+    const res = await api.post('/etl-admin/simple/generateTargetColumns', { querySql, sourceDb })
+    return res.data?.data || []
+  } catch (error) {
+    console.error('Failed to generate columns:', error)
+    return []
   }
 }
