@@ -4,6 +4,8 @@ import PageViewer from '../pages/viewer/PageViewer.vue'
 import LoginPage from '../pages/auth/LoginPage.vue'
 import Home from '../pages/Home.vue'
 import MenuList from '../pages/system/MenuList.vue'
+import DatasourceList from '../pages/DatasourceList.vue'
+import DatasourceForm from '../pages/DatasourceForm.vue'
 import MainLayout from '../components/layout/MainLayout.vue'
 import { useAuthStore } from '@/stores/auth'
 
@@ -41,6 +43,24 @@ const routes: RouteRecordRaw[] = [
         name: 'MenuList',
         component: MenuList,
         meta: { title: '菜单管理' }
+      },
+      {
+        path: '/datasources',
+        name: 'DatasourceList',
+        component: DatasourceList,
+        meta: { title: '数据源管理' }
+      },
+      {
+        path: '/datasources/:id',
+        name: 'DatasourceEdit',
+        component: DatasourceForm,
+        meta: { title: '编辑数据源' }
+      },
+      {
+        path: '/datasources/new',
+        name: 'DatasourceCreate',
+        component: DatasourceForm,
+        meta: { title: '新增数据源' }
       }
     ]
   },
