@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import EditorPage from '../pages/editor/EditorPage.vue'
+import PageViewer from '../pages/viewer/PageViewer.vue'
 
 const routes = [
   {
@@ -10,6 +11,11 @@ const routes = [
     path: '/editor',
     name: 'Editor',
     component: EditorPage
+  },
+  {
+    path: '/render/:code',
+    name: 'PageViewer',
+    component: PageViewer
   }
 ]
 
