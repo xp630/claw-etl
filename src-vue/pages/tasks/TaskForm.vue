@@ -201,7 +201,7 @@ async function getDataSourcesList(): Promise<DataSource[]> {
 }
 
 async function getTask(id: number): Promise<Task | null> {
-  const res = await api.post('/etlTask/get', { id })
+  const res = await api.post('/simple/getTask', { id })
   if (res.data?.code === 0 || res.data?.code === 1) {
     return res.data.data
   }
@@ -209,17 +209,17 @@ async function getTask(id: number): Promise<Task | null> {
 }
 
 async function createTask(data: Partial<Task>): Promise<number> {
-  const res = await api.post('/etlTask/save', data)
+  const res = await api.post('/simple/saveTask', data)
   return res.data?.code === 0 || res.data?.code === 1 ? 1 : 0
 }
 
 async function updateTask(id: number, data: Partial<Task>): Promise<number> {
-  const res = await api.post('/etlTask/save', { ...data, id })
+  const res = await api.post('/simple/saveTask', { ...data, id })
   return res.data?.code === 0 || res.data?.code === 1 ? 1 : 0
 }
 
 async function generateTargetColumns(sql: string, dbName: string): Promise<string[]> {
-  const res = await api.post('/etlTask/generateColumns', { sql, dbName })
+  const res = await api.post('/simple/generateColumns', { sql, dbName })
   if (res.data?.code === 0 || res.data?.code === 1) {
     return res.data.data || []
   }

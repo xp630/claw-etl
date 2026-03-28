@@ -97,15 +97,15 @@ api.interceptors.request.use((config) => {
 })
 
 async function getTasks(): Promise<Task[]> {
-  const res = await api.post('/etlTask/list')
+  const res = await api.post('/simple/queryTaskListPage')
   if (res.data?.code === 0 || res.data?.code === 1) {
-    return res.data?.data || []
+    return res.data?.list || []
   }
   return []
 }
 
 async function toggleTask(id: number): Promise<void> {
-  await api.post('/etlTask/toggle', { id })
+  await api.post('/simple/updateStatus', { id })
 }
 
 const router = useRouter()

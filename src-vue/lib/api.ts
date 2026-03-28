@@ -684,7 +684,7 @@ export async function getUserDetail(id: number): Promise<any | null> {
 
 export async function saveUser(user: any): Promise<any | null> {
   try {
-    const res = await api.post('/etl-admin/sysUser/save', user)
+    const res = await api.post('/sysUser/save', user)
     if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
       return res.data.data
     }
@@ -745,7 +745,7 @@ export async function getRoleDetail(id: number): Promise<any | null> {
 
 export async function saveRole(role: any): Promise<any | null> {
   try {
-    const res = await api.post('/etl-admin/sysRole/save', role)
+    const res = await api.post('/sysRole/save', role)
     if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
       return res.data.data
     }
