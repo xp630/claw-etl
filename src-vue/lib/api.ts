@@ -221,6 +221,71 @@ export async function getDataSources(params: {
   }
 }
 
+export async function getDataSource(id: number): Promise<DataSource | undefined> {
+  try {
+    const res = await api.post('/etl-admin/dataSourceManager/dbSourceDetail', { id: String(id) })
+    const data = res.data?.data
+    if (data) {
+      return {
+        id: data.id,
+        name: data.dbName,
+        type: data.dbType?.toLowerCase() || 'mysql',
+        dataType: data.dataType || 'source',
+        jdbcUrl: data.dbUrl || '',
+        dbCheckUrl: data.dbCheckUrl || '',
+        username: data.dbAccount,
+        password: data.dbPassword,
+        database_name: data.realDataBaseName || data.dbName,
+        maxConnections: data.maxConnections ?? data.maxActive,
+        maxActive: data.maxActive ?? data.maxConnections,
+        initialConnections: data.initialConnections ?? data.initialSize,
+        initialSize: data.initialSize ?? data.initialConnections,
+        maxIdle: data.maxIdle,
+        maxWait: data.maxWait,
+        extraParams: data.extraParams,
+        description: data.comment,
+        status: data.dbState === '启用' ? 1 : 0,
+        created_at: data.createTime,
+        updated_at: data.updateTime,
+      }
+    }
+    return undefined
+  } catch (error) {
+    console.error('Failed to load datasource:', error)
+    return undefined
+  }
+}
+
+export async function getDataSource(id: number): Promise<DataSource | undefined> {
+  try {
+    const res = await api.post('/etl-admin/dataSourceManager/dbSourceDetail', { id: String(id) })
+    const data = res.data?.data
+    if (data) {
+      return {
+        id: data.id,
+        name: data.dbName,
+        type: data.dbType?.toLowerCase() || 'mysql',
+        dataType: data.dataType || 'source',
+        jdbcUrl: data.dbUrl || '',
+        dbCheckUrl: data.dbCheckUrl || '',
+        username: data.dbAccount,
+        password: data.dbPassword,
+        database_name: data.realDataBaseName || data.dbName,
+        maxConnections: data.maxConnections,
+        initialConnections: data.initialConnections,
+        maxIdle: data.maxIdle,
+        maxWait: data.maxWait,
+        extraParams: data.extraParams,
+        description: data.description,
+      }
+    }
+    return undefined
+  } catch (error) {
+    console.error('Failed to load datasource:', error)
+    return undefined
+  }
+}
+
 export async function createDataSource(data: Partial<DataSource>): Promise<DataSource | null> {
   try {
     const res = await api.post('/etl-admin/dataSourceManager/addDataSource', data)
