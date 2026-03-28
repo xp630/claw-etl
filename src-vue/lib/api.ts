@@ -182,6 +182,92 @@ export async function savePageConfig(data: any): Promise<{ success: boolean; mes
   }
 }
 
+// ========== DataSource API ==========
+
+export interface DataSource {
+  id?: number
+  name?: string
+  dataType?: string
+  dbHost?: string
+  dbPort?: string
+  dbName?: string
+  dbUser?: string
+  dbPassword?: string
+  dbState?: string
+}
+
+export async function getDataSources(params: {
+  page: number
+  limit: number
+  name?: string
+  dataType?: string
+  dbState?: string
+}): Promise<{ list: DataSource[]; total: number }> {
+  try {
+    const res = await api.post('/dataSourceManager/dataSourceList', {
+      page: params.page,
+      limit: params.limit,
+      name: params.name,
+      dataType: params.dataType,
+      dbState: params.dbState,
+    })
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data
+    }
+    return { list: [], total: 0 }
+  } catch (error) {
+    console.error('Failed to load datasources:', error)
+    return { list: [], total: 0 }
+  }
+}
+
+export async function createDataSource(data: Partial<DataSource>): Promise<DataSource | null> {
+  try {
+    const res = await api.post('/etl-admin/dataSourceManager/addDataSource', data)
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data
+    }
+    return null
+  } catch (error) {
+    console.error('Failed to create datasource:', error)
+    throw error
+  }
+}
+
+export async function updateDataSource(id: number, data: Partial<DataSource>): Promise<DataSource | null> {
+  try {
+    const res = await api.post('/etl-admin/dataSourceManager/addDataSource', { ...data, id })
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data
+    }
+    return null
+  } catch (error) {
+    console.error('Failed to update datasource:', error)
+    throw error
+  }
+}
+
+export async function deleteDataSource(id: number): Promise<void> {
+  try {
+    await api.post('/etl-admin/dataSourceManager/deleteDataSource', { id })
+  } catch (error) {
+    console.error('Failed to delete datasource:', error)
+    throw error
+  }
+}
+
+export async function testDataSource(id: number): Promise<{ success: boolean; message: string }> {
+  try {
+    const res = await api.post('/etl-admin/dataSourceManager/testDataSource', { id })
+    if (res.data?.code === 1 || res.data?.code === 0) {
+      return { success: true, message: res.data?.msg || '连接成功' }
+    }
+    return { success: false, message: res.data?.msg || '连接失败' }
+  } catch (error: any) {
+    return { success: false, message: error?.response?.data?.msg || '连接失败' }
+  }
+}
+
 // ========== Dict API ==========
 
 export async function getDictByName(dictName: string): Promise<{ label: string; value: string }[]> {
