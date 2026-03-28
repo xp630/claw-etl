@@ -187,7 +187,7 @@ async function getMenuTree(): Promise<SysMenu[]> {
 }
 
 async function getMenuDetail(id: number): Promise<SysMenu | null> {
-  const res = await api.get(`/sysMenu/${id}`)
+  const res = await api.post('/sysMenu/detail', { id })
   return res.data?.data || null
 }
 
