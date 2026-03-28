@@ -5,10 +5,14 @@
 </template>
 
 <script setup lang="ts">
-import { watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { onMounted } from 'vue'
+import { useTheme } from '@/composables/useTheme'
 
-const route = useRoute()
+// 初始化主题
+const { theme } = useTheme()
+onMounted(() => {
+  document.documentElement.setAttribute('data-theme', theme.value)
+})
 </script>
 
 <style>

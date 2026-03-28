@@ -3,7 +3,7 @@ import EditorPage from '../pages/editor/EditorPage.vue'
 import PageViewer from '../pages/viewer/PageViewer.vue'
 import LoginPage from '../pages/auth/LoginPage.vue'
 import Home from '../pages/Home.vue'
-import MenuList from '../pages/MenuList.vue'
+import MenuList from '../pages/system/MenuList.vue'
 import MainLayout from '../components/layout/MainLayout.vue'
 import { useAuthStore } from '@/stores/auth'
 
