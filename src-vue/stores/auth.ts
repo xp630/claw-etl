@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import axios from 'axios'
+import { encryptPassword } from '@/lib/crypto'
 
 const API_BASE = '/etl-admin'
 
@@ -31,7 +32,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const response = await axios.post(`${API_BASE}/sysUser/login`, {
         employeeNo: username,
-        password,
+        password: encryptPassword(password),
       })
 
       if (response.data?.success) {
