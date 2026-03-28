@@ -35,8 +35,8 @@ export const useAuthStore = defineStore('auth', () => {
         password: encryptPassword(password),
       })
 
-      if (response.data?.success) {
-        const data = response.data?.data?.user || response.data.data
+      if (response.data?.code === 0 || response.data?.success) {
+        const data = response.data?.data?.user || response.data?.data
         // 优先取 token，如果没有则用 username 作为临时 token
         token.value = data?.token || data?.access_token || response.data.data?.token || username
         userInfo.value = {
@@ -50,12 +50,12 @@ export const useAuthStore = defineStore('auth', () => {
         localStorage.setItem('user', JSON.stringify(userInfo.value))
         return true
       } else {
-        error.value = response.data.message || '登录失败'
+        error.value = response.data.msg || response.data.message || '登录失败'
         ElMessage.error(error.value)
         return false
       }
     } catch (err: any) {
-      error.value = err.response?.data?.message || '登录失败，请检查用户名密码'
+      error.value = err.response?.data?.msg || err.response?.data?.message || '登录失败，请检查用户名密码'
       ElMessage.error(error.value)
       return false
     } finally {
