@@ -317,7 +317,7 @@ export async function deleteDataSource(id: number): Promise<void> {
 
 export async function toggleDataSourceStatus(id: number, dbState: string): Promise<void> {
   try {
-    await api.post('/etl-admin/dataSourceManager/updateDataSourceState', { id, dbState })
+    await api.post('/dataSourceManager/updateDataSourceState', { id, dbState })
   } catch (error) {
     console.error('Failed to toggle datasource status:', error)
     throw error
@@ -533,5 +533,233 @@ export async function generateColumns(querySql: string, sourceDb: string): Promi
   } catch (error) {
     console.error('Failed to generate columns:', error)
     return []
+  }
+}
+
+// ========== User API ==========
+
+export async function getUsers(params?: {
+  name?: string
+  phone?: string
+  employeeNo?: string
+  page?: number
+  limit?: number
+  status?: number
+}): Promise<{ list: any[]; total: number }> {
+  try {
+    const res = await api.post('/sysUser/list', {
+      page: params?.page || 1,
+      limit: params?.limit || 10,
+      name: params?.name || '',
+      phone: params?.phone || '',
+      employeeNo: params?.employeeNo || '',
+      status: params?.status,
+    })
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data) {
+      return {
+        list: res.data.list || [],
+        total: res.data.count || 0,
+      }
+    }
+    return { list: [], total: 0 }
+  } catch (error) {
+    console.error('Failed to load users:', error)
+    return { list: [], total: 0 }
+  }
+}
+
+export async function getUserDetail(id: number): Promise<any | null> {
+  try {
+    const res = await api.post('/sysUser/detail', { id })
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data
+    }
+    return null
+  } catch (error) {
+    console.error('Failed to load user detail:', error)
+    return null
+  }
+}
+
+export async function saveUser(user: any): Promise<any | null> {
+  try {
+    const res = await api.post('/etl-admin/sysUser/save', user)
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data
+    }
+    throw new Error(res.data?.msg || '保存失败')
+  } catch (error) {
+    console.error('Failed to save user:', error)
+    throw error
+  }
+}
+
+export async function deleteUser(id: number): Promise<void> {
+  try {
+    await api.post('/sysUser/delete', { id })
+  } catch (error) {
+    console.error('Failed to delete user:', error)
+    throw error
+  }
+}
+
+// ========== Role API ==========
+
+export async function getRoles(params?: {
+  role?: string
+  page?: number
+  limit?: number
+}): Promise<{ list: any[]; total: number }> {
+  try {
+    const res = await api.post('/sysRole/list', {
+      page: params?.page || 1,
+      limit: params?.limit || 10,
+      role: params?.role || '',
+    })
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data) {
+      return {
+        list: res.data.list || [],
+        total: res.data.count || 0,
+      }
+    }
+    return { list: [], total: 0 }
+  } catch (error) {
+    console.error('Failed to load roles:', error)
+    return { list: [], total: 0 }
+  }
+}
+
+export async function getRoleDetail(id: number): Promise<any | null> {
+  try {
+    const res = await api.post('/sysRole/detail', { id })
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data
+    }
+    return null
+  } catch (error) {
+    console.error('Failed to load role detail:', error)
+    return null
+  }
+}
+
+export async function saveRole(role: any): Promise<any | null> {
+  try {
+    const res = await api.post('/etl-admin/sysRole/save', role)
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data
+    }
+    throw new Error(res.data?.msg || '保存失败')
+  } catch (error) {
+    console.error('Failed to save role:', error)
+    throw error
+  }
+}
+
+export async function deleteRole(id: number): Promise<void> {
+  try {
+    await api.post('/sysRole/delete', { id })
+  } catch (error) {
+    console.error('Failed to delete role:', error)
+    throw error
+  }
+}
+
+// ========== Dict API ==========
+
+export async function getDictList(params?: {
+  name?: string
+  code?: string
+  status?: number
+  page?: number
+  limit?: number
+}): Promise<{ list: any[]; total: number }> {
+  try {
+    const res = await api.post('/api/dict/list', {
+      page: params?.page || 1,
+      limit: params?.limit || 10,
+      name: params?.name || '',
+      code: params?.code || '',
+      status: params?.status,
+    })
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data) {
+      return {
+        list: res.data.list || [],
+        total: res.data.count || 0,
+      }
+    }
+    return { list: [], total: 0 }
+  } catch (error) {
+    console.error('Failed to load dict list:', error)
+    return { list: [], total: 0 }
+  }
+}
+
+export async function getDictDetail(id: number): Promise<any | null> {
+  try {
+    const res = await api.post('/api/dict/detail', { id })
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data
+    }
+    return null
+  } catch (error) {
+    console.error('Failed to load dict detail:', error)
+    return null
+  }
+}
+
+export async function saveDict(dict: any): Promise<any | null> {
+  try {
+    const res = await api.post('/etl-admin/api/dict/save', dict)
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data
+    }
+    throw new Error(res.data?.msg || '保存失败')
+  } catch (error) {
+    console.error('Failed to save dict:', error)
+    throw error
+  }
+}
+
+export async function deleteDict(id: number): Promise<void> {
+  try {
+    await api.post('/api/dict/delete', { id })
+  } catch (error) {
+    console.error('Failed to delete dict:', error)
+    throw error
+  }
+}
+
+export async function getDictItems(dictId: number): Promise<any[]> {
+  try {
+    const res = await api.get(`/api/dict/${dictId}/items`)
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data || []
+    }
+    return []
+  } catch (error) {
+    console.error('Failed to load dict items:', error)
+    return []
+  }
+}
+
+export async function saveDictItem(item: any): Promise<any | null> {
+  try {
+    const res = await api.post('/etl-admin/api/dict/item/save', item)
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data
+    }
+    return null
+  } catch (error) {
+    console.error('Failed to save dict item:', error)
+    throw error
+  }
+}
+
+export async function deleteDictItem(id: number): Promise<void> {
+  try {
+    await api.post('/api/dict/item/delete', { id })
+  } catch (error) {
+    console.error('Failed to delete dict item:', error)
+    throw error
   }
 }
