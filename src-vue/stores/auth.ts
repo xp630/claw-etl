@@ -1,87 +1,108 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { api } from '@/lib/api'
+import { ElMessage } from 'element-plus'
+import axios from 'axios'
 
-export interface UserInfo {
-  id: number
-  username: string
-  name?: string
-  email?: string
-  avatar?: string
-  [key: string]: any
-}
+const API_BASE = '/api'
 
 export const useAuthStore = defineStore('auth', () => {
-  // ============ State ============
-  const token = ref<string | null>(localStorage.getItem('token'))
-  const userInfo = ref<UserInfo | null>(null)
+  // State
+  const token = ref<string>(localStorage.getItem('token') || '')
+  const userInfo = ref<{
+    id?: number
+    name: string
+    username?: string
+    avatar?: string
+    roles?: string[]
+  }>({
+    name: '用户',
+  })
+  const loading = ref(false)
+  const error = ref<string>('')
 
-  // ============ Getters ============
-  const isAuthenticated = computed(() => !!token.value)
+  // Getters
+  const isLoggedIn = computed(() => !!token.value)
 
-  // ============ Actions ============
+  // Actions
+  async function login(username: string, password: string): Promise<boolean> {
+    loading.value = true
+    error.value = ''
 
-  // 设置 Token
-  function setToken(newToken: string) {
-    token.value = newToken
-    localStorage.setItem('token', newToken)
-  }
-
-  // 登录
-  async function login(username: string, password: string): Promise<{ success: boolean; message?: string }> {
     try {
-      const res = await api.post('/auth/login', { username, password })
-      if (res.code === 0 || res.code === 1) {
-        const { token: newToken, user } = res.data || {}
-        if (newToken) {
-          setToken(newToken)
+      const response = await axios.post(`${API_BASE}/auth/login`, {
+        username,
+        password,
+      })
+
+      if (response.data.code === 0 || response.data.code === 200) {
+        const data = response.data.data || response.data
+        token.value = data.token || data.access_token
+        userInfo.value = {
+          id: data.id,
+          name: data.name || username,
+          username: data.username || username,
+          avatar: data.avatar,
+          roles: data.roles,
         }
-        if (user) {
-          userInfo.value = user
-        }
-        return { success: true }
+        localStorage.setItem('token', token.value)
+        return true
+      } else {
+        error.value = response.data.message || '登录失败'
+        ElMessage.error(error.value)
+        return false
       }
-      return { success: false, message: res.msg || '登录失败' }
-    } catch (error: any) {
-      console.error('Login failed:', error)
-      return { success: false, message: error?.message || '登录失败，请稍后重试' }
+    } catch (err: any) {
+      error.value = err.response?.data?.message || '登录失败，请检查用户名密码'
+      ElMessage.error(error.value)
+      return false
+    } finally {
+      loading.value = false
     }
   }
 
-  // 登出
   function logout() {
-    token.value = null
-    userInfo.value = null
+    token.value = ''
+    userInfo.value = { name: '用户' }
     localStorage.removeItem('token')
-    localStorage.removeItem('user')
+    ElMessage.success('已退出登录')
   }
 
-  // 获取当前用户信息
-  async function fetchCurrentUser(): Promise<UserInfo | null> {
-    if (!token.value) return null
+  async function fetchUserInfo() {
+    if (!token.value) return
+
     try {
-      const res = await api.get('/user/info')
-      if ((res.code === 0 || res.code === 1) && res.data) {
-        userInfo.value = res.data
-        return res.data
+      const response = await axios.get(`${API_BASE}/users/me`, {
+        headers: {
+          Authorization: `Bearer ${token.value}`,
+        },
+      })
+
+      if (response.data.code === 0 || response.data.code === 200) {
+        const data = response.data.data || response.data
+        userInfo.value = {
+          id: data.id,
+          name: data.name || data.username,
+          username: data.username,
+          avatar: data.avatar,
+          roles: data.roles,
+        }
       }
-      return null
     } catch (error) {
       console.error('Failed to fetch user info:', error)
-      return null
+      if (error.response?.status === 401) {
+        logout()
+      }
     }
   }
 
   return {
-    // State
     token,
     userInfo,
-    // Getters
-    isAuthenticated,
-    // Actions
-    setToken,
+    isLoggedIn,
+    loading,
+    error,
     login,
     logout,
-    fetchCurrentUser,
+    fetchUserInfo,
   }
 })
