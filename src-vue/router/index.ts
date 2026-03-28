@@ -6,6 +6,9 @@ import Home from '../pages/Home.vue'
 import MenuList from '../pages/system/MenuList.vue'
 import DatasourceList from '../pages/DatasourceList.vue'
 import DatasourceForm from '../pages/DatasourceForm.vue'
+import UserList from '../pages/UserList.vue'
+import TaskList from '../pages/tasks/TaskList.vue'
+import TaskForm from '../pages/tasks/TaskForm.vue'
 import MainLayout from '../components/layout/MainLayout.vue'
 import { useAuthStore } from '@/stores/auth'
 
@@ -61,6 +64,30 @@ const routes: RouteRecordRaw[] = [
         name: 'DatasourceCreate',
         component: DatasourceForm,
         meta: { title: '新增数据源' }
+      },
+      {
+        path: '/tasks',
+        name: 'TaskList',
+        component: TaskList,
+        meta: { title: '任务管理' }
+      },
+      {
+        path: '/tasks/new',
+        name: 'TaskCreate',
+        component: TaskForm,
+        meta: { title: '新增任务' }
+      },
+      {
+        path: '/tasks/:id',
+        name: 'TaskEdit',
+        component: TaskForm,
+        meta: { title: '编辑任务' }
+      },
+      {
+        path: '/users',
+        name: 'UserList',
+        component: UserList,
+        meta: { title: '用户管理' }
       }
     ]
   },
