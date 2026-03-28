@@ -42,7 +42,7 @@
       </el-menu-item>
 
       <el-menu-item index="/api">
-        <el-icon><Api /></el-icon>
+        <el-icon><SetUp /></el-icon>
         <template #title>API 管理</template>
       </el-menu-item>
     </el-menu>
@@ -52,7 +52,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Edit, DataLine, Connection, List, Api, Fold, Expand } from '@element-plus/icons-vue'
+import { Edit, DataLine, Connection, List, Fold, Expand, SetUp } from '@element-plus/icons-vue'
 
 defineProps<{
   collapsed: boolean
