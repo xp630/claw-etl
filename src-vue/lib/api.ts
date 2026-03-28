@@ -256,9 +256,47 @@ export async function deleteDataSource(id: number): Promise<void> {
   }
 }
 
-export async function testDataSource(id: number): Promise<{ success: boolean; message: string }> {
+export async function testDataSource(idOrData: number | any): Promise<{ success: boolean; message: string }> {
   try {
-    const res = await api.post('/etl-admin/dataSourceManager/testDataSource', { id })
+    const driverMap: Record<string, string> = {
+      mysql: 'com.mysql.cj.jdbc.Driver',
+      postgresql: 'org.postgresql.Driver',
+      oracle: 'oracle.jdbc.OracleDriver',
+      sqlserver: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
+    }
+
+    const defaultDbCheckUrls: Record<string, string> = {
+      mysql: 'select 1',
+      postgresql: 'select 1',
+      oracle: 'select 1 from dual',
+      sqlserver: 'select 1',
+    }
+
+    let postData: any
+
+    if (typeof idOrData === 'number') {
+      // 传入id时，从列表获取数据
+      const ds = await getDataSource(idOrData)
+      if (!ds) return { success: false, message: '数据源不存在' }
+      postData = {
+        dbUrl: ds.jdbcUrl,
+        dbAccount: ds.username,
+        dbPassword: ds.password,
+        driverClass: driverMap[ds.type] || 'com.mysql.cj.jdbc.Driver',
+        dbCheckUrl: ds.dbCheckUrl || defaultDbCheckUrls[ds.type] || 'select 1',
+      }
+    } else {
+      // 直接传数据测试
+      postData = {
+        dbUrl: idOrData.jdbcUrl,
+        dbAccount: idOrData.username,
+        dbPassword: idOrData.password,
+        driverClass: driverMap[idOrData.type || 'mysql'],
+        dbCheckUrl: idOrData.dbCheckUrl || defaultDbCheckUrls[idOrData.type || 'mysql'] || 'select 1',
+      }
+    }
+
+    const res = await api.post('/etl-admin/dataSourceManager/testDataSource', postData)
     if (res.data?.code === 1 || res.data?.code === 0) {
       return { success: true, message: res.data?.msg || '连接成功' }
     }
@@ -302,119 +340,5 @@ export async function getAllDictItems(): Promise<Record<string, any[]>> {
   } catch (error) {
     console.error('Failed to load all dict items:', error)
     return {}
-  }
-}
-
-// ========== DataSource API ==========
-
-export async function getDataSources(params: {
-  dataType?: string
-  name?: string
-  dbState?: string
-  page?: number
-  limit?: number
-}): Promise<{ list: any[]; total: number }> {
-  try {
-    const res = await api.post('/dataSourceManager/dataSourceList', {
-      limit: params.limit || 10,
-      page: params.page || 1,
-      dataType: params.dataType || '',
-      dbName: params.name || '',
-      dbState: params.dbState || '',
-    })
-    if (res.data && res.data.list) {
-      return {
-        list: res.data.list.map((item: any) => ({
-          id: item.id,
-          name: item.dbName,
-          dataType: item.dataType || 'source',
-          dbHost: item.dbHost || '',
-          dbPort: item.dbPort || '',
-          dbName: item.dbName,
-          dbUser: item.dbAccount,
-          dbPassword: item.dbPassword,
-          dbState: item.dbState,
-          createdAt: item.createTime,
-        })),
-        total: res.data.count || 0,
-      }
-    }
-    return { list: [], total: 0 }
-  } catch (error) {
-    console.error('Failed to load datasources:', error)
-    return { list: [], total: 0 }
-  }
-}
-
-export async function createDataSource(data: any): Promise<any> {
-  const postData = {
-    dbName: data.name,
-    dbType: data.dataType,
-    dbHost: data.dbHost,
-    dbPort: data.dbPort,
-    dbName_db: data.dbName,
-    dbAccount: data.dbUser,
-    dbPassword: data.dbPassword,
-    dbState: data.dbState || '启用',
-    maxActive: data.maxConnections || 10,
-    initialSize: data.initialConnections || 5,
-    maxIdle: data.maxIdle || 8,
-    maxWait: data.maxWait || 3000,
-    extraParams: data.extraParams || '',
-    comment: data.description || '',
-  }
-  const res = await api.post('/etl-admin/dataSourceManager/addDataSource', postData)
-  return res.data
-}
-
-export async function updateDataSource(id: number, data: any): Promise<any> {
-  const postData = {
-    id: id,
-    dbName: data.name,
-    dbType: data.dataType,
-    dbHost: data.dbHost,
-    dbPort: data.dbPort,
-    dbName_db: data.dbName,
-    dbAccount: data.dbUser,
-    dbPassword: data.dbPassword,
-    dbState: data.dbState || '启用',
-    maxActive: data.maxConnections || 10,
-    initialSize: data.initialConnections || 5,
-    maxIdle: data.maxIdle || 8,
-    maxWait: data.maxWait || 3000,
-    extraParams: data.extraParams || '',
-    comment: data.description || '',
-  }
-  const res = await api.post('/etl-admin/dataSourceManager/addDataSource', postData)
-  return res.data
-}
-
-export async function deleteDataSource(id: number): Promise<void> {
-  try {
-    await api.post('/etl-admin/dataSourceManager/deleteDataSource', { id })
-  } catch (error) {
-    console.error('Failed to delete datasource:', error)
-    throw error
-  }
-}
-
-export async function testDataSource(id: number): Promise<{ success: boolean; message: string }> {
-  try {
-    const res = await api.post('/etl-admin/dataSourceManager/checkDataSource', { id })
-    if (res.data.code === 1 || res.data.code === 0) {
-      return {
-        success: true,
-        message: res.data.msg || '连接成功',
-      }
-    }
-    return {
-      success: false,
-      message: res.data.msg || '连接失败',
-    }
-  } catch (error: any) {
-    return {
-      success: false,
-      message: error?.response?.data?.msg || '连接失败',
-    }
   }
 }
