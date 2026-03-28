@@ -43,6 +43,7 @@
       </div>
 
       <el-table v-loading="loading" :data="datasources" stripe style="width: 100%">
+        <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="name" label="数据源名称" min-width="150" />
         <el-table-column prop="comment" label="名称" min-width="150" show-overflow-tooltip />
         <el-table-column prop="dataType" label="数据库类型" width="120">
