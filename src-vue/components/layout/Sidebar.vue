@@ -31,7 +31,7 @@
         <el-menu-item
           v-for="menu in menuTree"
           :key="menu.id"
-          :index="menu.path || `/menu/${menu.id}`"
+          :index="getMenuPath(menu)"
         >
           <el-icon><component :is="getIconComponent(menu.icon)" /></el-icon>
           <template #title>{{ menu.name }}</template>
@@ -78,6 +78,15 @@ const iconMap: Record<string, any> = {
 function getIconComponent(iconName?: string) {
   if (!iconName) return Menu
   return iconMap[iconName.toLowerCase()] || Menu
+}
+
+function getMenuPath(menu: any): string {
+  if (!menu.path) return '/home'
+  // 动态菜单需要拼接 /render/ 前缀
+  if (menu.menuFrom === 'dynamic' && !menu.path.startsWith('/render/')) {
+    return `/render/${menu.path}`
+  }
+  return menu.path
 }
 
 function handleSelect(index: string) {
