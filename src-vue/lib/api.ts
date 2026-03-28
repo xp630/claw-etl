@@ -20,15 +20,9 @@ api.interceptors.request.use((config) => {
   return config
 })
 
-// 响应拦截器：统一判断 code
+// 响应拦截器：统一判断 code（宽松模式，兼容 React）
 api.interceptors.response.use(
   (response) => {
-    const { data } = response
-    // code 为 0 或 1 表示成功，其他表示失败
-    if (data.code !== 0 && data.code !== 1) {
-      console.error('❌ API Error:', data.msg || '请求失败')
-      return Promise.reject(new Error(data.msg || '请求失败'))
-    }
     return response
   },
   (error) => {
