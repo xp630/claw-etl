@@ -48,6 +48,7 @@
         class="property-panel"
         :selected-component="store.selectedComponent"
         @update-props="handleUpdateProps"
+        @update-label="handleUpdateLabel"
       />
     </div>
   </div>
@@ -81,6 +82,12 @@ function handleDrop(e: DragEvent) {
 function handleUpdateProps(props: Record<string, unknown>) {
   if (store.selectedId) {
     store.updateComponentProps(store.selectedId, props)
+  }
+}
+
+function handleUpdateLabel(label: string) {
+  if (store.selectedId) {
+    store.updateComponent(store.selectedId, { label })
   }
 }
 
