@@ -30,20 +30,32 @@
       </template>
       <template v-else>
         <template v-for="menu in menuTree" :key="menu.id">
-          <el-sub-menu v-if="menu.children && menu.children.length > 0" :index="getMenuPath(menu)">
-            <template #title>
-              <el-icon><component :is="getIconComponent(menu.icon)" /></el-icon>
-              <span>{{ menu.name }}</span>
-            </template>
+          <!-- 有子菜单的父菜单 -->
+          <div v-if="menu.children && menu.children.length > 0">
             <el-menu-item
-              v-for="child in menu.children"
-              :key="child.id"
-              :index="getMenuPath(child)"
+              :index="'parent-' + menu.id"
+              @click="toggleExpand(menu.id)"
             >
-              <el-icon><component :is="getIconComponent(child.icon)" /></el-icon>
-              <span>{{ child.name }}</span>
+              <el-icon><component :is="getIconComponent(menu.icon)" /></el-icon>
+              <template #title>
+                <span>{{ menu.name }}</span>
+                <el-icon class="ml-auto"><component :is="expandedKeys.has(menu.id) ? ArrowDown : ArrowRight" /></el-icon>
+              </template>
             </el-menu-item>
-          </el-sub-menu>
+            <!-- 子菜单 -->
+            <template v-if="expandedKeys.has(menu.id)">
+              <el-menu-item
+                v-for="child in menu.children"
+                :key="child.id"
+                :index="getMenuPath(child)"
+                :style="{ paddingLeft: '52px' }"
+              >
+                <el-icon><component :is="getIconComponent(child.icon)" /></el-icon>
+                <span>{{ child.name }}</span>
+              </el-menu-item>
+            </template>
+          </div>
+          <!-- 没有子菜单的菜单 -->
           <el-menu-item v-else :index="getMenuPath(menu)">
             <el-icon><component :is="getIconComponent(menu.icon)" /></el-icon>
             <template #title>{{ menu.name }}</template>
@@ -57,7 +69,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Edit, DataLine, Connection, List, Fold, Expand, SetUp, Menu, Loading } from '@element-plus/icons-vue'
+import { Edit, DataLine, Connection, List, Fold, Expand, SetUp, Menu, Loading, ArrowRight, ArrowDown } from '@element-plus/icons-vue'
 import { getMenuTree } from '@/lib/api'
 
 defineProps<{
@@ -74,6 +86,7 @@ const router = useRouter()
 const menuTree = ref<any[]>([])
 const loading = ref(true)
 const activeMenu = computed(() => route.path)
+const expandedKeys = ref<Set<number>>(new Set())
 
 // 图标映射
 const iconMap: Record<string, any> = {
@@ -103,7 +116,16 @@ function getMenuPath(menu: any): string {
 }
 
 function handleSelect(index: string) {
+  expandedKeys.value.clear()
   router.push(index)
+}
+
+function toggleExpand(id: number) {
+  if (expandedKeys.value.has(id)) {
+    expandedKeys.value.delete(id)
+  } else {
+    expandedKeys.value.add(id)
+  }
 }
 
 async function loadMenus() {
