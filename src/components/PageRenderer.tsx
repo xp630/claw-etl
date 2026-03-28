@@ -1,9 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, ChevronDown, Search, Download, Plus, Edit2, Trash2, Eye, X } from 'lucide-react';
 import { dataBridge } from '../lib/DataBridge';
+import { getAllDictItems } from '../lib/api';
 import cn from 'classnames';
 import DataTable from './DataTable';
 import type { ColumnDef } from './DataTable';
+import type { DictItem } from '../types';
 
 // 组件配置类型
 interface ComponentConfig {
@@ -335,7 +337,11 @@ function ComponentRenderer({ type, props, children, onEvent }: { type: string; p
     }
 
     case 'Input':
-    case 'input':
+    case 'input': {
+      const dataDictionary = props.dataDictionary as string | undefined;
+      if (dataDictionary) {
+        return <InputWithDict label={props.label as string} placeholder={props.placeholder as string} dataDictionary={dataDictionary} className={props.className as string} />;
+      }
       return (
         <div className="flex flex-col gap-1">
           {props.label && <label className="text-xs text-[var(--text-muted)]">{String(props.label)}</label>}
@@ -346,6 +352,7 @@ function ComponentRenderer({ type, props, children, onEvent }: { type: string; p
           />
         </div>
       );
+    }
 
     case 'Table':
     case 'table': {
@@ -540,4 +547,47 @@ function ComponentRenderer({ type, props, children, onEvent }: { type: string; p
     default:
       return <div className="text-[var(--text-muted)] text-sm">未知组件: {type}</div>;
   }
+}
+
+// 输入框组件（支持数据字典）
+function InputWithDict({ label, placeholder, dataDictionary, className }: { label?: string; placeholder?: string; dataDictionary: string; className?: string }) {
+  const [dictItems, setDictItems] = useState<DictItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadDict = async () => {
+      try {
+        const allItems = await getAllDictItems();
+        setDictItems(allItems[dataDictionary] || []);
+      } catch (error) {
+        console.error('Failed to load dict items:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadDict();
+  }, [dataDictionary]);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-1">
+        {label && <label className="text-xs text-[var(--text-muted)]">{label}</label>}
+        <select className={cn('px-3 py-1.5 border border-[var(--border)] rounded text-sm bg-[var(--input-bg)] text-[var(--text-muted)]', className)} disabled>
+          <option value="">加载中...</option>
+        </select>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-1">
+      {label && <label className="text-xs text-[var(--text-muted)]">{label}</label>}
+      <select className={cn('px-3 py-1.5 border border-[var(--border)] rounded text-sm focus:outline-none focus:border-[var(--accent)] bg-[var(--input-bg)] text-[var(--text-primary)] transition-colors', className)}>
+        <option value="">{placeholder || '请选择'}</option>
+        {dictItems.map(item => (
+          <option key={item.itemValue} value={item.itemValue}>{item.itemLabel}</option>
+        ))}
+      </select>
+    </div>
+  );
 }
