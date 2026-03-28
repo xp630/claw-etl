@@ -786,11 +786,145 @@ export async function deleteDictItem(id: number): Promise<void> {
   }
 }
 
+// ========== SystemConfig API ==========
+
+export async function getSystemConfigs(params?: {
+  name?: string
+  code?: string
+  groupName?: string
+  status?: number
+  page?: number
+  limit?: number
+}): Promise<{ list: any[]; total: number }> {
+  try {
+    const res = await api.post('/api/system-config/list', {
+      page: params?.page || 1,
+      limit: params?.limit || 10,
+      name: params?.name || '',
+      code: params?.code || '',
+      groupName: params?.groupName || '',
+      status: params?.status,
+    })
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data) {
+      return {
+        list: res.data.list || [],
+        total: res.data.count || 0,
+      }
+    }
+    return { list: [], total: 0 }
+  } catch (error) {
+    console.error('Failed to load system configs:', error)
+    return { list: [], total: 0 }
+  }
+}
+
+export async function getSystemConfigDetail(id: number): Promise<any | null> {
+  try {
+    const res = await api.get(`/api/system-config/${id}`)
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data
+    }
+    return null
+  } catch (error) {
+    console.error('Failed to load system config detail:', error)
+    return null
+  }
+}
+
+export async function saveSystemConfig(config: any): Promise<any | null> {
+  try {
+    const res = await api.post('/api/system-config', config)
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data
+    }
+    throw new Error(res.data?.msg || '保存失败')
+  } catch (error) {
+    console.error('Failed to save system config:', error)
+    throw error
+  }
+}
+
+export async function deleteSystemConfig(id: number): Promise<void> {
+  try {
+    await api.delete(`/api/system-config/${id}`)
+  } catch (error) {
+    console.error('Failed to delete system config:', error)
+    throw error
+  }
+}
+
 export async function saveDictItems(dictId: number, dictCode: string, items: any[]): Promise<void> {
   try {
     await api.post(`/api/dict/${dictId}/items?dictCode=${dictCode}`, items)
   } catch (error) {
     console.error('Failed to save dict items:', error)
+    throw error
+  }
+}
+
+// ========== System Config API ==========
+
+export async function getSystemConfigList(params?: {
+  name?: string
+  code?: string
+  groupName?: string
+  status?: number
+  page?: number
+  limit?: number
+}): Promise<{ list: any[]; total: number }> {
+  try {
+    const res = await api.post('/api/system-config/list', {
+      page: params?.page || 1,
+      limit: params?.limit || 10,
+      name: params?.name || '',
+      code: params?.code || '',
+      groupName: params?.groupName || '',
+      status: params?.status,
+    })
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data) {
+      return {
+        list: res.data.list || [],
+        total: res.data.count || 0,
+      }
+    }
+    return { list: [], total: 0 }
+  } catch (error) {
+    console.error('Failed to load system config list:', error)
+    return { list: [], total: 0 }
+  }
+}
+
+export async function getSystemConfigDetail(id: number): Promise<any | null> {
+  try {
+    const res = await api.get(`/api/system-config/${id}`)
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data
+    }
+    return null
+  } catch (error) {
+    console.error('Failed to load system config detail:', error)
+    return null
+  }
+}
+
+export async function saveSystemConfig(config: any): Promise<any | null> {
+  try {
+    const res = await api.post('/api/system-config', config)
+    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
+      return res.data.data
+    }
+    throw new Error(res.data?.msg || '保存失败')
+  } catch (error) {
+    console.error('Failed to save system config:', error)
+    throw error
+  }
+}
+
+export async function deleteSystemConfig(id: number): Promise<void> {
+  try {
+    await api.delete(`/api/system-config/${id}`)
+  } catch (error) {
+    console.error('Failed to delete system config:', error)
     throw error
   }
 }

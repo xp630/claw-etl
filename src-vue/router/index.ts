@@ -11,9 +11,12 @@ import UserForm from '../pages/users/UserForm.vue'
 import RoleList from '../pages/roles/RoleList.vue'
 import RoleForm from '../pages/roles/RoleForm.vue'
 import DictList from '../pages/dict/DictList.vue'
+import SystemConfigList from '../pages/SystemConfigList.vue'
 import DictForm from '../pages/dict/DictForm.vue'
+import SystemConfigList from '../pages/SystemConfigList.vue'
 import TaskList from '../pages/tasks/TaskList.vue'
 import TaskForm from '../pages/tasks/TaskForm.vue'
+import SystemConfigList from '../pages/SystemConfigList.vue'
 import MainLayout from '../components/layout/MainLayout.vue'
 import { useAuthStore } from '@/stores/auth'
 
@@ -141,6 +144,12 @@ const routes: RouteRecordRaw[] = [
         name: 'DictEdit',
         component: DictForm,
         meta: { title: '编辑字典' }
+      },
+      {
+        path: '/system-configs',
+        name: 'SystemConfigList',
+        component: SystemConfigList,
+        meta: { title: '系统参数' }
       }
     ]
   },
