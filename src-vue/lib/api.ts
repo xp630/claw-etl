@@ -44,7 +44,7 @@ export { API_BASE }
 
 export async function userLogin(employeeNo: string, password: string): Promise<{ success: boolean; message: string; user?: any }> {
   try {
-    const res = await api.post('/auth/login', { employeeNo, password })
+    const res = await api.post('/sysUser/login', { employeeNo, password })
     if (res.data.code === 1) {
       return {
         success: true,

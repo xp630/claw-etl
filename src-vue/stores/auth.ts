@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import axios from 'axios'
 
-const API_BASE = '/api'
+const API_BASE = '/etl-admin'
 
 export const useAuthStore = defineStore('auth', () => {
   // State
@@ -29,8 +29,8 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = ''
 
     try {
-      const response = await axios.post(`${API_BASE}/auth/login`, {
-        username,
+      const response = await axios.post(`${API_BASE}/sysUser/login`, {
+        employeeNo: username,
         password,
       })
 
