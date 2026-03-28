@@ -211,8 +211,11 @@ export async function getDataSources(params: {
       dataType: params.dataType,
       dbState: params.dbState,
     })
-    if ((res.data?.code === 1 || res.data?.code === 0) && res.data?.data) {
-      return res.data.data
+    if (res.data?.code === 0 || res.data?.code === 1) {
+      return {
+        list: res.data.list || [],
+        total: res.data.count || 0,
+      }
     }
     return { list: [], total: 0 }
   } catch (error) {
