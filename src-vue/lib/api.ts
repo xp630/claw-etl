@@ -120,6 +120,37 @@ export async function getPageConfig(id: number): Promise<any | null> {
   }
 }
 
+export async function getPageConfigList(params?: { page?: number; limit?: number; keyword?: string }): Promise<{ list: any[]; total: number }> {
+  try {
+    const res = await api.post('/pageConfig/list', { page: params?.page || 1, limit: params?.limit || 20, keyword: params?.keyword || '' })
+    let list = res.data?.list || res.data?.data?.list || []
+    if (!Array.isArray(list)) list = []
+    const total = res.data?.total || res.data?.data?.total || list.length
+    return { list, total }
+  } catch (error) {
+    console.error('Failed to get page config list:', error)
+    return { list: [], total: 0 }
+  }
+}
+
+export async function deletePageConfig(id: number): Promise<void> {
+  try {
+    await api.post('/pageConfig/delete', { id })
+  } catch (error) {
+    console.error('Failed to delete page config:', error)
+    throw error
+  }
+}
+
+export async function togglePageStatus(id: number): Promise<void> {
+  try {
+    await api.post('/pageConfig/toggleStatus', { id })
+  } catch (error) {
+    console.error('Failed to toggle page status:', error)
+    throw error
+  }
+}
+
 export async function savePageConfig(data: any): Promise<{ success: boolean; message: string }> {
   try {
     const res = await api.post('/page/save', data)
