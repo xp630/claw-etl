@@ -49,7 +49,7 @@
             :value="(selectedComponent.props.options as string[])?.join(', ')"
             type="text"
             class="prop-input"
-            @input="updateProp('options', ($event.target as HTMLInputElement).value.split(',').map(s => s.trim()).filter(Boolean)"
+            @input="handleOptionsInput($event)"
           />
         </div>
         
@@ -297,6 +297,13 @@ function updateProp(key: string, value: unknown) {
 // 更新标签
 function updateLabel(label: string) {
   emit('update-label', label)
+}
+
+// 处理 options 输入（逗号分隔转数组）
+function handleOptionsInput(e: Event) {
+  const value = (e.target as HTMLInputElement).value
+  const options = value.split(',').map(s => s.trim()).filter(Boolean)
+  updateProp('options', options)
 }
 
 // 处理 API ID 更新（兼容不同组件的字段名）
