@@ -151,7 +151,7 @@ const emit = defineEmits<{
   select: [id: string | null]
   reorder: [fromIndex: number, toIndex: number]
   delete: [id: string]
-  drop: [e: DragEvent]
+  drop: [data: { fromPalette: boolean, type?: string, label?: string, defaultProps?: Record<string, unknown> } | null]
   addChildToContainer: [containerId: string, component: CanvasComponent, tabIndex?: number]
   removeFromContainer: [containerId: string, childId: string]
   moveChildToRoot: [containerId: string, childId: string, insertIndex: number]
@@ -215,7 +215,18 @@ const onDrop = (e: DragEvent) => {
   e.preventDefault()
   isDragOver.value = false
   dragOverContainerId.value = null
-  emit('drop', e)
+  
+  // Parse drop data before emitting
+  const data = e.dataTransfer?.getData('application/json')
+  let parsed = null
+  if (data) {
+    try {
+      parsed = JSON.parse(data)
+    } catch (err) {
+      console.error('Failed to parse drop data:', err)
+    }
+  }
+  emit('drop', parsed)
 }
 
 const onCanvasClick = () => {
