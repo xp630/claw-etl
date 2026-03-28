@@ -786,10 +786,6 @@ export async function deleteDictItem(id: number): Promise<void> {
   }
 }
 
-// ========== SystemConfig API ==========
-
-export async function getSystemConfigs(params?: {
-  name?: string
   code?: string
   groupName?: string
   status?: number

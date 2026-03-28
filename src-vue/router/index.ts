@@ -15,6 +15,7 @@ import SystemConfigList from '../pages/SystemConfigList.vue'
 import DictForm from '../pages/dict/DictForm.vue'
 import TaskList from '../pages/tasks/TaskList.vue'
 import TaskForm from '../pages/tasks/TaskForm.vue'
+import MainLayout from '../components/layout/MainLayout.vue'
 import { useAuthStore } from '@/stores/auth'
 
 // 路由配置
