@@ -22,7 +22,7 @@
         <el-form-item label="状态">
           <el-select v-model="searchForm.dbState" placeholder="全部" clearable class="w-24">
             <el-option label="启用" value="启用" />
-            <el-option label="禁用" value="禁用" />
+            <el-option label="停用" value="停用" />
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -59,7 +59,7 @@
               active-value="true"
               inactive-value="false"
               @change="handleStatusChange(row, $event)"
-            />
+            />  {{ row.dbState === '启用' ? '启用' : '停用' }}
           </template>
         </el-table-column>
         <el-table-column label="操作" width="200" fixed="right">
