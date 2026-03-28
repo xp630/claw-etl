@@ -93,13 +93,13 @@
     <!-- 底部按钮 -->
     <div class="flex justify-between mt-6">
       <el-button @click="handleTest" :loading="testing">
-        <el-icon class="mr-1"><Plug /></el-icon>
+        <el-icon class="mr-1"><Connection /></el-icon>
         测试连接
       </el-button>
       <div class="flex gap-3">
         <el-button @click="goBack">返回</el-button>
         <el-button type="primary" :loading="saving" @click="handleSubmit">
-          <el-icon class="mr-1"><Save /></el-icon>
+          <el-icon class="mr-1"><Finished /></el-icon>
           保存
         </el-button>
       </div>
@@ -111,7 +111,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { ArrowLeft, Plug, Save } from '@element-plus/icons-vue'
+import { ArrowLeft, Connection, Finished } from '@element-plus/icons-vue'
 import { getDataSource, createDataSource, updateDataSource, testDataSource } from '@/lib/api'
 
 const router = useRouter()
