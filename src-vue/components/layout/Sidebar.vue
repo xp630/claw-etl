@@ -21,43 +21,31 @@
       class="sidebar-menu"
       @select="handleSelect"
     >
-      <el-menu-item index="/editor">
-        <el-icon><Edit /></el-icon>
-        <template #title>页面编辑器</template>
-      </el-menu-item>
-
-      <el-menu-item index="/dashboard">
-        <el-icon><DataLine /></el-icon>
-        <template #title>仪表盘</template>
-      </el-menu-item>
-
-      <el-menu-item index="/datasource">
-        <el-icon><Connection /></el-icon>
-        <template #title>数据源</template>
-      </el-menu-item>
-
-      <el-menu-item index="/task">
-        <el-icon><List /></el-icon>
-        <template #title>任务管理</template>
-      </el-menu-item>
-
-      <el-menu-item index="/api">
-        <el-icon><SetUp /></el-icon>
-        <template #title>API 管理</template>
-      </el-menu-item>
-
-      <el-menu-item index="/menus">
-        <el-icon><Menu /></el-icon>
-        <template #title>菜单管理</template>
-      </el-menu-item>
+      <template v-if="loading">
+        <el-menu-item disabled>
+          <el-icon><Loading /></el-icon>
+          <template #title>加载中...</template>
+        </el-menu-item>
+      </template>
+      <template v-else>
+        <el-menu-item
+          v-for="menu in menuTree"
+          :key="menu.id"
+          :index="menu.path || `/menu/${menu.id}`"
+        >
+          <el-icon><component :is="getIconComponent(menu.icon)" /></el-icon>
+          <template #title>{{ menu.name }}</template>
+        </el-menu-item>
+      </template>
     </el-menu>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Edit, DataLine, Connection, List, Fold, Expand, SetUp, Menu } from '@element-plus/icons-vue'
+import { Edit, DataLine, Connection, List, Fold, Expand, SetUp, Menu, Loading } from '@element-plus/icons-vue'
+import { getMenuTree } from '@/lib/api'
 
 defineProps<{
   collapsed: boolean
@@ -70,11 +58,48 @@ defineEmits<{
 const route = useRoute()
 const router = useRouter()
 
+const menuTree = ref<any[]>([])
+const loading = ref(true)
 const activeMenu = computed(() => route.path)
+
+// 图标映射
+const iconMap: Record<string, any> = {
+  'edit': Edit,
+  'dataline': DataLine,
+  'connection': Connection,
+  'list': List,
+  'setup': SetUp,
+  'menu': Menu,
+  'home': Edit,
+  'users': Edit,
+  'database': Connection,
+}
+
+function getIconComponent(iconName?: string) {
+  if (!iconName) return Menu
+  return iconMap[iconName.toLowerCase()] || Menu
+}
 
 function handleSelect(index: string) {
   router.push(index)
 }
+
+async function loadMenus() {
+  loading.value = true
+  try {
+    const tree = await getMenuTree()
+    // 过滤出顶级菜单（parentId 为 0 或 null）
+    menuTree.value = tree.filter(m => !m.parentId || m.parentId === 0)
+  } catch (error) {
+    console.error('加载菜单失败:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  loadMenus()
+})
 </script>
 
 <style scoped>
