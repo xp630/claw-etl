@@ -37,13 +37,14 @@ export const useAuthStore = defineStore('auth', () => {
 
       if (response.data?.success) {
         const data = response.data?.data?.user || response.data.data
-        token.value = data.token || data.access_token || response.data.data?.token
+        // 优先取 token，如果没有则用 username 作为临时 token
+        token.value = data?.token || data?.access_token || response.data.data?.token || username
         userInfo.value = {
-          id: data.id,
-          name: data.name || username,
-          username: data.username || username,
-          avatar: data.avatar,
-          roles: data.roles,
+          id: data?.id,
+          name: data?.name || username,
+          username: data?.username || username,
+          avatar: data?.avatar,
+          roles: data?.roles,
         }
         localStorage.setItem('token', token.value)
         localStorage.setItem('user', JSON.stringify(userInfo.value))
