@@ -62,17 +62,9 @@ router.beforeEach((to, from, next: NavigationGuardNext) => {
 
   // 需要登录的页面
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    // 有 token 就视为已登录（token 可能是 username fallback）
     if (authStore.token) {
-      // 有 token，尝试获取用户信息
-      authStore.fetchUserInfo().then(() => {
-        if (authStore.isAuthenticated) {
-          next()
-        } else {
-          next({ name: 'Login', query: { redirect: to.fullPath } })
-        }
-      }).catch(() => {
-        next({ name: 'Login', query: { redirect: to.fullPath } })
-      })
+      next()
     } else {
       next({ name: 'Login', query: { redirect: to.fullPath } })
     }
