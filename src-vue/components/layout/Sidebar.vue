@@ -28,14 +28,26 @@
         </el-menu-item>
       </template>
       <template v-else>
-        <el-menu-item
-          v-for="menu in menuTree"
-          :key="menu.id"
-          :index="getMenuPath(menu)"
-        >
-          <el-icon><component :is="getIconComponent(menu.icon)" /></el-icon>
-          <template #title>{{ menu.name }}</template>
-        </el-menu-item>
+        <template v-for="menu in menuTree" :key="menu.id">
+          <el-sub-menu v-if="menu.children && menu.children.length > 0" :index="getMenuPath(menu)">
+            <template #title>
+              <el-icon><component :is="getIconComponent(menu.icon)" /></el-icon>
+              <span>{{ menu.name }}</span>
+            </template>
+            <el-menu-item
+              v-for="child in menu.children"
+              :key="child.id"
+              :index="getMenuPath(child)"
+            >
+              <el-icon><component :is="getIconComponent(child.icon)" /></el-icon>
+              <span>{{ child.name }}</span>
+            </el-menu-item>
+          </el-sub-menu>
+          <el-menu-item v-else :index="getMenuPath(menu)">
+            <el-icon><component :is="getIconComponent(menu.icon)" /></el-icon>
+            <template #title>{{ menu.name }}</template>
+          </el-menu-item>
+        </template>
       </template>
     </el-menu>
   </div>
@@ -170,12 +182,18 @@ onMounted(() => {
   background: var(--bg-secondary);
 }
 
-:deep(.el-menu-item) {
+:deep(.el-menu-item),
+:deep(.el-sub-menu__title) {
   color: var(--text-primary);
 }
 
-:deep(.el-menu-item:hover) {
+:deep(.el-menu-item:hover),
+:deep(.el-sub-menu__title:hover) {
   background: var(--bg-hover);
+}
+
+:deep(.el-sub-menu .el-menu-item) {
+  padding-left: 52px !important;
 }
 
 :deep(.el-menu-item.is-active) {
