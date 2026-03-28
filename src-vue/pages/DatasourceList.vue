@@ -55,11 +55,13 @@
         <el-table-column prop="dbState" label="状态" width="100">
           <template #default="{ row }">
             <el-switch
+              v-if="mounted"
               :model-value="row.dbState === '启用'"
               active-value="true"
               inactive-value="false"
               @change="handleStatusChange(row, $event)"
-            />  {{ row.dbState === '启用' ? '启用' : '停用' }}
+            />
+            <span v-else>{{ row.dbState === '启用' ? '启用' : '停用' }}</span>
           </template>
         </el-table-column>
         <el-table-column label="操作" width="200" fixed="right">
@@ -89,6 +91,8 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
+
+const mounted = ref(false)
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
@@ -219,6 +223,7 @@ async function handleDelete(id: number) {
 }
 
 onMounted(() => {
+  mounted.value = true
   loadData()
 })
 </script>
