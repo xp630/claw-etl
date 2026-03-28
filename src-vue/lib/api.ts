@@ -66,14 +66,36 @@ export async function userLogin(employeeNo: string, password: string): Promise<{
 
 export async function getMenuTree(): Promise<any[]> {
   try {
-    const res = await api.get('/menu/tree')
-    if (res.data.code === 1) {
+    const res = await api.get('/sysMenu/tree')
+    if (res.data.code === 1 || res.data.code === 0) {
       return res.data.data || []
     }
     return []
   } catch (error) {
     console.error('获取菜单失败:', error)
     return []
+  }
+}
+
+export async function saveMenu(menu: any): Promise<any | null> {
+  try {
+    const res = await api.post('/sysMenu/save', menu)
+    if (res.data.code === 1 || res.data.code === 0) {
+      return res.data.data
+    }
+    return null
+  } catch (error) {
+    console.error('保存菜单失败:', error)
+    throw error
+  }
+}
+
+export async function deleteMenu(id: number): Promise<void> {
+  try {
+    await api.post('/sysMenu/delete', { id })
+  } catch (error) {
+    console.error('删除菜单失败:', error)
+    throw error
   }
 }
 

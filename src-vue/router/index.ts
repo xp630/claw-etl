@@ -3,6 +3,7 @@ import EditorPage from '../pages/editor/EditorPage.vue'
 import PageViewer from '../pages/viewer/PageViewer.vue'
 import LoginPage from '../pages/auth/LoginPage.vue'
 import Home from '../pages/Home.vue'
+import MenuList from '../pages/MenuList.vue'
 import MainLayout from '../components/layout/MainLayout.vue'
 import { useAuthStore } from '@/stores/auth'
 
@@ -34,6 +35,12 @@ const routes: RouteRecordRaw[] = [
         name: 'Home',
         component: Home,
         meta: { title: '首页' }
+      },
+      {
+        path: '/menus',
+        name: 'MenuList',
+        component: MenuList,
+        meta: { title: '菜单管理' }
       }
     ]
   },
