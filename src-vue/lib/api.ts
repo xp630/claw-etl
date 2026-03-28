@@ -381,3 +381,97 @@ export async function getAllDictItems(): Promise<Record<string, any[]>> {
     return {}
   }
 }
+
+// ========== Task API ==========
+
+export async function getTasks(): Promise<any[]> {
+  try {
+    const res = await api.post('/etl-admin/simple/queryTaskListPage', { page: 1, limit: 20 })
+    if (res.data?.list) {
+      return res.data.list.map((item: any) => ({
+        id: item.id,
+        name: item.taskName,
+        sourceId: 0,
+        sourceName: item.sourceDb,
+        querySql: item.querySql,
+        targetId: 0,
+        targetName: item.targetDb,
+        targetTable: item.targetTable,
+        columns: item.columns,
+        dynamicSql: item.dynamicParam,
+        windowValue: item.taskCronTime || 1,
+        windowUnit: item.taskCronTimeUnit?.toLowerCase() === 'hours' ? 'hours' :
+                    item.taskCronTimeUnit?.toLowerCase() === 'days' ? 'days' : 'minutes',
+        status: item.status,
+        lastRunTime: item.lastRunTime,
+        createdAt: item.createTime || '',
+        updatedAt: item.updateTime || '',
+      }))
+    }
+    return []
+  } catch (error) {
+    console.error('Failed to load tasks:', error)
+    return []
+  }
+}
+
+export async function getTask(id: number): Promise<any | undefined> {
+  try {
+    const res = await api.post('/etl-admin/simple/queryTaskListPage', { page: 1, limit: 20, id })
+    if (res.data?.list?.length > 0) {
+      return res.data.list[0]
+    }
+    return undefined
+  } catch (error) {
+    console.error('Failed to load task:', error)
+    return undefined
+  }
+}
+
+export async function createTask(data: any): Promise<any | null> {
+  try {
+    const res = await api.post('/etl-admin/etlTask/save', data)
+    if (res.data?.code === 1 || res.data?.code === 0) {
+      return res.data.data
+    }
+    return null
+  } catch (error) {
+    console.error('Failed to create task:', error)
+    throw error
+  }
+}
+
+export async function updateTask(id: number, data: any): Promise<any | null> {
+  try {
+    const res = await api.post('/etl-admin/etlTask/save', { ...data, id })
+    if (res.data?.code === 1 || res.data?.code === 0) {
+      return res.data.data
+    }
+    return null
+  } catch (error) {
+    console.error('Failed to update task:', error)
+    throw error
+  }
+}
+
+export async function deleteTask(id: number): Promise<void> {
+  try {
+    await api.post('/etl-admin/etlTask/delete', { id })
+  } catch (error) {
+    console.error('Failed to delete task:', error)
+    throw error
+  }
+}
+
+export async function toggleTask(id: number): Promise<any | null> {
+  try {
+    const res = await api.post('/etl-admin/etlTask/toggleStatus', { id })
+    if (res.data?.code === 1 || res.data?.code === 0) {
+      return res.data.data
+    }
+    return null
+  } catch (error) {
+    console.error('Failed to toggle task:', error)
+    throw error
+  }
+}
