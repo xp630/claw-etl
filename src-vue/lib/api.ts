@@ -1060,7 +1060,59 @@ export async function deleteFeature(id: number): Promise<void> {
   }
 }
 
+// ========== API Manager API ==========
+
+export interface ApiConfig {
+  id?: number
+  name?: string
+  path?: string
+  method?: string
+  datasourceId?: number
+  description?: string
+  status?: number
+}
+
+// 获取API列表（用于功能关联）
+export async function getApiListSimple(): Promise<ApiConfig[]> {
+  try {
+    const res = await api.post('/apiManager/list', { page: 1, limit: 1000 })
+    if (((res.data?.code === 1 || res.data?.code === 0 || res.data?.success)) && res.data?.list) {
+      return res.data.list || []
+    }
+    return []
+  } catch (error) {
+    console.error('Failed to load API list:', error)
+    return []
+  }
+}
+
+// 生成CRUD API
+export async function generateCrudApi(dataSourceId: number, tableName: string, featureCode: string, columns?: any[]): Promise<any> {
+  try {
+    const res = await api.post('/feature/generateApi', {
+      dataSourceId,
+      tableName,
+      featureCode,
+      columns: columns || [],
+    })
+    if ((res.data?.code === 1 || res.data?.code === 0 || res.data?.success)) {
+      return res.data.data
+    }
+    return null
+  } catch (error) {
+    console.error('Failed to generate CRUD API:', error)
+    return null
+  }
+}
+
 // ========== DictItem 类型 (getAllDictItems 返回的数据结构) ==========
+
+export interface Dict {
+  id?: number
+  code?: string
+  name?: string
+  status?: number
+}
 
 export interface DictItem {
   itemValue: string | number
