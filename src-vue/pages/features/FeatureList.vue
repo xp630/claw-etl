@@ -271,7 +271,13 @@ async function loadTree() {
 async function loadFeatures() {
   loading.value = true
   try {
-    const data = await getFeatures({ page: page.value, limit: limit.value, keyword: searchKeyword.value })
+    const data = await getFeatures({
+      page: page.value,
+      limit: limit.value,
+      keyword: searchKeyword.value,
+      datasourceId: selectedDsId.value || undefined,
+      tableName: formData.tableName || undefined,
+    })
     features.value = data.list || []
     total.value = data.total || 0
   } catch (error) {
@@ -284,6 +290,7 @@ async function loadFeatures() {
 function handleNodeClick(data: TreeNode) {
   if (data.type === 'datasource') {
     selectedDsId.value = data.datasourceId || null
+    formData.tableName = ''
   } else {
     selectedDsId.value = data.datasourceId || null
     formData.tableName = data.tableName || ''

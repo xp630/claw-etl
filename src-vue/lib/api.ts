@@ -988,12 +988,16 @@ export async function getFeatures(params: {
   page: number
   limit: number
   keyword?: string
+  datasourceId?: number
+  tableName?: string
 }): Promise<{ list: Feature[]; total: number }> {
   try {
     const res = await api.post('/feature/list', {
       page: params.page,
       limit: params.limit,
       keyword: params.keyword || '',
+      datasourceId: params.datasourceId || undefined,
+      tableName: params.tableName || undefined,
     })
     if (res.data?.code === 0 || res.data?.code === 1) {
       return {
