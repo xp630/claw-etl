@@ -111,7 +111,8 @@
           <select
             v-if="col.fieldType === 'select'"
             v-model="tableSearchParams[col.key || col.fieldName]"
-            class="px-1 py-1 text-xs border border-[var(--border)] rounded w-[100px] shrink-0 bg-[var(--el-fill-color-blank)] text-[var(--text-primary)]"
+            class="px-1 py-1 text-xs border border-[var(--border)] rounded w-[100px] shrink-0 bg-[var(--el-fill-color-blank)]"
+            style="color: var(--el-text-color-regular);"
           >
             <option value="">请选择</option>
             <option
