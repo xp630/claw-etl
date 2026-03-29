@@ -224,6 +224,237 @@
         </div>
       </div>
 
+      <!-- 表格属性 (table) -->
+      <div v-if="selectedComponent.type === 'table'" class="prop-section">
+        <h4 class="prop-section-title">表格配置</h4>
+        
+        <div class="prop-item inline-item flex-wrap">
+          <label class="flex items-center gap-1">
+            <input
+              type="checkbox"
+              :checked="selectedComponent.props.bordered"
+              @change="updateProp('bordered', ($event.target as HTMLInputElement).checked)"
+              class="w-4 h-4"
+            />
+            边框
+          </label>
+          <label class="flex items-center gap-1">
+            <input
+              type="checkbox"
+              :checked="selectedComponent.props.striped"
+              @change="updateProp('striped', ($event.target as HTMLInputElement).checked)"
+              class="w-4 h-4"
+            />
+            斑马纹
+          </label>
+          <label class="flex items-center gap-1">
+            <input
+              type="checkbox"
+              :checked="selectedComponent.props.pagination"
+              @change="updateProp('pagination', ($event.target as HTMLInputElement).checked)"
+              class="w-4 h-4"
+            />
+            分页
+          </label>
+          <label class="flex items-center gap-1">
+            <input
+              type="checkbox"
+              :checked="selectedComponent.props.showSearch"
+              @change="updateProp('showSearch', ($event.target as HTMLInputElement).checked)"
+              class="w-4 h-4"
+            />
+            搜索
+          </label>
+        </div>
+
+        <div class="prop-item inline-item flex-wrap">
+          <label class="flex items-center gap-1">
+            <input
+              type="checkbox"
+              :checked="selectedComponent.props.showAdd"
+              @change="updateProp('showAdd', ($event.target as HTMLInputElement).checked)"
+              class="w-4 h-4"
+            />
+            新增
+          </label>
+          <label class="flex items-center gap-1">
+            <input
+              type="checkbox"
+              :checked="selectedComponent.props.showEdit"
+              @change="updateProp('showEdit', ($event.target as HTMLInputElement).checked)"
+              class="w-4 h-4"
+            />
+            编辑
+          </label>
+          <label class="flex items-center gap-1">
+            <input
+              type="checkbox"
+              :checked="selectedComponent.props.showDelete"
+              @change="updateProp('showDelete', ($event.target as HTMLInputElement).checked)"
+              class="w-4 h-4"
+            />
+            删除
+          </label>
+          <label class="flex items-center gap-1">
+            <input
+              type="checkbox"
+              :checked="selectedComponent.props.showDetail"
+              @change="updateProp('showDetail', ($event.target as HTMLInputElement).checked)"
+              class="w-4 h-4"
+            />
+            详情
+          </label>
+          <label class="flex items-center gap-1">
+            <input
+              type="checkbox"
+              :checked="selectedComponent.props.showExport"
+              @change="updateProp('showExport', ($event.target as HTMLInputElement).checked)"
+              class="w-4 h-4"
+            />
+            导出
+          </label>
+        </div>
+
+        <div class="prop-item">
+          <label>每页条数</label>
+          <input
+            :value="selectedComponent.props.pageSize"
+            type="number"
+            class="prop-input"
+            @input="updateProp('pageSize', Number(($event.target as HTMLInputElement).value))"
+          />
+        </div>
+
+        <div class="prop-item">
+          <label>数据源ID</label>
+          <input
+            :value="selectedComponent.props.datasourceId"
+            type="number"
+            class="prop-input"
+            placeholder="输入数据源ID"
+            @input="updateProp('datasourceId', Number(($event.target as HTMLInputElement).value))"
+          />
+        </div>
+
+        <div class="prop-item">
+          <label>表名</label>
+          <input
+            :value="selectedComponent.props.tableName"
+            type="text"
+            class="prop-input"
+            placeholder="数据库表名"
+            @input="updateProp('tableName', ($event.target as HTMLInputElement).value)"
+          />
+        </div>
+
+        <!-- 列配置 -->
+        <div class="prop-item">
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-xs text-[var(--text-muted)]">列配置</label>
+            <div class="flex items-center gap-2">
+              <button
+                v-if="(selectedComponent.props.columns?.length || 0) > 5"
+                type="button"
+                class="text-xs text-[var(--accent)] hover:underline"
+                @click="toggleColumnsCollapse"
+              >
+                {{ columnsCollapsed ? '展开全部' : '收起' }}
+              </button>
+              <button
+                type="button"
+                class="text-xs text-[var(--accent)] hover:underline"
+                @click="addTableColumn"
+              >
+                + 添加列
+              </button>
+            </div>
+          </div>
+          <div v-if="selectedComponent.props.columns?.length" class="space-y-2">
+            <div
+              v-for="(col, index) in displayColumns"
+              :key="index"
+              class="bg-[var(--bg-hover-light)] rounded p-2 text-xs"
+            >
+              <div class="flex items-center justify-between mb-1">
+                <span class="font-medium">{{ col.label || col.key || `列${index + 1}` }}</span>
+                <button
+                  type="button"
+                  class="text-[var(--danger)] hover:underline"
+                  @click="removeTableColumn(index)"
+                >
+                  删除
+                </button>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <input
+                  :value="col.key"
+                  type="text"
+                  placeholder="字段名"
+                  class="px-2 py-1 border border-[var(--border)] rounded text-xs w-full"
+                  @input="updateTableColumn(index, 'key', ($event.target as HTMLInputElement).value)"
+                />
+                <input
+                  :value="col.label"
+                  type="text"
+                  placeholder="显示名"
+                  class="px-2 py-1 border border-[var(--border)] rounded text-xs w-full"
+                  @input="updateTableColumn(index, 'label', ($event.target as HTMLInputElement).value)"
+                />
+                <select
+                  :value="col.fieldType"
+                  class="px-2 py-1 border border-[var(--border)] rounded text-xs w-full"
+                  @change="updateTableColumn(index, 'fieldType', ($event.target as HTMLSelectElement).value)"
+                >
+                  <option value="text">文本</option>
+                  <option value="number">数字</option>
+                  <option value="date">日期</option>
+                  <option value="select">下拉</option>
+                </select>
+                <input
+                  :value="col.width"
+                  type="number"
+                  placeholder="宽度"
+                  class="px-2 py-1 border border-[var(--border)] rounded text-xs w-full"
+                  @input="updateTableColumn(index, 'width', Number(($event.target as HTMLInputElement).value))"
+                />
+              </div>
+              <div class="flex items-center gap-3 mt-1">
+                <label class="flex items-center gap-1">
+                  <input
+                    type="checkbox"
+                    :checked="col.visible"
+                    @change="updateTableColumn(index, 'visible', ($event.target as HTMLInputElement).checked)"
+                    class="w-3 h-3"
+                  />
+                  显示
+                </label>
+                <label class="flex items-center gap-1">
+                  <input
+                    type="checkbox"
+                    :checked="col.sortable"
+                    @change="updateTableColumn(index, 'sortable', ($event.target as HTMLInputElement).checked)"
+                    class="w-3 h-3"
+                  />
+                  排序
+                </label>
+                <label class="flex items-center gap-1">
+                  <input
+                    type="checkbox"
+                    :checked="col.queryCondition"
+                    @change="updateTableColumn(index, 'queryCondition', ($event.target as HTMLInputElement).checked)"
+                    class="w-3 h-3"
+                  />
+                  查询
+                </label>
+              </div>
+            </div>
+          </div>
+          <div v-else class="text-xs text-[var(--text-muted)] text-center py-2">
+            暂无列配置
+          </div>
+        </div>
+      </div>
+
       <!-- 样式属性 -->
       <div class="prop-section">
         <h4 class="prop-section-title">样式</h4>
@@ -297,7 +528,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import type { CanvasComponent } from '@/pages/editor/types'
 
 interface Props {
@@ -347,6 +578,21 @@ const parentContainerId = computed(() => {
   const parent = findParent(props.components, props.selectedComponent.id)
   return parent ? parent.id : null
 })
+
+// 列配置折叠状态（默认折叠超过5个的列）
+const columnsCollapsed = ref(true)
+
+const displayColumns = computed(() => {
+  const cols = props.selectedComponent?.props.columns || []
+  if (cols.length > 5 && columnsCollapsed.value) {
+    return cols.slice(0, 5)
+  }
+  return cols
+})
+
+function toggleColumnsCollapse() {
+  columnsCollapsed.value = !columnsCollapsed.value
+}
 
 const emit = defineEmits<{
   'update-props': [props: Record<string, unknown>]
@@ -417,6 +663,39 @@ function handleApiIdUpdate(value: string) {
   } else {
     updateProp('apiId', value)
   }
+}
+
+// 添加表格列
+function addTableColumn() {
+  if (!props.selectedComponent) return
+  const columns = props.selectedComponent.props.columns || []
+  const newColumn = {
+    key: '',
+    label: '',
+    fieldType: 'text',
+    width: 100,
+    visible: true,
+    sortable: false,
+    align: 'left',
+    queryCondition: false,
+  }
+  updateProp('columns', [...columns, newColumn])
+}
+
+// 删除表格列
+function removeTableColumn(index: number) {
+  if (!props.selectedComponent) return
+  const columns = [...(props.selectedComponent.props.columns || [])]
+  columns.splice(index, 1)
+  updateProp('columns', columns)
+}
+
+// 更新表格列属性
+function updateTableColumn(index: number, field: string, value: unknown) {
+  if (!props.selectedComponent) return
+  const columns = [...(props.selectedComponent.props.columns || [])]
+  columns[index] = { ...columns[index], [field]: value }
+  updateProp('columns', columns)
 }
 </script>
 

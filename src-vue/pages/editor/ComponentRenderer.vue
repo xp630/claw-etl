@@ -174,7 +174,7 @@
     <div v-else-if="component.type === 'tabs'">
       <div class="flex border-b border-[var(--border-light)] mb-2">
         <button
-          v-for="(_, index) in (component.props.tabCount as number || 2)"
+          v-for="(tabTitle, index) in tabTitles"
           :key="index"
           class="px-4 py-2 text-sm transition-colors"
           :class="[
@@ -184,7 +184,7 @@
           ]"
           @click="setActiveTab(index)"
         >
-          {{ component.props[`tab${index}Title`] || `标签页 ${index + 1}` }}
+          {{ tabTitle }}
         </button>
       </div>
       <slot />
@@ -239,6 +239,15 @@ const buttonClass = computed(() => {
     default:
       return `${baseClass} bg-blue-500 text-white`
   }
+})
+
+// Tabs titles from tabs array prop
+const tabTitles = computed(() => {
+  const tabs = props.component.props.tabs as string[] | undefined
+  if (tabs && tabs.length > 0) return tabs
+  // Fallback: generate from tabCount
+  const count = (props.component.props.tabCount as number) || 2
+  return Array.from({ length: count }, (_, i) => props.component.props[`tab${i}Title`] as string || `标签页 ${i + 1}`)
 })
 
 // Chart icon

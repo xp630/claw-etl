@@ -624,7 +624,8 @@ function updateComponentProps(components: CanvasComponent[], id: string, newProp
 
 // ============ Lifecycle ============
 async function loadPageConfig() {
-  const pageIdParam = route.query.pageId
+  console.log('[EditorPage] loadPageConfig called, route.query:', route.query)
+  const pageIdParam = route.query.id || route.query.pageId
   const isNew = route.query.new === 'true'
   
   if (isNew) {
@@ -639,23 +640,19 @@ async function loadPageConfig() {
     try {
       console.log('[EditorPage] getPageConfig called, id:', pageIdParam)
       const data = await getPageConfig(Number(pageIdParam))
-      if (data?.code === 1 && data.data) {
-        const page = data.data
-        pageName.value = page.name || '未命名页面'
-        pageCode.value = page.code || ''
-        pageId.value = page.id
+      console.log('[EditorPage] getPageConfig returned:', data)
+      if ((data?.code === 0 || data?.success) && data.data) {
+        const pageData = data.data.page
+        const pageComponents = data.data.components
+        pageName.value = pageData?.name || '未命名页面'
+        pageCode.value = pageData?.code || ''
+        pageId.value = pageData?.id || null
         
         // 解析组件数据
-        if (page.config) {
-          let config = page.config
-          if (typeof config === 'string') {
-            try {
-              config = JSON.parse(config)
-            } catch {}
-          }
-          if (Array.isArray(config)) {
-            components.value = buildComponentTree(config)
-          }
+        if (pageComponents && Array.isArray(pageComponents)) {
+          const tree = buildComponentTree(pageComponents)
+          console.log('[EditorPage] built tree:', tree)
+          components.value = tree
         }
       }
     } catch (err) {
@@ -666,6 +663,7 @@ async function loadPageConfig() {
 }
 
 onMounted(async () => {
+  console.log('[EditorPage] onMounted called')
   await loadPageConfig()
   
   // 键盘快捷键
