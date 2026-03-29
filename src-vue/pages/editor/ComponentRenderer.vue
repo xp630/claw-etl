@@ -90,7 +90,7 @@
     </div>
 
     <!-- Table component -->
-    <div v-else-if="component.type === 'table'" class="border border-[var(--border-light)] rounded overflow-hidden">
+    <div v-else-if="component.type === 'table'" class="border border-[var(--border-light)] rounded overflow-x-auto">
       <!-- Table Header -->
       <div class="bg-[var(--bg-table-header)] px-3 py-2 border-b border-[var(--border-light)] flex items-center justify-between">
         <span class="text-sm font-medium">{{ component.props.title || '数据表' }}</span>
@@ -100,33 +100,88 @@
         </div>
       </div>
       <!-- Search Bar -->
-      <div v-if="component.props.showSearch" class="px-3 py-2 border-b border-[var(--border-light)] bg-[var(--bg-secondary)] flex gap-2">
-        <input
-          type="text"
-          class="flex-1 px-2 py-1 text-xs border border-[var(--border)] rounded"
-          placeholder="搜索..."
-        />
+      <div v-if="component.props.showSearch && queryColumns.length > 0" class="px-3 py-2 border-b border-[var(--border-light)] bg-[var(--bg-secondary)] flex gap-3 flex-wrap items-center">
+        <div
+          v-for="col in queryColumns"
+          :key="col.key || col.fieldName"
+          class="flex items-center gap-1 shrink-0"
+        >
+          <span class="text-xs text-[var(--text-muted)] whitespace-nowrap truncate max-w-[80px]" :title="col.label || col.key || col.fieldName">{{ col.label || col.key || col.fieldName }}:</span>
+          <!-- Select with dict or fixed values -->
+          <select
+            v-if="col.fieldType === 'select'"
+            v-model="tableSearchParams[col.key || col.fieldName]"
+            class="px-1 py-1 text-xs border border-[var(--border)] rounded w-[100px] shrink-0"
+          >
+            <option value="">请选择</option>
+            <option
+              v-for="item in getColumnOptions(col)"
+              :key="item.value"
+              :value="item.value"
+            >
+              {{ item.label }}
+            </option>
+          </select>
+          <!-- Date picker -->
+          <input
+            v-else-if="col.fieldType === 'date'"
+            type="date"
+            v-model="tableSearchParams[col.key || col.fieldName]"
+            class="px-1 py-1 text-xs border border-[var(--border)] rounded w-[100px] shrink-0"
+          />
+          <!-- Number input -->
+          <input
+            v-else-if="col.fieldType === 'number'"
+            type="number"
+            v-model="tableSearchParams[col.key || col.fieldName]"
+            class="px-1 py-1 text-xs border border-[var(--border)] rounded w-[100px] shrink-0"
+            placeholder="输入"
+          />
+          <!-- Text input (default) -->
+          <input
+            v-else
+            type="text"
+            v-model="tableSearchParams[col.key || col.fieldName]"
+            class="px-1 py-1 text-xs border border-[var(--border)] rounded w-[100px] shrink-0"
+            placeholder="输入"
+          />
+        </div>
         <button class="px-3 py-1 text-xs bg-[var(--accent)] text-white rounded cursor-pointer">查询</button>
-        <button class="px-3 py-1 text-xs border border-[var(--border)] rounded cursor-pointer">重置</button>
+        <button
+          class="px-3 py-1 text-xs border border-[var(--border)] rounded cursor-pointer"
+          @click="tableSearchParams = {}"
+        >重置</button>
       </div>
-      <!-- Table with all columns and horizontal scroll -->
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="bg-[var(--bg-hover)]">
+      <!-- Table with all columns, horizontal scroll and vertical scroll -->
+      <div class="overflow-x-auto" :class="{ 'max-h-[300px] overflow-y-auto': editable }">
+        <table class="w-full text-sm bg-[var(--bg-primary)]" style="table-layout: fixed;">
+          <colgroup>
+            <col v-for="(col, idx) in component.props.columns" :key="idx" :style="{ minWidth: (col.colspan || 1) * 150 + 'px' }" />
+            <col v-if="component.props.showEdit || component.props.showDelete || component.props.showDetail" style="minWidth: 120px" />
+          </colgroup>
+          <thead class="sticky top-0 z-10 bg-[var(--bg-table-header)]">
+            <tr>
               <th
                 v-for="col in (component.props.columns || [])"
                 :key="col.key || col.fieldName"
-                class="px-3 py-2 text-left font-medium text-[var(--text-secondary)] border-r border-[var(--border-light)] last:border-r-0 whitespace-nowrap"
-                :style="{ minWidth: '80px' }"
+                class="px-3 text-left font-medium text-[var(--text-secondary)] border-r border-[var(--border-light)] last:border-r-0 overflow-hidden whitespace-nowrap"
+                :class="getOverflowClass(col.headerOverflow)"
+                :style="{
+                  minWidth: (col.colspan || 1) * 150 + 'px',
+                  height: component.props.headerHeight === 'small' ? '32px' : component.props.headerHeight === 'large' ? '48px' : '40px',
+                  lineHeight: component.props.headerHeight === 'small' ? '32px' : component.props.headerHeight === 'large' ? '48px' : '40px',
+                  maxWidth: (col.colspan || 1) * 120 + 'px',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis'
+                }"
               >
-                {{ col.label || col.key || col.fieldName }}
+                <span :title="col.label || col.key || col.fieldName">{{ col.label || col.key || col.fieldName }}</span>
                 <span v-if="col.sortable" class="text-[var(--text-muted)] ml-1">↕</span>
               </th>
               <th v-if="component.props.columns?.length === 0" class="px-3 py-2 text-[var(--text-muted)]">
                 未配置列
               </th>
-              <th v-if="component.props.showEdit || component.props.showDelete || component.props.showDetail" class="px-3 py-2 text-center border-l border-[var(--border-light)] min-w-[120px]">
+              <th v-if="component.props.showEdit || component.props.showDelete || component.props.showDetail" class="px-3 py-2 text-center border-l border-[var(--border-light)]" style="width: 120px; minWidth: 120px;">
                 操作
               </th>
             </tr>
@@ -135,24 +190,26 @@
             <!-- 有 queryApiId：调用 API 获取真实数据 -->
             <template v-if="component.props.queryApiId">
               <tr v-if="tableLoading" class="border-b border-[var(--border-light)]">
-                <td :colspan="(component.props.columns?.length || 0) + 1" class="px-3 py-8 text-center text-[var(--text-muted)]">
+                <td :colspan="(component.props.columns?.length || 0) + ((component.props.showEdit || component.props.showDelete || component.props.showDetail) ? 1 : 0)" class="px-3 py-8 text-center text-[var(--text-muted)]">
                   加载中...
                 </td>
               </tr>
               <tr v-else-if="tableData.length === 0" class="border-b border-[var(--border-light)]">
-                <td :colspan="(component.props.columns?.length || 0) + 1" class="px-3 py-8 text-center text-[var(--text-muted)]">
+                <td :colspan="(component.props.columns?.length || 0) + ((component.props.showEdit || component.props.showDelete || component.props.showDetail) ? 1 : 0)" class="px-3 py-8 text-center text-[var(--text-muted)]">
                   暂无数据
                 </td>
               </tr>
-              <tr v-for="(row, rowIndex) in tableData" :key="'api-' + rowIndex" class="border-b border-[var(--border-light)] hover:bg-[var(--bg-hover-light)]">
+              <tr v-for="(row, rowIndex) in tableData" :key="'api-' + rowIndex" class="border-b border-[var(--border-light)] hover:bg-[var(--bg-hover)]">
                 <td
                   v-for="col in (component.props.columns || [])"
                   :key="col.key || col.fieldName"
-                  class="px-3 py-2 border-r border-[var(--border-light)] last:border-r-0 whitespace-nowrap"
+                  class="px-3 py-2 border-r border-[var(--border-light)] last:border-r-0 overflow-hidden"
+                  :class="getOverflowClass(col.overflow)"
+                  :style="{ minWidth: (col.colspan || 1) * 150 + 'px' }"
                 >
                   {{ getCellValue(row, col) }}
                 </td>
-                <td v-if="component.props.showEdit || component.props.showDelete || component.props.showDetail" class="px-3 py-2 text-center border-l border-[var(--border-light)] whitespace-nowrap">
+                <td v-if="component.props.showEdit || component.props.showDelete || component.props.showDetail" class="px-3 py-2 text-center border-l border-[var(--border-light)] overflow-hidden" style="minWidth: 120px;">
                   <span v-if="component.props.showDetail" class="text-xs text-[var(--accent)] mr-2 cursor-pointer hover:underline">详情</span>
                   <span v-if="component.props.showEdit" class="text-xs text-[var(--accent)] mr-2 cursor-pointer hover:underline">编辑</span>
                   <span v-if="component.props.showDelete" class="text-xs text-[var(--danger)] cursor-pointer hover:underline">删除</span>
@@ -165,11 +222,13 @@
                 <td
                   v-for="col in (component.props.columns || [])"
                   :key="col.key || col.fieldName"
-                  class="px-3 py-2 text-[var(--text-muted)] border-r border-[var(--border-light)] last:border-r-0 whitespace-nowrap"
+                  class="px-3 py-2 text-[var(--text-muted)] border-r border-[var(--border-light)] last:border-r-0 overflow-hidden"
+                  :class="getOverflowClass(col.overflow)"
+                  :style="{ minWidth: (col.colspan || 1) * 150 + 'px' }"
                 >
                   {{ col.label || col.key || col.fieldName }}-{{ rowIndex }}
                 </td>
-                <td v-if="component.props.showEdit || component.props.showDelete || component.props.showDetail" class="px-3 py-2 text-center border-l border-[var(--border-light)]">
+                <td v-if="component.props.showEdit || component.props.showDelete || component.props.showDetail" class="px-3 py-2 text-center border-l border-[var(--border-light)] overflow-hidden" style="minWidth: 120px;">
                   <span v-if="component.props.showDetail" class="text-xs text-[var(--accent)] mr-2">详情</span>
                   <span v-if="component.props.showEdit" class="text-xs text-[var(--accent)] mr-2">编辑</span>
                   <span v-if="component.props.showDelete" class="text-xs text-[var(--danger)]">删除</span>
@@ -284,7 +343,35 @@
       <div v-if="component.props.title" class="font-medium mb-2">
         {{ component.props.title }}
       </div>
-      <slot />
+      <!-- Show children if available -->
+      <div v-if="showChildren && showChildren.length > 0" class="flex flex-col gap-2">
+        <div
+          v-for="(child, idx) in showChildren"
+          :key="child.id"
+          class="relative bg-[var(--bg-primary)] rounded"
+          :class="{ 'cursor-pointer': canvasMode }"
+        >
+          <div v-if="canvasMode" class="absolute -top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 bg-[var(--bg-primary)] rounded shadow flex items-center gap-1 p-1">
+            <button
+              @click.stop="emit('remove-child', props.containerId, child.id)"
+              class="p-1 border border-red-300 rounded hover:bg-red-50 text-red-500"
+              title="移除"
+            >
+              🗑
+            </button>
+          </div>
+          <div @click.stop="canvasMode && emit('select', child.id)">
+            <ComponentRenderer :component="child" :editable="canvasMode" :canvas-mode="canvasMode" />
+          </div>
+        </div>
+      </div>
+      <div v-else-if="canvasMode" class="min-h-[60px] bg-[var(--bg-hover-light)] rounded border border-dashed border-[var(--border)] p-4 text-center text-xs text-[var(--text-muted)]">
+        拖拽组件到卡片
+      </div>
+      <slot v-else-if="$slots.default" />
+      <div v-else class="text-xs text-[var(--text-muted)] text-center py-4">
+        暂无内容
+      </div>
     </div>
 
     <!-- Tabs container -->
@@ -305,23 +392,42 @@
           {{ tabTitle }}
         </button>
       </div>
-      <!-- Tab 内容 - 画布模式下从 childrenMap 获取子组件 -->
-      <div v-if="editable" class="min-h-[100px]">
-        <div v-if="tabChildren.length > 0" class="flex flex-col gap-2">
+      <!-- Tab 内容 -->
+      <div
+        @dragover.prevent="onTabDragOver"
+        @drop.prevent="onTabDrop"
+      >
+        <!-- Show children if available -->
+        <div v-if="showChildren && showChildren.length > 0" class="flex flex-col gap-2">
           <div
-            v-for="child in tabChildren"
+            v-for="(child, idx) in showChildren"
             :key="child.id"
-            class="bg-[var(--bg-primary)] rounded"
+            class="relative bg-[var(--bg-primary)] rounded"
+            :class="{ 'cursor-pointer': canvasMode }"
           >
-            <ComponentRenderer :component="child" :editable="true" />
+            <!-- Child action buttons -->
+            <div v-if="canvasMode" class="absolute -top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 bg-[var(--bg-primary)] rounded shadow flex items-center gap-1 p-1">
+              <button
+                @click.stop="emit('remove-child', props.containerId, child.id)"
+                class="p-1 border border-red-300 rounded hover:bg-red-50 text-red-500"
+                title="移除"
+              >
+                🗑
+              </button>
+            </div>
+            <div @click.stop="canvasMode && emit('select', child.id)">
+              <ComponentRenderer :component="child" :editable="canvasMode" :canvas-mode="canvasMode" />
+            </div>
           </div>
         </div>
-        <div v-else class="min-h-[100px] bg-[var(--bg-hover-light)] rounded border border-dashed border-[var(--border)] p-4 text-center text-xs text-[var(--text-muted)]">
+        <div v-else-if="canvasMode" class="min-h-[60px] bg-[var(--bg-hover-light)] rounded border border-dashed border-[var(--border)] p-4 text-center text-xs text-[var(--text-muted)]">
           拖拽组件到标签页
         </div>
+        <slot v-else-if="$slots.default" />
+        <div v-else class="min-h-[60px] bg-[var(--bg-hover-light)] rounded border border-dashed border-[var(--border)] p-4 text-center text-xs text-[var(--text-muted)]">
+          暂无内容
+        </div>
       </div>
-      <!-- 非画布模式使用 slot -->
-      <slot v-else />
     </div>
 
     <!-- Collapse container -->
@@ -334,7 +440,35 @@
         <span>{{ isCollapsed ? '▼' : '▲' }}</span>
       </div>
       <div v-show="!isCollapsed" class="p-3">
-        <slot />
+        <!-- Show children if available -->
+        <div v-if="showChildren && showChildren.length > 0" class="flex flex-col gap-2">
+          <div
+            v-for="(child, idx) in showChildren"
+            :key="child.id"
+            class="relative bg-[var(--bg-primary)] rounded"
+            :class="{ 'cursor-pointer': canvasMode }"
+          >
+            <div v-if="canvasMode" class="absolute -top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 bg-[var(--bg-primary)] rounded shadow flex items-center gap-1 p-1">
+              <button
+                @click.stop="emit('remove-child', props.containerId, child.id)"
+                class="p-1 border border-red-300 rounded hover:bg-red-50 text-red-500"
+                title="移除"
+              >
+                🗑
+              </button>
+            </div>
+            <div @click.stop="canvasMode && emit('select', child.id)">
+              <ComponentRenderer :component="child" :editable="canvasMode" :canvas-mode="canvasMode" />
+            </div>
+          </div>
+        </div>
+        <div v-else-if="canvasMode" class="min-h-[60px] bg-[var(--bg-hover-light)] rounded border border-dashed border-[var(--border)] p-4 text-center text-xs text-[var(--text-muted)]">
+          拖拽组件到折叠面板
+        </div>
+        <slot v-else-if="$slots.default" />
+        <div v-else class="text-xs text-[var(--text-muted)] text-center py-4">
+          暂无内容
+        </div>
       </div>
     </div>
 
@@ -347,20 +481,30 @@
 
 <script setup lang="ts">
 import { computed, ref, watch, onMounted } from 'vue'
-import { api } from '@/lib/api'
+import { api, getAllDictItems } from '@/lib/api'
 import type { CanvasComponent } from './types'
 
 interface Props {
   component: CanvasComponent
   editable?: boolean
+  // canvas mode: true = canvas editing (no children rendering), false = preview/runtime (render children)
+  canvasMode?: boolean
+  // For canvas mode: pass children to render inside container
+  showChildren?: CanvasComponent[]
+  containerId?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  editable: false
+  editable: false,
+  canvasMode: false
 })
 
 const emit = defineEmits<{
   'update-component': [id: string, key: string, value: any]
+  'remove-child': [containerId: string, childId: string]
+  'drag-start-nested': [event: DragEvent, containerId: string, index: number]
+  'select': [id: string]
+  'drop': [data: any]
 }>()
 
 // ============ State ============
@@ -393,7 +537,18 @@ const tableData = ref<any[]>([])
 const tableLoading = ref(false)
 const tableTotal = ref(0)
 const tablePage = ref(1)
-const pageSize = ref(10)
+const pageSize = ref(props.editable ? 5 : 10)
+
+// Search params for table query
+const tableSearchParams = ref<Record<string, any>>({})
+
+// Query columns (filtered by queryCondition)
+const queryColumns = computed(() => {
+  return (props.component.props.columns || []).filter((col: any) => col.queryCondition)
+})
+
+// Dict items cache for select columns
+const dictItemsCache = ref<Record<string, any[]>>({})
 
 // Total pages computed
 const totalPages = computed(() => {
@@ -411,9 +566,22 @@ watch(() => props.component.props.queryApiId, async (apiId) => {
   }
 }, { immediate: true })
 
+// Reload dict cache when columns change
+watch(() => props.component.props.columns, async () => {
+  if (props.component.type === 'table') {
+    // Clear old cache and reload
+    dictItemsCache.value = {}
+    await loadDictForColumns()
+  }
+}, { deep: true })
+
 onMounted(async () => {
   if (props.component.props.queryApiId) {
     await loadTableData()
+  }
+  // 加载数据字典
+  if (props.component.type === 'table') {
+    await loadDictForColumns()
   }
 })
 
@@ -454,12 +622,66 @@ function getCellValue(row: any, col: any): string {
   const key = col.key || col.fieldName
   if (!key) return ''
   let val = row[key]
-  // 处理数据字典
-  if (col.dataDictionary && val !== null && val !== undefined) {
-    // 暂时显示原始值
-    return String(val)
+  if (val === null || val === undefined) return ''
+
+  // 处理下拉类型 - 转换值为显示文本
+  if (col.fieldType === 'select') {
+    const options = getColumnOptions(col)
+    console.log('[Table] getCellValue select:', { key, val, options, dataDictionary: col.dataDictionary, cache: dictItemsCache.value })
+    const found = options.find(opt => String(opt.value) === String(val))
+    return found ? found.label : String(val)
   }
-  return val !== null && val !== undefined ? String(val) : ''
+
+  return String(val)
+}
+
+// 获取列的下拉选项（数据字典或固定值）
+function getColumnOptions(col: any): { label: string; value: string }[] {
+  // 优先使用固定值
+  if (col.fixedValues) {
+    try {
+      return JSON.parse(col.fixedValues)
+    } catch {
+      return []
+    }
+  }
+  // 其次使用数据字典（从缓存获取）
+  if (col.dataDictionary) {
+    const dictCode = col.dataDictionary
+    if (dictItemsCache.value[dictCode]) {
+      return dictItemsCache.value[dictCode].map((item: any) => ({
+        label: item.itemLabel || item.label || item.name || String(item.itemValue || item.value),
+        value: String(item.itemValue || item.value)
+      }))
+    }
+  }
+  return []
+}
+
+// 加载数据字典（批量加载所有查询列需要的字典）
+async function loadDictForColumns() {
+  const cols = (props.component.props.columns || []).filter((col: any) =>
+    col.fieldType === 'select' && col.dataDictionary
+  )
+  console.log('[TableProps] loadDictForColumns called, select cols:', cols.length, cols.map((c: any) => c.dataDictionary))
+  if (cols.length === 0) return
+
+  try {
+    const allDictItems = await getAllDictItems()
+    console.log('[TableProps] getAllDictItems returned keys:', Object.keys(allDictItems))
+    // allDictItems 是 Record<dictCode, DictItem[]>
+    // 遍历需要的列，只缓存有数据的
+    for (const col of cols) {
+      const dictCode = col.dataDictionary
+      console.log('[TableProps] looking for dictCode:', dictCode, 'exists:', !!allDictItems[dictCode])
+      if (dictCode && allDictItems[dictCode]) {
+        dictItemsCache.value[dictCode] = allDictItems[dictCode]
+      }
+    }
+    console.log('[TableProps] dictItemsCache after load:', dictItemsCache.value)
+  } catch (e) {
+    console.error('Failed to load dict items:', e)
+  }
 }
 
 // ============ Computed ============
@@ -495,6 +717,17 @@ const buttonClass = computed(() => {
     default: return `${baseClass} bg-blue-500 text-white`
   }
 })
+
+// ============ Overflow ============
+
+function getOverflowClass(mode?: string) {
+  switch (mode) {
+    case 'wrap': return 'whitespace-normal'
+    case 'ellipsis': return 'whitespace-nowrap text-overflow-ellipsis overflow-hidden'
+    case 'truncate': return 'whitespace-nowrap truncate'
+    default: return 'whitespace-nowrap'
+  }
+}
 
 // ============ Event Handlers ============
 
