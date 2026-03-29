@@ -322,27 +322,6 @@
         </div>
       </div>
 
-      <!-- 临时保存 -->
-      <div class="prop-section">
-        <h4 class="prop-section-title">临时保存</h4>
-        <div class="flex gap-2">
-          <button
-            class="flex-1 px-3 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded text-sm"
-            @click="handleSaveTemp"
-          >
-            保存临时
-          </button>
-          <button
-            class="flex-1 px-3 py-2 bg-[var(--bg-tertiary)] hover:bg-[var(--bg-hover)] border border-[var(--border)] rounded text-sm"
-            @click="handleLoadTemp"
-          >
-            加载临时
-          </button>
-        </div>
-        <div v-if="tempSaveTime" class="text-xs text-[var(--text-muted)] mt-1">
-          上次保存: {{ tempSaveTime }}
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -399,47 +378,6 @@ const parentContainerId = computed(() => {
   const parent = findParent(props.components, props.selectedComponent.id)
   return parent ? parent.id : null
 })
-
-// 临时保存到 localStorage
-const tempSaveTime = ref<string | null>(null)
-
-function handleSaveTemp() {
-  if (!props.selectedComponent) return
-  const key = `temp_feature_${props.selectedComponent.id}`
-  const data = {
-    props: props.selectedComponent.props,
-    label: props.selectedComponent.label,
-    featureId: props.selectedComponent.props?.featureId,
-    datasourceId: props.selectedComponent.props?.datasourceId,
-    tableName: props.selectedComponent.props?.tableName,
-  }
-  localStorage.setItem(key, JSON.stringify(data))
-  tempSaveTime.value = new Date().toLocaleString()
-}
-
-function handleLoadTemp() {
-  if (!props.selectedComponent) return
-  const key = `temp_feature_${props.selectedComponent.id}`
-  const saved = localStorage.getItem(key)
-  if (saved) {
-    try {
-      const data = JSON.parse(saved)
-      // 恢复属性
-      if (data.props) {
-        emit('update-props', { ...props.selectedComponent.props, ...data.props })
-      }
-      if (data.label) {
-        emit('update-label', data.label)
-      }
-      alert('已加载临时保存的配置')
-    } catch (e) {
-      console.error('Failed to load temp data:', e)
-      alert('加载失败')
-    }
-  } else {
-    alert('没有找到临时保存的配置')
-  }
-}
 
 const emit = defineEmits<{
   'update-props': [props: Record<string, unknown>]

@@ -540,7 +540,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, nextTick } from 'vue'
 import type { CanvasComponent } from '@/pages/editor/types'
 import { getFeatures, getFeatureDetail, getDataSources, getTableList, saveFeature } from '@/lib/api'
 
@@ -590,6 +590,8 @@ async function loadDataSources() {
 // 加载表名列表
 async function loadTables() {
   const datasourceId = props.selectedComponent?.props.datasourceId
+  console.log('[TableProps] loadTables called:', { datasourceId, tableName: props.selectedComponent?.props.tableName })
+  
   if (!datasourceId) {
     tables.value = []
     return
@@ -602,19 +604,25 @@ async function loadTables() {
   }
 
   if (!ds) {
+    console.log('[TableProps] loadTables: datasource not found', datasourceId)
     tables.value = []
     return
   }
 
   const dbName = ds.database_name || ds.dbName || ds.databaseName
+  console.log('[TableProps] loadTables: dbName', dbName)
+  
   if (!dbName) {
+    console.log('[TableProps] loadTables: no dbName')
     tables.value = []
     return
   }
 
   loadingTables.value = true
   try {
+    console.log('[TableProps] loadTables: calling API with dbName:', dbName)
     const res = await getTableList(dbName)
+    console.log('[TableProps] loadTables: API returned', res?.length, 'tables')
     tables.value = res || []
   } catch (error) {
     console.error('Failed to load tables:', error)
@@ -635,10 +643,24 @@ async function loadFeaturesForTable() {
 
   loadingFeatures.value = true
   try {
+    // 后端若不支持过滤则先获取全部，再前端过滤
     const res = await getFeatures({ page: 1, limit: 100 })
-    const filtered = (res.list || []).filter((f: any) =>
-      f.datasourceId === datasourceId && f.tableName === tableName
-    )
+    const allList = res.list || []
+    
+    // 前端过滤：匹配 datasourceId 和 tableName
+    const filtered = allList.filter((f: any) => {
+      const fDsId = Number(f.datasourceId)
+      const fTableName = String(f.tableName || '')
+      return fDsId === Number(datasourceId) && fTableName === String(tableName)
+    })
+    
+    console.log('[TableProps] loadFeaturesForTable:', { 
+      datasourceId, 
+      tableName, 
+      total: allList.length, 
+      filtered: filtered.length 
+    })
+    
     availableFeatures.value = filtered
   } catch (error) {
     console.error('Failed to load features:', error)
@@ -650,7 +672,8 @@ async function loadFeaturesForTable() {
 
 // 处理数据源变化
 function handleDatasourceChange(value: string) {
-  if (!value) {
+  const newDsId = value ? parseInt(value) : undefined
+  if (!newDsId) {
     props.updateProp('datasourceId', undefined)
     props.updateProp('tableName', undefined)
     props.updateProp('featureId', undefined)
@@ -658,12 +681,38 @@ function handleDatasourceChange(value: string) {
     availableFeatures.value = []
     return
   }
-  props.updateProp('datasourceId', parseInt(value))
+  props.updateProp('datasourceId', newDsId)
   props.updateProp('tableName', undefined)
   props.updateProp('featureId', undefined)
   tables.value = []
   availableFeatures.value = []
-  loadTables()
+  
+  // 立即用新值加载表名，而不是等待 watch
+  loadTablesWithDsId(newDsId)
+}
+
+// 根据 datasourceId 加载表名（同步获取的值）
+async function loadTablesWithDsId(datasourceId: number) {
+  let ds = dataSources.value.find(d => d.id === datasourceId)
+  if (!ds) {
+    await loadDataSources()
+    ds = dataSources.value.find(d => d.id === datasourceId)
+  }
+  if (!ds) return
+  
+  const dbName = ds.database_name || ds.dbName || ds.databaseName
+  if (!dbName) return
+  
+  loadingTables.value = true
+  try {
+    const res = await getTableList(dbName)
+    tables.value = res || []
+  } catch (error) {
+    console.error('Failed to load tables:', error)
+    tables.value = []
+  } finally {
+    loadingTables.value = false
+  }
 }
 
 // 处理表名变化
@@ -677,7 +726,30 @@ function handleTableChange(value: string) {
   props.updateProp('tableName', value)
   props.updateProp('featureId', undefined)
   availableFeatures.value = []
-  loadFeaturesForTable()
+  
+  // 立即用新值加载 features
+  const datasourceId = props.selectedComponent?.props.datasourceId
+  loadFeaturesForTableWithParams(datasourceId, value)
+}
+
+// 根据 datasourceId 和 tableName 加载 features
+async function loadFeaturesForTableWithParams(datasourceId: any, tableName: string) {
+  if (!datasourceId || !tableName) return
+  
+  loadingFeatures.value = true
+  try {
+    const res = await getFeatures({ page: 1, limit: 100 })
+    const allList = res.list || []
+    const filtered = allList.filter((f: any) => {
+      return Number(f.datasourceId) === Number(datasourceId) && String(f.tableName) === String(tableName)
+    })
+    availableFeatures.value = filtered
+  } catch (error) {
+    console.error('Failed to load features:', error)
+    availableFeatures.value = []
+  } finally {
+    loadingFeatures.value = false
+  }
 }
 
 // 处理 Feature 变化
@@ -808,7 +880,7 @@ watch(() => props.selectedComponent?.props?.datasourceId, (newDsId) => {
   } else {
     tables.value = []
   }
-})
+}, { immediate: true })
 
 watch(() => props.selectedComponent?.props?.tableName, (newTableName) => {
   if (props.selectedComponent?.type === 'table' && newTableName && props.selectedComponent?.props?.datasourceId) {
@@ -816,5 +888,24 @@ watch(() => props.selectedComponent?.props?.tableName, (newTableName) => {
   } else {
     availableFeatures.value = []
   }
-})
+}, { immediate: true })
+
+// 当 featureId 变化时，自动加载 feature 详情（用于已有 featureId 的场景，如打开已存在页面）
+watch(() => props.selectedComponent?.props?.featureId, async (newFeatureId) => {
+  if (props.selectedComponent?.type === 'table' && newFeatureId && props.selectedComponent?.props?.datasourceId && props.selectedComponent?.props?.tableName) {
+    // 先加载 features 列表
+    await loadFeaturesForTable()
+    
+    // 等待数据更新到视图
+    await nextTick()
+    
+    // 如果当前 feature 在列表中，加载详情
+    const fid = Number(newFeatureId)
+    const feature = availableFeatures.value.find((f: any) => Number(f.id) === fid)
+    console.log('[TableProps] featureId watch:', { newFeatureId, fid, availableCount: availableFeatures.value.length, feature })
+    if (feature) {
+      await handleFeatureChange(String(fid))
+    }
+  }
+}, { immediate: true })
 </script>
