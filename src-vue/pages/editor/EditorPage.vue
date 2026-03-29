@@ -176,6 +176,9 @@ async function savePageConfig(data: any) {
   return res.data
 }
 
+// Re-export API functions for PropertyPanel
+export { getDataSources, getFeatures, getFeatureDetail }
+
 // ============ Helpers ============
 function generateId(): string {
   return `comp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`

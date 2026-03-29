@@ -3,7 +3,10 @@
     <!-- Header -->
     <div class="flex justify-between items-center mb-4">
       <h1 class="text-2xl font-bold text-[var(--text-primary)]">API 管理</h1>
-      <el-button type="primary" @click="handleCreate">新增 API</el-button>
+      <div class="flex gap-2">
+        <el-button type="info" @click="router.push('/apis/log')">访问日志</el-button>
+        <el-button type="primary" @click="router.push('/apis/new')">新增 API</el-button>
+      </div>
     </div>
 
     <!-- Search -->
@@ -117,9 +120,13 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
+
 import { Loading } from '@element-plus/icons-vue'
 import { getApiList, saveApi, deleteApi, testApi } from '@/lib/api'
+
+const router = useRouter()
 
 interface ApiItem {
   id?: number
@@ -187,16 +194,10 @@ function handleReset() {
   searchForm.path = ''
 }
 
-function handleCreate() {
-  dialogMode.value = 'create'
-  Object.assign(formData, { name: '', path: '', method: 'POST', description: '', status: 1 })
-  dialogVisible.value = true
-}
-
 function handleEdit(row: ApiItem) {
-  dialogMode.value = 'edit'
-  Object.assign(formData, row)
-  dialogVisible.value = true
+  if (row.id) {
+    router.push(`/apis/${row.id}`)
+  }
 }
 
 async function handleSave() {

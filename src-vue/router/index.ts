@@ -1,6 +1,8 @@
 import { createRouter, createWebHashHistory, type NavigationGuardNext, type RouteRecordRaw } from 'vue-router'
 import EditorPage from '../pages/editor/EditorPage.vue'
-import ApiList from '../pages/ApiList.vue'
+import ApiList from '../pages/apis/ApiList.vue'
+import ApiForm from '../pages/apis/ApiForm.vue'
+import ApiAccessLog from '../pages/apis/ApiAccessLog.vue'
 import PageViewer from '../pages/viewer/PageViewer.vue'
 import DynamicDataGrid from '../pages/dynamic/DynamicDataGrid.vue'
 import LoginPage from '../pages/auth/LoginPage.vue'
@@ -17,7 +19,6 @@ import DictList from '../pages/dict/DictList.vue'
 import SystemConfigList from '../pages/SystemConfigList.vue'
 import DictForm from '../pages/dict/DictForm.vue'
 import TaskList from '../pages/tasks/TaskList.vue'
-import ApiList from '../pages/apis/ApiList.vue'
 import TaskForm from '../pages/tasks/TaskForm.vue'
 import MainLayout from '../components/layout/MainLayout.vue'
 import FeatureList from '../pages/features/FeatureList.vue'
@@ -77,6 +78,24 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'API 管理' }
       },
       {
+        path: '/apis/new',
+        name: 'ApiCreate',
+        component: ApiForm,
+        meta: { title: '创建 API' }
+      },
+      {
+        path: '/apis/:id',
+        name: 'ApiEdit',
+        component: ApiForm,
+        meta: { title: '编辑 API' }
+      },
+      {
+        path: '/apis/log',
+        name: 'ApiAccessLog',
+        component: ApiAccessLog,
+        meta: { title: 'API 访问日志' }
+      },
+      {
         path: '/menus',
         name: 'MenuList',
         component: MenuList,
@@ -105,12 +124,6 @@ const routes: RouteRecordRaw[] = [
         name: 'TaskList',
         component: TaskList,
         meta: { title: '任务管理' }
-      },
-      {
-        path: '/apis',
-        name: 'ApiList',
-        component: ApiList,
-        meta: { title: 'API管理' }
       },
       {
         path: '/features',

@@ -1063,3 +1063,77 @@ export interface DictItem {
   itemLabel: string
   sort?: number
 }
+
+// ========== SQL Manager API ==========
+
+export interface TableInfo {
+  tableName: string
+  tableComment?: string
+}
+
+export interface ColumnInfo {
+  columnName: string
+  columnType?: string
+  dataType: string
+  isPrimary?: boolean
+  isNullable?: boolean
+  columnComment?: string
+}
+
+// 获取表列表
+export async function getTableList(database: string): Promise<TableInfo[]> {
+  try {
+    const res = await api.get('/sqlManager/findTable', {
+      params: { database }
+    });
+    if (res.data?.data) {
+      return res.data.data.map((item: any) => ({
+        tableName: item.TABLE_NAME,
+        tableComment: item.TABLE_COMMENT
+      }));
+    }
+    return [];
+  } catch (error) {
+    console.error('Failed to load tables:', error);
+    return [];
+  }
+}
+
+// 获取表字段信息
+export async function getTableColumns(database: string, table: string): Promise<ColumnInfo[]> {
+  try {
+    const res = await api.get('/etl-admin/sqlManager/findMetaTable', {
+      params: { database, table }
+    });
+    if (res.data?.data?.tablesMetaList) {
+      return res.data.data.tablesMetaList.map((item: any) => ({
+        columnName: item.columnName || '',
+        columnType: item.typeName || '',
+        dataType: mapColumnType(item.typeName || ''),
+        isPrimary: item.keySeq != null && item.keySeq > 0,
+        isNullable: item.nullable === 'YES',
+        columnComment: item.comment || ''
+      }));
+    }
+    return [];
+  } catch (error) {
+    console.error('Failed to load columns:', error);
+    return [];
+  }
+}
+
+// 映射SQL类型到JS类型
+function mapColumnType(sqlType: string): string {
+  const type = sqlType.toLowerCase();
+  if (type.includes('int') || type.includes('bigint')) return 'integer';
+  if (type.includes('decimal') || type.includes('float') || type.includes('double')) return 'decimal';
+  if (type.includes('date') && !type.includes('time')) return 'date';
+  if (type.includes('time')) return 'datetime';
+  if (type.includes('bool')) return 'boolean';
+  return 'string';
+}
+
+// 兼容性别名
+export async function getDatasourceTables(database: string): Promise<TableInfo[]> {
+  return getTableList(database);
+}

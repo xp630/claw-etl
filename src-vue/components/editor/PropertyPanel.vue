@@ -347,6 +347,32 @@
           />
         </div>
 
+        <!-- Feature 选择 -->
+        <div class="prop-item">
+          <label>功能 (Feature)</label>
+          <select
+            :value="selectedComponent.props.featureId || ''"
+            class="prop-input"
+            @change="handleFeatureChange(($event.target as HTMLSelectElement).value)"
+          >
+            <option value="">-- 选择功能 --</option>
+            <option
+              v-for="feature in availableFeatures"
+              :key="feature.id"
+              :value="feature.id"
+            >
+              {{ feature.name }} ({{ feature.code }})
+            </option>
+          </select>
+        </div>
+
+        <div v-if="loadingFeatures" class="text-xs text-[var(--text-muted)] py-1">
+          加载中...
+        </div>
+        <div v-else-if="availableFeatures.length === 0 && selectedComponent.props.tableName" class="text-xs text-[var(--text-muted)] py-1">
+          该表暂无可用功能
+        </div>
+
         <!-- 列配置 -->
         <div class="prop-item">
           <div class="flex items-center justify-between mb-2">
@@ -528,8 +554,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import type { CanvasComponent } from '@/pages/editor/types'
+import { getFeatures, getFeatureDetail } from '@/lib/api'
 
 interface Props {
   selectedComponent: CanvasComponent | null
@@ -579,6 +606,13 @@ const parentContainerId = computed(() => {
   return parent ? parent.id : null
 })
 
+// 当选择 table 组件时，自动加载 feature 列表
+watch(() => props.selectedComponent?.id, (newId) => {
+  if (props.selectedComponent?.type === 'table' && newId) {
+    loadFeaturesForTable()
+  }
+}, { immediate: true })
+
 // 列配置折叠状态（默认折叠超过5个的列）
 const columnsCollapsed = ref(true)
 
@@ -592,6 +626,81 @@ const displayColumns = computed(() => {
 
 function toggleColumnsCollapse() {
   columnsCollapsed.value = !columnsCollapsed.value
+}
+
+// Feature 相关
+const loadingFeatures = ref(false)
+const availableFeatures = ref<any[]>([])
+
+async function loadFeaturesForTable() {
+  const tableName = props.selectedComponent?.props.tableName
+  const datasourceId = props.selectedComponent?.props.datasourceId
+  if (!tableName || !datasourceId) {
+    availableFeatures.value = []
+    return
+  }
+  
+  loadingFeatures.value = true
+  try {
+    const res = await getFeatures({ page: 1, limit: 100 })
+    const filtered = (res.list || []).filter((f: any) => 
+      f.datasourceId === datasourceId && f.tableName === tableName
+    )
+    availableFeatures.value = filtered
+  } catch (error) {
+    console.error('Failed to load features:', error)
+    availableFeatures.value = []
+  } finally {
+    loadingFeatures.value = false
+  }
+}
+
+async function handleFeatureChange(featureId: string) {
+  if (!featureId) {
+    updateProp('featureId', undefined)
+    updateProp('queryApiId', undefined)
+    updateProp('createApiId', undefined)
+    updateProp('updateApiId', undefined)
+    updateProp('deleteApiId', undefined)
+    updateProp('detailApiId', undefined)
+    return
+  }
+  
+  loadingFeatures.value = true
+  try {
+    const id = parseInt(featureId)
+    const feature = await getFeatureDetail(id)
+    if (feature) {
+      updateProp('featureId', id)
+      updateProp('queryApiId', feature.queryApiId)
+      updateProp('createApiId', feature.createApiId)
+      updateProp('updateApiId', feature.updateApiId)
+      updateProp('deleteApiId', feature.deleteApiId)
+      updateProp('detailApiId', feature.detailApiId)
+      
+      // 如果 feature 有 columns 配置，自动填充
+      if (feature.columns && Array.isArray(feature.columns) && feature.columns.length > 0) {
+        const columns = feature.columns
+          .filter((col: any) => col.visible !== false && col.fieldType !== 'action')
+          .map((col: any) => ({
+            key: col.fieldName,
+            label: col.fieldLabel,
+            fieldType: col.fieldType,
+            width: 100,
+            visible: col.visible !== false,
+            sortable: col.sortable || false,
+            align: col.align || 'left',
+            queryCondition: col.queryCondition || false,
+            dataDictionary: col.dataDictionary || ''
+          }))
+        updateProp('columns', columns)
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load feature detail:', error)
+  } finally {
+    loadingFeatures.value = false
+  }
 }
 
 const emit = defineEmits<{
