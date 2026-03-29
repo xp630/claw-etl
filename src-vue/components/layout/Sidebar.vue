@@ -159,13 +159,33 @@ async function loadMenus() {
   loading.value = true
   try {
     const tree = await getMenuTree()
-    // 过滤出顶级菜单（parentId 为 0 或 null）
+    // 过滤出顶级菜单（parentId 为 0 或 null）且状态为启用
     menuTree.value = tree.filter(m => !m.parentId || m.parentId === 0)
+    // 递归过滤禁用菜单
+    menuTree.value = filterDisabledMenus(menuTree.value)
   } catch (error) {
     console.error('加载菜单失败:', error)
   } finally {
     loading.value = false
   }
+}
+
+// 过滤禁用菜单（status: 1=启用，其他=禁用）
+function filterDisabledMenus(menus: any[]): any[] {
+  return menus
+    .filter(m => m.status === 1)
+    .map(m => {
+      if (!m.children || m.children.length === 0) {
+        return { ...m, children: undefined }
+      }
+      const filteredChildren = filterDisabledMenus(m.children)
+      // 如果所有子菜单都被过滤掉了，父菜单也不显示
+      if (filteredChildren.length === 0) {
+        return null
+      }
+      return { ...m, children: filteredChildren }
+    })
+    .filter(Boolean)
 }
 
 onMounted(() => {
