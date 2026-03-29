@@ -111,7 +111,7 @@
           <select
             v-if="col.fieldType === 'select'"
             v-model="tableSearchParams[col.key || col.fieldName]"
-            class="px-1 py-1 text-xs border border-[var(--border)] rounded w-[100px] shrink-0"
+            class="px-1 py-1 text-xs border border-[var(--border)] rounded w-[100px] shrink-0 bg-[var(--el-fill-color-blank)] text-[var(--text-primary)]"
           >
             <option value="">请选择</option>
             <option
@@ -127,14 +127,14 @@
             v-else-if="col.fieldType === 'date'"
             type="date"
             v-model="tableSearchParams[col.key || col.fieldName]"
-            class="px-1 py-1 text-xs border border-[var(--border)] rounded w-[100px] shrink-0"
+            class="px-1 py-1 text-xs border border-[var(--border)] rounded w-[100px] shrink-0 bg-[var(--el-fill-color-blank)] text-[var(--text-primary)]"
           />
           <!-- Number input -->
           <input
             v-else-if="col.fieldType === 'number'"
             type="number"
             v-model="tableSearchParams[col.key || col.fieldName]"
-            class="px-1 py-1 text-xs border border-[var(--border)] rounded w-[100px] shrink-0"
+            class="px-1 py-1 text-xs border border-[var(--border)] rounded w-[100px] shrink-0 bg-[var(--el-fill-color-blank)] text-[var(--text-primary)]"
             placeholder="输入"
           />
           <!-- Text input (default) -->
@@ -142,13 +142,13 @@
             v-else
             type="text"
             v-model="tableSearchParams[col.key || col.fieldName]"
-            class="px-1 py-1 text-xs border border-[var(--border)] rounded w-[100px] shrink-0"
+            class="px-1 py-1 text-xs border border-[var(--border)] rounded w-[100px] shrink-0 bg-[var(--el-fill-color-blank)] text-[var(--text-primary)]"
             placeholder="输入"
           />
         </div>
         <button class="px-3 py-1 text-xs bg-[var(--accent)] text-white rounded cursor-pointer">查询</button>
         <button
-          class="px-3 py-1 text-xs border border-[var(--border)] rounded cursor-pointer"
+          class="px-3 py-1 text-xs border border-[var(--border)] rounded cursor-pointer bg-[var(--bg-secondary)] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)]"
           @click="tableSearchParams = {}"
         >重置</button>
       </div>
@@ -245,12 +245,12 @@
         </table>
       </div>
       <!-- Pagination Footer -->
-      <div v-if="component.props.pagination" class="bg-[var(--bg-table-header)] px-3 py-2 border-t border-[var(--border-light)] flex items-center justify-between">
+      <div v-if="component.props.pagination" class="bg-[var(--bg-secondary)] px-3 py-2 border-t border-[var(--border-light)] flex items-center justify-between">
         <div class="flex items-center gap-2">
           <span class="text-xs text-[var(--text-muted)]">共 {{ tableTotal }} 条</span>
           <select
             v-model="pageSize"
-            class="px-2 py-1 text-xs border border-[var(--border)] rounded"
+            class="px-2 py-1 text-xs border border-[var(--border)] rounded bg-[var(--el-fill-color-blank)] text-[var(--text-primary)]"
             @change="handlePageSizeChange"
           >
             <option :value="5">5条/页</option>
