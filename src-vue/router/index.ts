@@ -8,6 +8,7 @@ import DynamicDataGrid from '../pages/dynamic/DynamicDataGrid.vue'
 import LoginPage from '../pages/auth/LoginPage.vue'
 import Home from '../pages/Home.vue'
 import PageList from '../pages/PageList.vue'
+import { tabStore } from '@/stores/tabStore'
 import MenuList from '../pages/system/MenuList.vue'
 import DatasourceList from '../pages/DatasourceList.vue'
 import DatasourceForm from '../pages/DatasourceForm.vue'
@@ -22,6 +23,7 @@ import TaskList from '../pages/tasks/TaskList.vue'
 import TaskForm from '../pages/tasks/TaskForm.vue'
 import MainLayout from '../components/layout/MainLayout.vue'
 import FeatureList from '../pages/features/FeatureList.vue'
+import FeatureForm from '../pages/features/FeatureForm.vue'
 import { useAuthStore } from '@/stores/auth'
 
 // 路由配置
@@ -39,7 +41,7 @@ const routes: RouteRecordRaw[] = [
     children: [
       {
         path: '',
-        redirect: '/editor'
+        redirect: '/home'
       },
       {
         path: '/config',
@@ -132,6 +134,18 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '功能管理' }
       },
       {
+        path: '/features/new',
+        name: 'FeatureCreate',
+        component: FeatureForm,
+        meta: { title: '新增功能' }
+      },
+      {
+        path: '/features/:id',
+        name: 'FeatureEdit',
+        component: FeatureForm,
+        meta: { title: '编辑功能' }
+      },
+      {
         path: '/tasks/new',
         name: 'TaskCreate',
         component: TaskForm,
@@ -202,6 +216,12 @@ const routes: RouteRecordRaw[] = [
         name: 'SystemConfigList',
         component: SystemConfigList,
         meta: { title: '系统参数' }
+      },
+      {
+        path: '/view/:code',
+        name: 'PageViewer',
+        component: PageViewer,
+        meta: { title: '页面查看' }
       }
     ]
   },
@@ -228,22 +248,24 @@ router.beforeEach((to, from, next: NavigationGuardNext) => {
     return
   }
 
-  // 需要登录的页面
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    // 有 token 就视为已登录（token 可能是 username fallback）
-    if (authStore.token) {
-      next()
-    } else {
-      next({ name: 'Login', query: { redirect: to.fullPath } })
-    }
+  // 已登录访问登录页，跳转首页
+  if (to.name === 'Login' && authStore.isAuthenticated) {
+    next({ name: 'Home' })
     return
   }
 
-  // 已登录访问登录页，跳转首页
-  if (to.name === 'Login' && authStore.isAuthenticated) {
-    next({ name: 'Editor' })
-    return
+  // 需要登录的页面
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    if (authStore.token) {
+      // 有 token 就视为已登录，继续导航
+    } else {
+      next({ name: 'Login', query: { redirect: to.fullPath } })
+      return
+    }
   }
+
+  // Tab 管理：添加到标签页（在 next 之前调用）
+  tabStore.addTab(to)
 
   next()
 })

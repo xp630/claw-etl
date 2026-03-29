@@ -1,8 +1,19 @@
 <template>
   <div class="datasource-page p-6">
     <!-- 页面标题 -->
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-[var(--text-primary)]">数据源管理</h1>
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-blue-500/30">
+          <Box class="w-5 h-5 text-blue-500" />
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-[var(--text-primary)]">数据源管理</h1>
+          <p class="text-xs text-[var(--text-muted)]">管理系统数据源</p>
+        </div>
+      </div>
+      <el-button type="primary" @click="handleCreate">
+        <Plus class="w-4 h-4 mr-1" /> 新增
+      </el-button>
     </div>
 
     <!-- 搜索条件 -->
@@ -33,16 +44,8 @@
     </div>
 
     <!-- 数据表格 -->
-    <div class="bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-light)] p-4">
-      <div class="flex justify-between items-center mb-4">
-        <span class="text-sm text-[var(--text-muted)]">共 {{ total }} 条</span>
-        <el-button type="primary" @click="handleCreate">
-          <el-icon class="mr-1"><Plus /></el-icon>
-          新增数据源
-        </el-button>
-      </div>
-
-      <el-table v-loading="loading" :data="datasources" stripe style="width: 100%">
+    <div class="bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-light)] overflow-hidden">
+      <el-table v-loading="loading" :data="datasources" style="width: 100%">
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="name" label="数据源名称" min-width="150" />
         <el-table-column prop="comment" label="名称" min-width="150" show-overflow-tooltip />
@@ -55,10 +58,10 @@
         <el-table-column prop="dbState" label="状态" width="100">
           <template #default="{ row }">
             <el-switch
-              v-if="mounted"
-              :model-value="row.dbState === '启用'"
-              active-value="true"
-              inactive-value="false"
+              v-if="switchMounted"
+              :model-value="row.dbState"
+              active-value="启用"
+              inactive-value="停用"
               @change="handleStatusChange(row, $event)"
             />
             <span v-else>{{ row.dbState === '启用' ? '启用' : '停用' }}</span>
@@ -93,9 +96,10 @@
 import { ref, reactive, onMounted } from 'vue'
 
 const mounted = ref(false)
+const switchMounted = ref(false)
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
+import { Plus, Box } from '@element-plus/icons-vue'
 import { getDataSources, deleteDataSource, testDataSource, toggleDataSourceStatus } from '@/lib/api'
 
 const router = useRouter()
@@ -184,12 +188,11 @@ function handleEdit(id: number) {
   router.push(`/datasources/${id}`)
 }
 
-async function handleStatusChange(row: DataSource, newValue: boolean) {
+async function handleStatusChange(row: DataSource, newValue: string) {
   if (switching.value) return
   switching.value = true
   try {
-    const newState = newValue ? '启用' : '停用'
-    await toggleDataSourceStatus(row.id!, newState)
+    await toggleDataSourceStatus(row.id!, newValue)
     ElMessage.success('状态更新成功')
     loadData()
   } catch (error) {
@@ -225,6 +228,7 @@ async function handleDelete(id: number) {
 onMounted(() => {
   mounted.value = true
   loadData()
+  setTimeout(() => { switchMounted.value = true }, 0)
 })
 </script>
 

@@ -77,8 +77,8 @@ export const useEditorStore = defineStore('editor', () => {
   // ============ Actions ============
 
   // Generate unique ID
-  function generateId(): string {
-    return `comp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+  function generateId(): number {
+    return Date.now()
   }
 
   // Select component
@@ -105,7 +105,7 @@ export const useEditorStore = defineStore('editor', () => {
     defaultProps: Record<string, unknown> = {}
   ): CanvasComponent {
     return addComponent({
-      componentId: `${type}_${Date.now()}`,
+      componentId: `${type}_${Date.now()}`, 
       type,
       label,
       props: defaultProps,

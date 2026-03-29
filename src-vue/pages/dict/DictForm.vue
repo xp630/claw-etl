@@ -13,7 +13,7 @@
 
     <div class="max-w-2xl">
       <!-- 字典基本信息 -->
-      <div class="bg-[var(--bg-secondary)] dark:bg-gray-800 rounded-xl border border-[var(--border-light)] dark:border-gray-700 p-6 mb-4">
+      <div class="bg-[var(--bg-secondary)]00 rounded-xl border border-[var(--border-light)]00 p-6 mb-4">
         <div class="flex items-center gap-2 mb-4">
           <div class="w-1 h-5 bg-[var(--accent)] rounded-full"></div>
           <h3 class="text-base font-medium text-[var(--accent)]">基本信息</h3>
@@ -63,7 +63,7 @@
       </div>
 
       <!-- 字典项 -->
-      <div class="bg-[var(--bg-secondary)] dark:bg-gray-800 rounded-xl border border-[var(--border-light)] dark:border-gray-700 p-6">
+      <div class="bg-[var(--bg-secondary)]00 rounded-xl border border-[var(--border-light)]00 p-6">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2">
             <div class="w-1 h-5 bg-[var(--accent)] rounded-full"></div>

@@ -2,70 +2,25 @@
   <div class="prop-section">
     <h4 class="prop-section-title">表格配置</h4>
 
-    <!-- 数据配置（核心） -->
-    <div class="prop-item">
-      <label class="text-xs text-[var(--text-muted)] mb-1 block">数据源</label>
-      <select
-        :value="selectedComponent.props.datasourceId || ''"
-        class="prop-input"
-        @change="handleDatasourceChange(($event.target as HTMLSelectElement).value)"
-      >
-        <option value="">-- 选择数据源 --</option>
-        <option
-          v-for="ds in dataSources"
-          :key="ds.id"
-          :value="ds.id"
-        >
-          {{ ds.name }}
-        </option>
-      </select>
-    </div>
-
-    <div class="prop-item">
-      <label class="text-xs text-[var(--text-muted)] mb-1 block">表名</label>
-      <select
-        :value="selectedComponent.props.tableName || ''"
-        class="prop-input"
-        @change="handleTableChange(($event.target as HTMLSelectElement).value)"
-      >
-        <option value="">-- 选择表名 --</option>
-        <option
-          v-for="table in tables"
-          :key="table.tableName"
-          :value="table.tableName"
-        >
-          {{ table.tableName }}{{ table.tableComment ? ` (${table.tableComment})` : '' }}
-        </option>
-      </select>
-      <div v-if="loadingTables" class="text-xs text-[var(--text-muted)] mt-1">加载表名中...</div>
-    </div>
-
     <!-- Feature 选择 -->
     <div class="prop-item">
       <label class="text-xs text-[var(--text-muted)] mb-1 block">功能 (Feature)</label>
-      <select
-        :value="selectedComponent.props.featureId || ''"
-        class="prop-input"
-        @change="handleFeatureChange(($event.target as HTMLSelectElement).value)"
-      >
-        <option value="">-- 选择功能 --</option>
-        <option
-          v-for="feature in availableFeatures"
-          :key="feature.id"
-          :value="feature.id"
-        >
-          {{ feature.name }} ({{ feature.code }})
-        </option>
-      </select>
-      <div v-if="loadingFeatures" class="text-xs text-[var(--text-muted)] mt-1">加载中...</div>
-      <div v-else-if="availableFeatures.length === 0 && selectedComponent.props.tableName && selectedComponent.props.datasourceId" class="mt-1">
-        <span class="text-xs text-[var(--text-muted)]">该表暂无可用功能</span>
+      <div class="flex gap-2">
+        <input
+          type="text"
+          readonly
+          :value="selectedFeatureName"
+          class="prop-input flex-1 cursor-pointer"
+          placeholder="点击选择 Feature..."
+          @click="openFeatureSelector"
+        />
         <button
           type="button"
-          class="ml-2 text-xs text-[var(--accent)] hover:underline"
-          @click="showCreateFeatureModal = true"
+          class="p-2 border border-[var(--border-light)] rounded hover:bg-[var(--bg-hover)] text-[var(--text-secondary)]"
+          title="选择 Feature"
+          @click="openFeatureSelector"
         >
-          + 新建
+          🔍
         </button>
       </div>
     </div>
@@ -118,6 +73,20 @@
         class="prop-input"
         @input="updateProp('pageSize', Number(($event.target as HTMLInputElement).value))"
       />
+    </div>
+
+    <!-- 表头高度 -->
+    <div class="prop-item">
+      <label class="text-xs text-[var(--text-muted)] mb-1 block">表头高度</label>
+      <select
+        :value="selectedComponent.props.headerHeight || 'default'"
+        class="prop-input"
+        @change="updateProp('headerHeight', ($event.target as HTMLSelectElement).value)"
+      >
+        <option value="small">小 (32px)</option>
+        <option value="default">默认 (40px)</option>
+        <option value="large">大 (48px)</option>
+      </select>
     </div>
 
     <!-- 分隔线 -->
@@ -194,14 +163,21 @@
         <button
           type="button"
           class="text-xs text-[var(--accent)] hover:underline"
+          @click="showColumnsList = !showColumnsList"
+        >
+          {{ showColumnsList ? '折叠' : '展开' }}
+        </button>
+        <button
+          type="button"
+          class="text-xs text-[var(--accent)] hover:underline"
           @click="openColumnsEditor"
         >
           编辑列
         </button>
       </div>
-      <div v-if="selectedComponent.props.columns?.length" class="space-y-1">
+      <div v-if="showColumnsList && selectedComponent.props.columns?.length" class="space-y-1 max-h-[240px] overflow-y-auto pr-1">
         <div
-          v-for="(col, index) in (selectedComponent.props.columns || []).slice(0, 5)"
+          v-for="(col, index) in (selectedComponent.props.columns || [])"
           :key="index"
           class="flex items-center gap-2 text-xs bg-[var(--bg-hover-light)] rounded px-2 py-1"
         >
@@ -222,9 +198,9 @@
             删除
           </button>
         </div>
-        <div v-if="(selectedComponent.props.columns?.length || 0) > 5" class="text-xs text-[var(--text-muted)] text-center py-1">
-          还有 {{ (selectedComponent.props.columns?.length || 0) - 5 }} 列...
-        </div>
+      </div>
+      <div v-else-if="!showColumnsList && selectedComponent.props.columns?.length" class="text-xs text-[var(--text-muted)] text-center py-2">
+        已折叠，点击展开查看
       </div>
       <div v-else class="text-xs text-[var(--text-muted)] text-center py-2">
         暂无列配置
@@ -539,6 +515,57 @@
       </div>
     </Teleport>
 
+    <!-- Feature 选择器弹窗 -->
+    <Teleport to="body">
+      <div
+        v-if="showFeatureSelectorModal"
+        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+        @click.self="showFeatureSelectorModal = false"
+      >
+        <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-[600px] max-h-[80vh] flex flex-col">
+          <div class="flex items-center justify-between p-4 border-b border-[var(--border-light)]">
+            <h3 class="font-medium">选择 Feature</h3>
+            <button
+              @click="showFeatureSelectorModal = false"
+              class="p-1 hover:bg-[var(--bg-hover)] rounded"
+            >
+              ✕
+            </button>
+          </div>
+          <div class="p-4">
+            <div class="flex gap-2 mb-3">
+              <input
+                type="text"
+                class="flex-1 px-3 py-2 border border-[var(--border-light)] rounded bg-[var(--bg-hover-light)]"
+                placeholder="搜索 Feature..."
+              />
+              <button
+                type="button"
+                class="px-3 py-2 text-sm bg-[var(--accent)] text-white rounded hover:opacity-90"
+                @click="showCreateFeatureModal = true"
+              >
+                + 新建
+              </button>
+            </div>
+            <div class="space-y-1 max-h-[400px] overflow-y-auto">
+              <div
+                v-for="feature in allFeatures"
+                :key="feature.id"
+                class="p-3 border border-[var(--border-light)] rounded hover:bg-[var(--bg-hover)] cursor-pointer"
+                :class="{ 'border-[var(--accent)] bg-[var(--accent)]/10': feature.id === selectedComponent.props.featureId }"
+                @click="selectFeatureFromModal(feature)"
+              >
+                <div class="font-medium">{{ feature.name }}</div>
+                <div class="text-xs text-[var(--text-muted)]">{{ feature.code }} | 表: {{ feature.tableName }}</div>
+              </div>
+              <div v-if="loadingAllFeatures" class="text-center py-4 text-[var(--text-muted)]">加载中...</div>
+              <div v-if="!loadingAllFeatures && allFeatures.length === 0" class="text-center py-4 text-[var(--text-muted)]">暂无数据</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
     <!-- 新建 Feature 弹窗 -->
     <Teleport to="body">
       <div
@@ -607,7 +634,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import type { CanvasComponent } from '@/pages/editor/types'
 import { getFeatures, getFeatureDetail, getDataSources, getTableList, saveFeature, getDictList } from '@/lib/api'
 
@@ -622,6 +649,12 @@ const props = defineProps<Props>()
 const dataSources = ref<any[]>([])
 const tables = ref<any[]>([])
 const availableFeatures = ref<any[]>([])
+const selectedFeatureName = computed(() => {
+  const id = props.selectedComponent?.props?.featureId
+  if (!id) return ''
+  const feature = availableFeatures.value.find(f => f.id === id)
+  return feature ? `${feature.name} (${feature.code})` : ''
+})
 const loadingTables = ref(false)
 const loadingFeatures = ref(false)
 const currentDatasourceId = ref<number | undefined>(undefined)  // 本地维护当前选中的 datasourceId
@@ -629,6 +662,7 @@ const dictList = ref<any[]>([])  // 数据字典列表
 
 // 列配置编辑弹窗
 const showColumnsEditorModal = ref(false)
+const showColumnsList = ref(false)  // 列配置列表默认折叠
 const editingColumn = ref<any[]>([])
 const isUserEditingColumns = ref(false)  // 用户正在编辑列，阻止 watch 覆盖
 
@@ -639,12 +673,69 @@ const editingSingleColumn = ref<any>({})
 
 // 新建 Feature 弹窗
 const showCreateFeatureModal = ref(false)
+const showFeatureSelectorModal = ref(false)
+const allFeatures = ref<any[]>([])
+const loadingAllFeatures = ref(false)
 const creatingFeature = ref(false)
 const newFeatureForm = ref({
   name: '',
   code: '',
   description: '',
 })
+
+// 打开 Feature 选择弹窗
+async function openFeatureSelector() {
+  showFeatureSelectorModal.value = true
+  loadingAllFeatures.value = true
+  try {
+    const res = await getFeatures({ page: 1, limit: 100 })
+    allFeatures.value = res.list || []
+  } catch (error) {
+    console.error('Failed to load features:', error)
+    allFeatures.value = []
+  } finally {
+    loadingAllFeatures.value = false
+  }
+}
+
+// 从弹窗选择 Feature
+async function selectFeatureFromModal(feature: any) {
+  props.updateProp('featureId', feature.id)
+  try {
+    const detail = await getFeatureDetail(feature.id)
+    if (detail) {
+      props.updateProp('queryApiId', detail.queryApiId)
+      props.updateProp('createApiId', detail.createApiId)
+      props.updateProp('updateApiId', detail.updateApiId)
+      props.updateProp('deleteApiId', detail.deleteApiId)
+      props.updateProp('detailApiId', detail.detailApiId)
+      if (detail.columns && detail.columns.length > 0) {
+        const columns = detail.columns.map((col: any) => ({
+          key: col.fieldName || col.key || '',
+          label: col.fieldLabel || col.label || col.fieldName || col.key || '',
+          fieldType: col.fieldType || 'text',
+          colspan: col.span || col.colspan || 1,
+          visible: col.visible !== false,
+          sortable: col.sortable || false,
+          align: col.align || 'left',
+          frozen: col.frozen || false,
+          ellipsis: col.ellipsis !== false,
+          tooltip: col.tooltip || false,
+          required: col.required || false,
+          placeholder: col.placeholder || '',
+          queryCondition: col.queryCondition || false,
+          dataDictionary: col.dataDictionary || '',
+          headerOverflow: col.headerOverflow || 'wrap',
+          overflow: col.overflow || 'ellipsis'
+        }))
+        props.updateProp('columns', columns)
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load feature detail:', error)
+  }
+  showFeatureSelectorModal.value = false
+}
 
 // 加载数据源列表
 async function loadDataSources() {

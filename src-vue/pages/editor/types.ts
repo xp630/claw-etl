@@ -13,7 +13,7 @@ export interface ComponentCategory {
 }
 
 export interface CanvasComponent {
-  id: string              // Canvas unique ID
+  id?: string | number    // Canvas unique ID (optional for new components, backend will generate)
   componentId?: string     // Component type ID (table, form, input, etc.)
   parentId?: string       // Parent component ID for hierarchy
   type: string            // Component type

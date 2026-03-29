@@ -1,10 +1,15 @@
 <template>
   <div class="p-6 h-full flex flex-col">
     <!-- 页面标题 -->
-    <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center justify-between mb-6">
       <div class="flex items-center gap-3">
-        <Layout class="w-6 h-6 text-blue-500" />
-        <h1 class="text-2xl font-bold text-[var(--text-primary)]">功能管理</h1>
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-blue-500/30">
+          <Layout class="w-5 h-5 text-blue-500" />
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-[var(--text-primary)]">功能管理</h1>
+          <p class="text-xs text-[var(--text-muted)]">管理系统功能</p>
+        </div>
       </div>
       <el-button type="primary" @click="handleAdd">
         <Plus class="w-4 h-4 mr-1" /> 新增
@@ -40,54 +45,57 @@
       </div>
 
       <!-- 右侧：功能列表 -->
-      <div class="flex-1 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-light)] flex flex-col overflow-hidden">
+      <div class="flex-1 flex flex-col gap-4 min-h-0">
         <!-- 搜索栏 -->
-        <div class="p-4 border-b border-[var(--border-light)] flex items-center gap-3">
-          <el-input
-            v-model="searchKeyword"
-            placeholder="搜索功能名称或编码..."
-            clearable
-            @clear="handleSearch"
-            @keyup.enter="handleSearch"
-            class="flex-1"
-          >
-            <template #prefix>
-              <Search class="w-4 h-4 text-[var(--text-muted)]" />
-            </template>
-          </el-input>
-          <el-button type="primary" @click="handleSearch">搜索</el-button>
+        <div class="bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-light)] p-4">
+          <div class="flex items-center gap-3">
+            <el-input
+              v-model="searchKeyword"
+              placeholder="搜索功能名称或编码..."
+              clearable
+              @clear="handleSearch"
+              @keyup.enter="handleSearch"
+              class="flex-1"
+            >
+              <template #prefix>
+                <Search class="w-4 h-4 text-[var(--text-muted)]" />
+              </template>
+            </el-input>
+            <el-button type="primary" @click="handleSearch">搜索</el-button>
+          </div>
         </div>
 
         <!-- 列表 -->
-        <div class="flex-1 overflow-y-auto">
-          <el-table :data="features" v-loading="loading" stripe style="width: 100%">
-            <el-table-column prop="name" label="功能名称" min-width="150" />
-            <el-table-column prop="code" label="功能编码" min-width="120" />
-            <el-table-column prop="type" label="类型" width="100">
-              <template #default="{ row }">
-                <el-tag size="small">{{ row.type === 'page' ? '页面' : row.type === 'list' ? '列表' : row.type }}</el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" width="150">
-              <template #default="{ row }">
-                <el-button link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
-                <el-button link type="danger" size="small" @click="confirmDelete(row)">删除</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
-
-        <!-- 分页 -->
-        <div class="p-4 border-t border-[var(--border-light)] flex justify-end">
-          <el-pagination
-            v-model:current-page="page"
-            v-model:page-size="limit"
-            :page-sizes="[5, 10, 20, 50]"
-            :total="total"
-            layout="total, sizes, prev, pager, next"
-            @size-change="loadFeatures"
-            @current-change="loadFeatures"
-          />
+        <div class="flex-1 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-light)] overflow-hidden flex flex-col">
+          <div class="flex-1 overflow-y-auto">
+            <el-table :data="features" v-loading="loading" style="width: 100%">
+              <el-table-column prop="name" label="功能名称" min-width="150" />
+              <el-table-column prop="code" label="功能编码" min-width="120" />
+              <el-table-column prop="type" label="类型" width="100">
+                <template #default="{ row }">
+                  <el-tag size="small">{{ row.type === 'page' ? '页面' : row.type === 'list' ? '列表' : row.type }}</el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" width="150">
+                <template #default="{ row }">
+                  <el-button link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
+                  <el-button link type="danger" size="small" @click="confirmDelete(row)">删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+          <!-- 分页 -->
+          <div class="p-4 border-t border-[var(--border-light)] flex justify-end">
+            <el-pagination
+              v-model:current-page="page"
+              v-model:page-size="limit"
+              :page-sizes="[5, 10, 20, 50]"
+              :total="total"
+              layout="total, sizes, prev, pager, next"
+              @size-change="loadFeatures"
+              @current-change="loadFeatures"
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -183,9 +191,12 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { Plus, Search, Layout, Database, Grid } from 'lucide-vue-next'
 import { ElMessage } from 'element-plus'
 import { getFeatures, getFeatureDetail, saveFeature, deleteFeature, getDataSources, getTableList, getTableColumns, type Feature, type FeatureColumn } from '@/lib/api'
+
+const router = useRouter()
 
 interface TreeNode {
   id: string
@@ -344,36 +355,11 @@ function handleSearch() {
 }
 
 function handleAdd() {
-  isEdit.value = false
-  resetForm()
-  showFormDialog.value = true
+  router.push('/features/new')
 }
 
-async function handleEdit(row: Feature) {
-  isEdit.value = true
-  Object.assign(formData, {
-    id: row.id,
-    name: row.name,
-    code: row.code,
-    type: row.type || 'list',
-    description: row.description || '',
-    datasourceId: row.datasourceId,
-    tableName: row.tableName || '',
-  })
-  if (row.datasourceId) {
-    await handleDsChange(row.datasourceId)
-  }
-  if (row.id) {
-    try {
-      const detail = await getFeatureDetail(row.id)
-      if (detail && detail.columns) {
-        columns.value = detail.columns
-      }
-    } catch (error) {
-      console.error('Failed to load detail:', error)
-    }
-  }
-  showFormDialog.value = true
+function handleEdit(row: Feature) {
+  router.push(`/features/${row.id}`)
 }
 
 function confirmDelete(row: Feature) {

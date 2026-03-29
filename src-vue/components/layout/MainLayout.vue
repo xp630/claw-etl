@@ -17,11 +17,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import Sidebar from './Sidebar.vue'
 import Header from './Header.vue'
+import { tabStore } from '@/stores/tabStore'
 
-const sidebarCollapsed = ref(false)
+const route = useRoute()
+const sidebarCollapsed = ref(localStorage.getItem('sidebarCollapsed') === 'true')
+watch(sidebarCollapsed, (val) => {
+  localStorage.setItem('sidebarCollapsed', String(val))
+})
+
+onMounted(() => {
+  // Initialize default tab with current route
+  if (route.path && route.path !== '/') {
+    tabStore.initDefaultTab(route.path, (route.meta?.title as string) || '首页')
+  }
+})
 </script>
 
 <style scoped>
@@ -42,6 +55,6 @@ const sidebarCollapsed = ref(false)
   flex: 1;
   overflow-y: auto;
   background: var(--bg-primary);
-  padding: 20px;
+  padding: 0;
 }
 </style>

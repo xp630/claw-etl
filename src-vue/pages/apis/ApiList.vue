@@ -1,8 +1,16 @@
 <template>
   <div class="api-page p-6 h-full flex flex-col">
     <!-- Header -->
-    <div class="flex justify-between items-center mb-4">
-      <h1 class="text-2xl font-bold text-[var(--text-primary)]">API 管理</h1>
+    <div class="flex items-center justify-between mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-blue-500/30">
+          <Link class="w-5 h-5 text-blue-500" />
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-[var(--text-primary)]">API 管理</h1>
+          <p class="text-xs text-[var(--text-muted)]">管理系统 API 接口</p>
+        </div>
+      </div>
       <div class="flex gap-2">
         <el-button type="info" @click="router.push('/apis/log')">访问日志</el-button>
         <el-button type="primary" @click="router.push('/apis/new')">新增 API</el-button>
@@ -26,8 +34,8 @@
     </div>
 
     <!-- Table -->
-    <div class="flex-1 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-light)] p-4 overflow-auto">
-      <el-table v-loading="loading" :data="filteredApis" stripe style="width: 100%">
+    <div class="bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-light)] overflow-hidden">
+      <el-table v-loading="loading" :data="filteredApis" style="width: 100%">
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="name" label="API名称" min-width="150" />
         <el-table-column prop="path" label="路径" min-width="180" />
@@ -54,6 +62,17 @@
           </template>
         </el-table-column>
       </el-table>
+      <div class="p-4 border-t border-[var(--border-light)] flex justify-end">
+        <el-pagination
+          v-model:current-page="page"
+          v-model:page-size="limit"
+          :page-sizes="[10, 20, 50]"
+          :total="total"
+          layout="total, sizes, prev, pager, next"
+          @size-change="handleSizeChange"
+          @current-change="handlePageChange"
+        />
+      </div>
     </div>
 
     <!-- Edit Dialog -->
@@ -123,7 +142,7 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
-import { Loading } from '@element-plus/icons-vue'
+import { Loading, Link } from '@element-plus/icons-vue'
 import { getApiList, saveApi, deleteApi, testApi } from '@/lib/api'
 
 const router = useRouter()
@@ -143,6 +162,9 @@ interface ApiItem {
 const loading = ref(false)
 const apis = ref<ApiItem[]>([])
 const searchForm = reactive({ name: '', path: '' })
+const page = ref(1)
+const limit = ref(10)
+const total = ref(0)
 
 const dialogVisible = ref(false)
 const dialogMode = ref<'create' | 'edit'>('create')
@@ -163,6 +185,15 @@ const filteredApis = computed(() => {
   })
 })
 
+function handleSizeChange() {
+  page.value = 1
+  loadData()
+}
+
+function handlePageChange() {
+  loadData()
+}
+
 function getMethodType(method: string) {
   switch (method) {
     case 'GET': return 'success'
@@ -176,8 +207,9 @@ function getMethodType(method: string) {
 async function loadData() {
   loading.value = true
   try {
-    const data = await getApiList()
+    const data = await getApiList({ page: page.value, limit: limit.value, ...searchForm })
     apis.value = data.list || []
+    total.value = data.total || 0
   } catch (error) {
     console.error('Failed to load APIs:', error)
   } finally {
@@ -186,12 +218,15 @@ async function loadData() {
 }
 
 function handleSearch() {
-  // filteredApis is computed, no need to reload
+  page.value = 1
+  loadData()
 }
 
 function handleReset() {
   searchForm.name = ''
   searchForm.path = ''
+  page.value = 1
+  loadData()
 }
 
 function handleEdit(row: ApiItem) {

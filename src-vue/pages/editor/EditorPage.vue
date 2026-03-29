@@ -1,15 +1,15 @@
 <template>
-  <div class="h-screen flex flex-col bg-[var(--bg-tertiary)] dark:bg-gray-900">
+  <div class="h-screen flex flex-col bg-[var(--bg-tertiary)]">
     <!-- Header -->
-    <div class="h-14 bg-[var(--bg-secondary)] dark:bg-gray-800 border-b border-[var(--border-light)] dark:border-gray-700 flex items-center px-4 gap-4">
-      <h1 class="text-lg font-medium text-[var(--text-primary)] dark:text-white">
+    <div class="h-14 bg-[var(--bg-secondary)] border-b border-[var(--border-light)] flex items-center px-4 gap-4">
+      <h1 class="text-lg font-medium text-[var(--text-primary)]">
         {{ isNewPage ? '新建页面' : '页面编辑器' }}
       </h1>
       <input
         type="text"
         v-model="pageName"
         placeholder="输入页面名称"
-        class="px-3 py-1.5 border border-[var(--border)] dark:border-gray-600 rounded text-sm w-48 bg-[var(--input-bg)] dark:bg-gray-700 text-[var(--text-primary)] dark:text-white"
+        class="px-3 py-1.5 border border-[var(--border)] rounded text-sm w-48 bg-[var(--input-bg)] text-[var(--text-primary)]"
       />
       
       <!-- 工具栏 -->
@@ -67,7 +67,7 @@
       <!-- 浮动面板 -->
       <div 
         v-if="activeLeftTab"
-        class="absolute left-4 top-4 z-40 w-72 h-[calc(100vh-140px)] bg-[var(--bg-secondary)] dark:bg-gray-800 border border-[var(--border-light)] dark:border-gray-700 rounded-lg shadow-xl flex flex-col"
+        class="absolute left-4 top-4 z-40 w-72 h-[calc(100vh-140px)] bg-[var(--bg-secondary)] border border-[var(--border-light)] rounded-lg shadow-xl flex flex-col"
       >
         <ComponentPanel 
           v-if="activeLeftTab === 'components'"
@@ -88,9 +88,9 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="showPropsModal = false"
       >
-        <div class="bg-[var(--bg-secondary)] dark:bg-gray-800 rounded-lg shadow-xl w-[900px] max-h-[85vh] flex flex-col">
-          <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--border-light)] dark:border-gray-700">
-            <h3 class="font-medium text-[var(--text-primary)] dark:text-white">
+        <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-[900px] max-h-[85vh] flex flex-col">
+          <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--border-light)]">
+            <h3 class="font-medium text-[var(--text-primary)]">
               属性配置 - {{ selectedComponent.label }}
             </h3>
             <el-button text @click="showPropsModal = false">
@@ -102,6 +102,7 @@
               :selected-component="selectedComponent"
               :components="components"
               @update-props="handleUpdateProps"
+              @update-component="handleUpdateComponent"
               @move-to-container="handleMoveToContainer"
               @move-out-of-container="handleMoveOutOfContainer"
               @delete-component="handleDelete"
@@ -117,17 +118,12 @@
         v-if="previewMode"
         class="flex-1 overflow-auto p-6 bg-[var(--bg-secondary)]"
       >
-        <div class="max-w-6xl mx-auto space-y-4">
-          <template v-for="comp in components" :key="comp.id">
-            <ComponentRenderer :component="comp" :editable="true" />
-            <!-- 如果是容器类型，也渲染 children -->
-            <template v-if="isContainerType(comp.type) && getContainerChildren(comp).length > 0">
-              <div class="ml-4 mt-2 space-y-2">
-                <div v-for="child in getContainerChildren(comp)" :key="child.id" class="bg-[var(--bg-primary)] rounded-lg">
-                  <ComponentRenderer :component="child" :editable="true" />
-                </div>
-              </div>
-            </template>
+        <div class="min-w-[1280px] space-y-4">
+          <template
+            v-for="comp in components"
+            :key="comp.id"
+          >
+            <ComponentRenderer :component="comp" :editable="false" :show-children="getContainerChildren(comp)" />
           </template>
           <div v-if="components.length === 0" class="text-center text-[var(--text-muted)] py-12">
             暂无组件
@@ -211,8 +207,27 @@ async function savePageConfig(data: any) {
 
 
 // ============ Helpers ============
-function generateId(): string {
-  return `comp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+function isContainerType(type: string): boolean {
+  return ['card', 'tabs', 'collapse'].includes(type)
+}
+
+function getContainerChildren(comp: CanvasComponent): CanvasComponent[] {
+  if (comp.type === 'tabs') {
+    const childrenMap = comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
+    if (childrenMap) {
+      const tabIndex = String(comp.props?.activeTab || 0)
+      const childIds = childrenMap[tabIndex] || []
+      return (comp.children || []).filter(c => 
+        childIds.includes(c.componentId as any) || childIds.includes(c.id as any)
+      )
+    }
+    return comp.children || []
+  }
+  return comp.children || []
+}
+
+function generateId(): number {
+  return Date.now()
 }
 
 function findComponent(comps: CanvasComponent[], id: string | null): CanvasComponent | null {
@@ -265,15 +280,24 @@ function buildComponentTree(flatComponents: any[]): CanvasComponent[] {
   // First create all components
   flatComponents.forEach(c => {
     const comp = loadComponent(c)
-    componentMap.set(c.id, comp)
+    // Store with both id and componentId keys for lookup
+    componentMap.set(comp.id, comp)
+    if (typeof comp.id === 'string') {
+      componentMap.set(Number(comp.id), comp)
+    }
+    // Also store by componentId for stable linking
+    if (comp.componentId) {
+      componentMap.set(comp.componentId, comp)
+    }
   })
 
-  // Then build parent-child relationships
+  // Then build parent-child relationships using componentId for linking
   flatComponents.forEach(c => {
-    const comp = componentMap.get(c.id)!
+    const comp = componentMap.get(c.id) || componentMap.get(String(c.id)) || componentMap.get(c.componentId)
+    if (!comp) return
     const parentId = c.parentId
     if (parentId) {
-      const parent = componentMap.get(parentId)
+      const parent = componentMap.get(parentId) || componentMap.get(String(parentId)) || componentMap.get(c.componentId)
       if (parent) {
         parent.children = parent.children || []
         parent.children.push(comp)
@@ -287,17 +311,26 @@ function buildComponentTree(flatComponents: any[]): CanvasComponent[] {
 
   // Fix childrenMap: resolve childrenMap IDs to actual component objects
   componentMap.forEach(comp => {
-    const childrenMap = comp.props?.childrenMap as Record<string, string[]> | undefined
-    if (childrenMap && typeof childrenMap === 'object') {
-      const allChildIds: string[] = []
+    const childrenMap = comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
+    
+    // If childrenMap is empty or undefined but children exists, rebuild childrenMap from children
+    if (!childrenMap || Object.keys(childrenMap).length === 0) {
+      if (comp.children && comp.children.length > 0) {
+        // Rebuild childrenMap from children array using componentId (stable)
+        comp.props.childrenMap = { '0': comp.children.map(c => c.componentId || c.id) }
+      }
+    } else if (childrenMap && typeof childrenMap === 'object') {
+      // Existing logic: resolve childrenMap IDs to actual component objects
+      const allChildIds: (string | number)[] = []
       Object.values(childrenMap).forEach(ids => {
         if (Array.isArray(ids)) {
           allChildIds.push(...ids)
         }
       })
       
+      // Resolve children by componentId (stable) or id
       const resolvedChildren = allChildIds
-        .map(id => componentMap.get(id))
+        .map(id => componentMap.get(id) || componentMap.get(String(id)) || componentMap.get(String(id)))
         .filter((c): c is CanvasComponent => c !== undefined)
 
       if (resolvedChildren.length > 0) {
@@ -381,7 +414,6 @@ function handleDrop(data: { fromPalette: boolean, type?: string, label?: string,
   console.log('[EditorPage] handleDrop called with:', data)
   if (data && data.fromPalette) {
     const newComponent: CanvasComponent = {
-      id: generateId(),
       type: data.type || 'text',
       label: data.label || '新组件',
       props: data.defaultProps || {},
@@ -393,7 +425,6 @@ function handleDrop(data: { fromPalette: boolean, type?: string, label?: string,
 
 function handleQuickAdd(comp: { type: string; label: string; defaultProps?: Record<string, any> }) {
   const newComponent: CanvasComponent = {
-    id: generateId(),
     type: comp.type,
     label: comp.label,
     props: comp.defaultProps || {},
@@ -403,30 +434,36 @@ function handleQuickAdd(comp: { type: string; label: string; defaultProps?: Reco
 }
 
 function handleAddChildToContainer(containerId: string, childComponent: CanvasComponent, tabIndex?: number) {
+  console.log('[handleAddChildToContainer] called:', { containerId, childComponentType: childComponent.type, childComponentId: childComponent.id, tabIndex })
+  // Ensure child has parentId set
+  // Use componentId for linking since it's stable (frontend-generated)
+  const childWithParent = { ...childComponent, parentId: containerId }
+  const childKey = childWithParent.componentId || childWithParent.id
+  
   components.value = updateComponentInTree(components.value, containerId, (comp: CanvasComponent) => {
     if (comp.type === 'tabs') {
       const activeTab = tabIndex !== undefined ? tabIndex : (comp.props.activeTab as number || 0)
-      const childrenMap = (comp.props.childrenMap as Record<string, string[]>) || {}
+      const childrenMap = (comp.props.childrenMap as Record<string, (string | number)[]>) || {}
       const tabKey = String(activeTab)
       const existingChildIds = childrenMap[tabKey] || []
       return {
         ...comp,
-        children: [...(comp.children || []), childComponent],
+        children: [...(comp.children || []), childWithParent],
         props: {
           ...comp.props,
           childrenMap: {
             ...childrenMap,
-            [tabKey]: [...existingChildIds, childComponent.id],
+            [tabKey]: [...existingChildIds, childKey],
           },
         },
       }
     }
     return {
       ...comp,
-      children: [...(comp.children || []), childComponent],
+      children: [...(comp.children || []), childWithParent],
     }
   })
-  selectedId.value = childComponent.id
+  selectedId.value = childWithParent.id
 }
 
 function handleRemoveChildFromContainer(containerId: string, childId: string) {
@@ -476,6 +513,9 @@ function handleMoveChildToRoot(fromContainerId: string, childId: string, insertI
               return null
             }
             childToMove = findComp(components.value)
+            if (childToMove) {
+              childToMove = { ...childToMove, parentId: undefined }
+            }
             childrenMap[key] = ids.filter((_, i) => i !== idx)
             return { ...comp, props: { ...comp.props, childrenMap } }
           }
@@ -484,7 +524,7 @@ function handleMoveChildToRoot(fromContainerId: string, childId: string, insertI
       const children = comp.children || []
       const idx = children.findIndex(c => c.id === childId)
       if (idx !== -1) {
-        childToMove = children[idx]
+        childToMove = { ...children[idx], parentId: undefined }
         return { ...comp, children: children.filter((_, i) => i !== idx) }
       }
     }
@@ -689,8 +729,12 @@ async function loadPageConfig() {
         
         // 解析组件数据
         if (pageComponents && Array.isArray(pageComponents)) {
+          console.log('[EditorPage] raw pageComponents:', JSON.stringify(pageComponents))
           const tree = buildComponentTree(pageComponents)
-          console.log('[EditorPage] built tree:', tree)
+          console.log('[EditorPage] built tree, root components:', tree.length)
+          tree.forEach((comp, i) => {
+            console.log(`  [${i}] id=${comp.id}, type=${comp.type}, label=${comp.label}, children count=${comp.children?.length || 0}`)
+          })
           components.value = tree
         }
       }

@@ -4,7 +4,8 @@
 
 @layer base {
   body {
-    @apply bg-[var(--bg-primary)] text-[var(--text-primary)];
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
   }
 }
 
@@ -18,6 +19,10 @@
   --bg-hover-light: rgba(255, 255, 255, 0.03);
   --bg-table-header: rgba(255, 255, 255, 0.03);
   --bg-table-stripe: rgba(255, 255, 255, 0.02);
+  --bg-tab-bar: #111827;
+  --bg-tab-item: rgba(255, 255, 255, 0.04);
+  --bg-tab-item-hover: rgba(255, 255, 255, 0.07);
+  --bg-tab-item-active: #1f2937;
   --text-primary: #f9fafb;
   --text-secondary: #9ca3af;
   --text-muted: #6b7280;
@@ -44,6 +49,10 @@
   --bg-hover-light: rgba(0, 0, 0, 0.03);
   --bg-table-header: rgba(0, 0, 0, 0.02);
   --bg-table-stripe: rgba(0, 0, 0, 0.01);
+  --bg-tab-bar: #f3f4f6;
+  --bg-tab-item: rgba(0, 0, 0, 0.04);
+  --bg-tab-item-hover: rgba(0, 0, 0, 0.08);
+  --bg-tab-item-active: #ffffff;
   --text-primary: #111827;
   --text-secondary: #4b5563;
   --text-muted: #9ca3af;
@@ -61,6 +70,66 @@
   --info: #2563eb;
 }
 
+/* 中国红主题 */
+[data-theme="red"] {
+  --bg-primary: #1a0a0a;
+  --bg-secondary: #2d1010;
+  --bg-tertiary: #3d1818;
+  --bg-hover: rgba(220, 38, 38, 0.08);
+  --bg-hover-light: rgba(220, 38, 38, 0.05);
+  --bg-table-header: rgba(220, 38, 38, 0.05);
+  --bg-table-stripe: rgba(220, 38, 38, 0.03);
+  --bg-tab-bar: #2d1010;
+  --bg-tab-item: rgba(220, 38, 38, 0.08);
+  --bg-tab-item-hover: rgba(220, 38, 38, 0.12);
+  --bg-tab-item-active: #1a0a0a;
+  --text-primary: #fef2f2;
+  --text-secondary: #fca5a5;
+  --text-muted: #b91c1c;
+  --text-input: #fef2f2;
+  --border: #7f1d1d;
+  --border-light: rgba(220, 38, 38, 0.15);
+  --input-bg: #2d1010;
+  --input-border: #991b1b;
+  --accent: #ef4444;
+  --accent-hover: #dc2626;
+  --accent-light: rgba(239, 68, 68, 0.15);
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #f87171;
+}
+
+/* 小清新主题 */
+[data-theme="fresh"] {
+  --bg-primary: #f0fdf4;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #dcfce7;
+  --bg-hover: rgba(34, 197, 94, 0.06);
+  --bg-hover-light: rgba(34, 197, 94, 0.04);
+  --bg-table-header: rgba(34, 197, 94, 0.03);
+  --bg-table-stripe: rgba(34, 197, 94, 0.02);
+  --bg-tab-bar: #f0fdf4;
+  --bg-tab-item: rgba(34, 197, 94, 0.06);
+  --bg-tab-item-hover: rgba(34, 197, 94, 0.10);
+  --bg-tab-item-active: #ffffff;
+  --text-primary: #14532d;
+  --text-secondary: #166534;
+  --text-muted: #4ade80;
+  --text-input: #1a1a1a;
+  --border: #bbf7d0;
+  --border-light: rgba(34, 197, 94, 0.12);
+  --input-bg: #ffffff;
+  --input-border: #86efac;
+  --accent: #22c55e;
+  --accent-hover: #16a34a;
+  --accent-light: rgba(34, 197, 94, 0.12);
+  --success: #22c55e;
+  --warning: #facc15;
+  --danger: #ef4444;
+  --info: #3b82f6;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -72,4 +141,141 @@ body {
   font-size: 14px;
   color: var(--text-primary);
   background: var(--bg-primary);
+}
+
+/* Element Plus 主题覆盖 */
+:root,
+[data-theme="dark"] {
+  --el-bg-color: var(--bg-secondary);
+  --el-bg-color-page: var(--bg-primary);
+  --el-bg-color-overlay: var(--bg-secondary);
+  --el-text-color-primary: var(--text-primary);
+  --el-text-color-regular: var(--text-secondary);
+  --el-text-color-secondary: var(--text-muted);
+  --el-border-color: var(--border-light);
+  --el-border-color-light: var(--border-light);
+  --el-border-color-lighter: var(--border-light);
+  --el-fill-color-light: var(--bg-hover-light);
+  --el-fill-color-lighter: var(--bg-hover-light);
+  --el-fill-color: var(--bg-tertiary);
+  --el-input-bg-color: var(--input-bg);
+  --el-input-border-color: var(--input-border);
+  --el-input-hover-border-color: var(--accent);
+  --el-input-focus-border-color: var(--accent);
+  --el-select-border-color: var(--input-border);
+  --el-select-hover-border-color: var(--accent);
+  --el-table-bg-color: var(--bg-secondary);
+  --el-table-tr-bg-color: var(--bg-secondary);
+  --el-table-header-bg-color: var(--bg-table-header);
+  --el-table-row-hover-bg-color: var(--bg-hover);
+  --el-table-border-color: var(--border-light);
+  --el-dialog-bg-color: var(--bg-secondary);
+  --el-fill-color-blank: var(--bg-primary);
+  --el-input-bg-color: var(--bg-primary);
+  --el-select-bg-color: var(--bg-primary);
+  --el-overlay-color: var(--bg-secondary);
+  --el-overlay-color-ordinary: var(--bg-secondary);
+  --el-loading-bg-color: var(--bg-secondary);
+  --el-loading-spinner-fill-color: var(--bg-secondary);
+}
+
+[data-theme="light"] {
+  --el-bg-color: #ffffff;
+  --el-bg-color-page: #f9fafb;
+  --el-bg-color-overlay: #ffffff;
+  --el-text-color-primary: #111827;
+  --el-text-color-regular: #4b5563;
+  --el-text-color-secondary: #9ca3af;
+  --el-border-color: #e5e7eb;
+  --el-border-color-light: #e5e7eb;
+  --el-border-color-lighter: #f3f4f6;
+  --el-fill-color-light: #f3f4f6;
+  --el-fill-color-lighter: #f9fafb;
+  --el-fill-color: #e5e7eb;
+  --el-input-bg-color: #ffffff;
+  --el-input-border-color: #d1d5db;
+  --el-input-hover-border-color: #7c3aed;
+  --el-input-focus-border-color: #7c3aed;
+  --el-select-border-color: #d1d5db;
+  --el-select-hover-border-color: #7c3aed;
+  --el-table-bg-color: #ffffff;
+  --el-table-tr-bg-color: #ffffff;
+  --el-table-header-bg-color: #f9fafb;
+  --el-table-row-hover-bg-color: #f3f4f6;
+  --el-table-border-color: #e5e7eb;
+  --el-dialog-bg-color: #ffffff;
+  --el-fill-color-blank: #ffffff;
+  --el-input-bg-color: #ffffff;
+  --el-select-bg-color: #ffffff;
+}
+
+[data-theme="red"] {
+  --el-bg-color: var(--bg-secondary);
+  --el-bg-color-page: var(--bg-primary);
+  --el-bg-color-overlay: var(--bg-secondary);
+  --el-text-color-primary: var(--text-primary);
+  --el-text-color-regular: var(--text-secondary);
+  --el-text-color-secondary: var(--text-muted);
+  --el-border-color: var(--border-light);
+  --el-border-color-light: var(--border-light);
+  --el-border-color-lighter: var(--border-light);
+  --el-fill-color-light: var(--bg-hover-light);
+  --el-fill-color-lighter: var(--bg-hover-light);
+  --el-fill-color: var(--bg-tertiary);
+  --el-input-bg-color: var(--input-bg);
+  --el-input-border-color: var(--input-border);
+  --el-input-hover-border-color: var(--accent);
+  --el-input-focus-border-color: var(--accent);
+  --el-select-border-color: var(--input-border);
+  --el-select-hover-border-color: var(--accent);
+  --el-table-bg-color: var(--bg-secondary);
+  --el-table-tr-bg-color: var(--bg-secondary);
+  --el-table-header-bg-color: var(--bg-table-header);
+  --el-table-row-hover-bg-color: var(--bg-hover);
+  --el-table-border-color: var(--border-light);
+  --el-dialog-bg-color: var(--bg-secondary);
+  --el-fill-color-blank: var(--bg-primary);
+}
+
+[data-theme="fresh"] {
+  --el-bg-color: var(--bg-secondary);
+  --el-bg-color-page: var(--bg-primary);
+  --el-bg-color-overlay: var(--bg-secondary);
+  --el-text-color-primary: var(--text-primary);
+  --el-text-color-regular: var(--text-secondary);
+  --el-text-color-secondary: var(--text-muted);
+  --el-border-color: var(--border-light);
+  --el-border-color-light: var(--border-light);
+  --el-border-color-lighter: var(--border-light);
+  --el-fill-color-light: var(--bg-hover-light);
+  --el-fill-color-lighter: var(--bg-hover-light);
+  --el-fill-color: var(--bg-tertiary);
+  --el-input-bg-color: var(--input-bg);
+  --el-input-border-color: var(--input-border);
+  --el-input-hover-border-color: var(--accent);
+  --el-input-focus-border-color: var(--accent);
+  --el-select-border-color: var(--input-border);
+  --el-select-hover-border-color: var(--accent);
+  --el-table-bg-color: var(--bg-secondary);
+  --el-table-tr-bg-color: var(--bg-secondary);
+  --el-table-header-bg-color: var(--bg-table-header);
+  --el-table-row-hover-bg-color: var(--bg-hover);
+  --el-table-border-color: var(--border-light);
+  --el-dialog-bg-color: var(--bg-secondary);
+  --el-fill-color-blank: var(--bg-primary);
+}
+
+/* Element Plus loading mask 暗色主题 */
+.el-loading-mask {
+  background-color: var(--bg-secondary) !important;
+  background-color: var(--bg-secondary) !important;
+}
+.el-loading-mask[style*="background"] {
+  background-color: var(--bg-secondary) !important;
+}
+.el-loading-spinner .path {
+  stroke: var(--accent) !important;
+}
+.el-loading-spinner .circular {
+  stroke: var(--accent) !important;
 }

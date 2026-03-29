@@ -1,7 +1,7 @@
 <template>
   <div
     ref="canvasRef"
-    class="min-h-full p-4 transition-colors"
+    class="min-h-full min-w-[1280px] p-4 transition-colors"
     :class="{ 'bg-[var(--accent-light)] border-2 border-dashed border-[var(--accent)]': isDragOver }"
     @dragover.prevent="onDragOver"
     @dragleave="onDragLeave"
@@ -71,63 +71,37 @@
         </div>
 
         <!-- Component content -->
-        <div :class="isContainerType(comp.type) ? 'pb-2' : ''">
-          <!-- Container drop zone -->
-          <div
-            v-if="isContainerType(comp.type)"
-            class="min-h-16 border-2 border-dashed rounded m-2 p-2 transition-colors"
-            :class="[
-              dragOverContainerId === comp.id
-                ? 'border-[var(--accent)] bg-[var(--accent-light)]'
-                : 'border-[var(--border)] bg-[var(--bg-secondary)] hover:border-[var(--accent)]'
-            ]"
-            @dragover.prevent="onContainerDragOver($event, comp.id)"
-            @dragleave="onContainerDragLeave"
-            @drop.prevent="onContainerDrop($event, comp.id)"
-            @click.stop="onComponentClick(comp.id)"
-          >
-            <!-- Container children -->
-            <template v-if="getContainerChildren(comp).length > 0">
-              <div class="flex flex-col gap-2">
-                <div
-                  v-for="(child, childIndex) in getContainerChildren(comp)"
-                  :key="child.id"
-                  draggable
-                  class="relative bg-[var(--bg-primary)] border-2 rounded-md transition-all cursor-pointer nested-component"
-                  :class="selectedId === child.id ? 'border-[var(--accent)]' : 'border-transparent'"
-                  @dragstart="onNestedDragStart($event, comp.id, childIndex)"
-                  @dragover.prevent
-                  @click.stop="onComponentClick(child.id)"
-                >
-                  <!-- Nested component actions -->
-                  <div class="absolute -top-3 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 bg-[var(--bg-primary)] rounded shadow flex items-center gap-1 p-1">
-                    <button
-                      @click.stop="removeFromContainer(comp.id, child.id)"
-                      class="p-1 border border-[var(--danger)]/30 rounded hover:bg-[var(--danger)]/10 text-[var(--danger)]"
-                      title="移除"
-                    >
-                      <Trash2 class="w-3 h-3" />
-                    </button>
-                  </div>
-
-                  <!-- Nested component content -->
-                  <div class="p-4">
-                    <ComponentRenderer :component="child" :editable="true" />
-                  </div>
-                </div>
-              </div>
-            </template>
-            <template v-else>
-              <div class="text-center text-[var(--text-muted)] text-sm py-4">
-                拖拽组件到这里
-              </div>
-            </template>
-          </div>
-
+        <div class="p-2">
+          <!-- Container type: render container structure (children handled by ComponentRenderer in canvasMode) -->
+          <template v-if="isContainerType(comp.type)">
+            <div
+              class="min-h-16 border-2 border-dashed rounded m-2 p-2 transition-colors"
+              :class="[
+                dragOverContainerId === comp.id
+                  ? 'border-[var(--accent)] bg-[var(--accent-light)]'
+                  : 'border-[var(--border)] bg-[var(--bg-secondary)] hover:border-[var(--accent)]'
+              ]"
+              @dragover.prevent="onContainerDragOver($event, comp.id)"
+              @dragleave="onContainerDragLeave"
+              @drop.prevent="onContainerDrop($event, comp.id)"
+              @click.stop="onComponentClick(comp.id)"
+            >
+              <ComponentRenderer
+                :component="comp"
+                :editable="true"
+                canvas-mode
+                :show-children="getContainerChildren(comp)"
+                :container-id="comp.id"
+                @remove-child="removeFromContainer"
+                @drag-start-nested="onNestedDragStart"
+                @select="onComponentClick"
+              />
+            </div>
+          </template>
           <!-- Regular component -->
-          <div v-else class="p-4">
-            <ComponentRenderer :component="comp" :editable="true" />
-          </div>
+          <template v-else>
+            <ComponentRenderer :component="comp" :editable="true" canvas-mode @select="onComponentClick" />
+          </template>
         </div>
       </div>
     </div>
@@ -182,11 +156,14 @@ const isNested = (comp: CanvasComponent) => false // Root level only
 // Get children for a container component
 const getContainerChildren = (comp: CanvasComponent): CanvasComponent[] => {
   if (comp.type === 'tabs') {
-    const childrenMap = comp.props?.childrenMap as Record<string, string[]> | undefined
+    const childrenMap = comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
     if (childrenMap) {
       const tabIndex = String(comp.props?.activeTab || 0)
       const childIds = childrenMap[tabIndex] || []
-      return (comp.children || []).filter(c => childIds.includes(c.id))
+      // Match by componentId (stable) or id
+      return (comp.children || []).filter(c => 
+        childIds.includes(c.componentId as any) || childIds.includes(c.id as any)
+      )
     }
     return comp.children || []
   }
@@ -194,7 +171,7 @@ const getContainerChildren = (comp: CanvasComponent): CanvasComponent[] => {
 }
 
 // Generate unique ID
-const generateId = () => `comp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+const generateId = () => Date.now()
 
 // Event handlers
 const onDragOver = (e: DragEvent) => {
@@ -215,6 +192,7 @@ const onDragLeave = (e: DragEvent) => {
 
 const onDrop = (e: DragEvent) => {
   e.preventDefault()
+  e.stopPropagation()
   isDragOver.value = false
   dragOverContainerId.value = null
   
@@ -327,30 +305,32 @@ const onContainerDrop = (e: DragEvent, containerId: string) => {
   e.stopPropagation()
   dragOverContainerId.value = null
 
+  console.log('[DropCanvas] onContainerDrop called, containerId:', containerId)
   const data = e.dataTransfer?.getData('application/json')
+  console.log('[DropCanvas] onContainerDrop data:', data)
   if (!data) return
 
   try {
     const parsed = JSON.parse(data)
 
     if (parsed.fromPalette) {
-      // New component from palette
+      // New component from palette - use temp id for client-side, backend will assign real id on save
       const newComponent: CanvasComponent = {
-        id: generateId(),
-        componentId: `${parsed.type}_${Date.now()}`,
+        id: generateId(),  // Temporary client-side id
+        componentId: `${parsed.type}_${Date.now()}`, 
         type: parsed.type,
         label: parsed.label,
         props: parsed.defaultProps || {},
       }
       const tabIndex = parsed.type === 'tabs' ? (parsed.defaultProps?.activeTab as number || 0) : undefined
-      emit('addChildToContainer', containerId, newComponent, tabIndex)
+      emit('add-child', containerId, newComponent, tabIndex)
     } else if (parsed.fromRoot) {
       // Moving from root to container
-      emit('moveChildToRoot', containerId, '', parsed.index)
+      emit('move-child-to-root', containerId, '', parsed.index)
     } else if (parsed.fromNested) {
       // Moving from one container to another
       if (parsed.containerId !== containerId) {
-        emit('moveChildToRoot', containerId, '', parsed.index)
+        emit('move-child-to-root', containerId, '', parsed.index)
       }
     }
   } catch (err) {

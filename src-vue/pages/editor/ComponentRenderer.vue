@@ -207,7 +207,13 @@
                   :class="getOverflowClass(col.overflow)"
                   :style="{ minWidth: (col.colspan || 1) * 150 + 'px' }"
                 >
-                  {{ getCellValue(row, col) }}
+                  <img
+                    v-if="col.fieldType === 'image' && getCellValue(row, col)"
+                    :src="getCellValue(row, col)"
+                    class="h-8 w-auto object-cover rounded"
+                    @error="(e) => (e.target as HTMLImageElement).style.display = 'none'"
+                  />
+                  <span v-else>{{ getCellValue(row, col) }}</span>
                 </td>
                 <td v-if="component.props.showEdit || component.props.showDelete || component.props.showDetail" class="px-3 py-2 text-center border-l border-[var(--border-light)] overflow-hidden" style="minWidth: 120px;">
                   <span v-if="component.props.showDetail" class="text-xs text-[var(--accent)] mr-2 cursor-pointer hover:underline">详情</span>
@@ -566,22 +572,22 @@ watch(() => props.component.props.queryApiId, async (apiId) => {
   }
 }, { immediate: true })
 
-// Reload dict cache when columns change
+// Reload dict cache when columns change (only load missing dicts, don't clear existing)
 watch(() => props.component.props.columns, async () => {
   if (props.component.type === 'table') {
-    // Clear old cache and reload
-    dictItemsCache.value = {}
+    // 不清空缓存，只加载缺失的字典
     await loadDictForColumns()
   }
 }, { deep: true })
 
 onMounted(async () => {
-  if (props.component.props.queryApiId) {
-    await loadTableData()
-  }
-  // 加载数据字典
+  console.log('[Table] ComponentRenderer mounted, type:', props.component.type, 'queryApiId:', props.component.props.queryApiId)
+  // 先加载数据字典，再加载表格数据（确保渲染时字典已就绪）
   if (props.component.type === 'table') {
     await loadDictForColumns()
+  }
+  if (props.component.props.queryApiId) {
+    await loadTableData()
   }
 })
 
@@ -618,16 +624,25 @@ async function loadTableData() {
   }
 }
 
-function getCellValue(row: any, col: any): string {
+function getCellValue(row: any, col: any): any {
   const key = col.key || col.fieldName
   if (!key) return ''
   let val = row[key]
   if (val === null || val === undefined) return ''
 
+  // 处理图片类型 - 返回图片URL
+  if (col.fieldType === 'image') {
+    // val 可能是完整URL，也可能是相对路径
+    if (String(val).startsWith('http')) {
+      return val
+    }
+    // 相对路径，拼接基础URL
+    return `${import.meta.env.VITE_API_BASE_URL || ''}${val}`
+  }
+
   // 处理下拉类型 - 转换值为显示文本
   if (col.fieldType === 'select') {
     const options = getColumnOptions(col)
-    console.log('[Table] getCellValue select:', { key, val, options, dataDictionary: col.dataDictionary, cache: dictItemsCache.value })
     const found = options.find(opt => String(opt.value) === String(val))
     return found ? found.label : String(val)
   }

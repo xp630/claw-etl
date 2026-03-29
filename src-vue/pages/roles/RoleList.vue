@@ -7,8 +7,8 @@
           <el-icon size="20" color="var(--accent)"><UserFilled /></el-icon>
         </div>
         <div>
-          <h1 class="text-xl font-bold text-[var(--text-primary)] dark:text-white">角色管理</h1>
-          <p class="text-xs text-[var(--text-muted)] dark:text-gray-400">管理系统角色</p>
+          <h1 class="text-xl font-bold text-[var(--text-primary)]">角色管理</h1>
+          <p class="text-xs text-[var(--text-muted)]">管理系统角色</p>
         </div>
       </div>
       <el-button type="primary" @click="handleCreate">
@@ -17,7 +17,7 @@
     </div>
 
     <!-- 搜索栏 -->
-    <div class="mb-6 bg-[var(--bg-secondary)] dark:bg-gray-800 rounded-xl border border-[var(--border-light)] dark:border-gray-700 p-4">
+    <div class="mb-4 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-light)] p-4">
       <div class="flex gap-4">
         <el-input
           v-model="searchKeyword"
@@ -35,8 +35,8 @@
     </div>
 
     <!-- 列表 -->
-    <div class="bg-[var(--bg-secondary)] dark:bg-gray-800 rounded-xl border border-[var(--border-light)] dark:border-gray-700 overflow-hidden">
-      <el-table :data="roles" v-loading="loading" stripe style="width: 100%">
+    <div class="bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-light)] overflow-hidden">
+      <el-table :data="roles" v-loading="loading" style="width: 100%">
         <el-table-column prop="role" label="角色标识" min-width="150">
           <template #default="{ row }">
             <span class="font-mono">{{ row.role }}</span>

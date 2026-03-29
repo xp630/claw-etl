@@ -9,7 +9,7 @@
     <div v-else-if="error" class="flex items-center justify-center h-64">
       <p class="text-red-500">{{ error }}</p>
     </div>
-    <PageRenderer v-else :components="components" />
+    <ComponentRenderer v-else v-for="comp in components" :key="comp.id" :component="comp" :editable="false" :show-children="comp.children" />
   </div>
 </template>
 
@@ -17,7 +17,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getPageConfigList, getPageConfig } from '@/lib/api'
-import PageRenderer from './PageRenderer.vue'
+import ComponentRenderer from '../editor/ComponentRenderer.vue'
 import type { CanvasComponent } from '@/types/canvas-component'
 
 const components = ref<CanvasComponent[]>([])
@@ -35,10 +35,13 @@ onMounted(async () => {
     if (!page) { error.value = '页面不存在'; loading.value = false; return }
 
     const pageConfig = await getPageConfig(page.id)
+    //le.log('[PageViewer] pageConfig:', pageConfig)
     if (!pageConfig) { error.value = '页面不存在或已被禁用'; loading.value = false; return }
 
     // Parse components - flat to tree
     const compsData = pageConfig.components
+    //console.log('[PageViewer] compsData:', compsData)
+    //console.log('[PageViewer] pageConfig keys:', Object.keys(pageConfig))
     let flatComps: any[] = []
     if (Array.isArray(compsData)) flatComps = compsData
     else if (compsData?.components) flatComps = compsData.components
@@ -70,15 +73,8 @@ onMounted(async () => {
       if (parentId != null && parentId !== undefined) {
         const parent = compMap.get(String(parentId))
         if (parent) {
-          // If parent is a container with childrenMap, don't add to parent's children array
-          // (children are managed via childrenMap, not parent.children)
-          const parentChildrenMap = parent.props?.childrenMap
-          if (parentChildrenMap && typeof parentChildrenMap === 'object') {
-            // Skip - child is managed via parent's childrenMap
-          } else {
-            parent.children = parent.children || []
-            parent.children.push(comp)
-          }
+          parent.children = parent.children || []
+          parent.children.push(comp)
         } else {
           rootComps.push(comp)
         }
@@ -86,8 +82,9 @@ onMounted(async () => {
     })
 
     components.value = rootComps
+    //console.log('[PageViewer] rootComps:', JSON.stringify(rootComps, null, 2))
   } catch (err) {
-    console.error('Failed to load page:', err)
+    //console.error('Failed to load page:', err)
     error.value = '加载页面失败'
   } finally {
     loading.value = false

@@ -125,8 +125,8 @@ export async function getPageList(params: { page: number; limit: number }): Prom
 
 export async function getPageConfig(id: number): Promise<any | null> {
   try {
-    const res = await api.get(`/page/${id}`)
-    if (res.data.code === 1) {
+    const res = await api.post('/pageConfig/detail', { id })
+    if (res.data.code === 0 || res.data.code === 1) {
       return res.data.data
     }
     return null
@@ -865,7 +865,7 @@ export async function getApiList(params?: {
   path?: string
 }): Promise<{ list: any[]; total: number }> {
   try {
-    const res = await api.post('/apiManager/list', { page: 1, limit: 100, ...params })
+    const res = await api.post('/apiManager/list', { page: params?.page || 1, limit: params?.limit || 10, ...params })
     if (res.data?.list) {
       return { list: res.data.list || [], total: res.data.count || 0 }
     }

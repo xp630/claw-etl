@@ -137,6 +137,7 @@
                     <el-select v-model="formData.menuFrom">
                       <el-option label="静态菜单" value="static" />
                       <el-option label="动态菜单" value="dynamic" />
+                      <el-option label="外部页面" value="external" />
                     </el-select>
                   </el-form-item>
                 </el-col>
@@ -271,8 +272,8 @@ async function handleSave() {
   saving.value = true
   try {
     let path = formData.path
-    if (formData.menuFrom === 'dynamic' && path && !path.startsWith('/render/')) {
-      path = `/render/${path}`
+    if (formData.menuFrom === 'dynamic' && path && !path.startsWith('/view/')) {
+      path = `/view/${path}`
     }
     await saveMenu({ ...formData, path })
     ElMessage.success('保存成功')
