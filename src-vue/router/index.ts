@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory, type NavigationGuardNext, type Rout
 import EditorPage from '../pages/editor/EditorPage.vue'
 import ApiList from '../pages/ApiList.vue'
 import PageViewer from '../pages/viewer/PageViewer.vue'
+import DynamicDataGrid from '../pages/dynamic/DynamicDataGrid.vue'
 import LoginPage from '../pages/auth/LoginPage.vue'
 import Home from '../pages/Home.vue'
 import PageList from '../pages/PageList.vue'
@@ -193,9 +194,9 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/render/:code',
-    name: 'PageViewer',
-    component: PageViewer,
-    meta: { public: true, title: '页面预览' }
+    name: 'DynamicDataGrid',
+    component: DynamicDataGrid,
+    meta: { public: true, title: '动态页面' }
   }
 ]
 

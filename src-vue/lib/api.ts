@@ -924,3 +924,142 @@ export async function testApi(id: number, testParams: Record<string, any>): Prom
     throw error
   }
 }
+
+// ========== Feature API ==========
+
+export interface Feature {
+  id?: number
+  name: string
+  code: string
+  type?: 'list' | 'form'
+  description?: string
+  datasourceId?: number
+  datasourceName?: string
+  tableName?: string
+  queryApiId?: number
+  queryApiName?: string
+  queryApiPath?: string
+  createApiId?: number
+  createApiName?: string
+  updateApiId?: number
+  updateApiName?: string
+  deleteApiId?: number
+  deleteApiName?: string
+  detailApiId?: number
+  detailApiName?: string
+  columns?: FeatureColumn[]
+  permissions?: FeaturePermission[]
+  showInMenu?: number
+  menuIcon?: string
+  menuOrder?: number
+  routePath?: string
+  status?: number
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface FeatureColumn {
+  id?: number
+  featureId?: number
+  fieldName: string
+  fieldLabel: string
+  fieldType: 'text' | 'number' | 'date' | 'select' | 'image' | 'action'
+  span?: number
+  sortable?: boolean
+  visible?: boolean
+  align?: 'left' | 'center' | 'right'
+  queryCondition?: boolean
+  fieldOrder?: number
+  dataDictionary?: string
+}
+
+export interface FeaturePermission {
+  id?: number
+  featureId?: number
+  roleId?: number
+  roleName?: string
+  canView?: boolean
+  canAdd?: boolean
+  canEdit?: boolean
+  canDelete?: boolean
+}
+
+export async function getFeatures(params: {
+  page: number
+  limit: number
+  keyword?: string
+}): Promise<{ list: Feature[]; total: number }> {
+  try {
+    const res = await api.post('/feature/list', {
+      page: params.page,
+      limit: params.limit,
+      keyword: params.keyword || '',
+    })
+    if (res.data?.code === 0 || res.data?.code === 1) {
+      return {
+        list: res.data?.data?.list || [],
+        total: res.data?.data?.total || 0,
+      }
+    }
+    return { list: [], total: 0 }
+  } catch (error) {
+    console.error('Failed to load features:', error)
+    return { list: [], total: 0 }
+  }
+}
+
+export async function getFeatureDetail(id: number): Promise<Feature | null> {
+  try {
+    const res = await api.post('/feature/detail', { id })
+    if (res.data?.code === 0 || res.data?.code === 1) {
+      return res.data?.data
+    }
+    return null
+  } catch (error) {
+    console.error('Failed to load feature detail:', error)
+    return null
+  }
+}
+
+export async function getFeatureByCode(code: string): Promise<Feature | null> {
+  try {
+    const res = await api.post('/feature/detailByCode', { code })
+    if (res.data?.code === 0 || res.data?.code === 1) {
+      return res.data?.data
+    }
+    return null
+  } catch (error) {
+    console.error('Failed to load feature by code:', error)
+    return null
+  }
+}
+
+export async function saveFeature(data: Partial<Feature>): Promise<Feature | null> {
+  try {
+    const res = await api.post('/feature/save', data)
+    if (res.data?.code === 0 || res.data?.code === 1) {
+      return res.data?.data
+    }
+    throw new Error(res.data?.msg || '保存失败')
+  } catch (error) {
+    console.error('Failed to save feature:', error)
+    throw error
+  }
+}
+
+export async function deleteFeature(id: number): Promise<void> {
+  try {
+    await api.post('/feature/delete', { id })
+  } catch (error) {
+    console.error('Failed to delete feature:', error)
+    throw error
+  }
+}
+
+// ========== DictItem 类型 (getAllDictItems 返回的数据结构) ==========
+
+export interface DictItem {
+  itemValue: string | number
+  itemLabel: string
+  sort?: number
+}
