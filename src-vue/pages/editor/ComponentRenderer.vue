@@ -95,8 +95,8 @@
       <div class="bg-[var(--bg-table-header)] px-3 py-2 border-b border-[var(--border-light)] flex items-center justify-between">
         <span class="text-sm font-medium">{{ component.props.title || '数据表' }}</span>
         <div class="flex gap-2">
-          <span v-if="component.props.showAdd" class="text-xs px-2 py-1 border border-[var(--border)] rounded">➕ 新增</span>
-          <span v-if="component.props.showExport" class="text-xs px-2 py-1 border border-[var(--border)] rounded">📤 导出</span>
+          <span v-if="component.props.showAdd" class="text-xs px-2 py-1 border border-[var(--border)] rounded cursor-pointer hover:bg-[var(--bg-hover)]">➕ 新增</span>
+          <span v-if="component.props.showExport" class="text-xs px-2 py-1 border border-[var(--border)] rounded cursor-pointer hover:bg-[var(--bg-hover)]">📤 导出</span>
         </div>
       </div>
       <!-- Search Bar -->
@@ -105,64 +105,113 @@
           type="text"
           class="flex-1 px-2 py-1 text-xs border border-[var(--border)] rounded"
           placeholder="搜索..."
-          disabled
         />
-        <button class="px-3 py-1 text-xs bg-[var(--accent)] text-white rounded" disabled>查询</button>
-        <button class="px-3 py-1 text-xs border border-[var(--border)] rounded" disabled>重置</button>
+        <button class="px-3 py-1 text-xs bg-[var(--accent)] text-white rounded cursor-pointer">查询</button>
+        <button class="px-3 py-1 text-xs border border-[var(--border)] rounded cursor-pointer">重置</button>
       </div>
-      <!-- Table Preview -->
+      <!-- Table with all columns and horizontal scroll -->
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
             <tr class="bg-[var(--bg-hover)]">
               <th
-                v-for="(col, index) in (component.props.columns || []).slice(0, 6)"
-                :key="index"
-                class="px-3 py-2 text-left font-medium text-[var(--text-secondary)] border-r border-[var(--border-light)] last:border-r-0"
+                v-for="col in (component.props.columns || [])"
+                :key="col.key || col.fieldName"
+                class="px-3 py-2 text-left font-medium text-[var(--text-secondary)] border-r border-[var(--border-light)] last:border-r-0 whitespace-nowrap"
+                :style="{ minWidth: '80px' }"
               >
-                {{ col.label || col.key || `列${index + 1}` }}
+                {{ col.label || col.key || col.fieldName }}
                 <span v-if="col.sortable" class="text-[var(--text-muted)] ml-1">↕</span>
-              </th>
-              <th v-if="(component.props.columns?.length || 0) > 6" class="px-3 py-2 text-[var(--text-muted)]">
-                +{{ (component.props.columns?.length || 0) - 6 }} 列
               </th>
               <th v-if="component.props.columns?.length === 0" class="px-3 py-2 text-[var(--text-muted)]">
                 未配置列
               </th>
-              <th v-if="component.props.showEdit || component.props.showDelete || component.props.showDetail" class="px-3 py-2 text-center border-l border-[var(--border-light)]">
+              <th v-if="component.props.showEdit || component.props.showDelete || component.props.showDetail" class="px-3 py-2 text-center border-l border-[var(--border-light)] min-w-[120px]">
                 操作
               </th>
             </tr>
           </thead>
           <tbody>
-            <tr class="border-b border-[var(--border-light)]">
-              <td
-                v-for="(col, index) in (component.props.columns || []).slice(0, 6)"
-                :key="index"
-                class="px-3 py-2 text-[var(--text-muted)] border-r border-[var(--border-light)] last:border-r-0"
-              >
-                ...
-              </td>
-              <td v-if="(component.props.columns?.length || 0) > 6" class="px-3 py-2 text-[var(--text-muted)]">
-              </td>
-              <td v-if="component.props.columns?.length === 0" class="px-3 py-2 text-[var(--text-muted)]">
-              </td>
-              <td v-if="component.props.showEdit || component.props.showDelete || component.props.showDetail" class="px-3 py-2 text-center border-l border-[var(--border-light)]">
-                <span v-if="component.props.showDetail" class="text-xs text-[var(--accent)] mr-2">详情</span>
-                <span v-if="component.props.showEdit" class="text-xs text-[var(--accent)] mr-2">编辑</span>
-                <span v-if="component.props.showDelete" class="text-xs text-[var(--danger)]">删除</span>
-              </td>
-            </tr>
+            <!-- 有 queryApiId：调用 API 获取真实数据 -->
+            <template v-if="component.props.queryApiId">
+              <tr v-if="tableLoading" class="border-b border-[var(--border-light)]">
+                <td :colspan="(component.props.columns?.length || 0) + 1" class="px-3 py-8 text-center text-[var(--text-muted)]">
+                  加载中...
+                </td>
+              </tr>
+              <tr v-else-if="tableData.length === 0" class="border-b border-[var(--border-light)]">
+                <td :colspan="(component.props.columns?.length || 0) + 1" class="px-3 py-8 text-center text-[var(--text-muted)]">
+                  暂无数据
+                </td>
+              </tr>
+              <tr v-for="(row, rowIndex) in tableData" :key="'api-' + rowIndex" class="border-b border-[var(--border-light)] hover:bg-[var(--bg-hover-light)]">
+                <td
+                  v-for="col in (component.props.columns || [])"
+                  :key="col.key || col.fieldName"
+                  class="px-3 py-2 border-r border-[var(--border-light)] last:border-r-0 whitespace-nowrap"
+                >
+                  {{ getCellValue(row, col) }}
+                </td>
+                <td v-if="component.props.showEdit || component.props.showDelete || component.props.showDetail" class="px-3 py-2 text-center border-l border-[var(--border-light)] whitespace-nowrap">
+                  <span v-if="component.props.showDetail" class="text-xs text-[var(--accent)] mr-2 cursor-pointer hover:underline">详情</span>
+                  <span v-if="component.props.showEdit" class="text-xs text-[var(--accent)] mr-2 cursor-pointer hover:underline">编辑</span>
+                  <span v-if="component.props.showDelete" class="text-xs text-[var(--danger)] cursor-pointer hover:underline">删除</span>
+                </td>
+              </tr>
+            </template>
+            <!-- 无 queryApiId：显示预览数据 -->
+            <template v-else>
+              <tr v-for="rowIndex in 5" :key="'preview-' + rowIndex" class="border-b border-[var(--border-light)]">
+                <td
+                  v-for="col in (component.props.columns || [])"
+                  :key="col.key || col.fieldName"
+                  class="px-3 py-2 text-[var(--text-muted)] border-r border-[var(--border-light)] last:border-r-0 whitespace-nowrap"
+                >
+                  {{ col.label || col.key || col.fieldName }}-{{ rowIndex }}
+                </td>
+                <td v-if="component.props.showEdit || component.props.showDelete || component.props.showDetail" class="px-3 py-2 text-center border-l border-[var(--border-light)]">
+                  <span v-if="component.props.showDetail" class="text-xs text-[var(--accent)] mr-2">详情</span>
+                  <span v-if="component.props.showEdit" class="text-xs text-[var(--accent)] mr-2">编辑</span>
+                  <span v-if="component.props.showDelete" class="text-xs text-[var(--danger)]">删除</span>
+                </td>
+              </tr>
+            </template>
           </tbody>
         </table>
       </div>
       <!-- Pagination Footer -->
       <div v-if="component.props.pagination" class="bg-[var(--bg-table-header)] px-3 py-2 border-t border-[var(--border-light)] flex items-center justify-between">
-        <span class="text-xs text-[var(--text-muted)]">共 ? 条</span>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-[var(--text-muted)]">共 {{ tableTotal }} 条</span>
+          <select
+            v-model="pageSize"
+            class="px-2 py-1 text-xs border border-[var(--border)] rounded"
+            @change="handlePageSizeChange"
+          >
+            <option :value="5">5条/页</option>
+            <option :value="10">10条/页</option>
+            <option :value="20">20条/页</option>
+            <option :value="50">50条/页</option>
+          </select>
+        </div>
         <div class="flex items-center gap-1">
-          <span class="px-2 py-1 text-xs border border-[var(--border)] rounded cursor-not-allowed opacity-50">‹</span>
-          <span class="px-2 py-1 text-xs bg-[var(--accent)] text-white rounded">1</span>
-          <span class="px-2 py-1 text-xs border border-[var(--border)] rounded cursor-not-allowed opacity-50">›</span>
+          <button
+            class="px-2 py-1 text-xs border border-[var(--border)] rounded cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            :disabled="tablePage <= 1"
+            @click="tablePage--; loadTableData()"
+          >
+            ‹
+          </button>
+          <span class="px-2 py-1 text-xs">
+            第 {{ tablePage }} / {{ totalPages }} 页
+          </span>
+          <button
+            class="px-2 py-1 text-xs border border-[var(--border)] rounded cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            :disabled="tablePage >= totalPages"
+            @click="tablePage++; loadTableData()"
+          >
+            ›
+          </button>
         </div>
       </div>
     </div>
@@ -240,6 +289,7 @@
 
     <!-- Tabs container -->
     <div v-else-if="component.type === 'tabs'">
+      <!-- Tab 标题显示 -->
       <div class="flex border-b border-[var(--border-light)] mb-2">
         <button
           v-for="(tabTitle, index) in tabTitles"
@@ -255,7 +305,23 @@
           {{ tabTitle }}
         </button>
       </div>
-      <slot />
+      <!-- Tab 内容 - 画布模式下从 childrenMap 获取子组件 -->
+      <div v-if="editable" class="min-h-[100px]">
+        <div v-if="tabChildren.length > 0" class="flex flex-col gap-2">
+          <div
+            v-for="child in tabChildren"
+            :key="child.id"
+            class="bg-[var(--bg-primary)] rounded"
+          >
+            <ComponentRenderer :component="child" :editable="true" />
+          </div>
+        </div>
+        <div v-else class="min-h-[100px] bg-[var(--bg-hover-light)] rounded border border-dashed border-[var(--border)] p-4 text-center text-xs text-[var(--text-muted)]">
+          拖拽组件到标签页
+        </div>
+      </div>
+      <!-- 非画布模式使用 slot -->
+      <slot v-else />
     </div>
 
     <!-- Collapse container -->
@@ -280,7 +346,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
+import { api } from '@/lib/api'
 import type { CanvasComponent } from './types'
 
 interface Props {
@@ -309,6 +376,91 @@ watch(() => props.component.props.activeTab, (val) => {
 
 // Collapse: use local state only in editable mode
 const isCollapsed = ref(false)
+
+// Tabs: get children for current tab
+const tabChildren = computed(() => {
+  const childrenMap = props.component.props?.childrenMap as Record<string, string[]> | undefined
+  if (childrenMap) {
+    const tabKey = String(currentTabIndex.value)
+    const childIds = childrenMap[tabKey] || []
+    return (props.component.children || []).filter(c => childIds.includes(c.id))
+  }
+  return props.component.children || []
+})
+
+// Table data
+const tableData = ref<any[]>([])
+const tableLoading = ref(false)
+const tableTotal = ref(0)
+const tablePage = ref(1)
+const pageSize = ref(10)
+
+// Total pages computed
+const totalPages = computed(() => {
+  return Math.ceil(tableTotal.value / pageSize.value) || 1
+})
+
+// Load table data when queryApiId changes
+watch(() => props.component.props.queryApiId, async (apiId) => {
+  if (apiId) {
+    tablePage.value = 1
+    await loadTableData()
+  } else {
+    tableData.value = []
+    tableTotal.value = 0
+  }
+}, { immediate: true })
+
+onMounted(async () => {
+  if (props.component.props.queryApiId) {
+    await loadTableData()
+  }
+})
+
+function handlePageSizeChange() {
+  tablePage.value = 1
+  loadTableData()
+}
+
+async function loadTableData() {
+  const apiId = props.component.props.queryApiId
+  if (!apiId) return
+  
+  tableLoading.value = true
+  try {
+    // 调用 API 获取数据
+    const res = await api.post('/apiManager/detail', { id: apiId })
+    if (res.data?.code === 0 || res.data?.code === 1) {
+      const apiDetail = res.data?.data
+      if (apiDetail?.path) {
+        // 调用实际的业务接口获取数据
+        const dataRes = await api.post(apiDetail.path, { page: tablePage.value, pageSize: pageSize.value })
+        if (dataRes.data?.code === 0 || dataRes.data?.code === 1) {
+          tableData.value = dataRes.data?.data?.list || dataRes.data?.data || []
+          tableTotal.value = dataRes.data?.data?.total || tableData.value.length || 0
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load table data:', error)
+    tableData.value = []
+    tableTotal.value = 0
+  } finally {
+    tableLoading.value = false
+  }
+}
+
+function getCellValue(row: any, col: any): string {
+  const key = col.key || col.fieldName
+  if (!key) return ''
+  let val = row[key]
+  // 处理数据字典
+  if (col.dataDictionary && val !== null && val !== undefined) {
+    // 暂时显示原始值
+    return String(val)
+  }
+  return val !== null && val !== undefined ? String(val) : ''
+}
 
 // ============ Computed ============
 

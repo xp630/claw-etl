@@ -118,13 +118,17 @@
         class="flex-1 overflow-auto p-6 bg-[var(--bg-secondary)]"
       >
         <div class="max-w-6xl mx-auto space-y-4">
-          <div
-            v-for="comp in components"
-            :key="comp.id"
-            class="bg-[var(--bg-primary)] rounded-lg"
-          >
-            <ComponentRenderer :component="comp" />
-          </div>
+          <template v-for="comp in components" :key="comp.id">
+            <ComponentRenderer :component="comp" :editable="true" />
+            <!-- 如果是容器类型，也渲染 children -->
+            <template v-if="isContainerType(comp.type) && getContainerChildren(comp).length > 0">
+              <div class="ml-4 mt-2 space-y-2">
+                <div v-for="child in getContainerChildren(comp)" :key="child.id" class="bg-[var(--bg-primary)] rounded-lg">
+                  <ComponentRenderer :component="child" :editable="true" />
+                </div>
+              </div>
+            </template>
+          </template>
           <div v-if="components.length === 0" class="text-center text-[var(--text-muted)] py-12">
             暂无组件
           </div>
@@ -201,7 +205,7 @@ async function getPageConfig(id: number) {
 }
 
 async function savePageConfig(data: any) {
-  const res = await api.post('/page/save', data)
+  const res = await api.post('/pageConfig/save', data)
   return res.data
 }
 
@@ -516,15 +520,19 @@ function handleMoveChildToRoot(fromContainerId: string, childId: string, insertI
 }
 
 function handleMoveToContainer(containerId: string, componentId: string, tabIndex?: number) {
+  console.log('[EditorPage] handleMoveToContainer:', { containerId, componentId, tabIndex })
   const comp = findComponent(components.value, componentId)
+  console.log('[EditorPage] found component:', comp?.type, comp?.id)
   if (!comp) return
   const parentId = findParentContainerId(components.value, componentId)
+  console.log('[EditorPage] parentId:', parentId)
   if (parentId) {
     handleRemoveChildFromContainer(parentId, componentId)
   } else {
     components.value = components.value.filter(c => c.id !== componentId)
   }
   handleAddChildToContainer(containerId, comp, tabIndex)
+  console.log('[EditorPage] after move, components:', JSON.stringify(components.value))
 }
 
 function handleMoveOutOfContainer(containerId: string, componentId: string) {
@@ -591,7 +599,7 @@ async function handleSave() {
       components: flatComponents
     })
 
-    if (result?.code === 1) {
+    if (result?.code === 0 || result?.code === 1) {
       if (result.data?.id && !pageId.value) {
         pageId.value = result.data.id
         pageCode.value = result.data.code || pageCode.value

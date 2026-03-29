@@ -12,7 +12,12 @@
           :class="i === activeTab ? 'text-blue-500 border-blue-500 font-medium' : 'text-[var(--text-muted)] border-transparent hover:text-[var(--text-secondary)]'"
           @click="activeTab = i">{{ tab }}</div>
       </div>
-      <div class="flex-1 min-h-0 overflow-hidden"><slot /></div>
+      <div class="flex-1 min-h-0 overflow-hidden">
+        <template v-for="(child, idx) in tabChildren" :key="child.id || idx">
+          <ElementRenderer v-if="!isContainer(child.type)" :type="child.type" :props="child.props" />
+          <ContainerRenderer v-else :type="child.type" :props="child.props" :children="child.children" />
+        </template>
+      </div>
     </div>
     <!-- Collapse -->
     <div v-else-if="type === 'collapse'" class="w-full bg-[var(--bg-secondary)] border border-[var(--border-light)] rounded-lg flex flex-col">
@@ -29,6 +34,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import ElementRenderer from './ElementRenderer.vue'
+import ContainerRenderer from './ContainerRenderer.vue'
 
 const props = defineProps<{ type: string; props: Record<string, unknown>; children?: any[] }>()
 const activeTab = ref(0)
@@ -36,4 +43,18 @@ const containerStyle = computed(() => ({ width: (props.props.width as number | s
 const tabs = computed(() => (props.props.tabs as string[]) || [])
 const panels = computed(() => (props.props.panels as Array<{ title: string; content: string }>) || [])
 const bordered = computed(() => props.props.bordered)
+
+const isContainer = (type: string) => ['card', 'tabs', 'collapse'].includes(type)
+
+// For tabs: get children of the active tab
+const tabChildren = computed(() => {
+  if (!props.children || props.children.length === 0) return []
+  const childrenMap = props.props.childrenMap as Record<string, string[]> | undefined
+  if (childrenMap) {
+    const tabKey = String(activeTab.value)
+    const childIds = childrenMap[tabKey] || []
+    return props.children.filter(c => childIds.includes(c.id))
+  }
+  return props.children
+})
 </script>

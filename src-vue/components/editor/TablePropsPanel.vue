@@ -205,7 +205,7 @@
           :key="index"
           class="flex items-center gap-2 text-xs bg-[var(--bg-hover-light)] rounded px-2 py-1"
         >
-          <span class="flex-1 truncate">{{ col.label || col.key }}</span>
+          <span class="flex-1 truncate">{{ col.label }}</span>
           <span class="text-[var(--text-muted)]">{{ col.fieldType }}</span>
           <button
             type="button"
@@ -213,6 +213,13 @@
             @click="openColumnEditor(index)"
           >
             编辑
+          </button>
+          <button
+            type="button"
+            class="text-xs text-red-500 hover:underline"
+            @click="removeColumnDirect(index)"
+          >
+            删除
           </button>
         </div>
         <div v-if="(selectedComponent.props.columns?.length || 0) > 5" class="text-xs text-[var(--text-muted)] text-center py-1">
@@ -287,16 +294,21 @@
                       <option value="text">文本</option>
                       <option value="number">数字</option>
                       <option value="date">日期</option>
+                      <option value="datetime">日期时间</option>
                       <option value="select">下拉</option>
+                      <option value="image">图片</option>
+                      <option value="custom">自定义函数</option>
                     </select>
                   </div>
                   <div>
-                    <label class="block text-[var(--text-muted)] mb-1">宽度</label>
+                    <label class="block text-[var(--text-muted)] mb-1">宽度(colspan)</label>
                     <input
-                      :value="col.width"
+                      :value="col.colspan || 1"
                       type="number"
+                      min="1"
+                      max="12"
                       class="w-full px-2 py-1 border border-[var(--border)] rounded"
-                      @input="updateColumn(index, 'width', Number(($event.target as HTMLInputElement).value))"
+                      @input="updateColumn(index, 'colspan', Number(($event.target as HTMLInputElement).value))"
                     />
                   </div>
                 </div>
@@ -375,7 +387,7 @@
       >
         <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-[500px]">
           <div class="flex items-center justify-between p-4 border-b border-[var(--border-light)]">
-            <h3 class="font-medium">编辑列 - {{ editingSingleColumn.label || editingSingleColumn.key }}</h3>
+            <h3 class="font-medium">编辑列 - {{ editingSingleColumn.label }}</h3>
             <button
               @click="showSingleColumnEditor = false"
               class="p-1 hover:bg-[var(--bg-hover)] rounded"
@@ -412,18 +424,73 @@
                   <option value="text">文本</option>
                   <option value="number">数字</option>
                   <option value="date">日期</option>
+                  <option value="datetime">日期时间</option>
                   <option value="select">下拉</option>
+                  <option value="image">图片</option>
+                  <option value="custom">自定义函数</option>
                 </select>
               </div>
               <div>
-                <label class="block text-[var(--text-muted)] mb-1">宽度</label>
+                <label class="block text-[var(--text-muted)] mb-1">宽度(colspan)</label>
                 <input
-                  v-model.number="editingSingleColumn.width"
+                  v-model.number="editingSingleColumn.colspan"
                   type="number"
+                  min="1"
+                  max="12"
                   class="w-full px-3 py-2 border border-[var(--border-light)] rounded bg-[var(--bg-hover-light)]"
                 />
               </div>
             </div>
+            
+            <!-- 下拉选项（仅 select 类型显示） -->
+            <div v-if="editingSingleColumn.fieldType === 'select'">
+              <label class="block text-[var(--text-muted)] mb-1">下拉来源</label>
+              <select
+                v-model="editingSingleColumn.selectSource"
+                class="w-full px-3 py-2 border border-[var(--border-light)] rounded bg-[var(--bg-hover-light)]"
+              >
+                <option value="dict">数据字典</option>
+                <option value="fixed">固定值</option>
+              </select>
+            </div>
+            
+            <!-- 数据字典选项 -->
+            <div v-if="editingSingleColumn.fieldType === 'select' && editingSingleColumn.selectSource === 'dict'">
+              <label class="block text-[var(--text-muted)] mb-1">选择字典</label>
+              <select
+                v-model="editingSingleColumn.dataDictionary"
+                class="w-full px-3 py-2 border border-[var(--border-light)] rounded bg-[var(--bg-hover-light)]"
+              >
+                <option value="">请选择字典</option>
+                <option v-for="dict in dictList" :key="dict.id" :value="dict.code">
+                  {{ dict.name }} ({{ dict.code }})
+                </option>
+              </select>
+            </div>
+            
+            <!-- 固定值选项 -->
+            <div v-if="editingSingleColumn.fieldType === 'select' && editingSingleColumn.selectSource === 'fixed'">
+              <label class="block text-[var(--text-muted)] mb-1">固定选项 (JSON格式)</label>
+              <textarea
+                v-model="editingSingleColumn.fixedValues"
+                rows="4"
+                placeholder='[{"label":"是","value":"1"},{"label":"否","value":"0"}]'
+                class="w-full px-3 py-2 border border-[var(--border-light)] rounded bg-[var(--bg-hover-light)] font-mono text-xs"
+              ></textarea>
+              <p class="text-xs text-[var(--text-muted)] mt-1">格式: [{"label":"显示文本","value":"实际值"}]</p>
+            </div>
+            
+            <!-- 自定义函数（仅 custom 类型显示） -->
+            <div v-if="editingSingleColumn.fieldType === 'custom'">
+              <label class="block text-[var(--text-muted)] mb-1">自定义函数 (JS)</label>
+              <textarea
+                v-model="editingSingleColumn.customFunction"
+                rows="4"
+                placeholder="例如: (value, row) => value ? '是' : '否'"
+                class="w-full px-3 py-2 border border-[var(--border-light)] rounded bg-[var(--bg-hover-light)] font-mono text-xs"
+              ></textarea>
+            </div>
+            
             <div>
               <label class="block text-[var(--text-muted)] mb-1">对齐</label>
               <select
@@ -542,7 +609,7 @@
 <script setup lang="ts">
 import { ref, watch, nextTick } from 'vue'
 import type { CanvasComponent } from '@/pages/editor/types'
-import { getFeatures, getFeatureDetail, getDataSources, getTableList, saveFeature } from '@/lib/api'
+import { getFeatures, getFeatureDetail, getDataSources, getTableList, saveFeature, getDictList } from '@/lib/api'
 
 interface Props {
   selectedComponent: CanvasComponent | null
@@ -557,10 +624,13 @@ const tables = ref<any[]>([])
 const availableFeatures = ref<any[]>([])
 const loadingTables = ref(false)
 const loadingFeatures = ref(false)
+const currentDatasourceId = ref<number | undefined>(undefined)  // 本地维护当前选中的 datasourceId
+const dictList = ref<any[]>([])  // 数据字典列表
 
 // 列配置编辑弹窗
 const showColumnsEditorModal = ref(false)
 const editingColumn = ref<any[]>([])
+const isUserEditingColumns = ref(false)  // 用户正在编辑列，阻止 watch 覆盖
 
 // 单列编辑弹窗
 const showSingleColumnEditor = ref(false)
@@ -587,11 +657,20 @@ async function loadDataSources() {
   }
 }
 
+// 加载数据字典列表
+async function loadDicts() {
+  try {
+    const res = await getDictList({ page: 1, limit: 100 })
+    dictList.value = res.list || []
+  } catch (error) {
+    console.error('Failed to load dicts:', error)
+    dictList.value = []
+  }
+}
+
 // 加载表名列表
 async function loadTables() {
   const datasourceId = props.selectedComponent?.props.datasourceId
-  console.log('[TableProps] loadTables called:', { datasourceId, tableName: props.selectedComponent?.props.tableName })
-  
   if (!datasourceId) {
     tables.value = []
     return
@@ -604,25 +683,19 @@ async function loadTables() {
   }
 
   if (!ds) {
-    console.log('[TableProps] loadTables: datasource not found', datasourceId)
     tables.value = []
     return
   }
 
   const dbName = ds.database_name || ds.dbName || ds.databaseName
-  console.log('[TableProps] loadTables: dbName', dbName)
-  
   if (!dbName) {
-    console.log('[TableProps] loadTables: no dbName')
     tables.value = []
     return
   }
 
   loadingTables.value = true
   try {
-    console.log('[TableProps] loadTables: calling API with dbName:', dbName)
     const res = await getTableList(dbName)
-    console.log('[TableProps] loadTables: API returned', res?.length, 'tables')
     tables.value = res || []
   } catch (error) {
     console.error('Failed to load tables:', error)
@@ -654,13 +727,6 @@ async function loadFeaturesForTable() {
       return fDsId === Number(datasourceId) && fTableName === String(tableName)
     })
     
-    console.log('[TableProps] loadFeaturesForTable:', { 
-      datasourceId, 
-      tableName, 
-      total: allList.length, 
-      filtered: filtered.length 
-    })
-    
     availableFeatures.value = filtered
   } catch (error) {
     console.error('Failed to load features:', error)
@@ -679,25 +745,30 @@ function handleDatasourceChange(value: string) {
     props.updateProp('featureId', undefined)
     tables.value = []
     availableFeatures.value = []
+    currentDatasourceId.value = undefined
     return
   }
+  
+  // 先更新本地 state
+  currentDatasourceId.value = newDsId
+  
+  // 再 emit 通知父组件更新
   props.updateProp('datasourceId', newDsId)
   props.updateProp('tableName', undefined)
   props.updateProp('featureId', undefined)
-  tables.value = []
-  availableFeatures.value = []
   
-  // 立即用新值加载表名，而不是等待 watch
-  loadTablesWithDsId(newDsId)
+  // 再加载表名（本地 state 直接使用 newDsId）
+  doLoadTables(newDsId)
 }
 
-// 根据 datasourceId 加载表名（同步获取的值）
-async function loadTablesWithDsId(datasourceId: number) {
-  let ds = dataSources.value.find(d => d.id === datasourceId)
-  if (!ds) {
+// 根据 datasourceId 加载表名（直接使用传入的参数，不从 props 读取）
+async function doLoadTables(datasourceId: number) {
+  // 先确保数据源列表已加载
+  if (dataSources.value.length === 0) {
     await loadDataSources()
-    ds = dataSources.value.find(d => d.id === datasourceId)
   }
+  
+  let ds = dataSources.value.find(d => d.id === datasourceId)
   if (!ds) return
   
   const dbName = ds.database_name || ds.dbName || ds.databaseName
@@ -723,17 +794,17 @@ function handleTableChange(value: string) {
     availableFeatures.value = []
     return
   }
+  
+  // 先 emit 通知父组件
   props.updateProp('tableName', value)
   props.updateProp('featureId', undefined)
-  availableFeatures.value = []
   
-  // 立即用新值加载 features
-  const datasourceId = props.selectedComponent?.props.datasourceId
-  loadFeaturesForTableWithParams(datasourceId, value)
+  // 再加载 features（使用本地维护的 currentDatasourceId）
+  doLoadFeatures(currentDatasourceId.value, value)
 }
 
 // 根据 datasourceId 和 tableName 加载 features
-async function loadFeaturesForTableWithParams(datasourceId: any, tableName: string) {
+async function doLoadFeatures(datasourceId: any, tableName: string) {
   if (!datasourceId || !tableName) return
   
   loadingFeatures.value = true
@@ -765,6 +836,7 @@ async function handleFeatureChange(featureId: string) {
     return
   }
 
+  // 设置 featureId（parseInt 确保是数字类型）
   props.updateProp('featureId', parseInt(featureId))
 
   try {
@@ -775,9 +847,8 @@ async function handleFeatureChange(featureId: string) {
       props.updateProp('updateApiId', detail.updateApiId)
       props.updateProp('deleteApiId', detail.deleteApiId)
       props.updateProp('detailApiId', detail.detailApiId)
-      if (detail.columns) {
-        props.updateProp('columns', detail.columns)
-      }
+      // 不再从 API 加载列配置，因为组件已经存储了正确的列信息
+      // API 返回的列格式是 fieldName/fieldLabel，和组件的 key/label 格式不匹配
     }
   } catch (error) {
     console.error('Failed to load feature detail:', error)
@@ -812,7 +883,9 @@ async function handleCreateFeature() {
 
 // 打开列配置编辑器
 function openColumnsEditor() {
-  editingColumn.value = JSON.parse(JSON.stringify(props.selectedComponent?.props.columns || []))
+  isUserEditingColumns.value = true
+  const cols = props.selectedComponent?.props?.columns || []
+  editingColumn.value = JSON.parse(JSON.stringify(cols))
   showColumnsEditorModal.value = true
 }
 
@@ -820,6 +893,10 @@ function openColumnsEditor() {
 function openColumnEditor(index: number) {
   editingColumnIndex.value = index
   editingSingleColumn.value = { ...props.selectedComponent?.props.columns?.[index] }
+  // 如果还没加载字典，先加载
+  if (dictList.value.length === 0) {
+    loadDicts()
+  }
   showSingleColumnEditor.value = true
 }
 
@@ -842,7 +919,7 @@ function addColumn() {
     key: '',
     label: '',
     fieldType: 'text',
-    width: 100,
+    colspan: 1,
     visible: true,
     sortable: false,
     align: 'left',
@@ -856,19 +933,29 @@ function addColumn() {
   })
 }
 
-// 删除列
+// 删除列（从编辑弹窗）
 function removeColumn(index: number) {
   editingColumn.value.splice(index, 1)
 }
 
+// 直接删除列（不经过编辑弹窗）
+function removeColumnDirect(index: number) {
+  const columns = [...(props.selectedComponent?.props?.columns || [])]
+  columns.splice(index, 1)
+  props.updateProp('columns', columns)
+}
+
 // 保存所有列
 function handleSaveColumns() {
-  props.updateProp('columns', editingColumn.value)
+  const columnsCopy = JSON.parse(JSON.stringify(editingColumn.value))
+  props.updateProp('columns', columnsCopy)
   showColumnsEditorModal.value = false
+  isUserEditingColumns.value = false
 }
 
 // 初始化监听
 watch(() => props.selectedComponent?.id, () => {
+  isUserEditingColumns.value = false
   if (props.selectedComponent?.type === 'table') {
     loadDataSources()
   }
@@ -880,7 +967,7 @@ watch(() => props.selectedComponent?.props?.datasourceId, (newDsId) => {
   } else {
     tables.value = []
   }
-}, { immediate: true })
+})
 
 watch(() => props.selectedComponent?.props?.tableName, (newTableName) => {
   if (props.selectedComponent?.type === 'table' && newTableName && props.selectedComponent?.props?.datasourceId) {
@@ -888,24 +975,18 @@ watch(() => props.selectedComponent?.props?.tableName, (newTableName) => {
   } else {
     availableFeatures.value = []
   }
-}, { immediate: true })
+})
 
-// 当 featureId 变化时，自动加载 feature 详情（用于已有 featureId 的场景，如打开已存在页面）
-watch(() => props.selectedComponent?.props?.featureId, async (newFeatureId) => {
-  if (props.selectedComponent?.type === 'table' && newFeatureId && props.selectedComponent?.props?.datasourceId && props.selectedComponent?.props?.tableName) {
-    // 先加载 features 列表
+// 当 datasourceId 或 tableName 变化时，加载 features 列表
+// 不再触发 handleFeatureChange，避免覆盖用户已修改的列
+watch([() => props.selectedComponent?.props?.datasourceId, () => props.selectedComponent?.props?.tableName], async ([dsId, tableName]) => {
+  if (props.selectedComponent?.type === 'table' && dsId && tableName) {
     await loadFeaturesForTable()
-    
-    // 等待数据更新到视图
-    await nextTick()
-    
-    // 如果当前 feature 在列表中，加载详情
-    const fid = Number(newFeatureId)
-    const feature = availableFeatures.value.find((f: any) => Number(f.id) === fid)
-    console.log('[TableProps] featureId watch:', { newFeatureId, fid, availableCount: availableFeatures.value.length, feature })
-    if (feature) {
-      await handleFeatureChange(String(fid))
-    }
   }
+})
+
+// 监听 columns 变化
+watch(() => props.selectedComponent?.props?.columns, (newCols) => {
+  console.log('[TableProps] columns changed:', newCols?.length)
 }, { immediate: true })
 </script>

@@ -63,13 +63,25 @@ onMounted(async () => {
       compMap.set(id, { id, type: c.type, label: c.type, props, children: [] })
     })
 
+    const containerTypes = ['card', 'tabs', 'collapse']
     flatComps.forEach((c: any) => {
       const comp = compMap.get(String(c.id))
       const parentId = c.parentId
       if (parentId != null && parentId !== undefined) {
         const parent = compMap.get(String(parentId))
-        if (parent) { parent.children = parent.children || []; parent.children.push(comp) }
-        else rootComps.push(comp)
+        if (parent) {
+          // If parent is a container with childrenMap, don't add to parent's children array
+          // (children are managed via childrenMap, not parent.children)
+          const parentChildrenMap = parent.props?.childrenMap
+          if (parentChildrenMap && typeof parentChildrenMap === 'object') {
+            // Skip - child is managed via parent's childrenMap
+          } else {
+            parent.children = parent.children || []
+            parent.children.push(comp)
+          }
+        } else {
+          rootComps.push(comp)
+        }
       } else rootComps.push(comp)
     })
 

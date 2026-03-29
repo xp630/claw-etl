@@ -391,6 +391,7 @@ const emit = defineEmits<{
 // 处理移动到容器（select change事件）
 function handleMoveToContainerAction(e: Event) {
   const containerId = (e.target as HTMLSelectElement).value
+  console.log('[PropertyPanel] handleMoveToContainerAction:', containerId, props.selectedComponent?.id)
   if (containerId && props.selectedComponent) {
     emit('move-to-container', containerId, props.selectedComponent.id)
     ;(e.target as HTMLSelectElement).value = ''

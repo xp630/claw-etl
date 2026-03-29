@@ -112,7 +112,7 @@
 
                   <!-- Nested component content -->
                   <div class="p-4">
-                    <ComponentRenderer :component="child" />
+                    <ComponentRenderer :component="child" :editable="true" />
                   </div>
                 </div>
               </div>
@@ -126,7 +126,7 @@
 
           <!-- Regular component -->
           <div v-else class="p-4">
-            <ComponentRenderer :component="comp" />
+            <ComponentRenderer :component="comp" :editable="true" />
           </div>
         </div>
       </div>
