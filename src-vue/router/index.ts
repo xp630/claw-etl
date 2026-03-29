@@ -40,6 +40,18 @@ const routes: RouteRecordRaw[] = [
         redirect: '/editor'
       },
       {
+        path: '/config',
+        redirect: '/system-config'
+      },
+      {
+        path: '/config/new',
+        redirect: to => ({ path: '/system-config', query: { mode: 'create' } })
+      },
+      {
+        path: '/config/:id',
+        redirect: to => ({ path: '/system-config', query: { id: to.params.id } })
+      },
+      {
         path: '/editor',
         name: 'Editor',
         component: EditorPage,

@@ -121,6 +121,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { getSystemConfigList, saveSystemConfig, deleteSystemConfig } from '@/lib/api'
@@ -142,6 +143,8 @@ const loading = ref(false)
 const total = ref(0)
 const page = ref(1)
 const limit = ref(10)
+const route = useRoute()
+const router = useRouter()
 
 const searchForm = reactive({
   name: '',
@@ -263,6 +266,21 @@ async function handleDelete(id: number) {
 
 onMounted(() => {
   loadData()
+  // 处理路由参数 /config/new 或 /config/:id -> query 方式
+  const configId = route.query.id
+  if (route.query.mode === 'create') {
+    handleCreate()
+  } else if (configId) {
+    const config = configs.value.find(c => String(c.id) === String(configId))
+    if (config) {
+      handleEdit(config)
+    } else {
+      loadData().then(() => {
+        const c = configs.value.find(c => String(c.id) === String(configId))
+        if (c) handleEdit(c)
+      })
+    }
+  }
 })
 </script>
 

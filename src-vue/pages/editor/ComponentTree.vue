@@ -7,241 +7,129 @@
 
     <!-- Tree Content -->
     <div class="flex-1 overflow-auto py-1">
-      <div v-if="components.length === 0" class="text-xs text-[var(--text-muted)] px-3 py-2">
+      <div v-if="props.components.length === 0" class="text-xs text-[var(--text-muted)] px-3 py-2">
         暂无组件
       </div>
       <div v-else>
-        <TreeNode
-          v-for="comp in components"
-          :key="comp.id"
-          :component="comp"
-          :selected-id="selectedId"
-          :depth="0"
-          :drag-state="dragState"
-          @select="handleSelect"
-          @delete="handleDelete"
-          @move="handleMove"
-          @drag-start="handleDragStart"
-          @drag-end="handleDragEnd"
-          @drag-enter="handleDragEnter"
-        />
+        <div v-for="comp in props.components" :key="comp.id" class="tree-node">
+          <div
+            class="flex items-center gap-1 px-2 py-1 rounded cursor-pointer transition-colors"
+            :class="{
+              'bg-[var(--accent-light)] text-[var(--accent)]': props.selectedId === comp.id,
+              'hover:bg-[var(--bg-hover)]': props.selectedId !== comp.id
+            }"
+            :style="{ paddingLeft: `${0 * 16 + 8}px` }"
+            @click="emit('select', comp.id)"
+          >
+            <span
+              v-if="isContainer(comp.type) && comp.children?.length"
+              @click.stop="toggleExpand(comp.id!)"
+              class="p-0.5 hover:bg-[var(--bg-hover)] rounded"
+            >
+              <ChevronDown v-if="expanded.has(comp.id!)" class="w-4 h-4" />
+              <ChevronRight v-else class="w-4 h-4" />
+            </span>
+            <span v-else class="w-4" />
+            <File class="w-3 h-3 text-[var(--text-muted)]" />
+            <span class="text-xs truncate">{{ comp.label || getTypeLabel(comp.type) }}</span>
+            <span class="text-xs text-[var(--text-muted)] ml-auto">({{ getTypeLabel(comp.type) }})</span>
+            <button
+              @click.stop="emit('delete', comp.id)"
+              class="p-0.5 hover:bg-red-100 rounded opacity-0 group-hover:opacity-100"
+            >
+              <Trash2 class="w-3 h-3 text-red-500" />
+            </button>
+          </div>
+
+          <!-- Children -->
+          <div v-if="isContainer(comp.type) && expanded.has(comp.id!) && comp.children?.length">
+            <div
+              v-for="child in comp.children"
+              :key="child.id"
+              class="flex items-center gap-1 px-2 py-1 rounded cursor-pointer transition-colors"
+              :class="{
+                'bg-[var(--accent-light)] text-[var(--accent)]': props.selectedId === child.id,
+                'hover:bg-[var(--bg-hover)]': props.selectedId !== child.id
+              }"
+              :style="{ paddingLeft: `${1 * 16 + 8}px` }"
+              @click="emit('select', child.id)"
+            >
+              <span class="w-4" />
+              <File class="w-3 h-3 text-[var(--text-muted)]" />
+              <span class="text-xs truncate">{{ child.label || getTypeLabel(child.type) }}</span>
+              <span class="text-xs text-[var(--text-muted)] ml-auto">({{ getTypeLabel(child.type) }})</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
-import { typeLabels, isContainerType } from './constants'
-import { ElIcon } from 'element-plus'
-import { Folder, Table, Layout, Document, Delete, More, ChevronRight, ChevronDown, Grid } from '@element-plus/icons-vue'
+import { ref } from 'vue'
+import { ChevronRight, ChevronDown, File, Folder, Layout, Table, Trash2 } from 'lucide-vue-next'
+import type { CanvasComponent } from './types'
 
-interface DragState {
-  dragId: string | null
-  dropId: string | null
-  position: 'before' | 'after' | 'inside'
-}
-
-const props = defineProps<{
-  components: any[]
+interface Props {
+  components: CanvasComponent[]
   selectedId: string | null
   showHeader?: boolean
-}>()
+}
+
+const props = defineProps<Props>()
 
 const emit = defineEmits<{
-  select: [id: string | null]
+  select: [id: string]
   delete: [id: string]
-  move: [dragId: string, dropId: string, position: 'before' | 'after' | 'inside']
 }>()
 
-const dragState = ref<DragState | null>(null)
+const expanded = ref<Set<string>>(new Set())
 
-const typeIcons: Record<string, any> = {
-  card: Layout,
-  tabs: Folder,
-  table: Table,
-  form: Document,
-  text: Document,
-  button: Document,
-  input: Document,
-  default: Document,
+const typeLabels: Record<string, string> = {
+  card: '卡片',
+  tabs: '标签页',
+  table: '表格',
+  form: '表单',
+  text: '文本',
+  button: '按钮',
+  input: '输入框',
+  select: '下拉框',
+  date: '日期',
+  switch: '开关',
+  slider: '滑块',
+  lineChart: '折线图',
+  barChart: '柱状图',
+  pieChart: '饼图',
+  grid: '栅格',
+  divider: '分割线',
+  blank: '空白',
+  image: '图片',
+  link: '链接',
+  collapse: '折叠面板',
 }
 
-function getIcon(type: string) {
-  return typeIcons[type] || typeIcons.default
+const containerTypes = ['card', 'tabs', 'collapse', 'grid']
+
+function getTypeLabel(type: string): string {
+  return typeLabels[type] || type
 }
 
-function handleSelect(id: string) {
-  emit('select', id)
+function isContainer(type: string): boolean {
+  return containerTypes.includes(type)
 }
 
-function handleDelete(id: string) {
-  emit('delete', id)
-}
-
-function handleMove(dragId: string, dropId: string, position: 'before' | 'after' | 'inside') {
-  emit('move', dragId, dropId, position)
-}
-
-function handleDragStart(id: string) {
-  dragState.value = { dragId: id, dropId: null, position: 'inside' }
-}
-
-function handleDragEnd() {
-  dragState.value = null
-}
-
-function handleDragEnter(id: string, position: 'before' | 'after' | 'inside') {
-  if (dragState.value && dragState.value.dragId !== id) {
-    dragState.value = { ...dragState.value, dropId: id, position }
-  }
-}
-
-// TreeNode component defined inline
-const TreeNode = {
-  name: 'TreeNode',
-  props: {
-    component: { type: Object, required: true },
-    selectedId: { type: String as () => string | null, default: null },
-    depth: { type: Number, default: 0 },
-    dragState: { type: Object as () => DragState | null, default: null },
-  },
-  emits: ['select', 'delete', 'move', 'drag-start', 'drag-end', 'drag-enter'],
-  setup(props: any, { emit }: any) {
-    const expanded = ref(true)
-    const isContainer = () => isContainerType(props.component.type)
-    const hasChildren = () => props.component.children && props.component.children.length > 0
-    
-    const handleDragStart = (e: DragEvent) => {
-      e.dataTransfer.setData('text/plain', props.component.id)
-      e.dataTransfer.effectAllowed = 'move'
-      emit('drag-start', props.component.id)
-    }
-    
-    const handleDragOver = (e: DragEvent) => {
-      e.preventDefault()
-      if (!props.dragState?.dragId || props.dragState.dragId === props.component.id) return
-      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-      const y = e.clientY - rect.top
-      const threshold = rect.height / 4
-      let position: 'before' | 'after' | 'inside' = 'inside'
-      if (y < threshold) position = 'before'
-      else if (y > rect.height - threshold) position = 'after'
-      emit('drag-enter', props.component.id, position)
-    }
-    
-    const handleDrop = (e: DragEvent) => {
-      e.preventDefault()
-      const dragId = e.dataTransfer.getData('text/plain')
-      if (!dragId || dragId === props.component.id) return
-      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
-      const y = e.clientY - rect.top
-      const threshold = rect.height / 4
-      let position: 'before' | 'after' | 'inside' = 'inside'
-      if (y < threshold) position = 'before'
-      else if (y > rect.height - threshold) position = 'after'
-      emit('move', dragId, props.component.id, position)
-    }
-    
-    const handleDragEnd = () => {
-      emit('drag-end')
-    }
-    
-    const toggleExpand = (e: Event) => {
-      e.stopPropagation()
-      expanded.value = !expanded.value
-    }
-    
-    const isDropTarget = () => props.dragState?.dropId === props.component.id && props.dragState?.dragId !== props.component.id
-    const position = () => props.dragState?.position as 'before' | 'after' | 'inside' | undefined
-    
-    const getDropIndicator = () => {
-      if (position() === 'before') {
-        return { top: '-1px', height: '2px', left: '0', right: '0', bottom: 'auto', background: 'var(--accent)', position: 'absolute' as const }
-      }
-      if (position() === 'after') {
-        return { bottom: '-1px', height: '2px', left: '0', right: '0', top: 'auto', background: 'var(--accent)', position: 'absolute' as const }
-      }
-      if (position() === 'inside' && isContainer()) {
-        return { inset: '0', border: '2px solid var(--accent)', borderRadius: '4px', background: 'rgba(var(--accent-rgb), 0.1)', position: 'absolute' as const }
-      }
-      return null
-    }
-    
-    return () => {
-      const comp = props.component
-      const isSelected = props.selectedId === comp.id
-      const isDragging = props.dragState?.dragId === comp.id
-      const dropIndicator = isDropTarget() ? getDropIndicator() : null
-      
-      return (
-        <div class="group relative">
-          <div
-            class={`flex items-center gap-1 px-2 py-1 rounded cursor-pointer transition-colors relative ${
-              isSelected ? 'bg-[var(--accent-light)] text-[var(--accent)]' : 'hover:bg-[var(--bg-hover)]'
-            } ${isDragging ? 'opacity-50' : ''}`}
-            style={{ paddingLeft: `${props.depth * 16 + 8}px` }}
-            draggable={true}
-            onDragstart={handleDragStart}
-            onDragover={handleDragOver}
-            onDrop={handleDrop}
-            onDragend={handleDragEnd}
-            onClick={() => emit('select', comp.id)}
-          >
-            {dropIndicator && (
-              <div style={dropIndicator} />
-            )}
-            <span class="w-4 flex-shrink-0 cursor-grab opacity-0 group-hover:opacity-100 text-[var(--text-muted)]">
-              <More />
-            </span>
-            {isContainer() && hasChildren() ? (
-              <span onClick={toggleExpand} class="p-0.5 hover:bg-[var(--bg-hover)] rounded flex-shrink-0">
-                {expanded.value ? <ChevronDown /> : <ChevronRight />}
-              </span>
-            ) : (
-              <span class="w-4 flex-shrink-0" />
-            )}
-            <ElIcon class="flex-shrink-0" style={{ color: isContainer() ? 'var(--accent)' : 'var(--text-muted)' }}>
-              <Grid />
-            </ElIcon>
-            <span class="text-xs truncate flex-1 text-[var(--text-primary)]">
-              {comp.label || typeLabels[comp.type] || comp.type}
-            </span>
-            <div class="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button
-                onClick={(e: Event) => { e.stopPropagation(); emit('delete', comp.id) }}
-                class="p-0.5 hover:bg-red-500/20 rounded"
-                title="删除"
-              >
-                <Delete class="w-3 h-3 text-[var(--danger)]" />
-              </button>
-            </div>
-          </div>
-          {hasChildren() && expanded.value && (
-            <div>
-              {comp.children.map((child: any) => (
-                <TreeNode
-                  key={child.id}
-                  component={child}
-                  selectedId={props.selectedId}
-                  depth={props.depth + 1}
-                  dragState={props.dragState}
-                  onSelect={(id: string) => emit('select', id)}
-                  onDelete={(id: string) => emit('delete', id)}
-                  onMove={(dragId: string, dropId: string, position: 'before' | 'after' | 'inside') => emit('move', dragId, dropId, position)}
-                  onDragStart={(id: string) => emit('drag-start', id)}
-                  onDragEnd={() => emit('drag-end')}
-                  onDragEnter={(id: string, pos: 'before' | 'after' | 'inside') => emit('drag-enter', id, pos)}
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      )
-    }
+function toggleExpand(id: string) {
+  if (expanded.value.has(id)) {
+    expanded.value.delete(id)
+  } else {
+    expanded.value.add(id)
   }
 }
 </script>
 
 <style scoped>
+.tree-node:hover .opacity-0 {
+  opacity: 1;
+}
 </style>
