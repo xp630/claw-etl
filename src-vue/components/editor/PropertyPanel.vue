@@ -27,6 +27,13 @@
         </div>
       </div>
 
+      <!-- 表格属性 -->
+      <TablePropsPanel
+        v-if="selectedComponent.type === 'table'"
+        :selected-component="selectedComponent"
+        :update-prop="updateProp"
+      />
+
       <!-- 通用属性 -->
       <div class="prop-section">
         <h4 class="prop-section-title">通用属性</h4>
@@ -210,273 +217,38 @@
           />
         </div>
         
-        <!-- tabCount (tabs) -->
-        <div v-if="hasProp('tabCount')" class="prop-item">
-          <label>Tab 数量</label>
-          <input
-            :value="selectedComponent.props.tabCount"
-            type="number"
-            min="1"
-            max="10"
-            class="prop-input"
-            @input="updateProp('tabCount', Number(($event.target as HTMLInputElement).value))"
-          />
-        </div>
-      </div>
-
-      <!-- 表格属性 (table) -->
-      <div v-if="selectedComponent.type === 'table'" class="prop-section">
-        <h4 class="prop-section-title">表格配置</h4>
-        
-        <div class="prop-item inline-item flex-wrap">
-          <label class="flex items-center gap-1">
-            <input
-              type="checkbox"
-              :checked="selectedComponent.props.bordered"
-              @change="updateProp('bordered', ($event.target as HTMLInputElement).checked)"
-              class="w-4 h-4"
-            />
-            边框
-          </label>
-          <label class="flex items-center gap-1">
-            <input
-              type="checkbox"
-              :checked="selectedComponent.props.striped"
-              @change="updateProp('striped', ($event.target as HTMLInputElement).checked)"
-              class="w-4 h-4"
-            />
-            斑马纹
-          </label>
-          <label class="flex items-center gap-1">
-            <input
-              type="checkbox"
-              :checked="selectedComponent.props.pagination"
-              @change="updateProp('pagination', ($event.target as HTMLInputElement).checked)"
-              class="w-4 h-4"
-            />
-            分页
-          </label>
-          <label class="flex items-center gap-1">
-            <input
-              type="checkbox"
-              :checked="selectedComponent.props.showSearch"
-              @change="updateProp('showSearch', ($event.target as HTMLInputElement).checked)"
-              class="w-4 h-4"
-            />
-            搜索
-          </label>
-        </div>
-
-        <div class="prop-item inline-item flex-wrap">
-          <label class="flex items-center gap-1">
-            <input
-              type="checkbox"
-              :checked="selectedComponent.props.showAdd"
-              @change="updateProp('showAdd', ($event.target as HTMLInputElement).checked)"
-              class="w-4 h-4"
-            />
-            新增
-          </label>
-          <label class="flex items-center gap-1">
-            <input
-              type="checkbox"
-              :checked="selectedComponent.props.showEdit"
-              @change="updateProp('showEdit', ($event.target as HTMLInputElement).checked)"
-              class="w-4 h-4"
-            />
-            编辑
-          </label>
-          <label class="flex items-center gap-1">
-            <input
-              type="checkbox"
-              :checked="selectedComponent.props.showDelete"
-              @change="updateProp('showDelete', ($event.target as HTMLInputElement).checked)"
-              class="w-4 h-4"
-            />
-            删除
-          </label>
-          <label class="flex items-center gap-1">
-            <input
-              type="checkbox"
-              :checked="selectedComponent.props.showDetail"
-              @change="updateProp('showDetail', ($event.target as HTMLInputElement).checked)"
-              class="w-4 h-4"
-            />
-            详情
-          </label>
-          <label class="flex items-center gap-1">
-            <input
-              type="checkbox"
-              :checked="selectedComponent.props.showExport"
-              @change="updateProp('showExport', ($event.target as HTMLInputElement).checked)"
-              class="w-4 h-4"
-            />
-            导出
-          </label>
-        </div>
-
-        <div class="prop-item">
-          <label>每页条数</label>
-          <input
-            :value="selectedComponent.props.pageSize"
-            type="number"
-            class="prop-input"
-            @input="updateProp('pageSize', Number(($event.target as HTMLInputElement).value))"
-          />
-        </div>
-
-        <div class="prop-item">
-          <label>数据源ID</label>
-          <input
-            :value="selectedComponent.props.datasourceId"
-            type="number"
-            class="prop-input"
-            placeholder="输入数据源ID"
-            @input="updateProp('datasourceId', Number(($event.target as HTMLInputElement).value))"
-          />
-        </div>
-
-        <div class="prop-item">
-          <label>表名</label>
-          <input
-            :value="selectedComponent.props.tableName"
-            type="text"
-            class="prop-input"
-            placeholder="数据库表名"
-            @input="updateProp('tableName', ($event.target as HTMLInputElement).value)"
-          />
-        </div>
-
-        <!-- Feature 选择 -->
-        <div class="prop-item">
-          <label>功能 (Feature)</label>
-          <select
-            :value="selectedComponent.props.featureId || ''"
-            class="prop-input"
-            @change="handleFeatureChange(($event.target as HTMLSelectElement).value)"
-          >
-            <option value="">-- 选择功能 --</option>
-            <option
-              v-for="feature in availableFeatures"
-              :key="feature.id"
-              :value="feature.id"
-            >
-              {{ feature.name }} ({{ feature.code }})
-            </option>
-          </select>
-        </div>
-
-        <div v-if="loadingFeatures" class="text-xs text-[var(--text-muted)] py-1">
-          加载中...
-        </div>
-        <div v-else-if="availableFeatures.length === 0 && selectedComponent.props.tableName" class="text-xs text-[var(--text-muted)] py-1">
-          该表暂无可用功能
-        </div>
-
-        <!-- 列配置 -->
-        <div class="prop-item">
+        <!-- tabs 配置 (tabs) -->
+        <div v-if="hasProp('tabs')" class="prop-item">
           <div class="flex items-center justify-between mb-2">
-            <label class="text-xs text-[var(--text-muted)]">列配置</label>
-            <div class="flex items-center gap-2">
-              <button
-                v-if="(selectedComponent.props.columns?.length || 0) > 5"
-                type="button"
-                class="text-xs text-[var(--accent)] hover:underline"
-                @click="toggleColumnsCollapse"
-              >
-                {{ columnsCollapsed ? '展开全部' : '收起' }}
-              </button>
-              <button
-                type="button"
-                class="text-xs text-[var(--accent)] hover:underline"
-                @click="addTableColumn"
-              >
-                + 添加列
-              </button>
-            </div>
-          </div>
-          <div v-if="selectedComponent.props.columns?.length" class="space-y-2">
-            <div
-              v-for="(col, index) in displayColumns"
-              :key="index"
-              class="bg-[var(--bg-hover-light)] rounded p-2 text-xs"
+            <label class="text-xs text-[var(--text-muted)]">标签页</label>
+            <button
+              type="button"
+              class="text-xs text-[var(--accent)] hover:underline"
+              @click="addTab"
             >
-              <div class="flex items-center justify-between mb-1">
-                <span class="font-medium">{{ col.label || col.key || `列${index + 1}` }}</span>
-                <button
-                  type="button"
-                  class="text-[var(--danger)] hover:underline"
-                  @click="removeTableColumn(index)"
-                >
-                  删除
-                </button>
-              </div>
-              <div class="grid grid-cols-2 gap-2">
-                <input
-                  :value="col.key"
-                  type="text"
-                  placeholder="字段名"
-                  class="px-2 py-1 border border-[var(--border)] rounded text-xs w-full"
-                  @input="updateTableColumn(index, 'key', ($event.target as HTMLInputElement).value)"
-                />
-                <input
-                  :value="col.label"
-                  type="text"
-                  placeholder="显示名"
-                  class="px-2 py-1 border border-[var(--border)] rounded text-xs w-full"
-                  @input="updateTableColumn(index, 'label', ($event.target as HTMLInputElement).value)"
-                />
-                <select
-                  :value="col.fieldType"
-                  class="px-2 py-1 border border-[var(--border)] rounded text-xs w-full"
-                  @change="updateTableColumn(index, 'fieldType', ($event.target as HTMLSelectElement).value)"
-                >
-                  <option value="text">文本</option>
-                  <option value="number">数字</option>
-                  <option value="date">日期</option>
-                  <option value="select">下拉</option>
-                </select>
-                <input
-                  :value="col.width"
-                  type="number"
-                  placeholder="宽度"
-                  class="px-2 py-1 border border-[var(--border)] rounded text-xs w-full"
-                  @input="updateTableColumn(index, 'width', Number(($event.target as HTMLInputElement).value))"
-                />
-              </div>
-              <div class="flex items-center gap-3 mt-1">
-                <label class="flex items-center gap-1">
-                  <input
-                    type="checkbox"
-                    :checked="col.visible"
-                    @change="updateTableColumn(index, 'visible', ($event.target as HTMLInputElement).checked)"
-                    class="w-3 h-3"
-                  />
-                  显示
-                </label>
-                <label class="flex items-center gap-1">
-                  <input
-                    type="checkbox"
-                    :checked="col.sortable"
-                    @change="updateTableColumn(index, 'sortable', ($event.target as HTMLInputElement).checked)"
-                    class="w-3 h-3"
-                  />
-                  排序
-                </label>
-                <label class="flex items-center gap-1">
-                  <input
-                    type="checkbox"
-                    :checked="col.queryCondition"
-                    @change="updateTableColumn(index, 'queryCondition', ($event.target as HTMLInputElement).checked)"
-                    class="w-3 h-3"
-                  />
-                  查询
-                </label>
-              </div>
-            </div>
+              + 添加
+            </button>
           </div>
-          <div v-else class="text-xs text-[var(--text-muted)] text-center py-2">
-            暂无列配置
+          <div class="space-y-1">
+            <div
+              v-for="(tab, index) in (selectedComponent.props.tabs as string[] || [])"
+              :key="index"
+              class="flex items-center gap-1"
+            >
+              <input
+                :value="tab"
+                type="text"
+                class="flex-1 px-2 py-1 border border-[var(--border)] rounded text-xs"
+                @input="updateTabTitle(index, ($event.target as HTMLInputElement).value)"
+              />
+              <button
+                type="button"
+                class="px-1 text-[var(--danger)] hover:text-red-400 text-xs"
+                @click="removeTab(index)"
+              >
+                ✕
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -549,6 +321,28 @@
           </button>
         </div>
       </div>
+
+      <!-- 临时保存 -->
+      <div class="prop-section">
+        <h4 class="prop-section-title">临时保存</h4>
+        <div class="flex gap-2">
+          <button
+            class="flex-1 px-3 py-2 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded text-sm"
+            @click="handleSaveTemp"
+          >
+            保存临时
+          </button>
+          <button
+            class="flex-1 px-3 py-2 bg-[var(--bg-tertiary)] hover:bg-[var(--bg-hover)] border border-[var(--border)] rounded text-sm"
+            @click="handleLoadTemp"
+          >
+            加载临时
+          </button>
+        </div>
+        <div v-if="tempSaveTime" class="text-xs text-[var(--text-muted)] mt-1">
+          上次保存: {{ tempSaveTime }}
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -556,7 +350,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import type { CanvasComponent } from '@/pages/editor/types'
-import { getFeatures, getFeatureDetail } from '@/lib/api'
+import TablePropsPanel from './TablePropsPanel.vue'
 
 interface Props {
   selectedComponent: CanvasComponent | null
@@ -606,100 +400,44 @@ const parentContainerId = computed(() => {
   return parent ? parent.id : null
 })
 
-// 当选择 table 组件时，自动加载 feature 列表
-watch(() => props.selectedComponent?.id, (newId) => {
-  if (props.selectedComponent?.type === 'table' && newId) {
-    loadFeaturesForTable()
+// 临时保存到 localStorage
+const tempSaveTime = ref<string | null>(null)
+
+function handleSaveTemp() {
+  if (!props.selectedComponent) return
+  const key = `temp_feature_${props.selectedComponent.id}`
+  const data = {
+    props: props.selectedComponent.props,
+    label: props.selectedComponent.label,
+    featureId: props.selectedComponent.props?.featureId,
+    datasourceId: props.selectedComponent.props?.datasourceId,
+    tableName: props.selectedComponent.props?.tableName,
   }
-}, { immediate: true })
-
-// 列配置折叠状态（默认折叠超过5个的列）
-const columnsCollapsed = ref(true)
-
-const displayColumns = computed(() => {
-  const cols = props.selectedComponent?.props.columns || []
-  if (cols.length > 5 && columnsCollapsed.value) {
-    return cols.slice(0, 5)
-  }
-  return cols
-})
-
-function toggleColumnsCollapse() {
-  columnsCollapsed.value = !columnsCollapsed.value
+  localStorage.setItem(key, JSON.stringify(data))
+  tempSaveTime.value = new Date().toLocaleString()
 }
 
-// Feature 相关
-const loadingFeatures = ref(false)
-const availableFeatures = ref<any[]>([])
-
-async function loadFeaturesForTable() {
-  const tableName = props.selectedComponent?.props.tableName
-  const datasourceId = props.selectedComponent?.props.datasourceId
-  if (!tableName || !datasourceId) {
-    availableFeatures.value = []
-    return
-  }
-  
-  loadingFeatures.value = true
-  try {
-    const res = await getFeatures({ page: 1, limit: 100 })
-    const filtered = (res.list || []).filter((f: any) => 
-      f.datasourceId === datasourceId && f.tableName === tableName
-    )
-    availableFeatures.value = filtered
-  } catch (error) {
-    console.error('Failed to load features:', error)
-    availableFeatures.value = []
-  } finally {
-    loadingFeatures.value = false
-  }
-}
-
-async function handleFeatureChange(featureId: string) {
-  if (!featureId) {
-    updateProp('featureId', undefined)
-    updateProp('queryApiId', undefined)
-    updateProp('createApiId', undefined)
-    updateProp('updateApiId', undefined)
-    updateProp('deleteApiId', undefined)
-    updateProp('detailApiId', undefined)
-    return
-  }
-  
-  loadingFeatures.value = true
-  try {
-    const id = parseInt(featureId)
-    const feature = await getFeatureDetail(id)
-    if (feature) {
-      updateProp('featureId', id)
-      updateProp('queryApiId', feature.queryApiId)
-      updateProp('createApiId', feature.createApiId)
-      updateProp('updateApiId', feature.updateApiId)
-      updateProp('deleteApiId', feature.deleteApiId)
-      updateProp('detailApiId', feature.detailApiId)
-      
-      // 如果 feature 有 columns 配置，自动填充
-      if (feature.columns && Array.isArray(feature.columns) && feature.columns.length > 0) {
-        const columns = feature.columns
-          .filter((col: any) => col.visible !== false && col.fieldType !== 'action')
-          .map((col: any) => ({
-            key: col.fieldName,
-            label: col.fieldLabel,
-            fieldType: col.fieldType,
-            width: 100,
-            visible: col.visible !== false,
-            sortable: col.sortable || false,
-            align: col.align || 'left',
-            queryCondition: col.queryCondition || false,
-            dataDictionary: col.dataDictionary || ''
-          }))
-        updateProp('columns', columns)
+function handleLoadTemp() {
+  if (!props.selectedComponent) return
+  const key = `temp_feature_${props.selectedComponent.id}`
+  const saved = localStorage.getItem(key)
+  if (saved) {
+    try {
+      const data = JSON.parse(saved)
+      // 恢复属性
+      if (data.props) {
+        emit('update-props', { ...props.selectedComponent.props, ...data.props })
       }
+      if (data.label) {
+        emit('update-label', data.label)
+      }
+      alert('已加载临时保存的配置')
+    } catch (e) {
+      console.error('Failed to load temp data:', e)
+      alert('加载失败')
     }
-  } catch (error) {
-    console.error('Failed to load feature detail:', error)
-  } finally {
-    loadingFeatures.value = false
+  } else {
+    alert('没有找到临时保存的配置')
   }
 }
 
@@ -718,6 +456,30 @@ function handleMoveToContainerAction(e: Event) {
   if (containerId && props.selectedComponent) {
     emit('move-to-container', containerId, props.selectedComponent.id)
     ;(e.target as HTMLSelectElement).value = ''
+  }
+}
+
+// Tabs 操作
+function addTab() {
+  const tabs = [...(props.selectedComponent?.props.tabs as string[] || [])]
+  tabs.push(`标签${tabs.length + 1}`)
+  updateProp('tabs', tabs)
+}
+
+function updateTabTitle(index: number, title: string) {
+  const tabs = [...(props.selectedComponent?.props.tabs as string[] || [])]
+  tabs[index] = title
+  updateProp('tabs', tabs)
+}
+
+function removeTab(index: number) {
+  const tabs = [...(props.selectedComponent?.props.tabs as string[] || [])]
+  tabs.splice(index, 1)
+  updateProp('tabs', tabs)
+  // 如果当前激活的 tab 被删除，调整 activeTab
+  const activeTab = props.selectedComponent?.props.activeTab as number
+  if (activeTab >= tabs.length) {
+    updateProp('activeTab', Math.max(0, tabs.length - 1))
   }
 }
 

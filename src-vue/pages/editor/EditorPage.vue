@@ -39,20 +39,25 @@
       
       <div class="ml-auto flex items-center gap-2">
         <span class="text-xs text-[var(--text-muted)]">{{ components.length }} 个组件</span>
-        <el-button type="primary" size="small" :loading="saving" @click="handleSave">
-          {{ saving ? '保存中...' : '保存' }}
+        <el-button v-if="previewMode" type="default" size="small" @click="previewMode = false">
+          退出预览
         </el-button>
-        <el-button type="success" size="small" @click="handlePreview" :disabled="!pageCode && !isNewPage">
-          预览
-        </el-button>
-        <el-button size="small" @click="handleClear">
-          清空
-        </el-button>
+        <template v-else>
+          <el-button type="primary" size="small" :loading="saving" @click="handleSave">
+            {{ saving ? '保存中...' : '保存' }}
+          </el-button>
+          <el-button type="success" size="small" @click="handlePreview" :disabled="!pageCode && !isNewPage">
+            预览
+          </el-button>
+          <el-button size="small" @click="handleClear">
+            清空
+          </el-button>
+          <el-button type="warning" size="small" @click="handleFlattenComponents">
+            拆散
+          </el-button>
+        </template>
         <el-button size="small" @click="goToList">
           返回列表
-        </el-button>
-        <el-button type="warning" size="small" @click="handleFlattenComponents">
-          拆散
         </el-button>
       </div>
     </div>
@@ -107,7 +112,28 @@
       </div>
 
       <!-- Canvas -->
+      <!-- Preview Mode -->
+      <div
+        v-if="previewMode"
+        class="flex-1 overflow-auto p-6 bg-[var(--bg-secondary)]"
+      >
+        <div class="max-w-6xl mx-auto space-y-4">
+          <div
+            v-for="comp in components"
+            :key="comp.id"
+            class="bg-[var(--bg-primary)] rounded-lg"
+          >
+            <ComponentRenderer :component="comp" />
+          </div>
+          <div v-if="components.length === 0" class="text-center text-[var(--text-muted)] py-12">
+            暂无组件
+          </div>
+        </div>
+      </div>
+
+      <!-- Editor Mode -->
       <DropCanvas
+        v-else
         class="flex-1"
         :components="components"
         :selected-id="selectedId"
@@ -120,6 +146,7 @@
         @move-child-to-root="handleMoveChildToRoot"
         @resize="handleResize"
         @update-props="handleUpdatePropsDirect"
+        @update-component="handleUpdateComponent"
       />
     </div>
   </div>
@@ -134,6 +161,7 @@ import ComponentPanel from '@/components/editor/ComponentPanel.vue'
 import ComponentTree from './ComponentTree.vue'
 import DropCanvas from './DropCanvas.vue'
 import PropertyPanel from '@/components/editor/PropertyPanel.vue'
+import ComponentRenderer from './ComponentRenderer.vue'
 import type { CanvasComponent } from './types'
 import axios from 'axios'
 
@@ -146,6 +174,7 @@ const selectedId = ref<string | null>(null)
 const showPropsModal = ref(false)
 const pageName = ref('未命名页面')
 const pageCode = ref('')
+const previewMode = ref(false)
 const pageId = ref<number | null>(null)
 const saving = ref(false)
 const isNewPage = ref(false)
@@ -516,6 +545,10 @@ function handleUpdatePropsDirect(id: string, newProps: Record<string, any>) {
   components.value = updateComponentProps(components.value, id, newProps)
 }
 
+function handleUpdateComponent(id: string, key: string, value: any) {
+  components.value = updateComponentProps(components.value, id, { [key]: value })
+}
+
 function handleFlattenComponents() {
   if (confirm('确定要拆散所有嵌套组件吗？嵌套的子组件将全部移到根层级。')) {
     components.value = flattenComponents(components.value)
@@ -536,11 +569,8 @@ function goToList() {
 }
 
 function handlePreview() {
-  if (isNewPage.value || !pageCode.value) {
-    ElMessage.info('请先保存页面后再预览')
-    return
-  }
-  window.open(`/#/render/${pageCode.value}`, '_blank')
+  // 切换预览模式
+  previewMode.value = !previewMode.value
 }
 
 async function handleSave() {

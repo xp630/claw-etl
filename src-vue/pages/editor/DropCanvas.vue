@@ -155,6 +155,7 @@ const emit = defineEmits<{
   addChildToContainer: [containerId: string, component: CanvasComponent, tabIndex?: number]
   removeFromContainer: [containerId: string, childId: string]
   moveChildToRoot: [containerId: string, childId: string, insertIndex: number]
+  'update-component': [id: string, key: string, value: any]
 }>()
 
 const canvasRef = ref<HTMLElement | null>(null)
@@ -360,6 +361,11 @@ const onContainerDrop = (e: DragEvent, containerId: string) => {
 // Remove from container
 const removeFromContainer = (containerId: string, childId: string) => {
   emit('removeFromContainer', containerId, childId)
+}
+
+// Update component prop
+const updateComponentProp = (id: string, key: string, value: any) => {
+  emit('update-component', id, key, value)
 }
 
 // Expose for parent component

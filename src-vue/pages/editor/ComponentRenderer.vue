@@ -8,7 +8,7 @@
     <!-- Button component -->
     <button
       v-else-if="component.type === 'button'"
-      :type="'button'"
+      type="button"
       :class="buttonClass"
     >
       {{ component.props.text || '按钮' }}
@@ -89,17 +89,85 @@
       </div>
     </div>
 
-    <!-- Table component (simplified) -->
-    <div v-else-if="component.type === 'table'" class="border border-[var(--border-light)] rounded p-4 bg-[var(--bg-table-header)]">
-      <div class="text-sm text-[var(--text-secondary)]">
-        📊 表格组件 - {{ component.props.title || '数据表' }}
+    <!-- Table component -->
+    <div v-else-if="component.type === 'table'" class="border border-[var(--border-light)] rounded overflow-hidden">
+      <!-- Table Header -->
+      <div class="bg-[var(--bg-table-header)] px-3 py-2 border-b border-[var(--border-light)] flex items-center justify-between">
+        <span class="text-sm font-medium">{{ component.props.title || '数据表' }}</span>
+        <div class="flex gap-2">
+          <span v-if="component.props.showAdd" class="text-xs px-2 py-1 border border-[var(--border)] rounded">➕ 新增</span>
+          <span v-if="component.props.showExport" class="text-xs px-2 py-1 border border-[var(--border)] rounded">📤 导出</span>
+        </div>
       </div>
-      <div class="text-xs text-[var(--text-muted)] mt-1">
-        数据源ID: {{ component.props.apiId || component.props.queryApiId || '未配置' }}
+      <!-- Search Bar -->
+      <div v-if="component.props.showSearch" class="px-3 py-2 border-b border-[var(--border-light)] bg-[var(--bg-secondary)] flex gap-2">
+        <input
+          type="text"
+          class="flex-1 px-2 py-1 text-xs border border-[var(--border)] rounded"
+          placeholder="搜索..."
+          disabled
+        />
+        <button class="px-3 py-1 text-xs bg-[var(--accent)] text-white rounded" disabled>查询</button>
+        <button class="px-3 py-1 text-xs border border-[var(--border)] rounded" disabled>重置</button>
+      </div>
+      <!-- Table Preview -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="bg-[var(--bg-hover)]">
+              <th
+                v-for="(col, index) in (component.props.columns || []).slice(0, 6)"
+                :key="index"
+                class="px-3 py-2 text-left font-medium text-[var(--text-secondary)] border-r border-[var(--border-light)] last:border-r-0"
+              >
+                {{ col.label || col.key || `列${index + 1}` }}
+                <span v-if="col.sortable" class="text-[var(--text-muted)] ml-1">↕</span>
+              </th>
+              <th v-if="(component.props.columns?.length || 0) > 6" class="px-3 py-2 text-[var(--text-muted)]">
+                +{{ (component.props.columns?.length || 0) - 6 }} 列
+              </th>
+              <th v-if="component.props.columns?.length === 0" class="px-3 py-2 text-[var(--text-muted)]">
+                未配置列
+              </th>
+              <th v-if="component.props.showEdit || component.props.showDelete || component.props.showDetail" class="px-3 py-2 text-center border-l border-[var(--border-light)]">
+                操作
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-[var(--border-light)]">
+              <td
+                v-for="(col, index) in (component.props.columns || []).slice(0, 6)"
+                :key="index"
+                class="px-3 py-2 text-[var(--text-muted)] border-r border-[var(--border-light)] last:border-r-0"
+              >
+                ...
+              </td>
+              <td v-if="(component.props.columns?.length || 0) > 6" class="px-3 py-2 text-[var(--text-muted)]">
+              </td>
+              <td v-if="component.props.columns?.length === 0" class="px-3 py-2 text-[var(--text-muted)]">
+              </td>
+              <td v-if="component.props.showEdit || component.props.showDelete || component.props.showDetail" class="px-3 py-2 text-center border-l border-[var(--border-light)]">
+                <span v-if="component.props.showDetail" class="text-xs text-[var(--accent)] mr-2">详情</span>
+                <span v-if="component.props.showEdit" class="text-xs text-[var(--accent)] mr-2">编辑</span>
+                <span v-if="component.props.showDelete" class="text-xs text-[var(--danger)]">删除</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Pagination Footer -->
+      <div v-if="component.props.pagination" class="bg-[var(--bg-table-header)] px-3 py-2 border-t border-[var(--border-light)] flex items-center justify-between">
+        <span class="text-xs text-[var(--text-muted)]">共 ? 条</span>
+        <div class="flex items-center gap-1">
+          <span class="px-2 py-1 text-xs border border-[var(--border)] rounded cursor-not-allowed opacity-50">‹</span>
+          <span class="px-2 py-1 text-xs bg-[var(--accent)] text-white rounded">1</span>
+          <span class="px-2 py-1 text-xs border border-[var(--border)] rounded cursor-not-allowed opacity-50">›</span>
+        </div>
       </div>
     </div>
 
-    <!-- Form component (simplified) -->
+    <!-- Form component -->
     <div v-else-if="component.type === 'form'" class="border border-[var(--border-light)] rounded p-4 bg-[var(--bg-table-header)]">
       <div class="text-sm text-[var(--text-secondary)]">
         📝 表单组件 - {{ component.props.title || '表单' }}
@@ -178,11 +246,11 @@
           :key="index"
           class="px-4 py-2 text-sm transition-colors"
           :class="[
-            Number(component.props.activeTab) === index
+            currentTabIndex === index
               ? 'text-blue-500 border-b-2 border-blue-500'
               : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
           ]"
-          @click="setActiveTab(index)"
+          @click="handleTabClick(index)"
         >
           {{ tabTitle }}
         </button>
@@ -194,7 +262,7 @@
     <div v-else-if="component.type === 'collapse'" class="border border-[var(--border-light)] rounded">
       <div
         class="p-3 bg-[var(--bg-table-header)] cursor-pointer flex justify-between items-center"
-        @click="toggleCollapse"
+        @click="handleCollapseClick"
       >
         <span>{{ component.props.title || '折叠面板' }}</span>
         <span>{{ isCollapsed ? '▼' : '▲' }}</span>
@@ -212,40 +280,42 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import type { CanvasComponent } from './types'
 
 interface Props {
   component: CanvasComponent
+  editable?: boolean
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  editable: false
+})
 
-// Button class based on type
-const buttonClass = computed(() => {
-  const btnType = props.component.props.buttonType || 'primary'
-  const baseClass = 'px-4 py-1.5 text-sm rounded'
-  switch (btnType) {
-    case 'primary':
-      return `${baseClass} bg-blue-500 text-white`
-    case 'success':
-      return `${baseClass} bg-green-500 text-white`
-    case 'warning':
-      return `${baseClass} bg-yellow-500 text-white`
-    case 'danger':
-      return `${baseClass} bg-red-500 text-white`
-    case 'default':
-      return `${baseClass} bg-[var(--bg-table-header)] text-[var(--text-secondary)]`
-    default:
-      return `${baseClass} bg-blue-500 text-white`
+const emit = defineEmits<{
+  'update-component': [id: string, key: string, value: any]
+}>()
+
+// ============ State ============
+
+// Tabs: use local state only in editable mode, otherwise use prop
+const currentTabIndex = ref(Number(props.component.props.activeTab) || 0)
+
+watch(() => props.component.props.activeTab, (val) => {
+  if (!props.editable) {
+    currentTabIndex.value = Number(val) || 0
   }
 })
+
+// Collapse: use local state only in editable mode
+const isCollapsed = ref(false)
+
+// ============ Computed ============
 
 // Tabs titles from tabs array prop
 const tabTitles = computed(() => {
   const tabs = props.component.props.tabs as string[] | undefined
   if (tabs && tabs.length > 0) return tabs
-  // Fallback: generate from tabCount
   const count = (props.component.props.tabCount as number) || 2
   return Array.from({ length: count }, (_, i) => props.component.props[`tab${i}Title`] as string || `标签页 ${i + 1}`)
 })
@@ -253,27 +323,45 @@ const tabTitles = computed(() => {
 // Chart icon
 const chartIcon = computed(() => {
   switch (props.component.type) {
-    case 'lineChart':
-      return '📈'
-    case 'barChart':
-      return '📊'
-    case 'pieChart':
-      return '🥧'
-    default:
-      return '📊'
+    case 'lineChart': return '📈'
+    case 'barChart': return '📊'
+    case 'pieChart': return '🥧'
+    default: return '📊'
   }
 })
 
-// Collapse state
-const isCollapsed = ref(false)
-const toggleCollapse = () => {
-  isCollapsed.value = !isCollapsed.value
+// Button class
+const buttonClass = computed(() => {
+  const btnType = props.component.props.buttonType || 'primary'
+  const baseClass = 'px-4 py-1.5 text-sm rounded'
+  switch (btnType) {
+    case 'primary': return `${baseClass} bg-blue-500 text-white`
+    case 'success': return `${baseClass} bg-green-500 text-white`
+    case 'warning': return `${baseClass} bg-yellow-500 text-white`
+    case 'danger': return `${baseClass} bg-red-500 text-white`
+    case 'default': return `${baseClass} bg-[var(--bg-table-header)] text-[var(--text-secondary)]`
+    default: return `${baseClass} bg-blue-500 text-white`
+  }
+})
+
+// ============ Event Handlers ============
+
+function handleTabClick(index: number) {
+  if (props.editable) {
+    emit('update-component', props.component.id, 'activeTab', index)
+  } else {
+    currentTabIndex.value = index
+  }
 }
 
-// Set active tab
-const setActiveTab = (index: number) => {
-  // This would emit an event to update the component props
-  console.log('Set active tab:', index)
+function handleCollapseClick() {
+  if (props.editable) {
+    // In editable mode, emit event
+    emit('update-component', props.component.id, 'collapsed', !isCollapsed.value)
+  } else {
+    // In preview mode, use local state
+    isCollapsed.value = !isCollapsed.value
+  }
 }
 </script>
 
