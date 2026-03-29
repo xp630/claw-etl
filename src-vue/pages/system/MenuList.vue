@@ -4,7 +4,7 @@
     <div class="flex items-center justify-between mb-6">
       <div class="flex items-center gap-3">
         <MenuIcon class="w-6 h-6 text-blue-500" />
-        <h1 class="text-2xl font-bold text-gray-800">菜单管理</h1>
+        <h1 class="text-2xl font-bold text-[var(--text-primary)]">菜单管理</h1>
       </div>
       <el-button type="primary" @click="handleCreate(null)">
         <Plus class="w-4 h-4 mr-1" /> 新增
@@ -14,20 +14,20 @@
     <!-- 主体区域：左右分栏 -->
     <div class="flex-1 flex gap-6 min-h-0">
       <!-- 左侧：菜单树 -->
-      <div class="w-96 flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div class="w-96 flex flex-col bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-light)] overflow-hidden">
         <!-- 搜索栏 -->
-        <div class="p-3 border-b border-gray-200">
+        <div class="p-3 border-b border-[var(--border-light)]">
           <el-input v-model="searchKeyword" placeholder="搜索菜单..." clearable @clear="loadMenuTree">
             <template #prefix>
-              <Search class="w-4 h-4 text-gray-400" />
+              <Search class="w-4 h-4 text-[var(--text-muted)]" />
             </template>
           </el-input>
         </div>
 
         <!-- 树形列表 -->
         <div class="flex-1 overflow-y-auto p-2">
-          <div v-if="loading" class="px-4 py-8 text-center text-gray-400">加载中...</div>
-          <div v-else-if="menuTree.length === 0" class="px-4 py-8 text-center text-gray-400">暂无数据</div>
+          <div v-if="loading" class="px-4 py-8 text-center text-[var(--text-muted)]">加载中...</div>
+          <div v-else-if="menuTree.length === 0" class="px-4 py-8 text-center text-[var(--text-muted)]">暂无数据</div>
           <div v-else>
             <el-tree
               :data="menuTree"
@@ -39,7 +39,7 @@
             >
               <template #default="{ node, data }">
                 <div class="flex items-center gap-2 py-1">
-                  <span class="text-gray-700">{{ data.name }}</span>
+                  <span class="text-[var(--text-secondary)]">{{ data.name }}</span>
                   <el-tag v-if="data.type === 'button'" size="small" type="warning">按钮</el-tag>
                 </div>
               </template>
@@ -49,11 +49,11 @@
       </div>
 
       <!-- 右侧：编辑区域 -->
-      <div class="flex-1 bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div class="flex-1 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-light)] overflow-hidden">
         <div v-if="isEditing" class="h-full flex flex-col">
           <!-- 表单头部 -->
-          <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-            <h2 class="text-lg font-semibold text-gray-800">
+          <div class="flex items-center justify-between px-6 py-4 border-b border-[var(--border-light)]">
+            <h2 class="text-lg font-semibold text-[var(--text-primary)]">
               {{ editMode === 'edit' ? '编辑菜单' : '新增菜单' }}
             </h2>
             <el-button text @click="closeForm">
@@ -119,7 +119,7 @@
           </div>
 
           <!-- 底部按钮 -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-[var(--border-light)] bg-[var(--bg-table-header)]">
             <el-button @click="closeForm">取消</el-button>
             <el-button type="primary" :loading="saving" @click="handleSave">
               {{ saving ? '保存中...' : '保存' }}
@@ -127,7 +127,7 @@
           </div>
         </div>
 
-        <div v-else class="h-full flex items-center justify-center text-gray-400">
+        <div v-else class="h-full flex items-center justify-center text-[var(--text-muted)]">
           <div class="text-center">
             <MenuIcon class="w-16 h-16 mx-auto mb-4 opacity-30" />
             <p>选择左侧菜单或点击新增按钮</p>
@@ -138,7 +138,7 @@
 
     <!-- 删除确认弹窗 -->
     <el-dialog v-model="showDeleteConfirm" title="确认删除" width="400px">
-      <p class="text-gray-600">确定要删除该菜单吗？子菜单也会被删除。此操作不可撤销。</p>
+      <p class="text-[var(--text-secondary)]">确定要删除该菜单吗？子菜单也会被删除。此操作不可撤销。</p>
       <template #footer>
         <el-button @click="showDeleteConfirm = false">取消</el-button>
         <el-button type="danger" @click="confirmDelete">删除</el-button>

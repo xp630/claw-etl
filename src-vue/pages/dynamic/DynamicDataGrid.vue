@@ -2,24 +2,24 @@
   <div class="p-6">
     <!-- 页面标题 -->
     <div class="mb-6">
-      <h1 class="text-2xl font-bold text-gray-800 dark:text-white">{{ feature?.name || '加载中...' }}</h1>
+      <h1 class="text-2xl font-bold text-[var(--text-primary)] dark:text-white">{{ feature?.name || '加载中...' }}</h1>
     </div>
 
     <!-- 加载状态 -->
     <div v-if="loading" class="flex flex-col items-center justify-center h-64">
       <div class="w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-      <div class="text-gray-500 dark:text-gray-400">加载中...</div>
+      <div class="text-[var(--text-muted)] dark:text-gray-400">加载中...</div>
     </div>
 
     <!-- 功能不存在 -->
     <div v-else-if="!feature" class="flex items-center justify-center h-64">
-      <div class="text-gray-500 dark:text-gray-400">功能不存在</div>
+      <div class="text-[var(--text-muted)] dark:text-gray-400">功能不存在</div>
     </div>
 
     <!-- 列表页面 -->
     <div v-else-if="feature.type === 'list'">
       <!-- 搜索条件 -->
-      <form v-if="queryFields.length > 0" @submit.prevent="handleSearch" class="mb-4 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+      <form v-if="queryFields.length > 0" @submit.prevent="handleSearch" class="mb-4 bg-[var(--bg-table-header)] dark:bg-gray-800 rounded-xl border border-[var(--border-light)] dark:border-gray-700 p-4">
         <div class="flex gap-4 flex-wrap items-end">
           <div class="flex gap-4 flex-wrap flex-1">
             <div
@@ -27,11 +27,11 @@
               :key="col.fieldName"
               class="w-[calc(33%-10px)] min-w-[200px] h-16 flex flex-col justify-between"
             >
-              <label class="block text-sm text-gray-500 dark:text-gray-400 truncate">{{ col.fieldLabel }}</label>
+              <label class="block text-sm text-[var(--text-muted)] dark:text-gray-400 truncate">{{ col.fieldLabel }}</label>
               <select
                 v-if="col.fieldType === 'select'"
                 v-model="searchParams[col.fieldName]"
-                class="px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-800 dark:text-gray-200 text-sm w-full"
+                class="px-3 py-2 bg-[var(--input-bg)] dark:bg-gray-700 border border-[var(--border-light)] dark:border-gray-600 rounded-lg text-[var(--text-primary)] dark:text-gray-200 text-sm w-full"
               >
                 <option value="">请选择</option>
                 <option v-for="item in getDictItems(col.dataDictionary)" :key="item.itemValue" :value="item.itemValue">
@@ -42,14 +42,14 @@
                 v-else-if="col.fieldType === 'number'"
                 type="number"
                 v-model="searchParams[col.fieldName]"
-                class="px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-800 dark:text-gray-200 text-sm w-full"
+                class="px-3 py-2 bg-[var(--input-bg)] dark:bg-gray-700 border border-[var(--border-light)] dark:border-gray-600 rounded-lg text-[var(--text-primary)] dark:text-gray-200 text-sm w-full"
                 :placeholder="`请输入${col.fieldLabel}`"
               />
               <input
                 v-else
                 type="text"
                 v-model="searchParams[col.fieldName]"
-                class="px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-800 dark:text-gray-200 text-sm w-full"
+                class="px-3 py-2 bg-[var(--input-bg)] dark:bg-gray-700 border border-[var(--border-light)] dark:border-gray-600 rounded-lg text-[var(--text-primary)] dark:text-gray-200 text-sm w-full"
                 :placeholder="`请输入${col.fieldLabel}`"
               />
             </div>
@@ -73,7 +73,7 @@
               </button>
             </el-dropdown>
             <el-dropdown trigger="click">
-              <button class="px-4 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors flex items-center gap-2">
+              <button class="px-4 py-2 bg-[var(--bg-tertiary)] dark:bg-gray-700 hover:bg-[var(--bg-hover-light)] dark:hover:bg-gray-600 text-[var(--text-secondary)] dark:text-gray-200 rounded-lg transition-colors flex items-center gap-2">
                 <Download class="w-4 h-4" />
                 导出
               </button>
@@ -98,7 +98,7 @@
               v-if="queryFields.length > 4"
               type="button"
               @click="showAdvanced = !showAdvanced"
-              class="px-3 py-2 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg transition-colors flex items-center"
+              class="px-3 py-2 bg-[var(--bg-tertiary)] dark:bg-gray-700 hover:bg-[var(--bg-hover-light)] dark:hover:bg-gray-600 text-[var(--text-secondary)] dark:text-gray-200 rounded-lg transition-colors flex items-center"
               :title="showAdvanced ? '收起' : '展开'"
             >
               <ChevronUp v-if="showAdvanced" class="w-4 h-4" />
@@ -109,11 +109,11 @@
       </form>
 
       <!-- 数据表格 -->
-      <div class="bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden relative">
-        <div v-if="dataLoading" class="absolute inset-0 bg-white dark:bg-gray-800/80 flex items-center justify-center z-10">
+      <div class="bg-[var(--bg-table-header)] dark:bg-gray-800 rounded-xl border border-[var(--border-light)] dark:border-gray-700 overflow-hidden relative">
+        <div v-if="dataLoading" class="absolute inset-0 bg-[var(--bg-secondary)] dark:bg-gray-800/80 flex items-center justify-center z-10">
           <div class="flex flex-col items-center">
             <div class="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-2"></div>
-            <div class="text-gray-500 dark:text-gray-400 text-sm">加载中...</div>
+            <div class="text-[var(--text-muted)] dark:text-gray-400 text-sm">加载中...</div>
           </div>
         </div>
         <el-table :data="data" v-loading="dataLoading" stripe style="width: 100%">
@@ -164,7 +164,7 @@
             </template>
           </el-table-column>
           <template #empty>
-            <div class="py-12 text-center text-gray-500 dark:text-gray-400">暂无数据</div>
+            <div class="py-12 text-center text-[var(--text-muted)] dark:text-gray-400">暂无数据</div>
           </template>
         </el-table>
       </div>
@@ -172,14 +172,14 @@
       <!-- 分页 -->
       <div v-if="total > 0" class="mt-4 flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <span class="text-sm text-gray-500 dark:text-gray-400">每页</span>
+          <span class="text-sm text-[var(--text-muted)] dark:text-gray-400">每页</span>
           <el-select v-model="pageSize" @change="handlePageSizeChange" size="small" style="width: 80px">
             <el-option :value="5" label="5" />
             <el-option :value="10" label="10" />
             <el-option :value="20" label="20" />
             <el-option :value="50" label="50" />
           </el-select>
-          <span class="text-sm text-gray-500 dark:text-gray-400">条，共 {{ total }} 条记录</span>
+          <span class="text-sm text-[var(--text-muted)] dark:text-gray-400">条，共 {{ total }} 条记录</span>
         </div>
         <el-pagination
           v-model:current-page="page"
@@ -226,7 +226,7 @@
           <select
             v-if="col.fieldType === 'select'"
             v-model="formData[col.fieldName]"
-            class="w-full px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg text-gray-800 dark:text-gray-200 text-sm"
+            class="w-full px-3 py-2 bg-[var(--input-bg)] dark:bg-gray-700 border border-[var(--border-light)] dark:border-gray-600 rounded-lg text-[var(--text-primary)] dark:text-gray-200 text-sm"
           >
             <option value="">请选择</option>
             <option v-for="item in getDictItems(col.dataDictionary)" :key="item.itemValue" :value="item.itemValue">

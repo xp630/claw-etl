@@ -7,8 +7,8 @@
           <el-icon size="20" color="var(--accent)"><User /></el-icon>
         </div>
         <div>
-          <h1 class="text-xl font-bold text-gray-800 dark:text-white">用户管理</h1>
-          <p class="text-xs text-gray-500 dark:text-gray-400">管理系统用户</p>
+          <h1 class="text-xl font-bold text-[var(--text-primary)] dark:text-white">用户管理</h1>
+          <p class="text-xs text-[var(--text-muted)] dark:text-gray-400">管理系统用户</p>
         </div>
       </div>
       <el-button type="primary" @click="handleCreate">
@@ -17,7 +17,7 @@
     </div>
 
     <!-- 搜索栏 -->
-    <div class="mb-6 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4">
+    <div class="mb-6 bg-[var(--bg-secondary)] dark:bg-gray-800 rounded-xl border border-[var(--border-light)] dark:border-gray-700 p-4">
       <div class="flex gap-4">
         <el-input
           v-model="searchKeyword"
@@ -35,7 +35,7 @@
     </div>
 
     <!-- 列表 -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="bg-[var(--bg-secondary)] dark:bg-gray-800 rounded-xl border border-[var(--border-light)] dark:border-gray-700 overflow-hidden">
       <el-table :data="users" v-loading="loading" stripe style="width: 100%">
         <el-table-column prop="name" label="姓名" min-width="120" />
         <el-table-column prop="employeeNo" label="工号" min-width="120" />
@@ -62,7 +62,7 @@
 
     <!-- 分页 -->
     <div class="mt-4 flex justify-between items-center">
-      <div class="text-sm text-gray-500">共 {{ total }} 条记录</div>
+      <div class="text-sm text-[var(--text-muted)]">共 {{ total }} 条记录</div>
       <el-pagination
         v-model:current-page="page"
         v-model:page-size="limit"

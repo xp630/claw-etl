@@ -1,7 +1,7 @@
 <template>
   <div class="component-renderer">
     <!-- Text component -->
-    <div v-if="component.type === 'text'" class="text-sm text-gray-800">
+    <div v-if="component.type === 'text'" class="text-sm text-[var(--text-primary)]">
       {{ component.props.content || '文本' }}
     </div>
 
@@ -16,22 +16,22 @@
 
     <!-- Input component -->
     <div v-else-if="component.type === 'input'" class="flex flex-col gap-1">
-      <label v-if="component.props.label" class="text-xs text-gray-500">
+      <label v-if="component.props.label" class="text-xs text-[var(--text-muted)]">
         {{ component.props.label }}
       </label>
       <input
         type="text"
         :placeholder="String(component.props.placeholder || '')"
-        class="px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+        class="px-3 py-1.5 border border-[var(--border)] rounded text-sm focus:outline-none focus:border-blue-500"
       />
     </div>
 
     <!-- Select component -->
     <div v-else-if="component.type === 'select'" class="flex flex-col gap-1">
-      <label v-if="component.props.label" class="text-xs text-gray-500">
+      <label v-if="component.props.label" class="text-xs text-[var(--text-muted)]">
         {{ component.props.label }}
       </label>
-      <select class="px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500">
+      <select class="px-3 py-1.5 border border-[var(--border)] rounded text-sm focus:outline-none focus:border-blue-500">
         <option value="">{{ component.props.placeholder || '请选择' }}</option>
         <option
           v-for="(opt, i) in (component.props.options as string[] || [])"
@@ -45,18 +45,18 @@
 
     <!-- Date component -->
     <div v-else-if="component.type === 'date'" class="flex flex-col gap-1">
-      <label v-if="component.props.label" class="text-xs text-gray-500">
+      <label v-if="component.props.label" class="text-xs text-[var(--text-muted)]">
         {{ component.props.label }}
       </label>
       <input
         type="date"
-        class="px-3 py-1.5 border border-gray-300 rounded text-sm focus:outline-none focus:border-blue-500"
+        class="px-3 py-1.5 border border-[var(--border)] rounded text-sm focus:outline-none focus:border-blue-500"
       />
     </div>
 
     <!-- Switch component -->
     <div v-else-if="component.type === 'switch'" class="flex items-center gap-2">
-      <label v-if="component.props.label" class="text-xs text-gray-500">
+      <label v-if="component.props.label" class="text-xs text-[var(--text-muted)]">
         {{ component.props.label }}
       </label>
       <button
@@ -74,7 +74,7 @@
 
     <!-- Slider component -->
     <div v-else-if="component.type === 'slider'" class="flex flex-col gap-1 w-full">
-      <label v-if="component.props.label" class="text-xs text-gray-500">
+      <label v-if="component.props.label" class="text-xs text-[var(--text-muted)]">
         {{ component.props.label }}
       </label>
       <input
@@ -84,27 +84,27 @@
         :value="Number(component.props.value) || 50"
         class="w-full"
       />
-      <div class="text-xs text-gray-400 text-center">
+      <div class="text-xs text-[var(--text-muted)] text-center">
         {{ Number(component.props.value) || 50 }}
       </div>
     </div>
 
     <!-- Table component (simplified) -->
-    <div v-else-if="component.type === 'table'" class="border border-gray-200 rounded p-4 bg-gray-50">
-      <div class="text-sm text-gray-600">
+    <div v-else-if="component.type === 'table'" class="border border-[var(--border-light)] rounded p-4 bg-[var(--bg-table-header)]">
+      <div class="text-sm text-[var(--text-secondary)]">
         📊 表格组件 - {{ component.props.title || '数据表' }}
       </div>
-      <div class="text-xs text-gray-400 mt-1">
+      <div class="text-xs text-[var(--text-muted)] mt-1">
         数据源ID: {{ component.props.apiId || component.props.queryApiId || '未配置' }}
       </div>
     </div>
 
     <!-- Form component (simplified) -->
-    <div v-else-if="component.type === 'form'" class="border border-gray-200 rounded p-4 bg-gray-50">
-      <div class="text-sm text-gray-600">
+    <div v-else-if="component.type === 'form'" class="border border-[var(--border-light)] rounded p-4 bg-[var(--bg-table-header)]">
+      <div class="text-sm text-[var(--text-secondary)]">
         📝 表单组件 - {{ component.props.title || '表单' }}
       </div>
-      <div class="text-xs text-gray-400 mt-1">
+      <div class="text-xs text-[var(--text-muted)] mt-1">
         数据源ID: {{ component.props.datasourceId || '未配置' }}
       </div>
     </div>
@@ -112,9 +112,9 @@
     <!-- Chart components -->
     <div
       v-else-if="['lineChart', 'barChart', 'pieChart'].includes(component.type)"
-      class="border border-gray-200 rounded p-4 bg-gray-50 text-center"
+      class="border border-[var(--border-light)] rounded p-4 bg-[var(--bg-table-header)] text-center"
     >
-      <div class="text-sm text-gray-600">
+      <div class="text-sm text-[var(--text-secondary)]">
         {{ chartIcon }} {{ component.props.title || component.type }}
       </div>
     </div>
@@ -122,18 +122,18 @@
     <!-- Grid component -->
     <div
       v-else-if="component.type === 'grid'"
-      class="border border-gray-200 rounded p-3 bg-gray-50"
+      class="border border-[var(--border-light)] rounded p-3 bg-[var(--bg-table-header)]"
       :style="{
         display: 'grid',
         gridTemplateColumns: `repeat(${Number(component.props.cols) || 3}, 1fr)`,
         gap: `${Number(component.props.gap) || 10}px`
       }"
     >
-      <div class="text-xs text-gray-400 text-center py-4">栅格布局</div>
+      <div class="text-xs text-[var(--text-muted)] text-center py-4">栅格布局</div>
     </div>
 
     <!-- Divider component -->
-    <hr v-else-if="component.type === 'divider'" class="border-gray-300 my-2" />
+    <hr v-else-if="component.type === 'divider'" class="border-[var(--border)] my-2" />
 
     <!-- Blank component -->
     <div
@@ -162,7 +162,7 @@
     <!-- Card container -->
     <div
       v-else-if="component.type === 'card'"
-      class="border border-gray-200 rounded-lg p-4 bg-white shadow-sm"
+      class="border border-[var(--border-light)] rounded-lg p-4 bg-[var(--bg-secondary)] shadow-sm"
     >
       <div v-if="component.props.title" class="font-medium mb-2">
         {{ component.props.title }}
@@ -172,7 +172,7 @@
 
     <!-- Tabs container -->
     <div v-else-if="component.type === 'tabs'">
-      <div class="flex border-b border-gray-200 mb-2">
+      <div class="flex border-b border-[var(--border-light)] mb-2">
         <button
           v-for="(_, index) in (component.props.tabCount as number || 2)"
           :key="index"
@@ -180,7 +180,7 @@
           :class="[
             Number(component.props.activeTab) === index
               ? 'text-blue-500 border-b-2 border-blue-500'
-              : 'text-gray-500 hover:text-gray-700'
+              : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
           ]"
           @click="setActiveTab(index)"
         >
@@ -191,9 +191,9 @@
     </div>
 
     <!-- Collapse container -->
-    <div v-else-if="component.type === 'collapse'" class="border border-gray-200 rounded">
+    <div v-else-if="component.type === 'collapse'" class="border border-[var(--border-light)] rounded">
       <div
-        class="p-3 bg-gray-50 cursor-pointer flex justify-between items-center"
+        class="p-3 bg-[var(--bg-table-header)] cursor-pointer flex justify-between items-center"
         @click="toggleCollapse"
       >
         <span>{{ component.props.title || '折叠面板' }}</span>
@@ -205,7 +205,7 @@
     </div>
 
     <!-- Unknown component -->
-    <div v-else class="text-gray-400 text-sm">
+    <div v-else class="text-[var(--text-muted)] text-sm">
       未知组件: {{ component.type }}
     </div>
   </div>
@@ -235,7 +235,7 @@ const buttonClass = computed(() => {
     case 'danger':
       return `${baseClass} bg-red-500 text-white`
     case 'default':
-      return `${baseClass} bg-gray-100 text-gray-700`
+      return `${baseClass} bg-[var(--bg-table-header)] text-[var(--text-secondary)]`
     default:
       return `${baseClass} bg-blue-500 text-white`
   }

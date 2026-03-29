@@ -4,7 +4,7 @@
     <div class="flex items-center justify-between mb-6">
       <div class="flex items-center gap-3">
         <Layout class="w-6 h-6 text-blue-500" />
-        <h1 class="text-2xl font-bold text-gray-800 dark:text-white">功能管理</h1>
+        <h1 class="text-2xl font-bold text-[var(--text-primary)] dark:text-white">功能管理</h1>
       </div>
       <el-button type="primary" @click="showNewModal = true">
         <Plus class="w-4 h-4 mr-1" /> 新增
@@ -22,13 +22,13 @@
         class="w-80"
       >
         <template #prefix>
-          <Search class="w-4 h-4 text-gray-400" />
+          <Search class="w-4 h-4 text-[var(--text-muted)]" />
         </template>
       </el-input>
     </div>
 
     <!-- 列表 -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="bg-[var(--bg-secondary)] dark:bg-gray-800 rounded-xl border border-[var(--border-light)] dark:border-gray-700 overflow-hidden">
       <el-table :data="features" v-loading="loading" stripe style="width: 100%">
         <el-table-column prop="name" label="功能名称" min-width="150" />
         <el-table-column prop="code" label="功能编码" min-width="120" />
@@ -47,7 +47,7 @@
       </el-table>
 
       <!-- 分页 -->
-      <div class="flex justify-end p-4 border-t border-gray-200 dark:border-gray-700">
+      <div class="flex justify-end p-4 border-t border-[var(--border-light)] dark:border-gray-700">
         <el-pagination
           v-model:current-page="page"
           v-model:page-size="limit"

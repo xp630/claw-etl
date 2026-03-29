@@ -261,6 +261,37 @@
           />
         </div>
       </div>
+
+      <!-- 容器操作 -->
+      <div class="prop-section">
+        <h4 class="prop-section-title">容器操作</h4>
+        
+        <div class="prop-item">
+          <label>移动到容器</label>
+          <select class="prop-input" @change="handleMoveToContainerAction($event)">
+            <option value="">-- 选择容器 --</option>
+            <option
+              v-for="container in containerComponents"
+              :key="container.id"
+              :value="container.id"
+            >
+              {{ container.label }} ({{ container.type }})
+            </option>
+          </select>
+        </div>
+
+        <div v-if="isInsideContainer" class="prop-item">
+          <button class="prop-button prop-button--secondary" @click="handleMoveOutOfContainer">
+            从容器移出
+          </button>
+        </div>
+
+        <div class="prop-item">
+          <button class="prop-button prop-button--danger" @click="handleDeleteComponent">
+            删除组件
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -271,14 +302,83 @@ import type { CanvasComponent } from '@/pages/editor/types'
 
 interface Props {
   selectedComponent: CanvasComponent | null
+  components: CanvasComponent[]
 }
 
 const props = defineProps<Props>()
 
+// 获取所有容器类型组件（card, tabs, collapse）
+const containerComponents = computed(() => {
+  const containers: CanvasComponent[] = []
+  const findContainers = (comps: CanvasComponent[]) => {
+    for (const c of comps) {
+      if (['card', 'tabs', 'collapse'].includes(c.type)) {
+        containers.push(c)
+      }
+      if (c.children) {
+        findContainers(c.children)
+      }
+    }
+  }
+  findContainers(props.components)
+  return containers
+})
+
+// 检查当前组件是否在容器内
+const isInsideContainer = computed(() => {
+  return parentContainerId.value !== null
+})
+
+// 获取当前组件的父容器ID
+const parentContainerId = computed(() => {
+  if (!props.selectedComponent) return null
+  const findParent = (comps: CanvasComponent[], targetId: string): CanvasComponent | null => {
+    for (const c of comps) {
+      if (c.children) {
+        for (const child of c.children) {
+          if (child.id === targetId) return c
+        }
+        const parent = findParent(c.children, targetId)
+        if (parent) return parent
+      }
+    }
+    return null
+  }
+  const parent = findParent(props.components, props.selectedComponent.id)
+  return parent ? parent.id : null
+})
+
 const emit = defineEmits<{
   'update-props': [props: Record<string, unknown>]
   'update-label': [label: string]
+  'move-to-container': [containerId: string, componentId: string]
+  'move-out-of-container': [containerId: string, componentId: string]
+  'delete-component': [id: string]
+  'select-component': [id: string | null]
 }>()
+
+// 处理移动到容器（select change事件）
+function handleMoveToContainerAction(e: Event) {
+  const containerId = (e.target as HTMLSelectElement).value
+  if (containerId && props.selectedComponent) {
+    emit('move-to-container', containerId, props.selectedComponent.id)
+    ;(e.target as HTMLSelectElement).value = ''
+  }
+}
+
+// 处理从容器移出
+function handleMoveOutOfContainer() {
+  if (props.selectedComponent && parentContainerId.value) {
+    emit('move-out-of-container', parentContainerId.value, props.selectedComponent.id)
+  }
+}
+
+// 处理删除组件
+function handleDeleteComponent() {
+  if (props.selectedComponent) {
+    emit('delete-component', props.selectedComponent.id)
+  }
+}
 
 // 检查组件是否有某个属性
 function hasProp(prop: string): boolean {
@@ -459,5 +559,42 @@ function handleApiIdUpdate(value: string) {
 
 .w-24 {
   width: 96px !important;
+}
+
+.prop-button {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.prop-button--primary {
+  background: var(--accent, #409eff);
+  color: white;
+}
+
+.prop-button--primary:hover {
+  opacity: 0.9;
+}
+
+.prop-button--danger {
+  background: var(--danger, #f56c6c);
+  color: white;
+}
+
+.prop-button--danger:hover {
+  opacity: 0.9;
+}
+
+.prop-button--secondary {
+  background: var(--bg-secondary, #f5f7fa);
+  color: var(--text-primary, #303133);
+  border-color: var(--border, #dcdfe6);
+}
+
+.prop-button--secondary:hover {
+  background: var(--bg-hover, #ecf5ff);
 }
 </style>

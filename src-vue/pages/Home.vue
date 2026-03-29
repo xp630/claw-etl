@@ -12,34 +12,34 @@
     <!-- 快捷入口 -->
     <el-row :gutter="20" class="mb-6">
       <el-col :span="24">
-        <h2 class="text-lg font-semibold text-gray-700 mb-4">快捷入口</h2>
+        <h2 class="text-lg font-semibold text-[var(--text-secondary)] mb-4">快捷入口</h2>
       </el-col>
       <el-col :span="6">
         <div class="quick-link-card" @click="$router.push('/editor')">
           <el-icon class="text-3xl text-blue-500 mb-2"><Edit /></el-icon>
           <div class="text-base font-medium">页面编辑器</div>
-          <div class="text-sm text-gray-500">可视化编辑页面</div>
+          <div class="text-sm text-[var(--text-muted)]">可视化编辑页面</div>
         </div>
       </el-col>
       <el-col :span="6">
         <div class="quick-link-card" @click="$router.push('/menus')">
           <el-icon class="text-3xl text-green-500 mb-2"><Menu /></el-icon>
           <div class="text-base font-medium">菜单管理</div>
-          <div class="text-sm text-gray-500">配置系统菜单</div>
+          <div class="text-sm text-[var(--text-muted)]">配置系统菜单</div>
         </div>
       </el-col>
       <el-col :span="6">
         <div class="quick-link-card" @click="$router.push('/datasource')">
           <el-icon class="text-3xl text-orange-500 mb-2"><Connection /></el-icon>
           <div class="text-base font-medium">数据源管理</div>
-          <div class="text-sm text-gray-500">管理数据连接</div>
+          <div class="text-sm text-[var(--text-muted)]">管理数据连接</div>
         </div>
       </el-col>
       <el-col :span="6">
         <div class="quick-link-card" @click="$router.push('/users')">
           <el-icon class="text-3xl text-purple-500 mb-2"><User /></el-icon>
           <div class="text-base font-medium">用户管理</div>
-          <div class="text-sm text-gray-500">管理系统用户</div>
+          <div class="text-sm text-[var(--text-muted)]">管理系统用户</div>
         </div>
       </el-col>
     </el-row>
@@ -48,7 +48,7 @@
     <el-row :gutter="20">
       <el-col :span="24">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-semibold text-gray-700">我的仪表盘</h2>
+          <h2 class="text-lg font-semibold text-[var(--text-secondary)]">我的仪表盘</h2>
           <el-button type="primary" @click="handleCreate">
             <el-icon class="mr-1"><Plus /></el-icon>
             新建仪表盘
@@ -64,12 +64,12 @@
       <el-col v-for="db in dashboards" :key="db.id" :span="6">
         <el-card class="dashboard-card" shadow="hover" @click="handleView(db.id)">
           <div class="dashboard-preview">
-            <el-icon class="text-4xl text-gray-300"><DataLine /></el-icon>
+            <el-icon class="text-4xl text-[var(--text-muted)]"><DataLine /></el-icon>
           </div>
           <div class="dashboard-info">
             <div class="dashboard-name">{{ db.name }}</div>
             <div class="dashboard-meta">
-              <span class="text-xs text-gray-400">{{ formatDate(db.createdAt) }}</span>
+              <span class="text-xs text-[var(--text-muted)]">{{ formatDate(db.createdAt) }}</span>
             </div>
           </div>
           <div class="dashboard-actions">
@@ -139,7 +139,7 @@ onMounted(() => {
 
 <style scoped>
 .home-page {
-  background: #f5f7fa;
+  background: var(--bg-tertiary);
   min-height: 100%;
 }
 
@@ -164,13 +164,13 @@ onMounted(() => {
 }
 
 .quick-link-card {
-  background: white;
+  background: var(--bg-secondary);
   border-radius: 8px;
   padding: 24px;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s;
-  border: 1px solid #e4e7ed;
+  border: 1px solid var(--border);
 }
 
 .quick-link-card:hover {
@@ -185,7 +185,7 @@ onMounted(() => {
 
 .dashboard-preview {
   height: 120px;
-  background: #f5f7fa;
+  background: var(--bg-tertiary);
   border-radius: 4px;
   display: flex;
   align-items: center;

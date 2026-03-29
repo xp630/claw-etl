@@ -1,13 +1,13 @@
 <template>
   <div class="form-renderer">
     <!-- Not configured -->
-    <div v-if="!featureId" class="p-6 border border-dashed border-gray-300 rounded bg-gray-50 text-center">
-      <div class="text-gray-400 text-sm">请先在右侧绑定数据源和 Feature</div>
+    <div v-if="!featureId" class="p-6 border border-dashed border-[var(--border)] rounded bg-[var(--bg-table-header)] text-center">
+      <div class="text-[var(--text-muted)] text-sm">请先在右侧绑定数据源和 Feature</div>
     </div>
 
     <!-- Loading -->
-    <div v-else-if="loading" class="p-6 border border-dashed border-gray-300 rounded bg-gray-50 text-center">
-      <div class="text-gray-400 text-sm">加载中...</div>
+    <div v-else-if="loading" class="p-6 border border-dashed border-[var(--border)] rounded bg-[var(--bg-table-header)] text-center">
+      <div class="text-[var(--text-muted)] text-sm">加载中...</div>
     </div>
 
     <!-- Error -->
@@ -16,15 +16,15 @@
     </div>
 
     <!-- Empty fields -->
-    <div v-else-if="formColumns.length === 0" class="p-6 border border-dashed border-gray-300 rounded bg-gray-50 text-center">
-      <div class="text-gray-400 text-sm">未配置表单字段</div>
+    <div v-else-if="formColumns.length === 0" class="p-6 border border-dashed border-[var(--border)] rounded bg-[var(--bg-table-header)] text-center">
+      <div class="text-[var(--text-muted)] text-sm">未配置表单字段</div>
     </div>
 
     <!-- Form -->
-    <div v-else class="border border-gray-200 rounded bg-white p-4">
+    <div v-else class="border border-[var(--border-light)] rounded bg-[var(--bg-secondary)] p-4">
       <div class="space-y-4">
         <div v-for="field in formColumns" :key="field.key" class="flex flex-col gap-1">
-          <label class="text-xs font-medium text-gray-600">
+          <label class="text-xs font-medium text-[var(--text-secondary)]">
             {{ field.label }}
             <span v-if="field.required" class="text-red-500 ml-1">*</span>
           </label>
@@ -80,7 +80,7 @@
               v-model="formValues[field.key]"
               :disabled="!showEdit"
             />
-            <span class="text-sm text-gray-500">{{ field.placeholder || '是' }}</span>
+            <span class="text-sm text-[var(--text-muted)]">{{ field.placeholder || '是' }}</span>
           </div>
 
           <!-- Default text input -->
@@ -94,7 +94,7 @@
       </div>
 
       <!-- Action buttons -->
-      <div v-if="showAdd || showEdit" class="flex gap-2 mt-6 pt-4 border-t border-gray-200">
+      <div v-if="showAdd || showEdit" class="flex gap-2 mt-6 pt-4 border-t border-[var(--border-light)]">
         <el-button type="primary" @click="handleSubmit">提交</el-button>
         <el-button @click="handleReset">重置</el-button>
       </div>

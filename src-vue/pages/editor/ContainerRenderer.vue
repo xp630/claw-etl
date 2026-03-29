@@ -3,7 +3,7 @@
     <!-- Card container -->
     <div
       v-if="type === 'card'"
-      class="border border-gray-200 rounded-lg p-4 bg-white shadow-sm"
+      class="border border-[var(--border-light)] rounded-lg p-4 bg-[var(--bg-secondary)] shadow-sm"
       :style="containerStyle"
     >
       <div v-if="props.title" class="font-medium text-[var(--text-primary)] mb-2">
@@ -17,11 +17,11 @@
     <!-- Tabs container -->
     <div
       v-else-if="type === 'tabs'"
-      class="border border-gray-200 rounded-lg p-4 bg-white"
+      class="border border-[var(--border-light)] rounded-lg p-4 bg-[var(--bg-secondary)]"
       :style="containerStyle"
     >
       <!-- Tab header -->
-      <div class="flex border-b border-gray-200 mb-3">
+      <div class="flex border-b border-[var(--border-light)] mb-3">
         <div
           v-for="(tab, index) in tabs"
           :key="index"
@@ -29,7 +29,7 @@
           :class="[
             activeTab === index
               ? 'text-blue-500 border-b-2 border-blue-500 -mb-px font-medium'
-              : 'text-gray-500 hover:text-gray-700'
+              : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
           ]"
           @click="handleTabClick(index)"
         >
@@ -47,7 +47,7 @@
         <button
           v-if="canModify"
           @click="addingTab = true"
-          class="px-2 py-1 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded transition-colors"
+          class="px-2 py-1 text-[var(--text-muted)] hover:text-blue-500 hover:bg-blue-50 rounded transition-colors"
           title="添加标签"
         >
           <Plus class="w-4 h-4" />
@@ -60,7 +60,7 @@
           v-model="newTabName"
           type="text"
           placeholder="标签名"
-          class="w-20 px-1 py-0.5 text-sm border border-gray-300 rounded focus:outline-none focus:border-blue-500"
+          class="w-20 px-1 py-0.5 text-sm border border-[var(--border)] rounded focus:outline-none focus:border-blue-500"
           @keydown.enter="handleAddTab"
           @keydown.escape="cancelAddTab"
           @blur="handleAddTab"
@@ -77,11 +77,11 @@
     <!-- Collapse container -->
     <div
       v-else-if="type === 'collapse'"
-      class="border border-gray-200 rounded"
+      class="border border-[var(--border-light)] rounded"
       :style="containerStyle"
     >
       <div
-        class="p-3 bg-gray-50 cursor-pointer flex justify-between items-center"
+        class="p-3 bg-[var(--bg-table-header)] cursor-pointer flex justify-between items-center"
         @click="isCollapsed = !isCollapsed"
       >
         <span>{{ props.title || '折叠面板' }}</span>

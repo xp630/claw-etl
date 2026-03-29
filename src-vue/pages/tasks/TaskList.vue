@@ -7,8 +7,8 @@
           <RefreshCw class="w-5 h-5 text-blue-500" />
         </div>
         <div>
-          <h1 class="text-xl font-bold text-gray-800 dark:text-white">任务管理</h1>
-          <p class="text-xs text-gray-500 dark:text-gray-400">配置ETL同步任务</p>
+          <h1 class="text-xl font-bold text-[var(--text-primary)] dark:text-white">任务管理</h1>
+          <p class="text-xs text-[var(--text-muted)] dark:text-gray-400">配置ETL同步任务</p>
         </div>
       </div>
       <el-button type="primary" @click="handleCreate">
@@ -17,7 +17,7 @@
     </div>
 
     <!-- 搜索筛选 -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 mb-6">
+    <div class="bg-[var(--bg-secondary)] dark:bg-gray-800 rounded-xl border border-[var(--border-light)] dark:border-gray-700 p-4 mb-6">
       <div class="flex gap-4 flex-wrap">
         <el-input
           v-model="searchTable"
@@ -37,7 +37,7 @@
     </div>
 
     <!-- 任务列表 -->
-    <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+    <div class="bg-[var(--bg-secondary)] dark:bg-gray-800 rounded-xl border border-[var(--border-light)] dark:border-gray-700 overflow-hidden">
       <el-table :data="filteredTasks" v-loading="loading" stripe style="width: 100%">
         <el-table-column prop="name" label="任务名称" min-width="150" />
         <el-table-column prop="target_table" label="目标表" min-width="120" />

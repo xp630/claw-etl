@@ -1,18 +1,18 @@
 <template>
   <div class="component-panel p-4">
-    <h4 class="text-sm text-gray-500 mb-4 font-medium">组件库</h4>
+    <h4 class="text-sm text-[var(--text-muted)] mb-4 font-medium">组件库</h4>
     
     <div v-for="category in componentCategories" :key="category.name" class="mb-5">
-      <div class="text-xs text-gray-400 mb-2 px-1">{{ category.name }}</div>
+      <div class="text-xs text-[var(--text-muted)] mb-2 px-1">{{ category.name }}</div>
       <div class="flex flex-col gap-1.5">
         <div
           v-for="comp in category.components"
           :key="comp.type"
-          class="flex items-center gap-2 p-2.5 bg-gray-50 rounded-md text-sm cursor-grab transition-colors hover:bg-gray-100 active:cursor-grabbing select-none"
+          class="flex items-center gap-2 p-2.5 bg-[var(--bg-table-header)] rounded-md text-sm cursor-grab transition-colors hover:bg-[var(--bg-tertiary)] active:cursor-grabbing select-none"
           draggable="true"
           @dragstart="onDragStart($event, comp)"
         >
-          <span class="text-gray-600">{{ comp.label }}</span>
+          <span class="text-[var(--text-secondary)]">{{ comp.label }}</span>
         </div>
       </div>
     </div>
@@ -99,7 +99,7 @@ function onDragStart(event: DragEvent, comp: ComponentItem) {
 .component-panel {
   height: 100%;
   overflow-y: auto;
-  background: #fff;
+  background: var(--bg-secondary);
   user-select: none;
 }
 </style>

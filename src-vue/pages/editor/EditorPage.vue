@@ -1,15 +1,15 @@
 <template>
-  <div class="h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
+  <div class="h-screen flex flex-col bg-[var(--bg-tertiary)] dark:bg-gray-900">
     <!-- Header -->
-    <div class="h-14 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 flex items-center px-4 gap-4">
-      <h1 class="text-lg font-medium text-gray-800 dark:text-white">
+    <div class="h-14 bg-[var(--bg-secondary)] dark:bg-gray-800 border-b border-[var(--border-light)] dark:border-gray-700 flex items-center px-4 gap-4">
+      <h1 class="text-lg font-medium text-[var(--text-primary)] dark:text-white">
         {{ isNewPage ? '新建页面' : '页面编辑器' }}
       </h1>
       <input
         type="text"
         v-model="pageName"
         placeholder="输入页面名称"
-        class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-sm w-48 bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+        class="px-3 py-1.5 border border-[var(--border)] dark:border-gray-600 rounded text-sm w-48 bg-[var(--input-bg)] dark:bg-gray-700 text-[var(--text-primary)] dark:text-white"
       />
       
       <!-- 工具栏 -->
@@ -38,7 +38,7 @@
       </div>
       
       <div class="ml-auto flex items-center gap-2">
-        <span class="text-xs text-gray-500">{{ components.length }} 个组件</span>
+        <span class="text-xs text-[var(--text-muted)]">{{ components.length }} 个组件</span>
         <el-button type="primary" size="small" :loading="saving" @click="handleSave">
           {{ saving ? '保存中...' : '保存' }}
         </el-button>
@@ -62,11 +62,10 @@
       <!-- 浮动面板 -->
       <div 
         v-if="activeLeftTab"
-        class="absolute left-4 top-4 z-40 w-72 h-[calc(100vh-140px)] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl flex flex-col"
+        class="absolute left-4 top-4 z-40 w-72 h-[calc(100vh-140px)] bg-[var(--bg-secondary)] dark:bg-gray-800 border border-[var(--border-light)] dark:border-gray-700 rounded-lg shadow-xl flex flex-col"
       >
         <ComponentPanel 
           v-if="activeLeftTab === 'components'"
-          @drag-start="activeLeftTab = ''"
           @quick-add="handleQuickAdd"
         />
         <ComponentTree
@@ -84,9 +83,9 @@
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         @click.self="showPropsModal = false"
       >
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-[900px] max-h-[85vh] flex flex-col">
-          <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-            <h3 class="font-medium text-gray-800 dark:text-white">
+        <div class="bg-[var(--bg-secondary)] dark:bg-gray-800 rounded-lg shadow-xl w-[900px] max-h-[85vh] flex flex-col">
+          <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--border-light)] dark:border-gray-700">
+            <h3 class="font-medium text-[var(--text-primary)] dark:text-white">
               属性配置 - {{ selectedComponent.label }}
             </h3>
             <el-button text @click="showPropsModal = false">
@@ -121,14 +120,13 @@
         @move-child-to-root="handleMoveChildToRoot"
         @resize="handleResize"
         @update-props="handleUpdatePropsDirect"
-        @drag-start="activeLeftTab = ''"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { LayoutGrid, Layers, Settings2, X } from 'lucide-vue-next'
 import { ElMessage } from 'element-plus'
@@ -625,7 +623,7 @@ function updateComponentProps(components: CanvasComponent[], id: string, newProp
 }
 
 // ============ Lifecycle ============
-onMounted(async () => {
+async function loadPageConfig() {
   const pageIdParam = route.query.pageId
   const isNew = route.query.new === 'true'
   
@@ -634,9 +632,12 @@ onMounted(async () => {
     const timestamp = Date.now()
     pageName.value = `未命名页面-${timestamp}`
     pageCode.value = `page_${timestamp}`
+    components.value = []
+    selectedId.value = null
   } else if (pageIdParam) {
     isNewPage.value = false
     try {
+      console.log('[EditorPage] getPageConfig called, id:', pageIdParam)
       const data = await getPageConfig(Number(pageIdParam))
       if (data?.code === 1 && data.data) {
         const page = data.data
@@ -662,9 +663,19 @@ onMounted(async () => {
       ElMessage.error('加载页面失败')
     }
   }
+}
 
+onMounted(async () => {
+  await loadPageConfig()
+  
   // 键盘快捷键
   document.addEventListener('keydown', handleKeyDown)
+})
+
+// 监听路由变化，刷新时重新加载
+watch(() => route.fullPath, (newPath, oldPath) => {
+  console.log('[EditorPage] route.fullPath changed:', oldPath, '->', newPath)
+  loadPageConfig()
 })
 
 onUnmounted(() => {

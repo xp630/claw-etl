@@ -6,18 +6,18 @@
         <ArrowLeft class="w-5 h-5" />
       </el-button>
       <div>
-        <h1 class="text-xl font-bold text-gray-800 dark:text-white">{{ isEdit ? '编辑任务' : '新增任务' }}</h1>
-        <p class="text-xs text-gray-500 dark:text-gray-400">配置数据同步任务</p>
+        <h1 class="text-xl font-bold text-[var(--text-primary)] dark:text-white">{{ isEdit ? '编辑任务' : '新增任务' }}</h1>
+        <p class="text-xs text-[var(--text-muted)] dark:text-gray-400">配置数据同步任务</p>
       </div>
     </div>
 
     <!-- 表单 -->
     <el-form :model="formData" label-width="120px" class="space-y-6">
       <!-- 源数据 -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+      <div class="bg-[var(--bg-secondary)] dark:bg-gray-800 rounded-xl border border-[var(--border-light)] dark:border-gray-700 p-6">
         <div class="flex items-center gap-2 mb-4">
           <Database class="w-5 h-5 text-blue-500" />
-          <h2 class="text-lg font-medium text-gray-800 dark:text-white">源数据</h2>
+          <h2 class="text-lg font-medium text-[var(--text-primary)] dark:text-white">源数据</h2>
         </div>
 
         <el-row :gutter="16">
@@ -42,10 +42,10 @@
       </div>
 
       <!-- 目标数据 -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+      <div class="bg-[var(--bg-secondary)] dark:bg-gray-800 rounded-xl border border-[var(--border-light)] dark:border-gray-700 p-6">
         <div class="flex items-center gap-2 mb-4">
           <Table class="w-5 h-5 text-green-500" />
-          <h2 class="text-lg font-medium text-gray-800 dark:text-white">目标数据</h2>
+          <h2 class="text-lg font-medium text-[var(--text-primary)] dark:text-white">目标数据</h2>
         </div>
 
         <el-row :gutter="16">
@@ -65,7 +65,7 @@
             <el-form-item label="列名" required>
               <template #label>
                 <span>列名</span>
-                <span class="text-gray-400 font-normal ml-2">用英文逗号隔开</span>
+                <span class="text-[var(--text-muted)] font-normal ml-2">用英文逗号隔开</span>
               </template>
               <div class="flex gap-2">
                 <el-input v-model="formData.columns" placeholder="id,name,price,create_time" />
@@ -87,10 +87,10 @@
       </div>
 
       <!-- 执行周期 -->
-      <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-6">
+      <div class="bg-[var(--bg-secondary)] dark:bg-gray-800 rounded-xl border border-[var(--border-light)] dark:border-gray-700 p-6">
         <div class="flex items-center gap-2 mb-4">
           <Zap class="w-5 h-5 text-purple-500" />
-          <h2 class="text-lg font-medium text-gray-800 dark:text-white">执行周期</h2>
+          <h2 class="text-lg font-medium text-[var(--text-primary)] dark:text-white">执行周期</h2>
         </div>
 
         <el-row :gutter="16">
