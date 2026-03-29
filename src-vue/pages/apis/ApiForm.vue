@@ -240,11 +240,12 @@
               <el-button size="small" type="primary" @click="generateSql">重新生成</el-button>
             </div>
             <el-input
-              v-model="formData.querySql || generatedSql"
+              :model-value="formData.querySql || generatedSql"
               type="textarea"
               :rows="12"
               placeholder="编写你的SQL查询语句..."
               class="font-mono"
+              @input="formData.querySql = $event"
             />
           </div>
         </div>
