@@ -654,9 +654,22 @@ function getCellValue(row: any, col: any): any {
 function getColumnOptions(col: any): { label: string; value: string }[] {
   // 优先使用固定值
   if (col.fixedValues) {
+    console.log('[Table] getColumnOptions fixedValues:', col.fixedValues)
+    // fixedValues 可能是 JSON 字符串，也可能是已经解析好的数组
+    if (Array.isArray(col.fixedValues)) {
+      const result = col.fixedValues.map((item: any) => ({
+        label: item.label || item.itemLabel || String(item.value || item.itemValue),
+        value: String(item.value || item.itemValue || '')
+      }))
+      console.log('[Table] getColumnOptions result from array:', result)
+      return result
+    }
     try {
-      return JSON.parse(col.fixedValues)
+      const result = JSON.parse(col.fixedValues)
+      console.log('[Table] getColumnOptions result from JSON:', result)
+      return result
     } catch {
+      console.log('[Table] getColumnOptions JSON parse failed')
       return []
     }
   }
