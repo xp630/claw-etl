@@ -176,8 +176,6 @@ async function savePageConfig(data: any) {
   return res.data
 }
 
-// Re-export API functions for PropertyPanel
-export { getDataSources, getFeatures, getFeatureDetail }
 
 // ============ Helpers ============
 function generateId(): string {
