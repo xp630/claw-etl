@@ -6,7 +6,7 @@
         <Layout class="w-6 h-6 text-blue-500" />
         <h1 class="text-2xl font-bold text-[var(--text-primary)] dark:text-white">功能管理</h1>
       </div>
-      <el-button type="primary" @click="showNewModal = true">
+      <el-button type="primary" @click="handleAdd">
         <Plus class="w-4 h-4 mr-1" /> 新增
       </el-button>
     </div>
@@ -61,42 +61,15 @@
     </div>
 
     <!-- 新增/编辑弹窗 -->
-    <el-dialog
-      v-model="showNewModal"
-      :title="isEdit ? '编辑功能' : '新增功能'"
-      width="600px"
-      @closed="resetForm"
-    >
-      <el-form :model="formData" label-width="100px">
-        <el-form-item label="功能名称" required>
-          <el-input v-model="formData.name" placeholder="请输入功能名称" />
-        </el-form-item>
-        <el-form-item label="功能编码" required>
-          <el-input v-model="formData.code" placeholder="请输入功能编码" :disabled="isEdit" />
-        </el-form-item>
-        <el-form-item label="访问路径">
-          <el-input v-model="formData.path" placeholder="请输入访问路径" />
-        </el-form-item>
-        <el-form-item label="类型">
-          <el-select v-model="formData.type" class="w-full">
-            <el-option value="page" label="页面" />
-            <el-option value="button" label="按钮" />
-            <el-option value="menu" label="菜单" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="描述">
-          <el-input v-model="formData.description" type="textarea" :rows="3" placeholder="请输入描述" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="showNewModal = false">取消</el-button>
-        <el-button type="primary" :loading="saving" @click="handleSave">保存</el-button>
-      </template>
-    </el-dialog>
+    <FeatureFormDialog
+      v-model="showFormDialog"
+      :feature-id="editingId"
+      @success="loadFeatures"
+    />
 
     <!-- 删除确认 -->
     <el-dialog v-model="showDeleteConfirm" title="确认删除" width="400px">
-      <p class="text-gray-600">确定要删除该功能吗？此操作不可撤销。</p>
+      <p>确定要删除该功能吗？此操作不可撤销。</p>
       <template #footer>
         <el-button @click="showDeleteConfirm = false">取消</el-button>
         <el-button type="danger" @click="handleDelete">删除</el-button>
@@ -106,85 +79,24 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { Plus, Search, Layout } from 'lucide-vue-next'
-import { ElMessage } from 'element-plus'
-import axios from 'axios'
-
-interface Feature {
-  id?: number
-  name: string
-  code: string
-  path?: string
-  type?: string
-  description?: string
-}
-
-const API_BASE = '/etl-admin'
-const api = axios.create({
-  baseURL: API_BASE,
-  timeout: 10000,
-})
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) {
-    config.headers['Authorization'] = `Bearer ${token}`
-  }
-  return config
-})
-
-async function getFeatures(params: { page: number; limit: number; keyword?: string }): Promise<{ list: Feature[]; total: number }> {
-  const res = await api.post('/feature/list', {
-    page: params.page,
-    limit: params.limit,
-    keyword: params.keyword || '',
-  })
-  if (res.data?.code === 0 || res.data?.code === 1) {
-    return {
-      list: res.data?.data?.list || [],
-      total: res.data?.data?.total || 0,
-    }
-  }
-  return { list: [], total: 0 }
-}
-
-async function getFeature(id: number): Promise<Feature | null> {
-  const res = await api.post('/feature/detail', { id })
-  if (res.data?.code === 0 || res.data?.code === 1) {
-    return res.data?.data
-  }
-  return null
-}
-
-async function saveFeature(data: Partial<Feature>): Promise<boolean> {
-  const res = await api.post('/feature/save', data)
-  return res.data?.code === 0 || res.data?.code === 1
-}
-
-async function deleteFeature(id: number): Promise<void> {
-  await api.post('/feature/delete', { id })
-}
+import { ElMessage, ElMessageBox } from 'element-plus'
+import FeatureFormDialog from './FeatureFormDialog.vue'
+import { getFeatures, deleteFeature, type Feature } from '@/lib/api'
 
 const features = ref<Feature[]>([])
 const loading = ref(false)
-const saving = ref(false)
 const searchKeyword = ref('')
 const page = ref(1)
 const limit = ref(10)
 const total = ref(0)
-const showNewModal = ref(false)
-const showDeleteConfirm = ref(false)
-const deleteId = ref<number | null>(null)
-const isEdit = ref(false)
 
-const formData = reactive<Partial<Feature>>({
-  name: '',
-  code: '',
-  path: '',
-  type: 'page',
-  description: '',
-})
+// 弹窗状态
+const showFormDialog = ref(false)
+const showDeleteConfirm = ref(false)
+const editingId = ref<number | null>(null)
+const deleteId = ref<number | null>(null)
 
 onMounted(() => {
   loadFeatures()
@@ -194,8 +106,8 @@ async function loadFeatures() {
   loading.value = true
   try {
     const data = await getFeatures({ page: page.value, limit: limit.value, keyword: searchKeyword.value })
-    features.value = data.list
-    total.value = data.total
+    features.value = data.list || []
+    total.value = data.total || 0
   } catch (error) {
     console.error('Failed to load features:', error)
   } finally {
@@ -208,10 +120,14 @@ function handleSearch() {
   loadFeatures()
 }
 
+function handleAdd() {
+  editingId.value = null
+  showFormDialog.value = true
+}
+
 function handleEdit(row: Feature) {
-  isEdit.value = true
-  Object.assign(formData, row)
-  showNewModal.value = true
+  editingId.value = row.id || null
+  showFormDialog.value = true
 }
 
 function confirmDelete(row: Feature) {
@@ -230,35 +146,5 @@ async function handleDelete() {
       console.error('Failed to delete feature:', error)
     }
   }
-}
-
-async function handleSave() {
-  if (!formData.name || !formData.code) {
-    ElMessage.warning('请填写必填项')
-    return
-  }
-
-  saving.value = true
-  try {
-    await saveFeature(formData)
-    ElMessage.success(isEdit.value ? '更新成功' : '创建成功')
-    showNewModal.value = false
-    loadFeatures()
-  } catch (error) {
-    console.error('Failed to save feature:', error)
-  } finally {
-    saving.value = false
-  }
-}
-
-function resetForm() {
-  Object.assign(formData, {
-    name: '',
-    code: '',
-    path: '',
-    type: 'page',
-    description: '',
-  })
-  isEdit.value = false
 }
 </script>
