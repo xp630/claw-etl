@@ -997,8 +997,8 @@ export async function getFeatures(params: {
     })
     if (res.data?.code === 0 || res.data?.code === 1) {
       return {
-        list: res.data?.data?.list || [],
-        total: res.data?.data?.total || 0,
+        list: res.data?.list || res.data?.data?.list || [],
+        total: res.data?.count || res.data?.data?.count || res.data?.data?.total || 0,
       }
     }
     return { list: [], total: 0 }
