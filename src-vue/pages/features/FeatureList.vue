@@ -30,7 +30,7 @@
           >
             <template #default="{ node, data }">
               <div class="flex items-center gap-2 py-0.5">
-                <el-icon v-if="data.type === 'datasource'" class="text-blue-500"><Connection /></el-icon>
+                <el-icon v-if="data.type === 'datasource'" class="text-blue-500"><Database /></el-icon>
                 <el-icon v-else-if="data.type === 'table'" class="text-green-500"><Grid /></el-icon>
                 <span class="text-sm">{{ node.label }}</span>
               </div>
@@ -183,7 +183,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
-import { Plus, Search, Layout, Connection, Grid } from 'lucide-vue-next'
+import { Plus, Search, Layout, Database, Grid } from 'lucide-vue-next'
 import { ElMessage } from 'element-plus'
 import { getFeatures, getFeatureDetail, saveFeature, deleteFeature, getDataSources, getTableList, getTableColumns, type Feature, type FeatureColumn } from '@/lib/api'
 
