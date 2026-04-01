@@ -1,7 +1,7 @@
 <template>
   <div
     ref="canvasRef"
-    class="min-h-full min-w-[1280px] p-4 transition-colors"
+    class="min-h-0 w-full overflow-y-auto p-4 transition-colors"
     :class="{ 'bg-[var(--accent-light)] border-2 border-dashed border-[var(--accent)]': isDragOver }"
     @dragover.prevent="onDragOver"
     @dragleave="onDragLeave"
@@ -11,7 +11,7 @@
     <!-- Empty state -->
     <div
       v-if="components.length === 0"
-      class="flex items-center justify-center min-h-[400px] bg-[var(--bg-primary)] border-2 border-dashed border-[var(--border)] rounded-lg"
+      class="flex items-center justify-center min-h-[400px] min-w-[1280px] bg-[var(--bg-primary)] border-2 border-dashed border-[var(--border)] rounded-lg"
     >
       <div class="text-center text-[var(--text-muted)]">
         <div class="text-4xl mb-2">📦</div>
@@ -20,7 +20,7 @@
     </div>
 
     <!-- Components list -->
-    <div v-else class="flex flex-col gap-3">
+    <div v-else class="flex flex-col gap-3 min-w-[1280px]">
       <div
         v-for="(comp, index) in components"
         :key="comp.id"
@@ -34,6 +34,7 @@
         @dragstart="onRootDragStart($event, index)"
         @dragover.prevent
         @click.stop="onComponentClick(comp.id)"
+        @dblclick.stop="onComponentDoubleClick(comp.id)"
       >
         <!-- Component actions toolbar -->
         <div class="absolute -top-3 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 bg-[var(--bg-primary)] rounded shadow flex items-center gap-1 p-1">
@@ -85,6 +86,7 @@
               @dragleave="onContainerDragLeave"
               @drop.prevent="onContainerDrop($event, comp.id)"
               @click.stop="onComponentClick(comp.id)"
+              @dblclick.stop="onComponentDoubleClick(comp.id)"
             >
               <ComponentRenderer
                 :component="comp"
@@ -92,15 +94,17 @@
                 canvas-mode
                 :show-children="getContainerChildren(comp)"
                 :container-id="comp.id"
-                @remove-child="removeFromContainer"
+                @remove-child="(containerId, childId) => removeFromContainer(containerId, childId)"
                 @drag-start-nested="onNestedDragStart"
                 @select="onComponentClick"
+                @drop-on-tab="onDropOnTab"
+                @open-props="(id: string) => emit('open-props', id)"
               />
             </div>
           </template>
           <!-- Regular component -->
           <template v-else>
-            <ComponentRenderer :component="comp" :editable="true" canvas-mode @select="onComponentClick" />
+            <ComponentRenderer :component="comp" :editable="true" canvas-mode @select="onComponentClick" @open-props="(id: string) => emit('open-props', id)" />
           </template>
         </div>
       </div>
@@ -126,15 +130,19 @@ const emit = defineEmits<{
   reorder: [fromIndex: number, toIndex: number]
   delete: [id: string]
   drop: [data: { fromPalette: boolean, type?: string, label?: string, defaultProps?: Record<string, unknown> } | null]
-  addChildToContainer: [containerId: string, component: CanvasComponent, tabIndex?: number]
-  removeFromContainer: [containerId: string, childId: string]
-  moveChildToRoot: [containerId: string, childId: string, insertIndex: number]
+  'add-child': [containerId: string, component: CanvasComponent, insertIndex: number, tabIndex?: number]
+  'remove-child': [containerId: string, childId: string]
+  'move-child-to-root': [containerId: string, childId: string, insertIndex: number, tabIndex?: number]
   'update-component': [id: string, key: string, value: any]
+  'drag-start': []
+  'drag-end': []
+  'open-props': [id: string]
 }>()
 
 const canvasRef = ref<HTMLElement | null>(null)
 const isDragOver = ref(false)
 const dragOverContainerId = ref<string | null>(null)
+const dragOverIndex = ref<number>(0)  // Track insert position within container
 
 // Drag state
 const dragState = ref<{
@@ -168,6 +176,29 @@ const getContainerChildren = (comp: CanvasComponent): CanvasComponent[] => {
     return comp.children || []
   }
   return comp.children || []
+}
+
+// Check if targetId is the same as or a descendant of sourceId (prevents dropping container into itself)
+const isDescendantOf = (targetId: string, sourceId: string): boolean => {
+  if (targetId === sourceId) return true
+  const findComponent = (comps: CanvasComponent[], id: string): CanvasComponent | null => {
+    for (const c of comps) {
+      if (c.id === id) return c
+      if (c.children?.length) {
+        const found = findComponent(c.children, id)
+        if (found) return found
+      }
+    }
+    return null
+  }
+  const source = findComponent(props.components, sourceId)
+  if (!source) return false
+  // Check if targetId is in source's descendants
+  const checkDescendants = (comp: CanvasComponent): boolean => {
+    if (comp.id === targetId) return true
+    return comp.children?.some(checkDescendants) || false
+  }
+  return checkDescendants(source)
 }
 
 // Generate unique ID
@@ -212,6 +243,7 @@ const onDrop = (e: DragEvent) => {
     }
   }
   emit('drop', parsed)
+  emit('drag-end')
 }
 
 const onCanvasClick = () => {
@@ -220,6 +252,11 @@ const onCanvasClick = () => {
 
 const onComponentClick = (id: string) => {
   emit('select', id)
+}
+
+// Double-click to open props panel
+const onComponentDoubleClick = (id: string) => {
+  emit('open-props', id)
 }
 
 // Move component up
@@ -258,6 +295,7 @@ const onPaletteDragStart = (e: DragEvent, type: string, label: string, defaultPr
 
 // Drag from root component (reorder)
 const onRootDragStart = (e: DragEvent, index: number) => {
+  emit('drag-start')
   dragState.value = {
     dragType: 'reorder',
     sourceContainerId: null,
@@ -271,6 +309,7 @@ const onRootDragStart = (e: DragEvent, index: number) => {
 
 // Drag from nested component (move out of container)
 const onNestedDragStart = (e: DragEvent, containerId: string, index: number) => {
+  emit('drag-start')
   dragState.value = {
     dragType: 'nested',
     sourceContainerId: containerId,
@@ -284,10 +323,32 @@ const onNestedDragStart = (e: DragEvent, containerId: string, index: number) => 
 }
 
 // Container drag over
+// Calculate insert index based on mouse Y position within container
+const calcInsertIndex = (e: DragEvent, containerId: string): number => {
+  const containerEl = (e.currentTarget as HTMLElement)
+  const children = getContainerChildren(props.components.find(c => c.id === containerId)!)
+  if (children.length === 0) return 0
+  
+  const containerRect = containerEl.getBoundingClientRect()
+  const relY = e.clientY - containerRect.top
+  
+  // Find the child element under mouse
+  const childEls = containerEl.querySelectorAll('[data-child-index]')
+  for (const childEl of childEls) {
+    const rect = childEl.getBoundingClientRect()
+    const midY = rect.top + rect.height / 2 - containerRect.top
+    if (relY < midY) {
+      return parseInt((childEl as HTMLElement).dataset.childIndex || '0', 10)
+    }
+  }
+  return children.length
+}
+
 const onContainerDragOver = (e: DragEvent, containerId: string) => {
   e.preventDefault()
   e.stopPropagation()
   dragOverContainerId.value = containerId
+  dragOverIndex.value = calcInsertIndex(e, containerId)
 }
 
 const onContainerDragLeave = (e: DragEvent) => {
@@ -299,6 +360,48 @@ const onContainerDragLeave = (e: DragEvent) => {
   }
 }
 
+// Drop on a specific tab within a tabs container
+const onDropOnTab = (containerId: string, tabIndex: number, data: any) => {
+  console.log('[DropCanvas] onDropOnTab called:', { containerId, tabIndex, data })
+  
+  try {
+    // Check if trying to drop a container into itself
+    if (data.fromRoot) {
+      const comp = props.components[data.index]
+      if (comp && isContainerType(comp.type) && isDescendantOf(containerId, comp.id)) {
+        console.warn('[DropCanvas] Cannot drop container into itself or its descendant')
+        emit('drag-end')
+        return
+      }
+    } else if (data.fromNested) {
+      // For nested moves, we need the actual component - check via parent chain
+      // The actual check will be done in handleMoveChildToRoot/handleAddChildToContainer
+    }
+
+    if (data.fromPalette) {
+      // New component from palette - add to specific tab
+      const newComponent: CanvasComponent = {
+        id: generateId(),
+        componentId: `${data.type}_${Date.now()}`,
+        type: data.type,
+        label: data.label,
+        props: data.defaultProps || {},
+      }
+      emit('add-child', containerId, newComponent, tabIndex)
+    } else if (data.fromRoot) {
+      const rootComp = props.components[data.index]
+      emit('move-child-to-root', containerId, rootComp?.id || '', data.index, tabIndex)
+    } else if (data.fromNested) {
+      const srcContainer = props.components.find(c => c.id === data.containerId)
+      const child = srcContainer?.children?.[data.index]
+      emit('move-child-to-root', containerId, child?.id || '', data.index, tabIndex)
+    }
+  } catch (err) {
+    console.error('Failed to handle drop on tab:', err)
+  }
+  emit('drag-end')
+}
+
 // Container drop
 const onContainerDrop = (e: DragEvent, containerId: string) => {
   e.preventDefault()
@@ -308,7 +411,10 @@ const onContainerDrop = (e: DragEvent, containerId: string) => {
   console.log('[DropCanvas] onContainerDrop called, containerId:', containerId)
   const data = e.dataTransfer?.getData('application/json')
   console.log('[DropCanvas] onContainerDrop data:', data)
-  if (!data) return
+  if (!data) {
+    emit('drag-end')
+    return
+  }
 
   try {
     const parsed = JSON.parse(data)
@@ -323,24 +429,34 @@ const onContainerDrop = (e: DragEvent, containerId: string) => {
         props: parsed.defaultProps || {},
       }
       const tabIndex = parsed.type === 'tabs' ? (parsed.defaultProps?.activeTab as number || 0) : undefined
-      emit('add-child', containerId, newComponent, tabIndex)
+      emit('add-child', containerId, newComponent, dragOverIndex.value, tabIndex)
     } else if (parsed.fromRoot) {
+      // Prevent dropping a container into itself or its descendant
+      const comp = props.components[parsed.index]
+      if (comp && isContainerType(comp.type) && isDescendantOf(containerId, comp.id)) {
+        console.warn('[DropCanvas] Cannot drop container into itself or its descendant')
+        emit('drag-end')
+        return
+      }
       // Moving from root to container
-      emit('move-child-to-root', containerId, '', parsed.index)
+      emit('move-child-to-root', containerId, comp?.id || '', parsed.index)
     } else if (parsed.fromNested) {
       // Moving from one container to another
       if (parsed.containerId !== containerId) {
-        emit('move-child-to-root', containerId, '', parsed.index)
+        const srcContainer = props.components.find(c => c.id === parsed.containerId)
+        const child = srcContainer?.children?.[parsed.index]
+        emit('move-child-to-root', containerId, child?.id || '', parsed.index)
       }
     }
   } catch (err) {
     console.error('Failed to parse drop data:', err)
   }
+  emit('drag-end')
 }
 
 // Remove from container
 const removeFromContainer = (containerId: string, childId: string) => {
-  emit('removeFromContainer', containerId, childId)
+  emit('remove-child', containerId, childId)
 }
 
 // Update component prop
