@@ -29,11 +29,11 @@
           <Layers class="w-4 h-4 mr-1" />组件层
         </el-button>
         <el-button
+          v-if="selectedId"
           size="small"
-          :disabled="!selectedId"
-          @click="showPropsModal = true"
+          @click="openPropsPanel"
         >
-          <Settings2 class="w-4 h-4 mr-1" />属性
+          属性
         </el-button>
       </div>
       
@@ -82,19 +82,20 @@
         />
       </div>
 
-      <!-- 属性配置弹窗 -->
+      <!-- 属性配置弹窗 (双击组件时显示) -->
       <div 
-        v-if="showPropsModal && selectedComponent"
+        v-if="showPropsPanel && selectedComponent"
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-        @click.self="showPropsModal = false"
+        :class="{ 'pointer-events-none': isDraggingCanvas }"
+        @click.self="closePropsPanel"
       >
         <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-[900px] max-h-[85vh] flex flex-col">
           <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--border-light)]">
             <h3 class="font-medium text-[var(--text-primary)]">
               属性配置 - {{ selectedComponent.label }}
             </h3>
-            <el-button text @click="showPropsModal = false">
-              <X class="w-5 h-5" />
+            <el-button text @click="closePropsPanel">
+              ✕
             </el-button>
           </div>
           <div class="flex-1 overflow-y-auto p-4">
@@ -147,6 +148,9 @@
         @resize="handleResize"
         @update-props="handleUpdatePropsDirect"
         @update-component="handleUpdateComponent"
+        @drag-start="isDraggingCanvas = true"
+        @drag-end="isDraggingCanvas = false"
+        @open-props="openPropsPanel"
       />
     </div>
   </div>
@@ -171,7 +175,8 @@ const router = useRouter()
 // ============ State ============
 const components = ref<CanvasComponent[]>([])
 const selectedId = ref<string | null>(null)
-const showPropsModal = ref(false)
+const showPropsPanel = ref(false) // 双击组件时显示属性面板
+const isDraggingCanvas = ref(false) // 画布拖拽中时屏蔽属性弹窗
 const pageName = ref('未命名页面')
 const pageCode = ref('')
 const previewMode = ref(false)
@@ -292,6 +297,7 @@ function buildComponentTree(flatComponents: any[]): CanvasComponent[] {
   })
 
   // Then build parent-child relationships using componentId for linking
+  const addedToChildren = new Set<string | number>()
   flatComponents.forEach(c => {
     const comp = componentMap.get(c.id) || componentMap.get(String(c.id)) || componentMap.get(c.componentId)
     if (!comp) return
@@ -300,7 +306,11 @@ function buildComponentTree(flatComponents: any[]): CanvasComponent[] {
       const parent = componentMap.get(parentId) || componentMap.get(String(parentId)) || componentMap.get(c.componentId)
       if (parent) {
         parent.children = parent.children || []
-        parent.children.push(comp)
+        // Avoid double-adding same component to children (might already be added via componentId link)
+        if (!addedToChildren.has(comp.id)) {
+          parent.children.push(comp)
+          addedToChildren.add(comp.id)
+        }
       } else {
         rootComponents.push(comp)
       }
@@ -383,7 +393,18 @@ function flattenComponents(comps: CanvasComponent[]): CanvasComponent[] {
 }
 
 // ============ Computed ============
-const selectedComponent = computed(() => findComponent(components.value, selectedId.value))
+// Force refresh selectedComponent by using a refresh trigger
+const refreshTrigger = ref(0)
+const selectedComponent = computed(() => {
+  refreshTrigger.value // dependency
+  return findComponent(components.value, selectedId.value)
+})
+
+function refreshSelectedComponent() {
+  if (selectedId.value) {
+    refreshTrigger.value++
+  }
+}
 
 // ============ Actions ============
 function toggleLeftTab(tab: 'layer' | 'components') {
@@ -392,7 +413,18 @@ function toggleLeftTab(tab: 'layer' | 'components') {
 
 function handleSelectComponent(id: string) {
   selectedId.value = id
-  showPropsModal.value = true
+}
+
+// 双击打开属性面板
+function openPropsPanel() {
+  if (selectedId.value) {
+    showPropsPanel.value = true
+  }
+}
+
+// 关闭属性面板
+function closePropsPanel() {
+  showPropsPanel.value = false
 }
 
 function handleReorder(fromIndex: number, toIndex: number) {
@@ -406,7 +438,6 @@ function handleDelete(id: string) {
   components.value = removeComponentFromTree(components.value, id)
   if (selectedId.value === id) {
     selectedId.value = null
-    showPropsModal.value = false
   }
 }
 
@@ -433,11 +464,19 @@ function handleQuickAdd(comp: { type: string; label: string; defaultProps?: Reco
   activeLeftTab.value = ''
 }
 
+// Recursively update parentId for all nested components (deep copy)
+function updateParentIdDeep(comp: CanvasComponent, newParentId: string): CanvasComponent {
+  return {
+    ...comp,
+    parentId: newParentId,
+    children: comp.children?.map(child => updateParentIdDeep(child, comp.componentId || comp.id))
+  }
+}
+
 function handleAddChildToContainer(containerId: string, childComponent: CanvasComponent, tabIndex?: number) {
   console.log('[handleAddChildToContainer] called:', { containerId, childComponentType: childComponent.type, childComponentId: childComponent.id, tabIndex })
-  // Ensure child has parentId set
-  // Use componentId for linking since it's stable (frontend-generated)
-  const childWithParent = { ...childComponent, parentId: containerId }
+  // Deep copy and update parentId for all nested components (grandchildren included)
+  const childWithParent = updateParentIdDeep(childComponent, containerId)
   const childKey = childWithParent.componentId || childWithParent.id
   
   components.value = updateComponentInTree(components.value, containerId, (comp: CanvasComponent) => {
@@ -464,6 +503,7 @@ function handleAddChildToContainer(containerId: string, childComponent: CanvasCo
     }
   })
   selectedId.value = childWithParent.id
+  refreshSelectedComponent()
 }
 
 function handleRemoveChildFromContainer(containerId: string, childId: string) {
@@ -486,22 +526,47 @@ function handleRemoveChildFromContainer(containerId: string, childId: string) {
   })
   if (selectedId.value === childId) {
     selectedId.value = null
+  } else {
+    // Refresh panel in case a nested child was removed from a selected container
+    refreshSelectedComponent()
   }
 }
 
-function handleMoveChildToRoot(fromContainerId: string, childId: string, insertIndex: number) {
+function handleMoveChildToRoot(fromContainerId: string, childId: string, insertIndex: number, tabIndex?: number) {
+  // Prevent dropping a container into itself or its descendant
+  const isDescendant = (targetId: string, ancestorId: string): boolean => {
+    if (targetId === ancestorId) return true
+    const findComp = (comps: CanvasComponent[], id: string): CanvasComponent | null => {
+      for (const c of comps) {
+        if (c.id === id) return c
+        if (c.children?.length) {
+          const found = findComp(c.children, id)
+          if (found) return found
+        }
+      }
+      return null
+    }
+    const ancestor = findComp(components.value, ancestorId)
+    if (!ancestor) return false
+    const checkDescendants = (comp: CanvasComponent): boolean => {
+      if (comp.id === targetId) return true
+      return comp.children?.some(checkDescendants) || false
+    }
+    return checkDescendants(ancestor)
+  }
+
   // Find and extract child
   let childToMove: CanvasComponent | null = null
   
   const extractFromContainer = (comp: CanvasComponent): CanvasComponent | null => {
     if (comp.id === fromContainerId) {
       if (comp.type === 'tabs') {
-        const childrenMap = comp.props.childrenMap as Record<string, string[]> || {}
+        const childrenMap = { ...(comp.props.childrenMap as Record<string, string[]>) }
         for (const key of Object.keys(childrenMap)) {
           const ids = childrenMap[key]
           const idx = ids.findIndex(id => id === childId)
           if (idx !== -1) {
-            // Find actual component
+            // Find actual component in the full component tree
             const findComp = (comps: CanvasComponent[]): CanvasComponent | null => {
               for (const c of comps) {
                 if (c.id === childId) return c
@@ -516,8 +581,10 @@ function handleMoveChildToRoot(fromContainerId: string, childId: string, insertI
             if (childToMove) {
               childToMove = { ...childToMove, parentId: undefined }
             }
-            childrenMap[key] = ids.filter((_, i) => i !== idx)
-            return { ...comp, props: { ...comp.props, childrenMap } }
+            // Remove from childrenMap AND from comp.children (both must be in sync)
+            const filteredIds = ids.filter((_, i) => i !== idx)
+            const filteredChildren = (comp.children || []).filter(c => c.id !== childId)
+            return { ...comp, children: filteredChildren, props: { ...comp.props, childrenMap: { ...childrenMap, [key]: filteredIds } } }
           }
         }
       }
@@ -550,13 +617,51 @@ function handleMoveChildToRoot(fromContainerId: string, childId: string, insertI
   })
 
   if (!childToMove) return
-  if (insertIndex < 0 || insertIndex >= updated.length) {
-    updated = [...updated, childToMove]
-  } else {
-    updated.splice(insertIndex, 0, childToMove)
+
+  // Prevent dropping a container into itself or its descendant
+  // isDescendant(target, ancestor) returns true if target is a descendant of ancestor
+  // Check if target container (fromContainerId) is inside the component being moved (childToMove)
+  // If true, dropping would create a cycle: parent -> ... -> child -> parent
+  const wouldCreateCycle = isDescendant(fromContainerId, childToMove.id) || fromContainerId === childToMove.id
+  if (isContainerType(childToMove.type) && wouldCreateCycle) {
+    console.warn('[EditorPage] Cannot drop container into itself or its descendant')
+    return
   }
+
+  // If tabIndex is provided, add to the target container's specific tab instead of root
+  if (tabIndex !== undefined && tabIndex >= 0) {
+    updated = updateComponentInTree(updated, fromContainerId, (comp: CanvasComponent) => {
+      if (comp.type === 'tabs') {
+        const childrenMap = (comp.props.childrenMap as Record<string, (string | number)[]>) || {}
+        const targetTabKey = String(tabIndex)
+        const existingChildIds = childrenMap[targetTabKey] || []
+        const childKey = childToMove!.componentId || childToMove!.id
+        return {
+          ...comp,
+          children: [...(comp.children || []), childToMove!],
+          props: {
+            ...comp.props,
+            childrenMap: {
+              ...childrenMap,
+              [targetTabKey]: [...existingChildIds, childKey],
+            },
+          },
+        }
+      }
+      return comp
+    })
+  } else {
+    // Add to root level
+    if (insertIndex < 0 || insertIndex >= updated.length) {
+      updated = [...updated, childToMove]
+    } else {
+      updated.splice(insertIndex, 0, childToMove)
+    }
+  }
+
   components.value = updated
   selectedId.value = childId
+  refreshSelectedComponent()
 }
 
 function handleMoveToContainer(containerId: string, componentId: string, tabIndex?: number) {
@@ -581,6 +686,7 @@ function handleMoveOutOfContainer(containerId: string, componentId: string) {
 
 function handleResize(id: string, width: number, height: number) {
   components.value = updateComponentProps(components.value, id, { width, height })
+  refreshSelectedComponent()
 }
 
 function handleUpdateProps(newProps: Record<string, any>) {
@@ -591,10 +697,12 @@ function handleUpdateProps(newProps: Record<string, any>) {
 
 function handleUpdatePropsDirect(id: string, newProps: Record<string, any>) {
   components.value = updateComponentProps(components.value, id, newProps)
+  refreshSelectedComponent()
 }
 
 function handleUpdateComponent(id: string, key: string, value: any) {
   components.value = updateComponentProps(components.value, id, { [key]: value })
+  refreshSelectedComponent()
 }
 
 function handleFlattenComponents() {
@@ -729,7 +837,7 @@ async function loadPageConfig() {
         
         // 解析组件数据
         if (pageComponents && Array.isArray(pageComponents)) {
-          console.log('[EditorPage] raw pageComponents:', JSON.stringify(pageComponents))
+          //console.log('[EditorPage] raw pageComponents:', JSON.stringify(pageComponents))
           const tree = buildComponentTree(pageComponents)
           console.log('[EditorPage] built tree, root components:', tree.length)
           tree.forEach((comp, i) => {
@@ -767,10 +875,6 @@ function handleKeyDown(e: KeyboardEvent) {
   // Delete selected component
   if (e.key === 'Delete' && selectedId.value && !isInputFocused()) {
     handleDelete(selectedId.value)
-  }
-  // Escape to close modal
-  if (e.key === 'Escape' && showPropsModal.value) {
-    showPropsModal.value = false
   }
 }
 
