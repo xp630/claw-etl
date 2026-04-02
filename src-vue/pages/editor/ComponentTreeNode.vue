@@ -40,6 +40,7 @@
     <template v-if="isContainer(comp.type) && expanded.has(comp.id!) && hasChildren">
       <!-- For tabs: render virtual tab nodes, each containing its children -->
       <template v-if="comp.type === 'tabs'">
+        <span style="color:red;font-size:10px">DEBUG: comp.type={{comp.type}} childrenMap={{comp.props?.childrenMap}} children={{comp.children?.length}}</span>
         <template v-for="(childIds, tabKey) in (comp.props?.childrenMap || {})" :key="tabKey">
           <ComponentTreeNode
             :comp="{ id: comp.id + '-tab-' + tabKey, type: 'tab', label: 'Tab ' + (Number(tabKey) + 1), children: getTabChildren(tabKey) }"
@@ -119,7 +120,9 @@ const hasChildren = computed(() => {
   if (props.comp.children && props.comp.children.length > 0) return true
   // Tabs: childrenMap contains tab children
   const childrenMap = props.comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
-  if (childrenMap && Object.keys(childrenMap).length > 0) return true
+  const hasCM = childrenMap && Object.keys(childrenMap).length > 0
+  console.log('[CTN] hasChildren for', props.comp.type, props.comp.id, ':', props.comp.children?.length, 'cm keys:', hasCM ? Object.keys(childrenMap) : 'none')
+  if (hasCM) return true
   return false
 })
 
