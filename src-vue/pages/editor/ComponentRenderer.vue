@@ -382,7 +382,28 @@
     </div>
 
     <!-- Tabs container -->
+    <!-- Tabs container -->
     <div v-else-if="component.type === 'tabs'">
+      <!-- DEBUG: print full tabs component structure -->
+      <div style="display:none">{{ console.log('[Tabs DEBUG] full component:', JSON.stringify({
+        id: component.id,
+        type: component.type,
+        label: component.label,
+        props: {
+          ...component.props,
+          childrenMap: component.props.childrenMap,
+          activeTab: component.props.activeTab,
+          tabs: component.props.tabs
+        },
+        children: component.children?.map(c => ({
+          id: c.id,
+          type: c.type,
+          label: c.label,
+          componentId: c.componentId,
+          parentId: c.parentId,
+          childrenCount: c.children?.length
+        }))
+      }, null, 2)) }}</div>
       <!-- Tab 标题显示 -->
       <div class="flex border-b border-[var(--border-light)] mb-2">
         <button
