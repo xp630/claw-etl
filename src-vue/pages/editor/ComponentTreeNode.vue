@@ -9,7 +9,6 @@
       :style="{ paddingLeft: `${depth * 16 + 8}px` }"
       @click="emit('select', comp.id)"
     >
-      <!-- Expand/collapse toggle for containers -->
       <span
         v-if="isContainer(comp.type) && hasChildren"
         @click.stop="toggleExpand(String(comp.id))"
@@ -20,14 +19,10 @@
       </span>
       <span v-else class="w-4" />
 
-      <!-- Type icon -->
       <component :is="getIcon(comp.type)" class="w-3 h-3 text-[var(--text-muted)]" />
-      
-      <!-- Label -->
       <span class="text-xs truncate flex-1">{{ comp.label || getTypeLabel(comp.type) }}</span>
       <span class="text-xs text-[var(--text-muted)]">({{ getTypeLabel(comp.type) }})</span>
 
-      <!-- Delete button -->
       <button
         @click.stop="emit('delete', comp.id)"
         class="p-0.5 hover:bg-red-100 rounded opacity-0 group-hover:opacity-100"
@@ -36,34 +31,32 @@
       </button>
     </div>
 
-    <!-- Children (recursive) -->
-    <template v-if="isContainer(comp.type) && isExpanded && hasChildren">
-      <!-- For tabs: render virtual tab nodes from childrenMap -->
-      <template v-if="comp.type === 'tabs'">
-        <template v-for="(childIds, tabKey) in (comp.props?.childrenMap || {})" :key="'tab-' + tabKey">
-          <ComponentTreeNode
-            :comp="{ id: 'tab-' + comp.id + '-' + tabKey, type: 'tab', label: 'Tab ' + (Number(tabKey) + 1), children: getTabChildren(tabKey) }"
-            :depth="depth + 1"
-            :selected-id="selectedId"
-            :expanded="expanded" @update:expanded="$emit('update:expanded', $event)"
-            @select="emit('select', $event)"
-            @delete="emit('delete', $event)"
-          />
-        </template>
-      </template>
-      <!-- For other containers: render direct children -->
-      <template v-else>
-        <ComponentTreeNode
-          v-for="child in comp.children"
-          :key="child.id"
-          :comp="child"
-          :depth="depth + 1"
-          :selected-id="selectedId"
-          :expanded="expanded" @update:expanded="$emit('update:expanded', $event)"
-          @select="emit('select', $event)"
-          @delete="emit('delete', $event)"
-        />
-      </template>
+    <template v-if="isContainer(comp.type) && isExpanded && hasChildren && comp.type === 'tabs'">
+      <ComponentTreeNode
+        v-for="(childIds, tabKey) in (comp.props?.childrenMap || {})"
+        :key="'tab-' + tabKey"
+        :comp="{ id: 'tab-' + comp.id + '-' + tabKey, type: 'tab', label: 'Tab ' + (Number(tabKey) + 1), children: getTabChildren(tabKey) }"
+        :depth="depth + 1"
+        :selected-id="selectedId"
+        :expanded="expanded"
+        @select="emit('select', $event)"
+        @delete="emit('delete', $event)"
+        @update:expanded="emit('update:expanded', $event)"
+      />
+    </template>
+
+    <template v-if="isContainer(comp.type) && isExpanded && hasChildren && comp.type !== 'tabs'">
+      <ComponentTreeNode
+        v-for="child in comp.children"
+        :key="child.id"
+        :comp="child"
+        :depth="depth + 1"
+        :selected-id="selectedId"
+        :expanded="expanded"
+        @select="emit('select', $event)"
+        @delete="emit('delete', $event)"
+        @update:expanded="emit('update:expanded', $event)"
+      />
     </template>
   </div>
 </template>
@@ -96,18 +89,19 @@ const props = defineProps<{
   comp: CanvasComponent
   depth: number
   selectedId: string | null
+  expanded: string[]
 }>()
-const expandedModel = defineModel<string[]>({ required: true })
 
 const emit = defineEmits<{
   select: [id: string]
   delete: [id: string]
+  'update:expanded': [value: string[]]
 }>()
 
 const containerTypes = ['card', 'tabs', 'collapse', 'grid']
 
 const isExpanded = computed(() => {
-  return expandedModel.value.includes(String(props.comp.id))
+  return props.expanded.includes(String(props.comp.id))
 })
 
 function getTabChildren(tabKey: string) {
@@ -129,34 +123,19 @@ function isContainer(type: string): boolean {
 }
 
 function toggleExpand(id: string) {
-  const current = [...expandedModel.value]
+  const current = [...props.expanded]
   if (current.includes(id)) {
-    expandedModel.value = current.filter(x => x !== id)
+    emit('update:expanded', current.filter(x => x !== id))
   } else {
-    expandedModel.value = [...current, id]
+    emit('update:expanded', [...current, id])
   }
 }
 
 const typeLabels: Record<string, string> = {
-  card: '卡片',
-  tabs: '标签页',
-  table: '表格',
-  form: '表单',
-  text: '文本',
-  button: '按钮',
-  input: '输入框',
-  select: '下拉框',
-  date: '日期',
-  switch: '开关',
-  slider: '滑块',
-  lineChart: '折线图',
-  barChart: '柱状图',
-  pieChart: '饼图',
-  grid: '栅格',
-  divider: '分割线',
-  blank: '空白',
-  image: '图片',
-  link: '链接',
+  card: '卡片', tabs: '标签页', table: '表格', form: '表单', text: '文本',
+  button: '按钮', input: '输入框', select: '下拉框', date: '日期', switch: '开关',
+  slider: '滑块', lineChart: '折线图', barChart: '柱状图', pieChart: '饼图',
+  grid: '栅格', divider: '分割线', blank: '空白', image: '图片', link: '链接',
   collapse: '折叠面板',
 }
 
@@ -166,25 +145,10 @@ function getTypeLabel(type: string): string {
 
 function getIcon(type: string) {
   const icons: Record<string, any> = {
-    card: Layout,
-    tabs: Layout,
-    table: Table,
-    form: File,
-    text: Type,
-    button: Square,
-    input: Type,
-    select: Folder,
-    date: Calendar,
-    switch: ToggleLeft,
-    slider: Minus,
-    lineChart: LineChart,
-    barChart: BarChart3,
-    pieChart: PieChart,
-    grid: Grid3X3,
-    divider: Minus,
-    blank: Square,
-    image: Image,
-    link: Link2,
+    card: Layout, tabs: Layout, table: Table, form: File, text: Type,
+    button: Square, input: Type, select: Folder, date: Calendar, switch: ToggleLeft,
+    slider: Minus, lineChart: LineChart, barChart: BarChart3, pieChart: PieChart,
+    grid: Grid3X3, divider: Minus, blank: Square, image: Image, link: Link2,
     collapse: ChevronDown,
   }
   return icons[type] || File
@@ -192,7 +156,5 @@ function getIcon(type: string) {
 </script>
 
 <style scoped>
-.tree-node:hover .opacity-0 {
-  opacity: 1;
-}
+.tree-node:hover .opacity-0 { opacity: 1; }
 </style>
