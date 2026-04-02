@@ -802,9 +802,11 @@ function onTabDrop(e: DragEvent) {
   e.preventDefault()
   dragOverTabIndex.value = null
   const data = e.dataTransfer?.getData('application/json')
+  console.log('[ComponentRenderer] onTabDrop called, data:', data)
   if (!data) return
   try {
     const parsed = JSON.parse(data)
+    console.log('[ComponentRenderer] onTabDrop parsed:', parsed)
     emit('drop-on-tab', props.component.id, currentTabIndex.value, parsed)
   } catch (err) {
     console.error('Failed to parse drop data:', err)
