@@ -45,7 +45,7 @@
             :comp="{ id: 'tab-' + comp.id + '-' + tabKey, type: 'tab', label: 'Tab ' + (Number(tabKey) + 1), children: getTabChildren(tabKey) }"
             :depth="depth + 1"
             :selected-id="selectedId"
-            v-model:expanded="expanded"
+            :expanded="expanded" @update:expanded="$emit('update:expanded', $event)"
             @select="emit('select', $event)"
             @delete="emit('delete', $event)"
           />
@@ -59,7 +59,7 @@
           :comp="child"
           :depth="depth + 1"
           :selected-id="selectedId"
-          v-model:expanded="expanded"
+          :expanded="expanded" @update:expanded="$emit('update:expanded', $event)"
           @select="emit('select', $event)"
           @delete="emit('delete', $event)"
         />
@@ -96,19 +96,18 @@ const props = defineProps<{
   comp: CanvasComponent
   depth: number
   selectedId: string | null
-  expanded: string[]
 }>()
+const expandedModel = defineModel<string[]>({ required: true })
 
 const emit = defineEmits<{
   select: [id: string]
   delete: [id: string]
-  'update:expanded': [value: string[]]
 }>()
 
 const containerTypes = ['card', 'tabs', 'collapse', 'grid']
 
 const isExpanded = computed(() => {
-  return props.expanded.includes(String(props.comp.id))
+  return expandedModel.value.includes(String(props.comp.id))
 })
 
 function getTabChildren(tabKey: string) {
@@ -130,11 +129,11 @@ function isContainer(type: string): boolean {
 }
 
 function toggleExpand(id: string) {
-  const current = [...props.expanded]
+  const current = [...expandedModel.value]
   if (current.includes(id)) {
-    emit('update:expanded', current.filter(x => x !== id))
+    expandedModel.value = current.filter(x => x !== id)
   } else {
-    emit('update:expanded', [...current, id])
+    expandedModel.value = [...current, id]
   }
 }
 
