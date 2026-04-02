@@ -405,17 +405,19 @@
       </div>
       <!-- Tab 内容 -->
       <div
+        :style="tabContentStyle"
         @dragover.prevent="onTabDragOver($event, currentTabIndex)"
         @drop.prevent="onTabDrop"
       >
         <!-- Show children if available -->
-        <div v-if="tabChildren && tabChildren.length > 0" class="flex flex-col gap-2">
+        <template v-if="tabChildren && tabChildren.length > 0">
           <div
             v-for="(child, idx) in tabChildren"
             :key="child.id"
             class="relative bg-[var(--bg-primary)] rounded"
             :class="{ 'cursor-pointer': canvasMode }"
             :draggable="canvasMode"
+            :style="getChildLayoutStyle(child)"
             @dragstart="(e) => canvasMode && emit('drag-start-nested', e, props.component.id, idx)"
           >
             <!-- Child action buttons -->
@@ -432,7 +434,7 @@
               <ComponentRenderer :component="child" :editable="canvasMode" :canvas-mode="canvasMode" />
             </div>
           </div>
-        </div>
+        </template>
         <div v-else-if="canvasMode" class="min-h-[60px] bg-[var(--bg-hover-light)] rounded border border-dashed border-[var(--border)] p-4 text-center text-xs text-[var(--text-muted)]">
           拖拽组件到标签页 | activeTab={{ component.props.activeTab }} | tab0_children={{ (component.props.childrenMap || {})['0'] }} | comp.children={{ component.children ? component.children.map(c => c.id) : [] }} | showChildren={{ showChildren ? showChildren.map(c => c.id) : [] }}
         </div>
@@ -579,6 +581,61 @@ const tabChildren = computed(() => {
   
   return children.filter(c => childIds.includes(String(c.componentId)) || childIds.includes(String(c.id)))
 })
+
+// Tabs: get layout config for current tab (used for flex layout)
+const tabLayout = computed(() => {
+  const tabs = unifiedTabs.value
+  const idx = activeTabIndex.value
+  if (idx < 0 || idx >= tabs.length) return { direction: 'column' as const, gap: 8, wrap: false }
+  return tabs[idx].layout || { direction: 'column' as const, gap: 8, wrap: false }
+})
+
+// Tabs: computed style for tab content container (flex layout)
+const tabContentStyle = computed(() => {
+  const layout = tabLayout.value
+  return {
+    display: 'flex',
+    flexDirection: layout.direction,
+    gap: `${layout.gap || 8}px`,
+    flexWrap: layout.wrap ? 'wrap' as const : 'nowrap' as const,
+    justifyContent: layout.justifyContent || 'start',
+    alignItems: layout.alignItems || 'stretch'
+  }
+})
+
+// Tabs: get layout style for individual child component (supports width modes)
+function getChildLayoutStyle(child: CanvasComponent): Record<string, string> {
+  const layout = tabLayout.value
+  const result: Record<string, string> = {}
+  
+  // Only apply sizing when direction is row (horizontal layout)
+  if (layout.direction === 'row') {
+    const width = (child as any).layout?.width || (child as any).width
+    if (width) {
+      if (width === 'auto') {
+        result.flex = '0 0 auto'
+      } else if (width === '100%') {
+        result.flex = '0 0 100%'
+      } else if (String(width).endsWith('px')) {
+        result.flex = `0 0 ${width}`
+        result.width = width
+      } else if (String(width).endsWith('%')) {
+        result.flex = `0 0 ${width}`
+        result.width = width
+      } else if (width === 'flex-1') {
+        result.flex = '1 1 0%'
+      } else {
+        result.flex = `0 0 ${width}px`
+        result.width = `${width}px`
+      }
+    } else {
+      // Default: equal distribution
+      result.flex = '1 1 0%'
+    }
+  }
+  
+  return result
+}
 
 // Tabs: use local ref for current tab index, synced with prop
 const currentTabIndex = ref(0)
