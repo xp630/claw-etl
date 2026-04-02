@@ -166,13 +166,28 @@ import ComponentTree from './ComponentTree.vue'
 import DropCanvas from './DropCanvas.vue'
 import PropertyPanel from '@/components/editor/PropertyPanel.vue'
 import ComponentRenderer from './ComponentRenderer.vue'
-import type { CanvasComponent } from './types'
+import type { CanvasComponent, UnifiedTabs, TabsFormat, TabItem } from './types'
+import { isLegacyTabs, migrateTabs } from './types'
 import axios from 'axios'
 
 const route = useRoute()
 const router = useRouter()
 
 // ============ State ============
+// Helper: Get unified tabs format (supports both legacy and new)
+function getUnifiedTabs(tabs: UnifiedTabs, childrenMap?: Record<string, (string | number)[]>): TabsFormat {
+  if (isLegacyTabs(tabs)) {
+    return migrateTabs(tabs, childrenMap)
+  }
+  return tabs
+}
+
+// Helper: Get active tab id
+function getActiveTabId(activeTab: string | number | undefined): string {
+  if (activeTab === undefined || activeTab === null) return ''
+  return String(activeTab)
+}
+
 const components = ref<CanvasComponent[]>([])
 const selectedId = ref<string | null>(null)
 const showPropsPanel = ref(false) // 双击组件时显示属性面板
