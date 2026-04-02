@@ -1,5 +1,6 @@
 <template>
   <div class="tree-node">
+    <span style="color:red;font-size:8px">N{{depth}}:id={{comp.id}}:exp={{JSON.stringify(props.expanded)}}</span>
     <div
       class="flex items-center gap-1 px-2 py-1 rounded cursor-pointer transition-colors group"
       :class="{
@@ -128,7 +129,7 @@ function isContainer(type: string): boolean {
 }
 
 function toggleExpand(id: string) {
-  console.log('[toggleExpand] called with id:', id, 'expanded:', [...props.expanded])
+  console.log('[toggleExpand] id:', id, 'props.expanded:', props.expanded, 'type:', typeof props.expanded, 'isArray:', Array.isArray(props.expanded))
   emit('toggle-expand', id)
 }
 
