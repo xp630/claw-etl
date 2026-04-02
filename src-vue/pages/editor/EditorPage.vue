@@ -482,16 +482,21 @@ function handleAddChildToContainer(containerId: string, childComponent: CanvasCo
   
   components.value = updateComponentInTree(components.value, containerId, (comp: CanvasComponent) => {
     if (comp.type === 'tabs') {
-      const activeTab = tabIndex !== undefined ? tabIndex : (comp.props.activeTab as number || 0)
+      // Use tabIndex if valid (>=0), otherwise fall back to comp.props.activeTab, default to 0
+      const rawActiveTab = comp.props.activeTab
+      const effectiveTabIndex = (tabIndex !== undefined && tabIndex >= 0) ? tabIndex : (typeof rawActiveTab === 'number' && rawActiveTab >= 0 ? rawActiveTab : 0)
       const childrenMap = (comp.props.childrenMap as Record<string, (string | number)[]>) || {}
-      const tabKey = String(activeTab)
+      const tabKey = String(effectiveTabIndex)
       const existingChildIds = childrenMap[tabKey] || []
       console.log('[Tabs] add-child:', {
         containerId: comp.id,
+        compActiveTab: rawActiveTab,
+        tabIndex,
+        effectiveTabIndex,
+        tabKey,
         childKey,
         childId: childWithParent.id,
-        existingChildIds,
-        tabKey
+        existingChildIds
       })
       return {
         ...comp,
