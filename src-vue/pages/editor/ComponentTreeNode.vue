@@ -38,16 +38,32 @@
 
     <!-- Children (recursive) -->
     <template v-if="isContainer(comp.type) && props.expanded.has(String(comp.id)) && hasChildren">
-      <ComponentTreeNode
-        v-for="child in comp.children"
-        :key="child.id"
-        :comp="child"
-        :depth="depth + 1"
-        :selected-id="selectedId"
-        :expanded="expanded"
-        @select="emit('select', $event)"
-        @delete="emit('delete', $event)"
-      />
+      <!-- For tabs: render virtual tab nodes from childrenMap -->
+      <template v-if="comp.type === 'tabs'">
+        <template v-for="(childIds, tabKey) in (comp.props?.childrenMap || {})" :key="'tab-' + tabKey">
+          <ComponentTreeNode
+            :comp="{ id: 'tab-' + comp.id + '-' + tabKey, type: 'tab', label: 'Tab ' + (Number(tabKey) + 1), children: getTabChildren(tabKey) }"
+            :depth="depth + 1"
+            :selected-id="selectedId"
+            :expanded="expanded"
+            @select="emit('select', $event)"
+            @delete="emit('delete', $event)"
+          />
+        </template>
+      </template>
+      <!-- For other containers: render direct children -->
+      <template v-else>
+        <ComponentTreeNode
+          v-for="child in comp.children"
+          :key="child.id"
+          :comp="child"
+          :depth="depth + 1"
+          :selected-id="selectedId"
+          :expanded="expanded"
+          @select="emit('select', $event)"
+          @delete="emit('delete', $event)"
+        />
+      </template>
     </template>
   </div>
 </template>
@@ -91,6 +107,14 @@ const emit = defineEmits<{
 
 const containerTypes = ['card', 'tabs', 'collapse', 'grid']
 
+
+// For tabs: get children of a specific tab
+function getTabChildren(tabKey: string) {
+  const childrenMap = props.comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
+  if (!childrenMap || !childrenMap[tabKey]) return []
+  const childIds = (childrenMap[tabKey] || []).map(id => String(id))
+  return (props.comp.children || []).filter(c => childIds.includes(String(c.componentId)) || childIds.includes(String(c.id)))
+}
 
 const hasChildren = computed(() => {
   if (props.comp.children && props.comp.children.length > 0) return true
