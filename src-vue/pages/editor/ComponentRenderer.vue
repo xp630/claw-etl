@@ -534,7 +534,8 @@ const tabChildren = computed(() => {
   const activeTab = Number(props.component.props?.activeTab) || 0
   const tabKey = String(activeTab)
   const childIds = childrenMap?.[tabKey] || []
-  const children = props.component.children || []
+  // Use component.children if available (editor), otherwise fall back to showChildren prop (viewer)
+  const children = props.component.children || props.showChildren || []
   const result = children.filter(c => childIds.includes(c.componentId as any) || childIds.includes(c.id as any))
   console.log('[tabChildren computed] activeTab:', activeTab, 'childIds:', childIds, 'children:', children.map(c => c.id), 'result:', result.map(c => c.id))
   return result
