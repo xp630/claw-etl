@@ -53,8 +53,9 @@ const tabChildren = computed(() => {
   const childrenMap = props.props.childrenMap as Record<string, (string | number)[]> | undefined
   if (childrenMap) {
     const tabKey = String(activeTab.value)
-    const childIds = childrenMap[tabKey] || []
-    return props.children.filter(c => childIds.includes(c.componentId as any) || childIds.includes(c.id as any))
+    const childIds = (childrenMap[tabKey] || []) as (string | number)[]
+    const childIdStrs = childIds.map(id => String(id))
+    return props.children.filter(c => childIdStrs.includes(String(c.componentId)) || childIdStrs.includes(String(c.id)))
   }
   return props.children
 })
