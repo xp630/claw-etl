@@ -1,6 +1,5 @@
 <template>
   <div class="tree-node">
-    <span style="color:red;font-size:8px">N{{depth}}:id={{comp.id}}:exp={{JSON.stringify(expanded)}}</span>
     <div
       class="flex items-center gap-1 px-2 py-1 rounded cursor-pointer transition-colors group"
       :class="{
@@ -13,7 +12,6 @@
       <!-- Expand/collapse toggle for containers -->
       <span
         v-if="isContainer(comp.type) && hasChildren"
-        @click.capture.stop="console.log('[span.capture]', comp.id)"
         @click.stop="toggleExpand(String(comp.id))"
         class="p-0.5 hover:bg-[var(--bg-hover)] rounded"
       >
@@ -104,6 +102,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   select: [id: string]
   delete: [id: string]
+  'update:expanded': [value: string[]]
 }>()
 
 const containerTypes = ['card', 'tabs', 'collapse', 'grid']
@@ -191,7 +190,7 @@ function getIcon(type: string) {
   }
   return icons[type] || File
 }
-</script></script>
+</script>
 
 <style scoped>
 .tree-node:hover .opacity-0 {
