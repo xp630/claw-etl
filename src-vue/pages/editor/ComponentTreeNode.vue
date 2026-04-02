@@ -37,9 +37,11 @@
     </div>
 
     <!-- Children (recursive) -->
-    <template v-if="isContainer(comp.type) && props.expanded.has(String(comp.id)) && hasChildren">
+    <template v-if="(isContainer(comp.type) && props.expanded.has(String(comp.id)) && hasChildren) || comp.type === 'tabs'">
+      <span style="color:red;font-size:10px">OUTER: type={{comp.type}} isC={{isContainer(comp.type)}} exp={{props.expanded.has(String(comp.id))}} hasC={{hasChildren}}</span>
       <!-- For tabs: render virtual tab nodes, each containing its children -->
       <template v-if="comp.type === 'tabs'">
+        <span style="color:green;font-size:10px">TABS BRANCH: comp.type={{comp.type}} id={{comp.id}} cm={{JSON.stringify(comp.props?.childrenMap)}}</span>
         <span :data-debug="'tabs:' + comp.id + ',cm:' + JSON.stringify(comp.props?.childrenMap) + ',children:' + (comp.children?.length||0)" style="color:blue;font-size:10px">DEBUG: type={{comp.type}} childrenMap={{JSON.stringify(comp.props?.childrenMap)}} children={{comp.children?.length}}</span>
         <template v-for="(childIds, tabKey) in (comp.props?.childrenMap || {})" :key="tabKey">
           <ComponentTreeNode
@@ -117,12 +119,18 @@ function getTabChildren(tabKey: string) {
 }
 
 const hasChildren = computed(() => {
+  // Debug
+  const type = props.comp.type
+  const childCount = props.comp.children?.length || 0
+  const childrenMap = props.comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
+  const cmKeys = childrenMap ? Object.keys(childrenMap) : []
+  const hasCM = cmKeys.length > 0
+  if (type === 'table') {
+    console.log('[hasChildren TABLE]', props.comp.id, 'children:', childCount, 'cmKeys:', cmKeys)
+  }
   // Direct children (card, collapse, grid)
   if (props.comp.children && props.comp.children.length > 0) return true
   // Tabs: childrenMap contains tab children
-  const childrenMap = props.comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
-  const hasCM = childrenMap && Object.keys(childrenMap).length > 0
-
   if (hasCM) return true
   return false
 })
