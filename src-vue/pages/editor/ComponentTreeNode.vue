@@ -37,8 +37,7 @@
     </div>
 
     <!-- Children (recursive) -->
-    <!-- For non-tabs containers: render direct children when expanded -->
-    <template v-if="isContainer(comp.type) && comp.type !== 'tabs' && props.expanded.has(String(comp.id)) && hasChildren">
+    <template v-if="isContainer(comp.type) && props.expanded.has(String(comp.id)) && hasChildren">
       <ComponentTreeNode
         v-for="child in comp.children"
         :key="child.id"
@@ -49,20 +48,6 @@
         @select="emit('select', $event)"
         @delete="emit('delete', $event)"
       />
-    </template>
-
-    <!-- For tabs: render virtual tab nodes when expanded -->
-    <template v-if="comp.type === 'tabs' && props.expanded.has(String(comp.id)) && hasChildren">
-      <template v-for="(childIds, tabKey) in (comp.props?.childrenMap || {})" :key="'tab-' + tabKey">
-        <ComponentTreeNode
-          :comp="{ id: comp.id + '-tab-' + tabKey, type: 'tab', label: 'Tab ' + (Number(tabKey) + 1), children: getTabChildren(tabKey) }"
-          :depth="depth + 1"
-          :selected-id="selectedId"
-          :expanded="expanded"
-          @select="emit('select', $event)"
-          @delete="emit('delete', $event)"
-        />
-      </template>
     </template>
   </div>
 </template>
@@ -107,28 +92,10 @@ const emit = defineEmits<{
 const containerTypes = ['card', 'tabs', 'collapse', 'grid']
 
 
-// For tabs: get children of a specific tab
-function getTabChildren(tabKey: string) {
-  const childrenMap = props.comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
-  if (!childrenMap || !childrenMap[tabKey]) return []
-  const childIds = childrenMap[tabKey]
-  return (props.comp.children || []).filter(c => childIds.includes(c.componentId as any) || childIds.includes(c.id as any))
-}
-
 const hasChildren = computed(() => {
-  // Debug
-  const type = props.comp.type
-  const childCount = props.comp.children?.length || 0
-  const childrenMap = props.comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
-  const cmKeys = childrenMap ? Object.keys(childrenMap) : []
-  const hasCM = cmKeys.length > 0
-  if (type === 'table') {
-    console.log('[hasChildren TABLE]', props.comp.id, 'children:', childCount, 'cmKeys:', cmKeys)
-  }
-  // Direct children (card, collapse, grid)
   if (props.comp.children && props.comp.children.length > 0) return true
-  // Tabs: childrenMap contains tab children
-  if (hasCM) return true
+  const childrenMap = props.comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
+  if (childrenMap && Object.keys(childrenMap).length > 0) return true
   return false
 })
 
