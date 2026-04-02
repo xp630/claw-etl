@@ -486,6 +486,13 @@ function handleAddChildToContainer(containerId: string, childComponent: CanvasCo
       const childrenMap = (comp.props.childrenMap as Record<string, (string | number)[]>) || {}
       const tabKey = String(activeTab)
       const existingChildIds = childrenMap[tabKey] || []
+      console.log('[Tabs] add-child:', {
+        containerId: comp.id,
+        childKey,
+        childId: childWithParent.id,
+        existingChildIds,
+        tabKey
+      })
       return {
         ...comp,
         children: [...(comp.children || []), childWithParent],
