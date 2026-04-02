@@ -385,25 +385,7 @@
     <!-- Tabs container -->
     <div v-else-if="component.type === 'tabs'">
       <!-- DEBUG: print full tabs component structure -->
-      <div style="display:none">{{ console.log('[Tabs DEBUG] full component:', JSON.stringify({
-        id: component.id,
-        type: component.type,
-        label: component.label,
-        props: {
-          ...component.props,
-          childrenMap: component.props.childrenMap,
-          activeTab: component.props.activeTab,
-          tabs: component.props.tabs
-        },
-        children: component.children?.map(c => ({
-          id: c.id,
-          type: c.type,
-          label: c.label,
-          componentId: c.componentId,
-          parentId: c.parentId,
-          childrenCount: c.children?.length
-        }))
-      }, null, 2)) }}</div>
+      <div style="display:none">{{ logTabs() }}</div>
       <!-- Tab 标题显示 -->
       <div class="flex border-b border-[var(--border-light)] mb-2">
         <button
@@ -428,9 +410,9 @@
         @drop.prevent="onTabDrop"
       >
         <!-- Show children if available -->
-        <div v-if="showChildren && showChildren.length > 0" class="flex flex-col gap-2">
+        <div v-if="tabChildren && tabChildren.length > 0" class="flex flex-col gap-2">
           <div
-            v-for="(child, idx) in showChildren"
+            v-for="(child, idx) in tabChildren"
             :key="child.id"
             class="relative bg-[var(--bg-primary)] rounded"
             :class="{ 'cursor-pointer': canvasMode }"
@@ -453,7 +435,7 @@
           </div>
         </div>
         <div v-else-if="canvasMode" class="min-h-[60px] bg-[var(--bg-hover-light)] rounded border border-dashed border-[var(--border)] p-4 text-center text-xs text-[var(--text-muted)]">
-          拖拽组件到标签页 | activeTab={{ component.props.activeTab }} | tab0_children={{ (component.props.childrenMap || {})['0'] }} | tab1_children={{ (component.props.childrenMap || {})['1'] }} | compId={{ component.id }}
+          拖拽组件到标签页 | activeTab={{ component.props.activeTab }} | tab0_children={{ (component.props.childrenMap || {})['0'] }} | comp.children={{ component.children ? component.children.map(c => c.id) : [] }} | showChildren={{ showChildren ? showChildren.map(c => c.id) : [] }}
         </div>
         <slot v-else-if="$slots.default" />
         <div v-else class="min-h-[60px] bg-[var(--bg-hover-light)] rounded border border-dashed border-[var(--border)] p-4 text-center text-xs text-[var(--text-muted)]">
@@ -547,11 +529,21 @@ const emit = defineEmits<{
 // Tabs: track which tab is being dragged over for drop targeting
 const dragOverTabIndex = ref<number | null>(null)
 
-// Tabs: use local state only in editable mode, otherwise use prop
-const currentTabIndex = ref(Number(props.component.props.activeTab) || 0)
+// Tabs: computed children from component.children + childrenMap (not from prop)
+const tabChildren = computed(() => {
+  const childrenMap = props.component.props?.childrenMap as Record<string, (string | number)[]> | undefined
+  const activeTab = Number(props.component.props?.activeTab) || 0
+  const tabKey = String(activeTab)
+  const childIds = childrenMap?.[tabKey] || []
+  const children = props.component.children || []
+  const result = children.filter(c => childIds.includes(c.componentId as any) || childIds.includes(c.id as any))
+  console.log('[tabChildren computed] activeTab:', activeTab, 'childIds:', childIds, 'children:', children.map(c => c.id), 'result:', result.map(c => c.id))
+  return result
+})
 
+// Tabs: use local ref, synced with prop via watch
+const currentTabIndex = ref(Number(props.component.props.activeTab) || 0)
 watch(() => props.component.props.activeTab, (val) => {
-  // Always sync currentTabIndex when prop changes (both editable and preview modes)
   currentTabIndex.value = Number(val) || 0
 })
 
