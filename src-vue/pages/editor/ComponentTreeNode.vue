@@ -45,7 +45,22 @@
       />
     </template>
 
-    <template v-if="isContainer(comp.type) && isExpanded && hasChildren && comp.type !== 'tabs'">
+    <!-- For tab nodes (virtual): always render children directly -->
+    <template v-if="comp.type === 'tab' && comp.children && comp.children.length > 0">
+      <ComponentTreeNode
+        v-for="child in comp.children"
+        :key="child.id"
+        :comp="child"
+        :depth="depth + 1"
+        :selected-id="selectedId"
+        :expanded="expanded"
+        @select="emit('select', $event)"
+        @delete="emit('delete', $event)"
+        @update:expanded="emit('update:expanded', $event)"
+      />
+    </template>
+
+    <template v-if="isContainer(comp.type) && isExpanded && hasChildren && comp.type !== 'tabs' && comp.type !== 'tab'">
       <ComponentTreeNode
         v-for="child in comp.children"
         :key="child.id"
@@ -120,6 +135,8 @@ const hasChildren = computed(() => {
   if (childrenMap && Object.keys(childrenMap).length > 0) return true
   return false
 })
+
+console.log('[CTN]', props.comp.type, props.comp.id, 'hasChildren:', hasChildren.value, 'children:', props.comp.children?.length, 'isContainer:', isContainer(props.comp.type))
 
 function isContainer(type: string): boolean {
   return containerTypes.includes(type)
