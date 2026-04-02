@@ -33,9 +33,9 @@
 
     <template v-if="isContainer(comp.type) && isExpanded && hasChildren && comp.type === 'tabs'">
       <ComponentTreeNode
-        v-for="(tabLabel, tabKey) in ((comp.props?.tabs as string[]) || [])"
+        v-for="(tab, tabKey) in unifiedTabs"
         :key="'tab-' + tabKey"
-        :comp="{ id: 'tab-' + comp.id + '-' + tabKey, type: 'tab', label: tabLabel, children: getTabChildren(tabKey) }"
+        :comp="{ id: 'tab-' + comp.id + '-' + tab.id, type: 'tab', label: tab.label, children: tab.children || [] }"
         :depth="depth + 1"
         :selected-id="selectedId"
         :expanded="expanded"
@@ -98,7 +98,8 @@ import {
   Minus,
   Square
 } from 'lucide-vue-next'
-import type { CanvasComponent } from './types'
+import type { CanvasComponent, TabItem, UnifiedTabs } from './types'
+import { isLegacyTabs } from './types'
 
 const props = defineProps<{
   comp: CanvasComponent
@@ -119,20 +120,28 @@ const isExpanded = computed(() => {
   return props.expanded.includes(String(props.comp.id))
 })
 
-function getTabChildren(tabKey: string) {
-  const childrenMap = props.comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
-  if (!childrenMap || !childrenMap[tabKey]) return []
-  const childIds = (childrenMap[tabKey] || []).map(id => String(id))
-  console.log('[getTabChildren] tabKey:', tabKey, 'childIds:', childIds, 'comp.children:', props.comp.children?.map(c => ({id: c.id, componentId: c.componentId})))
-  const result = (props.comp.children || []).filter(c => childIds.includes(String(c.componentId)) || childIds.includes(String(c.id)))
-  console.log('[getTabChildren] result:', result.map(c => c.id))
-  return result
-}
+// Unified tabs (supports both legacy string[] and new TabItem[] format)
+const unifiedTabs = computed((): TabItem[] => {
+  const rawTabs = props.comp.props?.tabs as UnifiedTabs | undefined
+  if (!rawTabs || (Array.isArray(rawTabs) && rawTabs.length === 0)) return []
+  
+  if (isLegacyTabs(rawTabs)) {
+    // Legacy: convert to new format using childrenMap
+    const childrenMap = props.comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
+    return rawTabs.map((label, index) => ({
+      id: `tab_${index}`,
+      label,
+      params: {},
+      children: childrenMap?.[String(index)] || []
+    }))
+  }
+  
+  return rawTabs
+})
 
 const hasChildren = computed(() => {
   if (props.comp.children && props.comp.children.length > 0) return true
-  const childrenMap = props.comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
-  if (childrenMap && Object.keys(childrenMap).length > 0) return true
+  if (unifiedTabs.value.length > 0) return true
   return false
 })
 
