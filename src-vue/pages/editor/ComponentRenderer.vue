@@ -385,7 +385,6 @@
     <!-- Tabs container -->
     <div v-else-if="component.type === 'tabs'">
       <!-- DEBUG: print full tabs component structure -->
-      <div style="display:none">{{ logTabs() }}</div>
       <!-- Tab 标题显示 -->
       <div class="flex border-b border-[var(--border-light)] mb-2">
         <button
