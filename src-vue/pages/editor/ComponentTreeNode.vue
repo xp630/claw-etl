@@ -16,7 +16,7 @@
         @click.stop="toggleExpand(String(comp.id))"
         class="p-0.5 hover:bg-[var(--bg-hover)] rounded"
       >
-        <ChevronDown v-if="props.expanded.includes(String(comp.id))" class="w-4 h-4" />
+        <ChevronDown v-if="isExpanded.value" class="w-4 h-4" />
         <ChevronRight v-else class="w-4 h-4" />
       </span>
       <span v-else class="w-4" />
@@ -38,7 +38,7 @@
     </div>
 
     <!-- Children (recursive) -->
-    <template v-if="isContainer(comp.type) && props.expanded.includes(String(comp.id)) && hasChildren">
+    <template v-if="isContainer(comp.type) && isExpanded.value && hasChildren">
       <!-- For tabs: render virtual tab nodes from childrenMap -->
       <template v-if="comp.type === 'tabs'">
         <template v-for="(childIds, tabKey) in (comp.props?.childrenMap || {})" :key="'tab-' + tabKey">
@@ -108,6 +108,10 @@ const emit = defineEmits<{
 
 const containerTypes = ['card', 'tabs', 'collapse', 'grid']
 
+// Computed to check if current node is expanded
+const isExpanded = computed(() => {
+  return props.expanded.includes(String(props.comp.id))
+})
 
 // For tabs: get children of a specific tab
 function getTabChildren(tabKey: string) {
@@ -129,8 +133,9 @@ function isContainer(type: string): boolean {
 }
 
 function toggleExpand(id: string) {
-  console.log('[toggleExpand] id:', id, 'props.expanded:', props.expanded, 'type:', typeof props.expanded, 'isArray:', Array.isArray(props.expanded))
+  console.log('[toggleExpand] BEFORE emit, id:', id, 'props.expanded:', props.expanded)
   emit('toggle-expand', id)
+  console.log('[toggleExpand] AFTER emit')
 }
 
 const typeLabels: Record<string, string> = {
