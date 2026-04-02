@@ -33,9 +33,9 @@
 
     <template v-if="isContainer(comp.type) && isExpanded && hasChildren && comp.type === 'tabs'">
       <ComponentTreeNode
-        v-for="(childIds, tabKey) in (comp.props?.childrenMap || {})"
+        v-for="(tabLabel, tabKey) in ((comp.props?.tabs as string[]) || [])"
         :key="'tab-' + tabKey"
-        :comp="{ id: 'tab-' + comp.id + '-' + tabKey, type: 'tab', label: 'Tab ' + (Number(tabKey) + 1), children: getTabChildren(tabKey) }"
+        :comp="{ id: 'tab-' + comp.id + '-' + tabKey, type: 'tab', label: tabLabel, children: getTabChildren(tabKey) }"
         :depth="depth + 1"
         :selected-id="selectedId"
         :expanded="expanded"
