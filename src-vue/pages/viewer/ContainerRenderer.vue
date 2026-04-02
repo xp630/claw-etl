@@ -38,7 +38,8 @@ import ElementRenderer from './ElementRenderer.vue'
 import ContainerRenderer from './ContainerRenderer.vue'
 
 const props = defineProps<{ type: string; props: Record<string, unknown>; children?: any[] }>()
-const activeTab = ref(0)
+const activeTab = ref(Number(props.props.activeTab) || 0)
+watch(() => props.props.activeTab, (v) => { activeTab.value = Number(v) || 0 })
 const containerStyle = computed(() => ({ width: (props.props.width as number | string) ?? '100%', minWidth: 0, flex: 1, borderRadius: '8px', padding: '16px' }))
 const tabs = computed(() => (props.props.tabs as string[]) || [])
 const panels = computed(() => (props.props.panels as Array<{ title: string; content: string }>) || [])
@@ -49,11 +50,11 @@ const isContainer = (type: string) => ['card', 'tabs', 'collapse'].includes(type
 // For tabs: get children of the active tab
 const tabChildren = computed(() => {
   if (!props.children || props.children.length === 0) return []
-  const childrenMap = props.props.childrenMap as Record<string, string[]> | undefined
+  const childrenMap = props.props.childrenMap as Record<string, (string | number)[]> | undefined
   if (childrenMap) {
     const tabKey = String(activeTab.value)
     const childIds = childrenMap[tabKey] || []
-    return props.children.filter(c => childIds.includes(c.id))
+    return props.children.filter(c => childIds.includes(c.componentId as any) || childIds.includes(c.id as any))
   }
   return props.children
 })
