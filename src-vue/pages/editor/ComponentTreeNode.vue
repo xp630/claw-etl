@@ -12,10 +12,10 @@
       <!-- Expand/collapse toggle for containers -->
       <span
         v-if="isContainer(comp.type) && hasChildren"
-        @click.stop="toggleExpand(comp.id!)"
+        @click.stop="toggleExpand(String(comp.id))"
         class="p-0.5 hover:bg-[var(--bg-hover)] rounded"
       >
-        <ChevronDown v-if="expanded.has(comp.id!)" class="w-4 h-4" />
+        <ChevronDown v-if="expanded.has(String(comp.id))" class="w-4 h-4" />
         <ChevronRight v-else class="w-4 h-4" />
       </span>
       <span v-else class="w-4" />
@@ -37,10 +37,9 @@
     </div>
 
     <!-- Children (recursive) -->
-    <template v-if="isContainer(comp.type) && expanded.has(comp.id!) && hasChildren">
+    <template v-if="isContainer(comp.type) && expanded.has(String(comp.id)) && hasChildren">
       <!-- For tabs: render virtual tab nodes, each containing its children -->
       <template v-if="comp.type === 'tabs'">
-        <span style="color:red;font-size:10px">DEBUG: comp.type={{comp.type}} childrenMap={{comp.props?.childrenMap}} children={{comp.children?.length}}</span>
         <template v-for="(childIds, tabKey) in (comp.props?.childrenMap || {})" :key="tabKey">
           <ComponentTreeNode
             :comp="{ id: comp.id + '-tab-' + tabKey, type: 'tab', label: 'Tab ' + (Number(tabKey) + 1), children: getTabChildren(tabKey) }"
@@ -107,6 +106,7 @@ const emit = defineEmits<{
 
 const containerTypes = ['card', 'tabs', 'collapse', 'grid']
 
+
 // For tabs: get children of a specific tab
 function getTabChildren(tabKey: string) {
   const childrenMap = props.comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
@@ -121,7 +121,7 @@ const hasChildren = computed(() => {
   // Tabs: childrenMap contains tab children
   const childrenMap = props.comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
   const hasCM = childrenMap && Object.keys(childrenMap).length > 0
-  console.log('[CTN] hasChildren for', props.comp.type, props.comp.id, ':', props.comp.children?.length, 'cm keys:', hasCM ? Object.keys(childrenMap) : 'none')
+
   if (hasCM) return true
   return false
 })
