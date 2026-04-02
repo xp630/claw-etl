@@ -1,6 +1,6 @@
 <template>
   <div class="tree-node">
-    <span style="color:red;font-size:8px">N{{depth}}:id={{comp.id}}:exp={{JSON.stringify(expandedModel)}}</span>
+    <span style="color:red;font-size:8px">N{{depth}}:id={{comp.id}}:exp={{JSON.stringify(expanded)}}</span>
     <div
       class="flex items-center gap-1 px-2 py-1 rounded cursor-pointer transition-colors group"
       :class="{
@@ -17,7 +17,7 @@
         @click.stop="toggleExpand(String(comp.id))"
         class="p-0.5 hover:bg-[var(--bg-hover)] rounded"
       >
-        <ChevronDown v-if="isExpanded.value" class="w-4 h-4" />
+        <ChevronDown v-if="isExpanded" class="w-4 h-4" />
         <ChevronRight v-else class="w-4 h-4" />
       </span>
       <span v-else class="w-4" />
@@ -39,7 +39,7 @@
     </div>
 
     <!-- Children (recursive) -->
-    <template v-if="isContainer(comp.type) && isExpanded.value && hasChildren">
+    <template v-if="isContainer(comp.type) && isExpanded && hasChildren">
       <!-- For tabs: render virtual tab nodes from childrenMap -->
       <template v-if="comp.type === 'tabs'">
         <template v-for="(childIds, tabKey) in (comp.props?.childrenMap || {})" :key="'tab-' + tabKey">
@@ -47,7 +47,7 @@
             :comp="{ id: 'tab-' + comp.id + '-' + tabKey, type: 'tab', label: 'Tab ' + (Number(tabKey) + 1), children: getTabChildren(tabKey) }"
             :depth="depth + 1"
             :selected-id="selectedId"
-            :expanded="expanded"
+            v-model:expanded="expanded"
             @select="emit('select', $event)"
             @delete="emit('delete', $event)"
           />
@@ -61,7 +61,7 @@
           :comp="child"
           :depth="depth + 1"
           :selected-id="selectedId"
-          :expanded="expanded"
+          v-model:expanded="expanded"
           @select="emit('select', $event)"
           @delete="emit('delete', $event)"
         />
@@ -71,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, type Ref } from 'vue'
+import { computed } from 'vue'
 import {
   ChevronRight,
   ChevronDown,
@@ -98,19 +98,20 @@ const props = defineProps<{
   comp: CanvasComponent
   depth: number
   selectedId: string | null
-  expanded: Ref<Set<string>>
+  expanded: string[]
 }>()
 
-const expandedModel = defineModel<string[]>('expanded', { required: true })
+const emit = defineEmits<{
+  select: [id: string]
+  delete: [id: string]
+}>()
 
 const containerTypes = ['card', 'tabs', 'collapse', 'grid']
 
-// Computed to check if current node is expanded
 const isExpanded = computed(() => {
-  return expandedModel.value.includes(String(props.comp.id))
+  return props.expanded.includes(String(props.comp.id))
 })
 
-// For tabs: get children of a specific tab
 function getTabChildren(tabKey: string) {
   const childrenMap = props.comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
   if (!childrenMap || !childrenMap[tabKey]) return []
@@ -130,11 +131,11 @@ function isContainer(type: string): boolean {
 }
 
 function toggleExpand(id: string) {
-  const expanded = expandedModel.value
-  if (expanded.includes(id)) {
-    expandedModel.value = expanded.filter(x => x !== id)
+  const current = [...props.expanded]
+  if (current.includes(id)) {
+    emit('update:expanded', current.filter(x => x !== id))
   } else {
-    expandedModel.value = [...expanded, id]
+    emit('update:expanded', [...current, id])
   }
 }
 
@@ -190,7 +191,7 @@ function getIcon(type: string) {
   }
   return icons[type] || File
 }
-</script>
+</script></script>
 
 <style scoped>
 .tree-node:hover .opacity-0 {

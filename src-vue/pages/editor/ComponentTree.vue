@@ -20,7 +20,6 @@
           v-model:expanded="expanded"
           @select="emit('select', $event)"
           @delete="emit('delete', $event)"
-          
         />
       </div>
     </div>
@@ -28,11 +27,7 @@
 </template>
 
 <script setup lang="ts">
-// Debug: log all toggle-expand events
-document.addEventListener('toggle-expand-debug', (e: any) => {
-  console.log('[document toggle-expand-debug]', e.detail)
-})
-import { ref, triggerRef } from 'vue'
+import { ref } from 'vue'
 import ComponentTreeNode from './ComponentTreeNode.vue'
 import type { CanvasComponent } from './types'
 
@@ -49,8 +44,5 @@ const emit = defineEmits<{
   delete: [id: string]
 }>()
 
-// Shared expanded state - reactive Set (proxy handles mutations reactively)
 const expanded = ref<string[]>([])
-
-
 </script>
