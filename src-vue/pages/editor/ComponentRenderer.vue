@@ -800,6 +800,7 @@ function onTabDragOver(e: DragEvent) {
 function onTabDrop(e: DragEvent) {
   if (!props.editable) return
   e.preventDefault()
+  e.stopPropagation() // Prevent event from bubbling up to parent container's onDrop
   dragOverTabIndex.value = null
   const data = e.dataTransfer?.getData('application/json')
   console.log('[ComponentRenderer] onTabDrop called, data:', data)

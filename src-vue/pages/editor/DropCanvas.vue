@@ -143,6 +143,7 @@ const canvasRef = ref<HTMLElement | null>(null)
 const isDragOver = ref(false)
 const dragOverContainerId = ref<string | null>(null)
 const dragOverIndex = ref<number>(0)  // Track insert position within container
+const isDroppingToTab = ref(false)  // Guard: prevent onContainerDrop after onDropOnTab
 
 // Drag state
 const dragState = ref<{
@@ -369,6 +370,7 @@ const onContainerDragLeave = (e: DragEvent) => {
 // Drop on a specific tab within a tabs container
 const onDropOnTab = (containerId: string, tabIndex: number, data: any) => {
   console.log('[DropCanvas] onDropOnTab called:', { containerId, tabIndex, data })
+  isDroppingToTab.value = true // Guard: prevent onContainerDrop from running after this
   
   try {
     // Check if trying to drop a container into itself
@@ -396,18 +398,20 @@ const onDropOnTab = (containerId: string, tabIndex: number, data: any) => {
       emit('add-child', containerId, newComponent, tabIndex)
     } else if (data.fromRoot) {
       // Root component → remove from root, then add to container
+      // Save rootComp BEFORE deleting - don't re-lookup after delete
       const rootComp = props.components[data.index]
       if (rootComp) {
         emit('delete', rootComp.id)
-        emit('add-child', containerId, rootComp, data.index, tabIndex)
+        emit('add-child', containerId, rootComp, -1, tabIndex)
       }
     } else if (data.fromNested) {
       // Nested component → remove from source container, add to target
+      // Save child BEFORE removing - don't re-lookup after remove
       const srcContainer = props.components.find(c => c.id === data.containerId)
       const child = srcContainer?.children?.[data.index]
       if (child) {
         emit('remove-child', data.containerId, child.id)
-        emit('add-child', containerId, child, data.index, tabIndex)
+        emit('add-child', containerId, child, -1, tabIndex)
       }
     }
   } catch (err) {
@@ -418,6 +422,10 @@ const onDropOnTab = (containerId: string, tabIndex: number, data: any) => {
 
 // Container drop
 const onContainerDrop = (e: DragEvent, containerId: string) => {
+  if (isDroppingToTab.value) {
+    isDroppingToTab.value = false
+    return
+  }
   e.preventDefault()
   e.stopPropagation()
   dragOverContainerId.value = null
