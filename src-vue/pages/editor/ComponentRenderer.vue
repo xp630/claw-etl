@@ -453,7 +453,7 @@
           </div>
         </div>
         <div v-else-if="canvasMode" class="min-h-[60px] bg-[var(--bg-hover-light)] rounded border border-dashed border-[var(--border)] p-4 text-center text-xs text-[var(--text-muted)]">
-          拖拽组件到标签页
+          拖拽组件到标签页 | activeTab={{ component.props.activeTab }} | tab0_children={{ (component.props.childrenMap || {})['0'] }} | tab1_children={{ (component.props.childrenMap || {})['1'] }} | compId={{ component.id }}
         </div>
         <slot v-else-if="$slots.default" />
         <div v-else class="min-h-[60px] bg-[var(--bg-hover-light)] rounded border border-dashed border-[var(--border)] p-4 text-center text-xs text-[var(--text-muted)]">
