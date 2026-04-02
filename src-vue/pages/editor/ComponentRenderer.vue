@@ -395,13 +395,14 @@
               : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
           ]"
           @click.stop="handleTabClick(index)"
+          @dragover.prevent="onTabDragOver($event, index)"
         >
           {{ tabTitle }}
         </button>
       </div>
       <!-- Tab 内容 -->
       <div
-        @dragover.prevent="onTabDragOver"
+        @dragover.prevent="onTabDragOver($event, currentTabIndex)"
         @drop.prevent="onTabDrop"
       >
         <!-- Show children if available -->
@@ -789,11 +790,12 @@ function handleCollapseClick() {
 }
 
 // Tabs: drag over tab content area - track which tab we're over
-function onTabDragOver(e: DragEvent) {
+function onTabDragOver(e: DragEvent, tabIndex: number) {
   if (!props.editable) return
   e.preventDefault()
-  // Use currentTabIndex as the target tab since that's what users see
-  dragOverTabIndex.value = currentTabIndex.value
+  // Update currentTabIndex so onTabDrop uses the correct tab
+  currentTabIndex.value = tabIndex
+  dragOverTabIndex.value = tabIndex
 }
 
 // Tabs: drop on tab content area - emit with specific tab index
