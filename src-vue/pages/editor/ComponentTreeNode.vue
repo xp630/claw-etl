@@ -108,7 +108,10 @@ function getTabChildren(tabKey: string) {
   const childrenMap = props.comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
   if (!childrenMap || !childrenMap[tabKey]) return []
   const childIds = (childrenMap[tabKey] || []).map(id => String(id))
-  return (props.comp.children || []).filter(c => childIds.includes(String(c.componentId)) || childIds.includes(String(c.id)))
+  console.log('[getTabChildren] tabKey:', tabKey, 'childIds:', childIds, 'comp.children:', props.comp.children?.map(c => ({id: c.id, componentId: c.componentId})))
+  const result = (props.comp.children || []).filter(c => childIds.includes(String(c.componentId)) || childIds.includes(String(c.id)))
+  console.log('[getTabChildren] result:', result.map(c => c.id))
+  return result
 }
 
 const hasChildren = computed(() => {
