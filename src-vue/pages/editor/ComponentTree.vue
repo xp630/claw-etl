@@ -45,4 +45,11 @@ const emit = defineEmits<{
 }>()
 
 const expanded = ref<string[]>([])
+
+// Auto-expand root components on mount
+watch(() => props.components, (comps) => {
+  if (comps.length > 0 && expanded.value.length === 0) {
+    expanded.value = comps.map(c => String(c.id))
+  }
+}, { immediate: true })
 </script>
