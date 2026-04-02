@@ -263,8 +263,8 @@
         <div class="flex items-center gap-1">
           <button
             class="px-2 py-1 text-xs border border-[var(--border)] rounded cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            :disabled="tablePage <= 1"
-            @click="tablePage--; loadTableData()"
+            :disabled="tablePage <= 1 || props.editable"
+            @click="!props.editable && (tablePage--, loadTableData())"
           >
             ‹
           </button>
@@ -273,8 +273,8 @@
           </span>
           <button
             class="px-2 py-1 text-xs border border-[var(--border)] rounded cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            :disabled="tablePage >= totalPages"
-            @click="tablePage++; loadTableData()"
+            :disabled="tablePage >= totalPages || props.editable"
+            @click="!props.editable && (tablePage++, loadTableData())"
           >
             ›
           </button>
@@ -394,7 +394,7 @@
               ? 'text-blue-500 border-b-2 border-blue-500'
               : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
           ]"
-          @click="handleTabClick(index)"
+          @click.stop="handleTabClick(index)"
         >
           {{ tabTitle }}
         </button>
@@ -411,6 +411,8 @@
             :key="child.id"
             class="relative bg-[var(--bg-primary)] rounded"
             :class="{ 'cursor-pointer': canvasMode }"
+            :draggable="canvasMode"
+            @dragstart="(e) => canvasMode && emit('drag-start-nested', e, props.component.id, idx)"
           >
             <!-- Child action buttons -->
             <div v-if="canvasMode" class="absolute -top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 bg-[var(--bg-primary)] rounded shadow flex items-center gap-1 p-1">
@@ -422,7 +424,7 @@
                 🗑
               </button>
             </div>
-            <div @click.stop="canvasMode && emit('select', child.id)">
+            <div @click.stop="canvasMode && emit('select', child.id)" @dblclick.stop="canvasMode && emit('open-props', child.id)">
               <ComponentRenderer :component="child" :editable="canvasMode" :canvas-mode="canvasMode" />
             </div>
           </div>
@@ -454,6 +456,8 @@
             :key="child.id"
             class="relative bg-[var(--bg-primary)] rounded"
             :class="{ 'cursor-pointer': canvasMode }"
+            :draggable="canvasMode"
+            @dragstart="(e) => canvasMode && emit('drag-start-nested', e, props.component.id, idx)"
           >
             <div v-if="canvasMode" class="absolute -top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 bg-[var(--bg-primary)] rounded shadow flex items-center gap-1 p-1">
               <button
@@ -464,7 +468,7 @@
                 🗑
               </button>
             </div>
-            <div @click.stop="canvasMode && emit('select', child.id)">
+            <div @click.stop="canvasMode && emit('select', child.id)" @dblclick.stop="canvasMode && emit('open-props', child.id)">
               <ComponentRenderer :component="child" :editable="canvasMode" :canvas-mode="canvasMode" />
             </div>
           </div>
@@ -512,17 +516,20 @@ const emit = defineEmits<{
   'drag-start-nested': [event: DragEvent, containerId: string, index: number]
   'select': [id: string]
   'drop': [data: any]
+  'drop-on-tab': [containerId: string, tabIndex: number, data: any]
 }>()
 
 // ============ State ============
+
+// Tabs: track which tab is being dragged over for drop targeting
+const dragOverTabIndex = ref<number | null>(null)
 
 // Tabs: use local state only in editable mode, otherwise use prop
 const currentTabIndex = ref(Number(props.component.props.activeTab) || 0)
 
 watch(() => props.component.props.activeTab, (val) => {
-  if (!props.editable) {
-    currentTabIndex.value = Number(val) || 0
-  }
+  // Always sync currentTabIndex when prop changes (both editable and preview modes)
+  currentTabIndex.value = Number(val) || 0
 })
 
 // Collapse: use local state only in editable mode
@@ -562,33 +569,35 @@ const totalPages = computed(() => {
   return Math.ceil(tableTotal.value / pageSize.value) || 1
 })
 
-// Load table data when queryApiId changes
+// Load table data when queryApiId changes (only in preview mode, not editable)
 watch(() => props.component.props.queryApiId, async (apiId) => {
-  if (apiId) {
-    tablePage.value = 1
-    await loadTableData()
-  } else {
-    tableData.value = []
-    tableTotal.value = 0
+  if (!props.editable) {
+    if (apiId) {
+      tablePage.value = 1
+      await loadTableData()
+    } else {
+      tableData.value = []
+      tableTotal.value = 0
+    }
   }
 }, { immediate: true })
 
-// Reload dict cache when columns change (only load missing dicts, don't clear existing)
+// Reload dict cache when columns change (only in preview mode, not editable)
 watch(() => props.component.props.columns, async () => {
-  if (props.component.type === 'table') {
-    // 不清空缓存，只加载缺失的字典
+  if (!props.editable && props.component.type === 'table') {
     await loadDictForColumns()
   }
 }, { deep: true })
 
 onMounted(async () => {
-  console.log('[Table] ComponentRenderer mounted, type:', props.component.type, 'queryApiId:', props.component.props.queryApiId)
-  // 先加载数据字典，再加载表格数据（确保渲染时字典已就绪）
+  console.log('[Table] ComponentRenderer mounted, type:', props.component.type, 'editable:', props.editable, 'queryApiId:', props.component.props.queryApiId)
+  // Only load data in preview mode (not in editable/canvas mode)
+  if (props.editable) return
   if (props.component.type === 'table') {
     await loadDictForColumns()
-  }
-  if (props.component.props.queryApiId) {
-    await loadTableData()
+    if (props.component.props.queryApiId) {
+      await loadTableData()
+    }
   }
 })
 
@@ -762,6 +771,7 @@ function getOverflowClass(mode?: string) {
 
 function handleTabClick(index: number) {
   if (props.editable) {
+    currentTabIndex.value = index
     emit('update-component', props.component.id, 'activeTab', index)
   } else {
     currentTabIndex.value = index
@@ -775,6 +785,29 @@ function handleCollapseClick() {
   } else {
     // In preview mode, use local state
     isCollapsed.value = !isCollapsed.value
+  }
+}
+
+// Tabs: drag over tab content area - track which tab we're over
+function onTabDragOver(e: DragEvent) {
+  if (!props.editable) return
+  e.preventDefault()
+  // Use currentTabIndex as the target tab since that's what users see
+  dragOverTabIndex.value = currentTabIndex.value
+}
+
+// Tabs: drop on tab content area - emit with specific tab index
+function onTabDrop(e: DragEvent) {
+  if (!props.editable) return
+  e.preventDefault()
+  dragOverTabIndex.value = null
+  const data = e.dataTransfer?.getData('application/json')
+  if (!data) return
+  try {
+    const parsed = JSON.parse(data)
+    emit('drop-on-tab', props.component.id, currentTabIndex.value, parsed)
+  } catch (err) {
+    console.error('Failed to parse drop data:', err)
   }
 }
 </script>
