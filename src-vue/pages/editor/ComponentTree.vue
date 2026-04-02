@@ -17,10 +17,10 @@
           :comp="comp"
           :depth="0"
           :selected-id="props.selectedId"
-          :expanded="expanded"
+          v-model:expanded="expanded"
           @select="emit('select', $event)"
           @delete="emit('delete', $event)"
-          @toggle-expand="handleToggleExpand"
+          
         />
       </div>
     </div>
@@ -28,7 +28,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+// Debug: log all toggle-expand events
+document.addEventListener('toggle-expand-debug', (e: any) => {
+  console.log('[document toggle-expand-debug]', e.detail)
+})
+import { ref, triggerRef } from 'vue'
 import ComponentTreeNode from './ComponentTreeNode.vue'
 import type { CanvasComponent } from './types'
 
@@ -48,13 +52,5 @@ const emit = defineEmits<{
 // Shared expanded state - reactive Set (proxy handles mutations reactively)
 const expanded = ref<string[]>([])
 
-function handleToggleExpand(id: string) {
-  console.log('[handleToggleExpand] id:', id, 'current expanded:', expanded.value)
-  if (expanded.value.includes(id)) {
-    expanded.value = expanded.value.filter(x => x !== id)
-  } else {
-    expanded.value = [...expanded.value, id]
-  }
-  console.log('[handleToggleExpand] new expanded:', expanded.value)
-}
+
 </script>

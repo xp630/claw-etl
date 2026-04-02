@@ -1,6 +1,6 @@
 <template>
   <div class="tree-node">
-    <span style="color:red;font-size:8px">N{{depth}}:id={{comp.id}}:exp={{JSON.stringify(props.expanded)}}</span>
+    <span style="color:red;font-size:8px">N{{depth}}:id={{comp.id}}:exp={{JSON.stringify(expandedModel)}}</span>
     <div
       class="flex items-center gap-1 px-2 py-1 rounded cursor-pointer transition-colors group"
       :class="{
@@ -13,6 +13,7 @@
       <!-- Expand/collapse toggle for containers -->
       <span
         v-if="isContainer(comp.type) && hasChildren"
+        @click.capture.stop="console.log('[span.capture]', comp.id)"
         @click.stop="toggleExpand(String(comp.id))"
         class="p-0.5 hover:bg-[var(--bg-hover)] rounded"
       >
@@ -100,17 +101,13 @@ const props = defineProps<{
   expanded: Ref<Set<string>>
 }>()
 
-const emit = defineEmits<{
-  select: [id: string]
-  delete: [id: string]
-  'toggle-expand': [id: string]
-}>()
+const expandedModel = defineModel<string[]>('expanded', { required: true })
 
 const containerTypes = ['card', 'tabs', 'collapse', 'grid']
 
 // Computed to check if current node is expanded
 const isExpanded = computed(() => {
-  return props.expanded.includes(String(props.comp.id))
+  return expandedModel.value.includes(String(props.comp.id))
 })
 
 // For tabs: get children of a specific tab
@@ -133,9 +130,12 @@ function isContainer(type: string): boolean {
 }
 
 function toggleExpand(id: string) {
-  console.log('[toggleExpand] BEFORE emit, id:', id, 'props.expanded:', props.expanded)
-  emit('toggle-expand', id)
-  console.log('[toggleExpand] AFTER emit')
+  const expanded = expandedModel.value
+  if (expanded.includes(id)) {
+    expandedModel.value = expanded.filter(x => x !== id)
+  } else {
+    expandedModel.value = [...expanded, id]
+  }
 }
 
 const typeLabels: Record<string, string> = {
