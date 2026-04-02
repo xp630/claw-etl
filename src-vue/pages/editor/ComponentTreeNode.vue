@@ -38,7 +38,22 @@
 
     <!-- Children (recursive) -->
     <template v-if="isContainer(comp.type) && expanded.has(comp.id!) && hasChildren">
+      <!-- For tabs: render virtual tab nodes, each containing its children -->
+      <template v-if="comp.type === 'tabs'">
+        <template v-for="(childIds, tabKey) in (comp.props?.childrenMap || {})" :key="tabKey">
+          <ComponentTreeNode
+            :comp="{ id: comp.id + '-tab-' + tabKey, type: 'tab', label: 'Tab ' + (Number(tabKey) + 1), children: getTabChildren(tabKey) }"
+            :depth="depth + 1"
+            :selected-id="selectedId"
+            :expanded="expanded"
+            @select="emit('select', $event)"
+            @delete="emit('delete', $event)"
+          />
+        </template>
+      </template>
+      <!-- For other containers: render direct children -->
       <ComponentTreeNode
+        v-else
         v-for="child in comp.children"
         :key="child.id"
         :comp="child"
@@ -91,8 +106,21 @@ const emit = defineEmits<{
 
 const containerTypes = ['card', 'tabs', 'collapse', 'grid']
 
+// For tabs: get children of a specific tab
+function getTabChildren(tabKey: string) {
+  const childrenMap = props.comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
+  if (!childrenMap || !childrenMap[tabKey]) return []
+  const childIds = childrenMap[tabKey]
+  return (props.comp.children || []).filter(c => childIds.includes(c.componentId as any) || childIds.includes(c.id as any))
+}
+
 const hasChildren = computed(() => {
-  return props.comp.children && props.comp.children.length > 0
+  // Direct children (card, collapse, grid)
+  if (props.comp.children && props.comp.children.length > 0) return true
+  // Tabs: childrenMap contains tab children
+  const childrenMap = props.comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
+  if (childrenMap && Object.keys(childrenMap).length > 0) return true
+  return false
 })
 
 function isContainer(type: string): boolean {
