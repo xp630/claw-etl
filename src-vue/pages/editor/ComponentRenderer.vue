@@ -396,7 +396,7 @@
               ? 'text-blue-500 border-b-2 border-blue-500'
               : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
           ]"
-          @click.stop="handleTabClick(index)"
+          @click.stop="handleTabClick(unifiedTabs[index]?.id)"
           @dragover.prevent="onTabDragOver($event, index)"
           @dragleave="onTabDragLeave($event)"
         >
@@ -497,7 +497,8 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted } from 'vue'
 import { api, getAllDictItems } from '@/lib/api'
-import type { CanvasComponent } from './types'
+import type { CanvasComponent, TabItem, UnifiedTabs, LayoutProps } from './types'
+import { isLegacyTabs } from './types'
 
 interface Props {
   component: CanvasComponent
@@ -529,26 +530,65 @@ const emit = defineEmits<{
 // Tabs: track which tab is being dragged over for drop targeting
 const dragOverTabIndex = ref<number | null>(null)
 
-// Tabs: computed children from component.children + childrenMap (not from prop)
+// Tabs: get unified tabs (supports both legacy string[] and new TabItem[] format)
+const unifiedTabs = computed((): TabItem[] => {
+  const rawTabs = props.component.props?.tabs as UnifiedTabs | undefined
+  if (!rawTabs || (Array.isArray(rawTabs) && rawTabs.length === 0)) return []
+  
+  if (isLegacyTabs(rawTabs)) {
+    // Legacy format: convert to new format
+    const childrenMap = props.component.props?.childrenMap as Record<string, (string | number)[]> | undefined
+    return rawTabs.map((label, index) => ({
+      id: `tab_${index}`,
+      label,
+      params: {},
+      children: childrenMap?.[String(index)] || []
+    }))
+  }
+  
+  // New format: TabItem[]
+  return rawTabs
+})
+
+// Tabs: get active tab id
+const activeTabId = computed(() => {
+  const rawActiveTab = props.component.props?.activeTab
+  if (rawActiveTab === undefined || rawActiveTab === null) return ''
+  return String(rawActiveTab)
+})
+
+// Tabs: get active tab index
+const activeTabIndex = computed(() => {
+  const id = activeTabId.value
+  const tabs = unifiedTabs.value
+  const idx = tabs.findIndex(t => t.id === id)
+  return idx >= 0 ? idx : 0
+})
+
+// Tabs: computed children for current tab
 const tabChildren = computed(() => {
-  const childrenMap = props.component.props?.childrenMap as Record<string, (string | number)[]> | undefined
-  const tabKey = String(currentTabIndex.value)
-  const childIds = (childrenMap?.[tabKey] || []) as (string | number)[]
+  const tabs = unifiedTabs.value
+  const idx = activeTabIndex.value
+  if (idx < 0 || idx >= tabs.length) return []
+  
+  const tab = tabs[idx]
+  const childIds = (tab.children || []).map(id => String(id))
   const componentChildren = props.component.children
   const showChildren = props.showChildren
   const children = componentChildren || showChildren || []
-  const childIdStrs = childIds.map(id => String(id))
-  const result = children.filter(c => childIdStrs.includes(String(c.componentId)) || childIdStrs.includes(String(c.id)))
-  console.log('[tabChildren CR] type:', props.component.type, 'activeTab:', currentTabIndex.value, 'childIds:', childIds, 'compChildren:', componentChildren?.map(c => c.id), 'showChildren:', showChildren?.map(c => c.id), 'result:', result.map(c => c.id))
-  return result
+  
+  return children.filter(c => childIds.includes(String(c.componentId)) || childIds.includes(String(c.id)))
 })
+
+// Tabs: use local ref for current tab index, synced with prop
+const currentTabIndex = ref(0)
+watch(() => props.component.props?.activeTab, (val) => {
+  const id = val !== undefined && val !== null ? String(val) : ''
+  const idx = unifiedTabs.value.findIndex(t => t.id === id)
+  currentTabIndex.value = idx >= 0 ? idx : 0
+}, { immediate: true })
 
 // Tabs: use local ref, synced with prop via watch
-const currentTabIndex = ref(Number(props.component.props.activeTab) || 0)
-watch(() => props.component.props.activeTab, (val) => {
-  currentTabIndex.value = Number(val) || 0
-})
-
 // Collapse: use local state only in editable mode
 const isCollapsed = ref(false)
 
@@ -734,10 +774,7 @@ async function loadDictForColumns() {
 
 // Tabs titles from tabs array prop
 const tabTitles = computed(() => {
-  const tabs = props.component.props.tabs as string[] | undefined
-  if (tabs && tabs.length > 0) return tabs
-  const count = (props.component.props.tabCount as number) || 2
-  return Array.from({ length: count }, (_, i) => props.component.props[`tab${i}Title`] as string || `标签页 ${i + 1}`)
+  return unifiedTabs.value.map(t => t.label)
 })
 
 // Chart icon
@@ -777,12 +814,9 @@ function getOverflowClass(mode?: string) {
 
 // ============ Event Handlers ============
 
-function handleTabClick(index: number) {
+function handleTabClick(tabId: string) {
   if (props.editable) {
-    currentTabIndex.value = index
-    emit('update-component', props.component.id, 'activeTab', index)
-  } else {
-    currentTabIndex.value = index
+    emit('update-component', props.component.id, 'activeTab', tabId)
   }
 }
 
