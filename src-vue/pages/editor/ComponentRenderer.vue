@@ -396,6 +396,7 @@
           ]"
           @click.stop="handleTabClick(index)"
           @dragover.prevent="onTabDragOver($event, index)"
+          @dragleave="onTabDragLeave($event)"
         >
           {{ tabTitle }}
         </button>
@@ -793,9 +794,16 @@ function handleCollapseClick() {
 function onTabDragOver(e: DragEvent, tabIndex: number) {
   if (!props.editable) return
   e.preventDefault()
-  // Update currentTabIndex so onTabDrop uses the correct tab
+  // Update BOTH currentTabIndex and dragOverTabIndex
   currentTabIndex.value = tabIndex
   dragOverTabIndex.value = tabIndex
+  console.log('[ComponentRenderer] onTabDragOver tabIndex:', tabIndex, 'currentTabIndex:', currentTabIndex.value)
+}
+
+// Tabs: drag leave on tab button
+function onTabDragLeave(e: DragEvent) {
+  if (!props.editable) return
+  dragOverTabIndex.value = null
 }
 
 // Tabs: drop on tab content area - emit with specific tab index
