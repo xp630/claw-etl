@@ -131,6 +131,7 @@ function isContainer(type: string): boolean {
 }
 
 function toggleExpand(id: string) {
+  console.log('[toggleExpand] called with id:', id, 'expanded:', [...expanded.value])
   emit('toggle-expand', id)
 }
 
