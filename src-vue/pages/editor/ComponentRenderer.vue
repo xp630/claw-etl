@@ -507,6 +507,7 @@ interface Props {
   // For canvas mode: pass children to render inside container
   showChildren?: CanvasComponent[]
   containerId?: string
+  selectedId?: string | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
