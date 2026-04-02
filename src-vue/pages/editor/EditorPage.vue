@@ -475,6 +475,7 @@ function updateParentIdDeep(comp: CanvasComponent, newParentId: string): CanvasC
 
 function handleAddChildToContainer(containerId: string, childComponent: CanvasComponent, tabIndex?: number) {
   console.log('[handleAddChildToContainer] called:', { containerId, childComponentType: childComponent.type, childComponentId: childComponent.id, tabIndex })
+  console.log('[handleAddChildToContainer] childComponent.children:', childComponent.children?.map(c => ({ id: c.id, type: c.type, childrenCount: c.children?.length })))
   // Deep copy and update parentId for all nested components (grandchildren included)
   const childWithParent = updateParentIdDeep(childComponent, containerId)
   const childKey = childWithParent.componentId || childWithParent.id

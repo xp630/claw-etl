@@ -168,10 +168,16 @@ const getContainerChildren = (comp: CanvasComponent): CanvasComponent[] => {
     if (childrenMap) {
       const tabIndex = String(comp.props?.activeTab || 0)
       const childIds = childrenMap[tabIndex] || []
-      // Match by componentId (stable) or id
-      return (comp.children || []).filter(c => 
+      const children = (comp.children || []).filter(c =>
         childIds.includes(c.componentId as any) || childIds.includes(c.id as any)
       )
+      console.log('[DropCanvas] getContainerChildren tabs:', {
+        compId: comp.id,
+        tabIndex,
+        childIds,
+        childrenIds: children.map(c => ({ id: c.id, componentId: c.componentId, type: c.type }))
+      })
+      return children
     }
     return comp.children || []
   }
@@ -389,9 +395,13 @@ const onDropOnTab = (containerId: string, tabIndex: number, data: any) => {
       }
       emit('add-child', containerId, newComponent, tabIndex)
     } else if (data.fromRoot) {
+      // Dragging root component INTO a container → add-child
       const rootComp = props.components[data.index]
-      emit('move-child-to-root', containerId, rootComp?.id || '', data.index, tabIndex)
+      if (rootComp) {
+        emit('add-child', containerId, rootComp, data.index, tabIndex)
+      }
     } else if (data.fromNested) {
+      // Dragging nested component to another container → move-child-to-root
       const srcContainer = props.components.find(c => c.id === data.containerId)
       const child = srcContainer?.children?.[data.index]
       emit('move-child-to-root', containerId, child?.id || '', data.index, tabIndex)
@@ -431,21 +441,21 @@ const onContainerDrop = (e: DragEvent, containerId: string) => {
       const tabIndex = parsed.type === 'tabs' ? (parsed.defaultProps?.activeTab as number || 0) : undefined
       emit('add-child', containerId, newComponent, dragOverIndex.value, tabIndex)
     } else if (parsed.fromRoot) {
-      // Prevent dropping a container into itself or its descendant
+      // Dragging root component INTO a container → add-child
       const comp = props.components[parsed.index]
       if (comp && isContainerType(comp.type) && isDescendantOf(containerId, comp.id)) {
         console.warn('[DropCanvas] Cannot drop container into itself or its descendant')
         emit('drag-end')
         return
       }
-      // Moving from root to container
-      emit('move-child-to-root', containerId, comp?.id || '', parsed.index)
+      // Root component → add to container (NOT move-child-to-root)
+      emit('add-child', containerId, comp, dragOverIndex.value)
     } else if (parsed.fromNested) {
-      // Moving from one container to another
+      // Moving from one container to another → add-child (add to new container)
       if (parsed.containerId !== containerId) {
         const srcContainer = props.components.find(c => c.id === parsed.containerId)
         const child = srcContainer?.children?.[parsed.index]
-        emit('move-child-to-root', containerId, child?.id || '', parsed.index)
+        emit('add-child', containerId, child, dragOverIndex.value)
       }
     }
   } catch (err) {
