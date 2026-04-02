@@ -531,15 +531,14 @@ const dragOverTabIndex = ref<number | null>(null)
 // Tabs: computed children from component.children + childrenMap (not from prop)
 const tabChildren = computed(() => {
   const childrenMap = props.component.props?.childrenMap as Record<string, (string | number)[]> | undefined
-  const activeTab = Number(props.component.props?.activeTab) || 0
-  const tabKey = String(activeTab)
+  const tabKey = String(currentTabIndex.value)
   const childIds = (childrenMap?.[tabKey] || []) as (string | number)[]
   const componentChildren = props.component.children
   const showChildren = props.showChildren
   const children = componentChildren || showChildren || []
   const childIdStrs = childIds.map(id => String(id))
   const result = children.filter(c => childIdStrs.includes(String(c.componentId)) || childIdStrs.includes(String(c.id)))
-  console.log('[tabChildren CR] type:', props.component.type, 'activeTab:', activeTab, 'childIds:', childIds, 'compChildren:', componentChildren?.map(c => c.id), 'showChildren:', showChildren?.map(c => c.id), 'result:', result.map(c => c.id))
+  console.log('[tabChildren CR] type:', props.component.type, 'activeTab:', currentTabIndex.value, 'childIds:', childIds, 'compChildren:', componentChildren?.map(c => c.id), 'showChildren:', showChildren?.map(c => c.id), 'result:', result.map(c => c.id))
   return result
 })
 
