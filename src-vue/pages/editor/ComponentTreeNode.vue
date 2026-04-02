@@ -15,7 +15,7 @@
         @click.stop="toggleExpand(String(comp.id))"
         class="p-0.5 hover:bg-[var(--bg-hover)] rounded"
       >
-        <ChevronDown v-if="props.expanded.has(String(comp.id))" class="w-4 h-4" />
+        <ChevronDown v-if="props.expanded.includes(String(comp.id))" class="w-4 h-4" />
         <ChevronRight v-else class="w-4 h-4" />
       </span>
       <span v-else class="w-4" />
@@ -37,7 +37,7 @@
     </div>
 
     <!-- Children (recursive) -->
-    <template v-if="isContainer(comp.type) && props.expanded.has(String(comp.id)) && hasChildren">
+    <template v-if="isContainer(comp.type) && props.expanded.includes(String(comp.id)) && hasChildren">
       <!-- For tabs: render virtual tab nodes from childrenMap -->
       <template v-if="comp.type === 'tabs'">
         <template v-for="(childIds, tabKey) in (comp.props?.childrenMap || {})" :key="'tab-' + tabKey">

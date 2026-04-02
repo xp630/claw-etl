@@ -46,18 +46,24 @@ const emit = defineEmits<{
 }>()
 
 // Shared expanded state - reactive Set (proxy handles mutations reactively)
-const expanded = ref<Set<string>>(new Set())
+const expanded = ref<string[]>([])
 
+// Prevent duplicate rapid clicks
+let lastToggleTime = 0
 function handleToggleExpand(id: string) {
-  console.log('[handleToggleExpand] id:', id, 'current expanded:', [...expanded.value])
-  // Create new Set to trigger reactivity (Set mutation won't trigger update)
-  const newSet = new Set(expanded.value)
-  if (newSet.has(id)) {
-    newSet.delete(id)
-  } else {
-    newSet.add(id)
+  const now = Date.now()
+  if (now - lastToggleTime < 200) {
+    console.log('[handleToggleExpand] REJECTED duplicate click for:', id)
+    return
   }
-  console.log('[handleToggleExpand] new expanded:', [...newSet])
-  expanded.value = newSet
+  lastToggleTime = now
+  console.log('[handleToggleExpand] id:', id, 'current expanded:', expanded.value)
+  // Use array for reactivity
+  if (expanded.value.includes(id)) {
+    expanded.value = expanded.value.filter(x => x !== id)
+  } else {
+    expanded.value = [...expanded.value, id]
+  }
+  console.log('[handleToggleExpand] new expanded:', expanded.value)
 }
 </script>
