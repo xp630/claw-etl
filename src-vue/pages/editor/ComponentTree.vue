@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import ComponentTreeNode from './ComponentTreeNode.vue'
 import type { CanvasComponent } from './types'
 
