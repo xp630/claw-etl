@@ -549,16 +549,7 @@ watch(() => props.component.props.activeTab, (val) => {
 // Collapse: use local state only in editable mode
 const isCollapsed = ref(false)
 
-// Tabs: get children for current tab
-const tabChildren = computed(() => {
-  const childrenMap = props.component.props?.childrenMap as Record<string, string[]> | undefined
-  if (childrenMap) {
-    const tabKey = String(currentTabIndex.value)
-    const childIds = childrenMap[tabKey] || []
-    return (props.component.children || []).filter(c => childIds.includes(c.id))
-  }
-  return props.component.children || []
-})
+
 
 // Table data
 const tableData = ref<any[]>([])
