@@ -384,26 +384,26 @@ function flattenComponentsWithParentId(comps: CanvasComponent[], parentId: strin
     if (item.type === 'tabs' && item.props?.tabs) {
       const tabs = item.props.tabs
       if (isLegacyTabs(tabs)) {
-        // 旧格式 string[] + childrenMap → 转换为新格式 TabItem[]（children 内联）
+        // 旧格式 string[] + childrenMap → 转换为新格式 TabItem[]（children 内联完整对象）
         const childrenMap = (item.props.childrenMap as Record<string, (string | number)[]>) || {}
         const migratedTabs = tabs.map((label: string, index: number) => {
-          const tabChildIds = childrenMap[String(index)] || []
-          // 从 comp.children 中找出属于这个 tab 的子组件（内联完整对象）
-          const tabChildren = (children || []).filter((child: CanvasComponent) =>
-            tabChildIds.includes(child.id as any) || tabChildIds.includes(child.componentId as any)
-          )
+          // childrenMap 存的就是 ID 数组，直接用
+          const tabChildIds: (string | number)[] = childrenMap[String(index)] || []
           return {
             id: `tab_${index}`,
             label,
             params: {},
-            children: tabChildren,
+            children: tabChildIds, // ID 数组，与 ComponentRenderer.tabChildren 期望一致
             layout: { direction: 'column', gap: 8, wrap: false }
           }
         })
         item.props = { ...item.props, tabs: migratedTabs }
-        // childrenMap 不再需要，清除
-        delete item.props.childrenMap
+        delete item.props.childrenMap // childrenMap 不再需要
+        // 递归时不展开 tab.children（已经是完整对象，会在各自的 FlattenComponentsWithParentId 调用中展开）
+        result.push(item)
+        continue
       }
+      // 新格式 tabs：children 已内联为完整对象，直接展开
     }
 
     if (parentId) {
@@ -517,29 +517,38 @@ function updateParentIdDeep(comp: CanvasComponent, newParentId: string): CanvasC
 
 function handleAddChildToContainer(containerId: string, childComponent: CanvasComponent, tabIndex?: number) {
   console.log('[handleAddChildToContainer] called:', { containerId, childComponentType: childComponent.type, childComponentId: childComponent.id, tabIndex })
-  console.log('[handleAddChildToContainer] childComponent.children:', childComponent.children?.map(c => ({ id: c.id, type: c.type, childrenCount: c.children?.length })))
   // Deep copy and update parentId for all nested components (grandchildren included)
   const childWithParent = updateParentIdDeep(childComponent, containerId)
-  const childKey = childWithParent.componentId || childWithParent.id
-  
+  const childKey = String(childWithParent.componentId || childWithParent.id)
+
   components.value = updateComponentInTree(components.value, containerId, (comp: CanvasComponent) => {
     if (comp.type === 'tabs') {
-      // Use tabIndex if valid (>=0), otherwise fall back to comp.props.activeTab, default to 0
+      const tabs = comp.props.tabs as UnifiedTabs
+      if (tabs && !isLegacyTabs(tabs) && Array.isArray(tabs)) {
+        // 新格式 TabItem[]：子组件 ID 添加到对应 TabItem.children
+        const rawActiveTab = comp.props.activeTab
+        const activeId = rawActiveTab !== undefined ? String(rawActiveTab) : ''
+        const tabIdx = tabs.findIndex(t => t.id === activeId)
+        const targetIdx = (tabIndex !== undefined && tabIndex >= 0) ? tabIndex : (tabIdx >= 0 ? tabIdx : 0)
+        const newTabs = tabs.map((tab, i) => {
+          if (i !== targetIdx) return tab
+          return {
+            ...tab,
+            children: [...(tab.children || []), childKey]
+          }
+        })
+        return {
+          ...comp,
+          children: [...(comp.children || []), childWithParent],
+          props: { ...comp.props, tabs: newTabs }
+        }
+      }
+      // 旧格式：使用 childrenMap
       const rawActiveTab = comp.props.activeTab
       const effectiveTabIndex = (tabIndex !== undefined && tabIndex >= 0) ? tabIndex : (typeof rawActiveTab === 'number' && rawActiveTab >= 0 ? rawActiveTab : 0)
       const childrenMap = (comp.props.childrenMap as Record<string, (string | number)[]>) || {}
       const tabKey = String(effectiveTabIndex)
       const existingChildIds = childrenMap[tabKey] || []
-      console.log('[Tabs] add-child:', {
-        containerId: comp.id,
-        compActiveTab: rawActiveTab,
-        tabIndex,
-        effectiveTabIndex,
-        tabKey,
-        childKey,
-        childId: childWithParent.id,
-        existingChildIds
-      })
       return {
         ...comp,
         children: [...(comp.children || []), childWithParent],
@@ -564,6 +573,20 @@ function handleAddChildToContainer(containerId: string, childComponent: CanvasCo
 function handleRemoveChildFromContainer(containerId: string, childId: string) {
   components.value = updateComponentInTree(components.value, containerId, (comp: CanvasComponent) => {
     if (comp.type === 'tabs') {
+      const tabs = comp.props.tabs as UnifiedTabs
+      if (tabs && !isLegacyTabs(tabs) && Array.isArray(tabs)) {
+        // 新格式 TabItem[]：children 是 ID 数组，从每个 tab.children 中移除
+        const newTabs = tabs.map(tab => ({
+          ...tab,
+          children: (tab.children || []).filter((cid: any) => String(cid) !== String(childId))
+        }))
+        return {
+          ...comp,
+          children: (comp.children || []).filter(c => c.id !== childId),
+          props: { ...comp.props, tabs: newTabs }
+        }
+      }
+      // 旧格式：使用 childrenMap
       const childrenMap = { ...((comp.props.childrenMap as Record<string, string[]>) || {}) }
       for (const key of Object.keys(childrenMap)) {
         childrenMap[key] = childrenMap[key].filter(id => id !== childId)
@@ -616,12 +639,44 @@ function handleMoveChildToRoot(fromContainerId: string, childId: string, insertI
   const extractFromContainer = (comp: CanvasComponent): CanvasComponent | null => {
     if (comp.id === fromContainerId) {
       if (comp.type === 'tabs') {
+        const tabs = comp.props.tabs as UnifiedTabs
+        if (tabs && !isLegacyTabs(tabs) && Array.isArray(tabs)) {
+          // 新格式 TabItem[]：从对应 tab.children 中移除
+          let found = false
+          const newTabs = tabs.map(tab => {
+            if (found) return tab
+            const childIds = (tab.children || []) as (string | number)[]
+            const idx = childIds.findIndex(id => String(id) === String(childId))
+            if (idx !== -1) {
+              found = true
+              return { ...tab, children: childIds.filter((_, i) => i !== idx) }
+            }
+            return tab
+          })
+          if (found) {
+            const findComp = (comps: CanvasComponent[]): CanvasComponent | null => {
+              for (const c of comps) {
+                if (String(c.id) === String(childId)) return c
+                if (c.children) {
+                  const found = findComp(c.children)
+                  if (found) return found
+                }
+              }
+              return null
+            }
+            childToMove = findComp(components.value)
+            if (childToMove) childToMove = { ...childToMove, parentId: undefined }
+            const filteredChildren = (comp.children || []).filter(c => String(c.id) !== String(childId))
+            return { ...comp, children: filteredChildren, props: { ...comp.props, tabs: newTabs } }
+          }
+          return null
+        }
+        // 旧格式：使用 childrenMap
         const childrenMap = { ...(comp.props.childrenMap as Record<string, string[]>) }
         for (const key of Object.keys(childrenMap)) {
           const ids = childrenMap[key]
           const idx = ids.findIndex(id => id === childId)
           if (idx !== -1) {
-            // Find actual component in the full component tree
             const findComp = (comps: CanvasComponent[]): CanvasComponent | null => {
               for (const c of comps) {
                 if (c.id === childId) return c
@@ -633,10 +688,7 @@ function handleMoveChildToRoot(fromContainerId: string, childId: string, insertI
               return null
             }
             childToMove = findComp(components.value)
-            if (childToMove) {
-              childToMove = { ...childToMove, parentId: undefined }
-            }
-            // Remove from childrenMap AND from comp.children (both must be in sync)
+            if (childToMove) childToMove = { ...childToMove, parentId: undefined }
             const filteredIds = ids.filter((_, i) => i !== idx)
             const filteredChildren = (comp.children || []).filter(c => c.id !== childId)
             return { ...comp, children: filteredChildren, props: { ...comp.props, childrenMap: { ...childrenMap, [key]: filteredIds } } }
