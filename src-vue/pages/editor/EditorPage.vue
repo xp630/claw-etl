@@ -838,7 +838,8 @@ function handleMoveChildToRoot(fromContainerId: string, childId: string, insertI
     if (targetId === ancestorId) return true
     const findComp = (comps: CanvasComponent[], id: string): CanvasComponent | null => {
       for (const c of comps) {
-        if (c.id === id) return c
+        // Match by id or componentId (stable ID)
+        if (c.id === id || c.componentId === id) return c
         if (c.children?.length) {
           const found = findComp(c.children, id)
           if (found) return found
@@ -849,7 +850,8 @@ function handleMoveChildToRoot(fromContainerId: string, childId: string, insertI
     const ancestor = findComp(components.value, ancestorId)
     if (!ancestor) return false
     const checkDescendants = (comp: CanvasComponent): boolean => {
-      if (comp.id === targetId) return true
+      // Match by id or componentId
+      if (comp.id === targetId || comp.componentId === targetId) return true
       return comp.children?.some(checkDescendants) || false
     }
     return checkDescendants(ancestor)
@@ -874,7 +876,8 @@ function handleMoveChildToRoot(fromContainerId: string, childId: string, insertI
   const childCompId = childComp?.componentId ? String(childComp.componentId) : String(childId)
   
   const extractFromContainer = (comp: CanvasComponent): CanvasComponent | null => {
-    if (comp.id === fromContainerId) {
+    // Match by id or componentId
+    if (comp.id === fromContainerId || comp.componentId === fromContainerId) {
       if (comp.type === 'tabs') {
         const tabs = comp.props.tabs as UnifiedTabs
         if (tabs && !isLegacyTabs(tabs) && Array.isArray(tabs)) {
@@ -891,7 +894,7 @@ function handleMoveChildToRoot(fromContainerId: string, childId: string, insertI
             return tab
           })
           if (found) {
-            const filteredChildren = (comp.children || []).filter(c => String(c.id) !== String(childId))
+            const filteredChildren = (comp.children || []).filter(c => String(c.id) !== String(childId) && c.componentId !== childCompId)
             return { ...comp, children: filteredChildren, props: { ...comp.props, tabs: newTabs } }
           }
           return null
@@ -943,7 +946,8 @@ function handleMoveChildToRoot(fromContainerId: string, childId: string, insertI
   // isDescendant(target, ancestor) returns true if target is a descendant of ancestor
   // Check if target container (fromContainerId) is inside the component being moved (childToMove)
   // If true, dropping would create a cycle: parent -> ... -> child -> parent
-  const wouldCreateCycle = isDescendant(fromContainerId, childToMove.id) || fromContainerId === childToMove.id
+  // Check if container's componentId matches child's id or componentId
+  const wouldCreateCycle = isDescendant(fromContainerId, childToMove.id) || isDescendant(fromContainerId, childToMove.componentId) || fromContainerId === childToMove.id || fromContainerId === childToMove.componentId
   if (isContainerType(childToMove.type) && wouldCreateCycle) {
     console.warn('[EditorPage] Cannot drop container into itself or its descendant')
     return
