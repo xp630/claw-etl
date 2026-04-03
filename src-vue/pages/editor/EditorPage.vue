@@ -236,6 +236,10 @@ function migrateTabsComponents(comps: CanvasComponent[]): CanvasComponent[] {
       } else if (rawActiveTab === undefined || rawActiveTab === null) {
         migrated.props = { ...migrated.props, activeTab: 'tab_0' }
       }
+      // 新格式也删除 childrenMap（如果存在的话）
+      if (migrated.props.childrenMap) {
+        delete (migrated.props as any).childrenMap
+      }
     }
     if (migrated.children && migrated.children.length > 0) {
       migrated = { ...migrated, children: migrateTabsComponents(migrated.children) }
@@ -446,7 +450,10 @@ function buildComponentTree(flatComponents: any[]): CanvasComponent[] {
   })
 
   // Fix childrenMap: resolve childrenMap IDs to actual component objects
+  // Note: Tabs with new format use TabItem.children instead, skip childrenMap handling for tabs
   componentMap.forEach(comp => {
+    if (comp.type === 'tabs') return // Skip tabs (new format uses TabItem.children)
+    
     const childrenMap = comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
     
     // If childrenMap is empty or undefined but children exists, rebuild childrenMap from children
