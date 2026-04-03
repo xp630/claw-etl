@@ -625,13 +625,17 @@ function handleDelete(id: string) {
 function handleDrop(data: { fromPalette: boolean, type?: string, label?: string, defaultProps?: Record<string, unknown> } | null) {
   console.log('[EditorPage] handleDrop called with:', data)
   if (data && data.fromPalette) {
+    const timestamp = Date.now()
     const newComponent: CanvasComponent = {
       type: data.type || 'text',
       label: data.label || '新组件',
+      id: String(timestamp),
+      componentId: `${data.type}_${timestamp}`,
       props: data.defaultProps || {},
     }
     components.value = [...components.value, newComponent]
-    selectedId.value = newComponent.id
+    selectedId.value = String(timestamp)
+    refreshSelectedComponent()
   }
 }
 
