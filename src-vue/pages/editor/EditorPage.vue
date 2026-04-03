@@ -188,6 +188,38 @@ function getActiveTabId(activeTab: string | number | undefined): string {
   return String(activeTab)
 }
 
+// 递归转换 tabs 旧格式为新格式
+function migrateTabsComponents(comps: CanvasComponent[]): CanvasComponent[] {
+  return comps.map(comp => {
+    let migrated = { ...comp }
+    if (migrated.type === 'tabs' && migrated.props?.tabs) {
+      const tabs = migrated.props.tabs as UnifiedTabs
+      if (isLegacyTabs(tabs)) {
+        const childrenMap = (migrated.props.childrenMap as Record<string, (string | number)[]>) || {}
+        const migratedTabs = tabs.map((label: string, index: number) => {
+          const tabChildIds: (string | number)[] = childrenMap[String(index)] || []
+          return {
+            id: `tab_${index}`,
+            label,
+            params: {},
+            children: tabChildIds,
+            layout: { direction: 'column' as const, gap: 8, wrap: false }
+          }
+        })
+        migrated = {
+          ...migrated,
+          props: { ...migrated.props, tabs: migratedTabs, activeTab: migrated.props.activeTab }
+        }
+        delete (migrated.props as any).childrenMap
+      }
+    }
+    if (migrated.children && migrated.children.length > 0) {
+      migrated = { ...migrated, children: migrateTabsComponents(migrated.children) }
+    }
+    return migrated
+  })
+}
+
 const components = ref<CanvasComponent[]>([])
 const selectedId = ref<string | null>(null)
 const showPropsPanel = ref(false) // 双击组件时显示属性面板
@@ -945,7 +977,9 @@ async function loadPageConfig() {
         // 解析组件数据
         if (pageComponents && Array.isArray(pageComponents)) {
           //console.log('[EditorPage] raw pageComponents:', JSON.stringify(pageComponents))
-          const tree = buildComponentTree(pageComponents)
+          let tree = buildComponentTree(pageComponents)
+          // 加载时自动将 tabs 旧格式迁移为新格式
+          tree = migrateTabsComponents(tree)
           console.log('[EditorPage] built tree, root components:', tree.length)
           tree.forEach((comp, i) => {
             console.log(`  [${i}] id=${comp.id}, type=${comp.type}, label=${comp.label}, children count=${comp.children?.length || 0}`)
