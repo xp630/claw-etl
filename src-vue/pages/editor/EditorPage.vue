@@ -631,14 +631,17 @@ function handleDrop(data: { fromPalette: boolean, type?: string, label?: string,
 }
 
 function handleQuickAdd(comp: { type: string; label: string; defaultProps?: Record<string, any> }) {
+  const timestamp = Date.now()
   const newComponent: CanvasComponent = {
     type: comp.type,
     label: comp.label,
-    componentId: `${comp.type}_${Date.now()}`,
+    id: timestamp,
+    componentId: `${comp.type}_${timestamp}`,
     props: comp.defaultProps || {},
   }
   components.value = [...components.value, newComponent]
   activeLeftTab.value = ''
+  selectedId.value = String(timestamp)
 }
 
 // Recursively update parentId for all nested components (deep copy)
