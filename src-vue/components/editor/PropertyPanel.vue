@@ -554,13 +554,13 @@ const breadcrumbPath = computed<BreadcrumbItem[]>(() => {
   const selectedId = props.selectedComponent.componentId || props.selectedComponent.id
   
   // 递归查找路径
-  const findPath = (comps: CanvasComponent[], targetId: string, currentPath: BreadcrumbItem[]): boolean => {
+  const findPath = (comps: CanvasComponent[], targetId: string): boolean => {
     for (const c of comps) {
       const cid = c.componentId || c.id
-      const newPath = [...currentPath, { componentId: cid, id: c.id, type: c.type, label: c.label || c.type }]
       
+      // 选中的是当前组件
       if (cid === targetId) {
-        path.push(...newPath)
+        path.push({ componentId: cid, id: c.id, type: c.type, label: c.label || c.type })
         return true
       }
       
@@ -573,15 +573,14 @@ const breadcrumbPath = computed<BreadcrumbItem[]>(() => {
             for (const childId of tab.children) {
               const childComp = findComponentById(String(childId))
               if (childComp) {
-                const tabPath = [...newPath, { componentId: `tab_${i}`, id: `tab_${i}`, type: 'tab', label: `标签${i + 1}` }]
                 const childCid = childComp.componentId || childComp.id
                 if (childCid === targetId) {
-                  path.push(...tabPath, { componentId: childCid, id: childComp.id, type: childComp.type, label: childComp.label || childComp.type })
+                  // 找到目标：加入 Tabs -> Tab -> Child
+                  path.push({ componentId: cid, id: c.id, type: c.type, label: c.label || c.type })
+                  path.push({ componentId: tab.tabId, id: tab.tabId, type: 'tab', label: tab.label || `标签${i + 1}` })
+                  path.push({ componentId: childCid, id: childComp.id, type: childComp.type, label: childComp.label || childComp.type })
                   return true
                 }
-                // 继续在 childComp.children 中查找
-                const found = findPathInChildren([childComp], targetId, tabPath)
-                if (found) return true
               }
             }
           }
@@ -590,35 +589,16 @@ const breadcrumbPath = computed<BreadcrumbItem[]>(() => {
       
       // 检查普通 children
       if (c.children && c.children.length > 0) {
-        const found = findPathInChildren([c], targetId, newPath)
-        if (found) return true
-      }
-    }
-    return false
-  }
-  
-  const findPathInChildren = (parents: CanvasComponent[], targetId: string, currentPath: BreadcrumbItem[]): boolean => {
-    for (const p of parents) {
-      const children = p.children || []
-      for (const child of children) {
-        const childCid = child.componentId || child.id
-        const newPath = [...currentPath, { componentId: childCid, id: child.id, type: child.type, label: child.label || child.type }]
-        
-        if (childCid === targetId) {
-          path.push(...newPath)
+        if (findPath(c.children, targetId)) {
+          path.unshift({ componentId: cid, id: c.id, type: c.type, label: c.label || c.type })
           return true
         }
-        
-        if (child.children && child.children.length > 0) {
-          const found = findPathInChildren([child], targetId, newPath)
-          if (found) return true
-        }
       }
     }
     return false
   }
   
-  findPath(props.components, selectedId, [])
+  findPath(props.components, selectedId)
   return path
 })
 
