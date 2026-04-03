@@ -1009,6 +1009,8 @@ function handleResize(id: string, width: number, height: number) {
 function handleUpdateProps(newProps: Record<string, any>) {
   if (selectedId.value) {
     components.value = updateComponentProps(components.value, selectedId.value, newProps)
+    // Tabs 属性变更后，selectedComponent 会自动通过 computed 响应式更新
+    // 因为 selectedComponent 依赖 components.value，而 updateComponentProps 创建了新引用
   }
 }
 

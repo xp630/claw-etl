@@ -23,8 +23,9 @@ import { isLegacyTabs } from '../editor/types'
 
 /**
  * 递归将 tabs 旧格式迁移为新格式（与 EditorPage.migrateTabsComponents 保持一致）
+ * 同时解析 TabItem.children ID 数组为实际的组件对象
  */
-function migrateTabsComponents(comps: CanvasComponent[]): CanvasComponent[] {
+function migrateTabsComponents(comps: CanvasComponent[], compMap?: Map<string, any>): CanvasComponent[] {
   return comps.map(comp => {
     let migrated = { ...comp }
     if (migrated.type === 'tabs' && migrated.props?.tabs) {
@@ -48,9 +49,11 @@ function migrateTabsComponents(comps: CanvasComponent[]): CanvasComponent[] {
       } else if (rawActiveTab === undefined || rawActiveTab === null) {
         migrated.props = { ...migrated.props, activeTab: 'tab_0' }
       }
+      // TabItem.children 保持为 ID 数组（由 ComponentRenderer.tabChildren 解析）
+      // 不需要在这里转换为组件对象，否则 ComponentRenderer.tabChildren 的 filter 会失效
     }
     if (migrated.children?.length) {
-      migrated = { ...migrated, children: migrateTabsComponents(migrated.children) }
+      migrated = { ...migrated, children: migrateTabsComponents(migrated.children, compMap) }
     }
     return migrated
   })
@@ -99,7 +102,12 @@ onMounted(async () => {
       }
       props = parseProps(props)
       const id = String(c.id)
-      compMap.set(id, { id, type: c.type, label: c.type, props, children: [] })
+      // 为组件生成稳定的 componentId（如果没有的话）
+      const componentId = c.componentId || `${c.type}_${c.id}`
+      const comp: any = { id, componentId, type: c.type, label: c.type, props, children: [] }
+      // 同时通过 id 和 componentId 存储，方便查找
+      compMap.set(id, comp)
+      compMap.set(componentId, comp)
     })
 
     const containerTypes = ['card', 'tabs', 'collapse']
