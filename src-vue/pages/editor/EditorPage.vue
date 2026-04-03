@@ -289,14 +289,43 @@ function isContainerType(type: string): boolean {
 
 function getContainerChildren(comp: CanvasComponent): CanvasComponent[] {
   if (comp.type === 'tabs') {
+    const tabs = comp.props?.tabs as UnifiedTabs | undefined
     const childrenMap = comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
-    if (childrenMap) {
-      const tabIndex = String(comp.props?.activeTab || 0)
-      const childIds = childrenMap[tabIndex] || []
-      return (comp.children || []).filter(c => 
+
+    // 确定当前 tab 的索引
+    const rawActiveTab = comp.props?.activeTab
+    let tabIdx = 0
+    if (rawActiveTab !== undefined && rawActiveTab !== null && tabs) {
+      if (isLegacyTabs(tabs)) {
+        tabIdx = Number(rawActiveTab) || 0
+      } else {
+        const idStr = String(rawActiveTab)
+        const idx = tabs.findIndex((t: any) => t.id === idStr)
+        tabIdx = idx >= 0 ? idx : 0
+      }
+    }
+
+    // 旧格式：使用 childrenMap
+    if (childrenMap && isLegacyTabs(tabs || [])) {
+      const tabKey = String(tabIdx)
+      const childIds = childrenMap[tabKey] || []
+      return (comp.children || []).filter(c =>
         childIds.includes(c.componentId as any) || childIds.includes(c.id as any)
       )
     }
+
+    // 新格式 TabItem[]：tab.children 存的是 componentId 数组
+    if (tabs && !isLegacyTabs(tabs) && Array.isArray(tabs)) {
+      const tabItem = (tabs as TabItem[])[tabIdx]
+      if (tabItem?.children) {
+        const childIds = (tabItem.children as (string | number)[]).map(id => String(id))
+        return (comp.children || []).filter(c =>
+          childIds.includes(String(c.componentId)) || childIds.includes(String(c.id))
+        )
+      }
+      return []
+    }
+
     return comp.children || []
   }
   return comp.children || []
