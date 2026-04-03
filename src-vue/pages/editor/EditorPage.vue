@@ -188,7 +188,27 @@ function getActiveTabId(activeTab: string | number | undefined): string {
   return String(activeTab)
 }
 
-// 递归转换 tabs 旧格式为新格式
+/**
+ * 加载时迁移 Tabs 组件从旧格式到新格式
+ * 
+ * 【函数作用】页面加载时自动将旧格式的 tabs 数据转换为新格式,确保数据一致性
+ * 
+ * 【参数】
+ *   - comps: CanvasComponent[] - 组件树数组(可能包含嵌套的子组件)
+ * 
+ * 【返回值】迁移后的 CanvasComponent[] - 转换完成的组件树
+ * 
+ * 【核心逻辑】
+ *   1. 递归遍历所有组件,检查是否为 tabs 类型
+ *   2. 如果 tabs 是旧格式(string[]),转换为新格式 TabItem[]
+ *   3. 从 childrenMap 中提取每个 tab 的子组件 ID 列表
+ *   4. 删除 childrenMap 属性(新格式不再需要)
+ *   5. 确保 activeTab 是字符串格式的 tab ID(如 "tab_0")
+ * 
+ * 【Tabs 格式区别】
+ *   旧格式: tabs=string[], childrenMap={}, activeTab=number
+ *   新格式: tabs=TabItem[], childrenMap 已删除, activeTab=string
+ */
 function migrateTabsComponents(comps: CanvasComponent[]): CanvasComponent[] {
   return comps.map(comp => {
     let migrated = { ...comp }
@@ -409,7 +429,36 @@ function buildComponentTree(flatComponents: any[]): CanvasComponent[] {
   return rootComponents
 }
 
-// Flatten tree to flat list with parentId for saving
+/**
+ * 保存时扁平化组件树并转换格式
+ * 
+ * 【函数作用】将树形结构的组件转换为扁平的 parentId 层级列表,同时处理 tabs 格式转换
+ * 
+ * 【参数】
+ *   - comps: CanvasComponent[] - 树形组件数组
+ *   - parentId: string | null - 当前组件的父组件 ID(用于建立父子关系)
+ * 
+ * 【返回值】any[] - 扁平化后的组件数组,每个元素包含 parentId 字段表示父子关系
+ * 
+ * 【核心逻辑】
+ *   1. 遍历组件树,提取每个组件(排除 children 数组)
+ *   2. 为每个组件添加 parentId 字段表示所属容器
+ *   3. 递归处理嵌套的子组件
+ * 
+ * 【Tabs 格式处理】
+ *   - 旧格式(检测到 isLegacyTabs 时):
+ *     * 将 tabs 从 string[] 转换为 TabItem[]
+ *     * 将 childrenMap 中的 ID 列表迁移到 TabItem.children
+ *     * 删除 childrenMap(新格式不再需要)
+ *     * 递归时不展开 tab.children(避免重复)
+ *   - 新格式:
+ *     * 确保 activeTab 是字符串 tab ID
+ *     * 清空 root children(子组件已内联在 TabItem.children)
+ * 
+ * 【新旧格式区别】
+ *   旧格式保存: tabs=["标签1","标签2"], childrenMap={"0":[ids]}, activeTab=0
+ *   新格式保存: tabs=[{id:"tab_0",label:"标签1",children:[ids]}], activeTab="tab_0"
+ */
 function flattenComponentsWithParentId(comps: CanvasComponent[], parentId: string | null = null): any[] {
   const result: any[] = []
   for (const c of comps) {
@@ -560,6 +609,35 @@ function updateParentIdDeep(comp: CanvasComponent, newParentId: string): CanvasC
   }
 }
 
+/**
+ * 添加子组件到容器
+ * 
+ * 【函数作用】将组件拖拽添加到 card、tabs、collapse 等容器中,建立父子关系
+ * 
+ * 【参数】
+ *   - containerId: string - 目标容器的 ID
+ *   - childComponent: CanvasComponent - 要添加的子组件(完整对象)
+ *   - tabIndex?: number - 可选,目标 tab 索引(仅对 tabs 组件有效,如果不传则添加到当前激活的 tab)
+ * 
+ * 【返回值】无(直接修改 components.value)
+ * 
+ * 【核心逻辑】
+ *   1. 递归更新子组件及其所有嵌套后代的 parentId
+ *   2. 在容器组件的 children 数组中添加子组件
+ *   3. 对于 tabs 容器,还需更新对应 TabItem.children 或 childrenMap
+ * 
+ * 【Tabs 格式处理】
+ *   - 新格式(TabItem[]):
+ *     * 将子组件的 ID 添加到目标 TabItem.children 数组
+ *     * 如果未指定 tabIndex,则添加到当前激活的 tab
+ *   - 旧格式(childrenMap):
+ *     * 将子组件的 ID 添加到 childrenMap[tabIndex] 数组
+ *     * tabIndex 未指定时使用当前激活的 tab
+ * 
+ * 【新旧格式区别】
+ *   新格式: tabs[i].children.push(childId)
+ *   旧格式: childrenMap[i].push(childId)
+ */
 function handleAddChildToContainer(containerId: string, childComponent: CanvasComponent, tabIndex?: number) {
   console.log('[handleAddChildToContainer] called:', { containerId, childComponentType: childComponent.type, childComponentId: childComponent.id, tabIndex })
   // Deep copy and update parentId for all nested components (grandchildren included)
@@ -615,6 +693,34 @@ function handleAddChildToContainer(containerId: string, childComponent: CanvasCo
   refreshSelectedComponent()
 }
 
+/**
+ * 从容器中移除子组件
+ * 
+ * 【函数作用】将子组件从容器中移除,但不删除组件本身,只是解除父子关系
+ * 
+ * 【参数】
+ *   - containerId: string - 容器组件的 ID
+ *   - childId: string - 要移除的子组件的 ID
+ * 
+ * 【返回值】无(直接修改 components.value)
+ * 
+ * 【核心逻辑】
+ *   1. 查找子组件的 componentId(用于从 tabs 的 children 引用中移除)
+ *   2. 递归更新容器组件,移除子组件
+ *   3. 对于 tabs 组件,从对应 TabItem.children 或 childrenMap 中移除引用
+ *   4. 同时从容器的 children 数组中移除子组件对象
+ * 
+ * 【Tabs 格式处理】
+ *   - 新格式(TabItem[]):
+ *     * 从所有 TabItem.children 中过滤掉该子组件的 ID(使用 componentId 匹配)
+ *     * 因为组件可能被移动过,所以需要检查所有 tab 的 children 数组
+ *   - 旧格式(childrenMap):
+ *     * 遍历 childrenMap 的所有键,过滤掉该子组件的 ID
+ * 
+ * 【新旧格式区别】
+ *   新格式: tabs[i].children = tabs[i].children.filter(id => id !== childCompId)
+ *   旧格式: childrenMap[key] = childrenMap[key].filter(id => id !== childCompId)
+ */
 function handleRemoveChildFromContainer(containerId: string, childId: string) {
   // 找到被移除组件的 componentId（用于从 tab.children 中移除）
   const childComp = findComponent(components.value, childId)
