@@ -497,7 +497,9 @@ function flattenComponentsWithParentId(comps: CanvasComponent[], parentId: strin
       } else if (rawActiveTab === undefined || rawActiveTab === null) {
         item.props = { ...item.props, activeTab: 'tab_0' }
       }
-      // 新格式：子组件已内联到 tab.children，清空 root children 避免重复存储
+      // 新格式：子组件已内联到 tab.children
+      // 注意：tabs.children 里可能已经有从旧格式保留下来的子组件对象，
+      // 需要把它们也扁平化添加进去（使用 tabs.id 作为 parentId）
       skipRecursion = true
     }
 
@@ -506,8 +508,12 @@ function flattenComponentsWithParentId(comps: CanvasComponent[], parentId: strin
     }
     result.push(item)
     // skipRecursion 为 true 时不递归（子组件已内联在 tab.children）
+    // 但 tabs.children 里的子组件需要单独添加（使用 tabs.id 作为 parentId）
     if (!skipRecursion && children && children.length > 0) {
       result.push(...flattenComponentsWithParentId(children, c.id))
+    } else if (skipRecursion && children && children.length > 0) {
+      // 新格式 tabs：子组件已内联在 tab.children，但仍需把 tabs.children 里的对象添加到结果
+      result.push(...flattenComponentsWithParentId(children, item.id))
     }
   }
   return result
