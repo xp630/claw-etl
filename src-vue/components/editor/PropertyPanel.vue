@@ -7,6 +7,23 @@
     </div>
     
     <div v-else class="component-props">
+      <!-- 组件结构树 -->
+      <div class="prop-section">
+        <h4 class="prop-section-title flex items-center justify-between cursor-pointer" @click="toggleComponentTree">
+          <span>组件结构</span>
+          <span>{{ componentTreeExpanded ? '▼' : '▶' }}</span>
+        </h4>
+        <div v-if="componentTreeExpanded" class="component-tree">
+          <TreeNode
+            v-for="node in componentTree"
+            :key="node.componentId"
+            :node="node"
+            :selected-id="selectedComponent?.componentId || selectedComponent?.id"
+            @select="handleTreeSelect"
+          />
+        </div>
+      </div>
+
       <!-- 基本信息 -->
       <div class="prop-section">
         <h4 class="prop-section-title">基本信息</h4>
@@ -431,6 +448,7 @@ import { ref, computed, watch } from 'vue'
 import type { CanvasComponent, TabItem } from '@/pages/editor/types'
 import { isLegacyTabs } from '@/pages/editor/types'
 import TablePropsPanel from './TablePropsPanel.vue'
+import TreeNode from './TreeNode.vue'
 
 interface Props {
   selectedComponent: CanvasComponent | null
@@ -438,6 +456,98 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+// 组件结构树
+const componentTreeExpanded = ref(true)
+
+// 递归构建组件树节点
+interface TreeNodeData {
+  componentId: string
+  id: string
+  type: string
+  label: string
+  children?: TreeNodeData[]
+  tabChildren?: TreeNodeData[][]
+  isExpanded?: boolean
+}
+
+function buildComponentTree(comps: CanvasComponent[]): TreeNodeData[] {
+  return comps.map(c => {
+    const node: TreeNodeData = {
+      componentId: c.componentId || c.id,
+      id: c.id,
+      type: c.type,
+      label: c.label || c.type,
+    }
+    
+    // 处理 tabs 的子组件
+    if (c.type === 'tabs' && c.props?.tabs) {
+      const tabs = c.props.tabs as any[]
+      node.tabChildren = tabs.map((tab: any) => {
+        if (tab.children && Array.isArray(tab.children)) {
+          // tab.children 是 componentId 数组，需要从 allComponents 中查找
+          return tab.children.map((childId: string) => {
+            const childComp = findComponentById(childId)
+            if (childComp) {
+              return buildSingleNode(childComp)
+            }
+            return null
+          }).filter(Boolean)
+        }
+        return []
+      })
+    }
+    
+    // 处理普通 children
+    if (c.children && c.children.length > 0) {
+      node.children = buildComponentTree(c.children)
+    }
+    
+    return node
+  })
+}
+
+function buildSingleNode(c: CanvasComponent): TreeNodeData {
+  const node: TreeNodeData = {
+    componentId: c.componentId || c.id,
+    id: c.id,
+    type: c.type,
+    label: c.label || c.type,
+  }
+  if (c.children && c.children.length > 0) {
+    node.children = buildComponentTree(c.children)
+  }
+  return node
+}
+
+function findComponentById(id: string): CanvasComponent | null {
+  const find = (comps: CanvasComponent[]): CanvasComponent | null => {
+    for (const c of comps) {
+      if (c.componentId === id || c.id === id) return c
+      if (c.children) {
+        const found = find(c.children)
+        if (found) return found
+      }
+    }
+    return null
+  }
+  return find(props.components)
+}
+
+const componentTree = computed(() => buildComponentTree(props.components))
+
+function toggleComponentTree() {
+  componentTreeExpanded.value = !componentTreeExpanded.value
+}
+
+function handleTreeSelect(componentId: string) {
+  emit('select-component', componentId)
+}
+
+// 展开/折叠节点
+function toggleNode(node: TreeNodeData) {
+  node.isExpanded = !node.isExpanded
+}
 
 // 获取所有容器类型组件（card, tabs, collapse）
 const containerComponents = computed(() => {
