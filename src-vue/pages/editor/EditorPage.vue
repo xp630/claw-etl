@@ -367,8 +367,28 @@ function findParentContainerId(comps: CanvasComponent[], childId: string, parent
 function loadComponent(c: any): CanvasComponent {
   let props: Record<string, any> = {}
   try {
-    props = JSON.parse(c.props || '{}')
-  } catch {}
+    // 如果 c.props 已经是对象（不是字符串），直接使用；否则尝试 JSON 解析
+    if (typeof c.props === 'object' && c.props !== null) {
+      props = c.props
+    } else {
+      props = JSON.parse(c.props || '{}')
+    }
+  } catch {
+    // 如果解析失败，尝试直接赋值
+    if (typeof c.props === 'object' && c.props !== null) {
+      props = c.props
+    }
+  }
+  // 调试日志
+  if (c.type === 'tabs') {
+    console.log('[EditorPage] loadComponent tabs:', {
+      id: c.id,
+      rawProps: c.props,
+      parsedProps: props,
+      hasTabs: 'tabs' in props,
+      tabsValue: props.tabs
+    })
+  }
   return {
     id: String(c.id) || `comp_${Date.now()}`,
     // 确保 componentId 存在：如果数据库没有，或等于 id（说明之前存的是 db id），则生成一个新的稳定 ID
