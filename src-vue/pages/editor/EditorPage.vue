@@ -446,6 +446,8 @@ function flattenComponentsWithParentId(comps: CanvasComponent[], parentId: strin
       } else if (rawActiveTab === undefined || rawActiveTab === null) {
         item.props = { ...item.props, activeTab: 'tab_0' }
       }
+      // 新格式：子组件已内联到 tab.children，清空 root children 避免重复存储
+      children = []
     }
 
     if (parentId) {
