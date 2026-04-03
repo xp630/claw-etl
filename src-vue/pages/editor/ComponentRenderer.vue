@@ -90,7 +90,7 @@
     </div>
 
     <!-- Table component -->
-    <div v-else-if="component.type === 'table'" class="border border-[var(--border-light)] rounded overflow-x-auto" @click.stop="canvasMode && emit('select', (component as any).id)" @dblclick.stop="canvasMode && emit('open-props', (component as any).id)">
+    <div v-else-if="component.type === 'table'" class="border border-[var(--border-light)] rounded overflow-x-auto" @click.stop="canvasMode && emit('select', component.componentId || component.id)" @dblclick.stop="canvasMode && emit('open-props', component.componentId || component.id)">
       <!-- Table Header -->
       <div class="bg-[var(--bg-table-header)] px-3 py-2 border-b border-[var(--border-light)] flex items-center justify-between">
         <span class="text-sm font-medium">{{ component.props.title || '数据表' }}</span>
@@ -283,7 +283,7 @@
     </div>
 
     <!-- Form component -->
-    <div v-else-if="component.type === 'form'" class="border border-[var(--border-light)] rounded p-4 bg-[var(--bg-table-header)]" @click.stop="canvasMode && emit('select', (component as any).id)" @dblclick.stop="canvasMode && emit('open-props', (component as any).id)">
+    <div v-else-if="component.type === 'form'" class="border border-[var(--border-light)] rounded p-4 bg-[var(--bg-table-header)]" @click.stop="canvasMode && emit('select', component.componentId || component.id)" @dblclick.stop="canvasMode && emit('open-props', component.componentId || component.id)">
       <div class="text-sm text-[var(--text-secondary)]">
         📝 表单组件 - {{ component.props.title || '表单' }}
       </div>
@@ -311,22 +311,22 @@
         gridTemplateColumns: `repeat(${Number(component.props.cols) || 3}, 1fr)`,
         gap: `${Number(component.props.gap) || 10}px`
       }"
-      @click.stop="canvasMode && emit('select', (component as any).id)"
-      @dblclick.stop="canvasMode && emit('open-props', (component as any).id)"
+      @click.stop="canvasMode && emit('select', component.componentId || component.id)"
+      @dblclick.stop="canvasMode && emit('open-props', component.componentId || component.id)"
     >
       <div class="text-xs text-[var(--text-muted)] text-center py-4">栅格布局</div>
     </div>
 
     <!-- Divider component -->
-    <hr v-else-if="component.type === 'divider'" class="border-[var(--border)] my-2 cursor-pointer" @click.stop="canvasMode && emit('select', (component as any).id)" @dblclick.stop="canvasMode && emit('open-props', (component as any).id)" />
+    <hr v-else-if="component.type === 'divider'" class="border-[var(--border)] my-2 cursor-pointer" @click.stop="canvasMode && emit('select', component.componentId || component.id)" @dblclick.stop="canvasMode && emit('open-props', component.componentId || component.id)" />
 
     <!-- Blank component -->
     <div
       v-else-if="component.type === 'blank'"
       class="bg-gradient-to-r from-gray-100 to-gray-50"
       :style="{ height: `${Number(component.props.height) || 50}px` }"
-      @click.stop="canvasMode && emit('select', (component as any).id)"
-      @dblclick.stop="canvasMode && emit('open-props', (component as any).id)"
+      @click.stop="canvasMode && emit('select', component.componentId || component.id)"
+      @dblclick.stop="canvasMode && emit('open-props', component.componentId || component.id)"
     />
 
     <!-- Image component -->
@@ -335,8 +335,8 @@
       :src="String(component.props.src || 'https://via.placeholder.com/200x100')"
       :alt="String(component.props.alt || '图片')"
       class="max-w-full h-auto cursor-pointer"
-      @click.stop="canvasMode && emit('select', (component as any).id)"
-      @dblclick.stop="canvasMode && emit('open-props', (component as any).id)"
+      @click.stop="canvasMode && emit('select', component.componentId || component.id)"
+      @dblclick.stop="canvasMode && emit('open-props', component.componentId || component.id)"
     />
 
     <!-- Link component -->
@@ -344,8 +344,8 @@
       v-else-if="component.type === 'link'"
       :href="String(component.props.url || '#')"
       class="text-blue-500 hover:underline text-sm cursor-pointer"
-      @click.stop="canvasMode && emit('select', (component as any).id)"
-      @dblclick.stop="canvasMode && emit('open-props', (component as any).id)"
+      @click.stop="canvasMode && emit('select', component.componentId || component.id)"
+      @dblclick.stop="canvasMode && emit('open-props', component.componentId || component.id)"
     >
       {{ component.props.text || '链接' }}
     </a>
@@ -354,8 +354,8 @@
     <div
       v-else-if="component.type === 'card'"
       class="border border-[var(--border-light)] rounded-lg p-4 bg-[var(--bg-secondary)] shadow-sm cursor-pointer"
-      @click.stop="canvasMode && emit('select', (component as any).id)"
-      @dblclick.stop="canvasMode && emit('open-props', (component as any).id)"
+      @click.stop="canvasMode && emit('select', component.componentId || component.id)"
+      @dblclick.stop="canvasMode && emit('open-props', component.componentId || component.id)"
     >
       <div v-if="component.props.title" class="font-medium mb-2">
         {{ component.props.title }}
@@ -370,7 +370,7 @@
         >
           <div v-if="canvasMode" class="absolute -top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 bg-[var(--bg-primary)] rounded shadow flex items-center gap-1 p-1">
             <button
-              @click.stop="emit('remove-child', props.containerId, child.id)"
+              @click.stop="emit('remove-child', props.containerId, child.componentId || child.id)"
               class="p-1 border border-red-300 rounded hover:bg-red-50 text-red-500"
               title="移除"
             >
@@ -392,7 +392,7 @@
     </div>
 
     <!-- Tabs container -->
-    <div v-else-if="component.type === 'tabs'" @click.stop="canvasMode && emit('select', (component as any).id)" @dblclick.stop="canvasMode && emit('open-props', (component as any).id)">
+    <div v-else-if="component.type === 'tabs'" @click.stop="canvasMode && emit('select', component.componentId || component.id)" @dblclick.stop="canvasMode && emit('open-props', component.componentId || component.id)">
       <!-- DEBUG: print full tabs component structure -->
       <!-- Tab 标题显示 -->
       <div class="flex border-b border-[var(--border-light)] mb-2">
@@ -427,19 +427,19 @@
             :class="{ 'cursor-pointer': canvasMode }"
             :draggable="canvasMode"
             :style="getChildLayoutStyle(child)"
-            @dragstart="(e) => canvasMode && emit('drag-start-nested', e, props.component.id, idx)"
+            @dragstart="(e) => canvasMode && emit('drag-start-nested', e, props.component.componentId || props.component.id, idx)"
           >
             <!-- Child action buttons -->
             <div v-if="canvasMode" class="absolute -top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 bg-[var(--bg-primary)] rounded shadow flex items-center gap-1 p-1">
               <button
-                @click.stop="emit('remove-child', props.containerId, child.id)"
+                @click.stop="emit('remove-child', props.containerId, child.componentId || child.id)"
                 class="p-1 border border-red-300 rounded hover:bg-red-50 text-red-500"
                 title="移除"
               >
                 🗑
               </button>
             </div>
-            <div @click.stop="canvasMode && emit('select', child.id)" @dblclick.stop="canvasMode && emit('open-props', child.id)">
+            <div @click.stop="canvasMode && emit('select', child.componentId || child.id)" @dblclick.stop="canvasMode && emit('open-props', child.componentId || child.id)">
               <ComponentRenderer :component="child" :editable="canvasMode" :canvas-mode="canvasMode" />
             </div>
           </div>
@@ -455,7 +455,7 @@
     </div>
 
     <!-- Collapse container -->
-    <div v-else-if="component.type === 'collapse'" class="border border-[var(--border-light)] rounded" @click.stop="canvasMode && emit('select', (component as any).id)" @dblclick.stop="canvasMode && emit('open-props', (component as any).id)">
+    <div v-else-if="component.type === 'collapse'" class="border border-[var(--border-light)] rounded" @click.stop="canvasMode && emit('select', component.componentId || component.id)" @dblclick.stop="canvasMode && emit('open-props', component.componentId || component.id)">
       <div
         class="p-3 bg-[var(--bg-table-header)] cursor-pointer flex justify-between items-center"
         @click="handleCollapseClick"
@@ -472,18 +472,18 @@
             class="relative bg-[var(--bg-primary)] rounded"
             :class="{ 'cursor-pointer': canvasMode }"
             :draggable="canvasMode"
-            @dragstart="(e) => canvasMode && emit('drag-start-nested', e, props.component.id, idx)"
+            @dragstart="(e) => canvasMode && emit('drag-start-nested', e, props.component.componentId || props.component.id, idx)"
           >
             <div v-if="canvasMode" class="absolute -top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10 bg-[var(--bg-primary)] rounded shadow flex items-center gap-1 p-1">
               <button
-                @click.stop="emit('remove-child', props.containerId, child.id)"
+                @click.stop="emit('remove-child', props.containerId, child.componentId || child.id)"
                 class="p-1 border border-red-300 rounded hover:bg-red-50 text-red-500"
                 title="移除"
               >
                 🗑
               </button>
             </div>
-            <div @click.stop="canvasMode && emit('select', child.id)" @dblclick.stop="canvasMode && emit('open-props', child.id)">
+            <div @click.stop="canvasMode && emit('select', child.componentId || child.id)" @dblclick.stop="canvasMode && emit('open-props', child.componentId || child.id)">
               <ComponentRenderer :component="child" :editable="canvasMode" :canvas-mode="canvasMode" />
             </div>
           </div>
@@ -883,14 +883,14 @@ function getOverflowClass(mode?: string) {
 
 function handleTabClick(tabId: string) {
   if (props.editable) {
-    emit('update-component', props.component.id, 'activeTab', tabId)
+    emit('update-component', props.component.componentId || props.component.id, 'activeTab', tabId)
   }
 }
 
 function handleCollapseClick() {
   if (props.editable) {
     // In editable mode, emit event
-    emit('update-component', props.component.id, 'collapsed', !isCollapsed.value)
+    emit('update-component', props.component.componentId || props.component.id, 'collapsed', !isCollapsed.value)
   } else {
     // In preview mode, use local state
     isCollapsed.value = !isCollapsed.value
@@ -925,7 +925,7 @@ function onTabDrop(e: DragEvent) {
   try {
     const parsed = JSON.parse(data)
     console.log('[ComponentRenderer] onTabDrop parsed:', parsed)
-    emit('drop-on-tab', props.component.id, currentTabIndex.value, parsed)
+    emit('drop-on-tab', props.component.componentId || props.component.id, currentTabIndex.value, parsed)
   } catch (err) {
     console.error('Failed to parse drop data:', err)
   }

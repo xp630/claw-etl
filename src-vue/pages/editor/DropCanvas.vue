@@ -445,7 +445,7 @@ const onDropOnTab = (containerId: string, tabIndex: number, data: any) => {
       const srcContainer = props.components.find(c => c.id === data.containerId)
       const child = srcContainer?.children?.[data.index]
       if (child) {
-        emit('remove-child', data.containerId, child.id)
+        emit('remove-child', data.containerId, child.componentId || child.id)
         emit('add-child', containerId, child, -1, tabIndex)
       }
     }
@@ -503,7 +503,7 @@ const onContainerDrop = (e: DragEvent, containerId: string) => {
         const srcContainer = props.components.find(c => c.id === parsed.containerId)
         const child = srcContainer?.children?.[parsed.index]
         if (child) {
-          emit('remove-child', parsed.containerId, child.id)
+          emit('remove-child', parsed.containerId, child.componentId || child.id)
           emit('add-child', containerId, child, dragOverIndex.value)
         }
       }
