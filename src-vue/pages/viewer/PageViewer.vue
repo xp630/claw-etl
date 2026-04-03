@@ -19,6 +19,42 @@ import { useRoute } from 'vue-router'
 import { getPageConfigList, getPageConfig } from '@/lib/api'
 import ComponentRenderer from '../editor/ComponentRenderer.vue'
 import type { CanvasComponent } from '@/types/canvas-component'
+import { isLegacyTabs } from '../editor/types'
+
+/**
+ * 递归将 tabs 旧格式迁移为新格式（与 EditorPage.migrateTabsComponents 保持一致）
+ */
+function migrateTabsComponents(comps: CanvasComponent[]): CanvasComponent[] {
+  return comps.map(comp => {
+    let migrated = { ...comp }
+    if (migrated.type === 'tabs' && migrated.props?.tabs) {
+      const tabs = migrated.props.tabs as any
+      if (isLegacyTabs(tabs)) {
+        const childrenMap = (migrated.props.childrenMap as Record<string, (string | number)[]>) || {}
+        const migratedTabs = tabs.map((label: string, index: number) => ({
+          id: `tab_${index}`,
+          label,
+          params: {},
+          children: childrenMap[String(index)] || [],
+          layout: { direction: 'column' as const, gap: 8, wrap: false }
+        }))
+        migrated.props = { ...migrated.props, tabs: migratedTabs }
+        delete (migrated.props as any).childrenMap
+      }
+      // 无论新旧格式，activeTab 必须是 tab ID 字符串
+      const rawActiveTab = migrated.props.activeTab
+      if (typeof rawActiveTab === 'number') {
+        migrated.props = { ...migrated.props, activeTab: `tab_${rawActiveTab}` }
+      } else if (rawActiveTab === undefined || rawActiveTab === null) {
+        migrated.props = { ...migrated.props, activeTab: 'tab_0' }
+      }
+    }
+    if (migrated.children?.length) {
+      migrated = { ...migrated, children: migrateTabsComponents(migrated.children) }
+    }
+    return migrated
+  })
+}
 
 const components = ref<CanvasComponent[]>([])
 const loading = ref(true)
@@ -81,7 +117,8 @@ onMounted(async () => {
       } else rootComps.push(comp)
     })
 
-    components.value = rootComps
+    // 迁移 tabs 旧格式为新格式（支持 layout 布局参数）
+    components.value = migrateTabsComponents(rootComps)
     //console.log('[PageViewer] rootComps:', JSON.stringify(rootComps, null, 2))
   } catch (err) {
     //console.error('Failed to load page:', err)
