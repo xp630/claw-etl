@@ -125,7 +125,7 @@
             v-for="comp in components"
             :key="comp.id"
           >
-            <ComponentRenderer :component="comp" :editable="false" :show-children="getContainerChildren(comp)" :selected-id="selectedId" canvas-mode @select="handleSelectComponent" />
+            <ComponentRenderer :component="comp" :editable="false" :show-children="getContainerChildren(comp)" :selected-id="selectedId" :canvas-mode="true" @select="handleSelectComponent" />
           </template>
           <div v-if="components.length === 0" class="text-center text-[var(--text-muted)] py-12">
             暂无组件
