@@ -206,11 +206,15 @@ function migrateTabsComponents(comps: CanvasComponent[]): CanvasComponent[] {
             layout: { direction: 'column' as const, gap: 8, wrap: false }
           }
         })
-        migrated = {
-          ...migrated,
-          props: { ...migrated.props, tabs: migratedTabs, activeTab: migrated.props.activeTab }
-        }
+        migrated.props = { ...migrated.props, tabs: migratedTabs }
         delete (migrated.props as any).childrenMap
+      }
+      // 无论新旧格式，activeTab 必须是 tab ID 字符串
+      const rawActiveTab = migrated.props.activeTab
+      if (typeof rawActiveTab === 'number') {
+        migrated.props = { ...migrated.props, activeTab: `tab_${rawActiveTab}` }
+      } else if (rawActiveTab === undefined || rawActiveTab === null) {
+        migrated.props = { ...migrated.props, activeTab: 'tab_0' }
       }
     }
     if (migrated.children && migrated.children.length > 0) {
@@ -435,7 +439,13 @@ function flattenComponentsWithParentId(comps: CanvasComponent[], parentId: strin
         result.push(item)
         continue
       }
-      // 新格式 tabs：children 已内联为完整对象，直接展开
+      // 新格式 tabs：确保 activeTab 是 tab ID 字符串
+      const rawActiveTab = item.props.activeTab
+      if (typeof rawActiveTab === 'number') {
+        item.props = { ...item.props, activeTab: `tab_${rawActiveTab}` }
+      } else if (rawActiveTab === undefined || rawActiveTab === null) {
+        item.props = { ...item.props, activeTab: 'tab_0' }
+      }
     }
 
     if (parentId) {
