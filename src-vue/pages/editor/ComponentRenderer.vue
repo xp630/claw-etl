@@ -90,7 +90,7 @@
     </div>
 
     <!-- Table component -->
-    <div v-else-if="component.type === 'table'" class="border border-[var(--border-light)] rounded overflow-x-auto" @dblclick.stop="canvasMode && emit('open-props', (component as any).id)">
+    <div v-else-if="component.type === 'table'" class="border border-[var(--border-light)] rounded overflow-x-auto" @click.stop="canvasMode && emit('select', (component as any).id)" @dblclick.stop="canvasMode && emit('open-props', (component as any).id)">
       <!-- Table Header -->
       <div class="bg-[var(--bg-table-header)] px-3 py-2 border-b border-[var(--border-light)] flex items-center justify-between">
         <span class="text-sm font-medium">{{ component.props.title || '数据表' }}</span>
@@ -283,7 +283,7 @@
     </div>
 
     <!-- Form component -->
-    <div v-else-if="component.type === 'form'" class="border border-[var(--border-light)] rounded p-4 bg-[var(--bg-table-header)]" @dblclick.stop="canvasMode && emit('open-props', (component as any).id)">
+    <div v-else-if="component.type === 'form'" class="border border-[var(--border-light)] rounded p-4 bg-[var(--bg-table-header)]" @click.stop="canvasMode && emit('select', (component as any).id)" @dblclick.stop="canvasMode && emit('open-props', (component as any).id)">
       <div class="text-sm text-[var(--text-secondary)]">
         📝 表单组件 - {{ component.props.title || '表单' }}
       </div>
@@ -311,13 +311,14 @@
         gridTemplateColumns: `repeat(${Number(component.props.cols) || 3}, 1fr)`,
         gap: `${Number(component.props.gap) || 10}px`
       }"
+      @click.stop="canvasMode && emit('select', (component as any).id)"
       @dblclick.stop="canvasMode && emit('open-props', (component as any).id)"
     >
       <div class="text-xs text-[var(--text-muted)] text-center py-4">栅格布局</div>
     </div>
 
     <!-- Divider component -->
-    <hr v-else-if="component.type === 'divider'" class="border-[var(--border)] my-2" @dblclick.stop="canvasMode && emit('open-props', (component as any).id)" />
+    <hr v-else-if="component.type === 'divider'" class="border-[var(--border)] my-2 cursor-pointer" @click.stop="canvasMode && emit('select', (component as any).id)" @dblclick.stop="canvasMode && emit('open-props', (component as any).id)" />
 
     <!-- Blank component -->
     <div
@@ -387,7 +388,7 @@
     </div>
 
     <!-- Tabs container -->
-    <div v-else-if="component.type === 'tabs'" @dblclick.stop="canvasMode && emit('open-props', (component as any).id)">
+    <div v-else-if="component.type === 'tabs'" @click.stop="canvasMode && emit('select', (component as any).id)" @dblclick.stop="canvasMode && emit('open-props', (component as any).id)">
       <!-- DEBUG: print full tabs component structure -->
       <!-- Tab 标题显示 -->
       <div class="flex border-b border-[var(--border-light)] mb-2">
@@ -450,7 +451,7 @@
     </div>
 
     <!-- Collapse container -->
-    <div v-else-if="component.type === 'collapse'" class="border border-[var(--border-light)] rounded" @dblclick.stop="canvasMode && emit('open-props', (component as any).id)">
+    <div v-else-if="component.type === 'collapse'" class="border border-[var(--border-light)] rounded" @click.stop="canvasMode && emit('select', (component as any).id)" @dblclick.stop="canvasMode && emit('open-props', (component as any).id)">
       <div
         class="p-3 bg-[var(--bg-table-header)] cursor-pointer flex justify-between items-center"
         @click="handleCollapseClick"
