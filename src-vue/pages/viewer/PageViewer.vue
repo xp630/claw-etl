@@ -134,7 +134,14 @@ onMounted(async () => {
     })
 
     // 迁移 tabs 旧格式为新格式（支持 layout 布局参数）
+    console.log('[PageViewer] Before migrateTabsComponents:', {
+      rootComps: rootComps.map(c => ({ type: c.type, id: c.id, componentId: c.componentId })),
+      tabsProps: rootComps.find(c => c.type === 'tabs')?.props?.tabs,
+      tableInCompMap: compMap.has('table_211'),
+      table211: compMap.get('table_211')
+    })
     components.value = migrateTabsComponents(rootComps, compMap)
+    console.log('[PageViewer] After migrateTabsComponents:', components.value.map(c => ({ type: c.type, id: c.id, componentId: c.componentId, children: c.children?.map(ch => ch.id) })))
     //console.log('[PageViewer] rootComps:', JSON.stringify(rootComps, null, 2))
   } catch (err) {
     //console.error('Failed to load page:', err)
