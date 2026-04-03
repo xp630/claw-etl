@@ -21,28 +21,11 @@
             > › </span>
             <span
               :class="{ 'is-current': index === breadcrumbPath.length - 1 }"
-              @click="handleTreeSelect(item.componentId)"
+              @click="index < breadcrumbPath.length - 1 && handleTreeSelect(item.componentId)"
             >
               {{ item.label || item.type }}
             </span>
           </span>
-        </div>
-      </div>
-
-      <!-- 组件结构树 -->
-      <div class="prop-section">
-        <h4 class="prop-section-title flex items-center justify-between cursor-pointer" @click="toggleComponentTree">
-          <span>组件结构</span>
-          <span>{{ componentTreeExpanded ? '▼' : '▶' }}</span>
-        </h4>
-        <div v-if="componentTreeExpanded" class="component-tree">
-          <TreeNode
-            v-for="node in componentTree"
-            :key="node.componentId"
-            :node="node"
-            :selected-id="selectedComponent?.componentId || selectedComponent?.id"
-            @select="handleTreeSelect"
-          />
         </div>
       </div>
 
