@@ -597,6 +597,11 @@ function toggleLeftTab(tab: 'layer' | 'components') {
 }
 
 function handleSelectComponent(id: string) {
+  // 防御：如果收到了非字符串（比如 MouseEvent），忽略
+  if (typeof id !== 'string') {
+    console.warn('[EditorPage] handleSelectComponent received non-string id:', id)
+    return
+  }
   selectedId.value = id
 }
 
