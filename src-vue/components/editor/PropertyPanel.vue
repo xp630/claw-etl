@@ -231,23 +231,68 @@
           </div>
           <div class="space-y-1">
             <div
-              v-for="(tab, index) in (selectedComponent.props.tabs as string[] || [])"
+              v-for="(tab, index) in editableTabs"
               :key="index"
-              class="flex items-center gap-1"
+              class="border border-[var(--border)] rounded p-2 space-y-1"
             >
-              <input
-                :value="tab"
-                type="text"
-                class="flex-1 px-2 py-1 border border-[var(--border)] rounded text-xs"
-                @input="updateTabTitle(index, ($event.target as HTMLInputElement).value)"
-              />
-              <button
-                type="button"
-                class="px-1 text-[var(--danger)] hover:text-red-400 text-xs"
-                @click="removeTab(index)"
-              >
-                ✕
-              </button>
+              <div class="flex items-center gap-1">
+                <input
+                  :value="tab.label"
+                  type="text"
+                  class="flex-1 px-2 py-1 border border-[var(--border)] rounded text-xs"
+                  placeholder="标签名"
+                  @input="updateTabLabel(index, ($event.target as HTMLInputElement).value)"
+                />
+                <button
+                  type="button"
+                  class="px-1 text-[var(--danger)] hover:text-red-400 text-xs"
+                  @click="removeTab(index)"
+                >
+                  ✕
+                </button>
+              </div>
+              <!-- tab 布局配置 -->
+              <div class="pl-2 text-xs text-[var(--text-muted)] space-y-1">
+                <div class="flex items-center gap-1">
+                  <span class="shrink-0">方向:</span>
+                  <select
+                    :value="tab.layout?.direction || 'column'"
+                    class="px-1 py-0.5 border border-[var(--border)] rounded text-xs"
+                    @change="updateTabLayout(index, 'direction', ($event.target as HTMLSelectElement).value as 'row' | 'column')"
+                  >
+                    <option value="column">纵向</option>
+                    <option value="row">横向</option>
+                  </select>
+                  <span class="shrink-0">间距:</span>
+                  <input
+                    :value="tab.layout?.gap ?? 8"
+                    type="number"
+                    class="w-12 px-1 py-0.5 border border-[var(--border)] rounded text-xs"
+                    min="0"
+                    @input="updateTabLayout(index, 'gap', Number(($event.target as HTMLInputElement).value))"
+                  />
+                </div>
+                <div class="flex items-center gap-1">
+                  <span class="shrink-0">对齐:</span>
+                  <select
+                    :value="tab.layout?.alignItems || 'stretch'"
+                    class="px-1 py-0.5 border border-[var(--border)] rounded text-xs"
+                    @change="updateTabLayout(index, 'alignItems', ($event.target as HTMLSelectElement).value)"
+                  >
+                    <option value="start">起始</option>
+                    <option value="center">居中</option>
+                    <option value="end">末尾</option>
+                    <option value="stretch">拉伸</option>
+                  </select>
+                  <span class="shrink-0">换行:</span>
+                  <input
+                    type="checkbox"
+                    :checked="tab.layout?.wrap || false"
+                    class="w-3 h-3"
+                    @change="updateTabLayout(index, 'wrap', ($event.target as HTMLInputElement).checked)"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -328,7 +373,8 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import type { CanvasComponent } from '@/pages/editor/types'
+import type { CanvasComponent, TabItem } from '@/pages/editor/types'
+import { isLegacyTabs } from '@/pages/editor/types'
 import TablePropsPanel from './TablePropsPanel.vue'
 
 interface Props {
@@ -419,26 +465,57 @@ function handleMoveToContainerAction(e: Event) {
   }
 }
 
-// Tabs 操作
+// Tabs 操作 - 兼容新旧格式
+const editableTabs = computed<TabItem[]>(() => {
+  const tabs = props.selectedComponent?.props?.tabs
+  if (!tabs) return []
+  if (isLegacyTabs(tabs as any)) {
+    // 旧格式 string[]，转换为 TabItem[]
+    return (tabs as string[]).map((label, i) => ({
+      id: `tab_${i}`,
+      label,
+      params: {},
+      children: [],
+      layout: { direction: 'column' as const, gap: 8, wrap: false }
+    }))
+  }
+  return tabs as TabItem[]
+})
+
 function addTab() {
-  const tabs = [...(props.selectedComponent?.props.tabs as string[] || [])]
-  tabs.push(`标签${tabs.length + 1}`)
+  const tabs = editableTabs.value
+  const newTab: TabItem = {
+    id: `tab_${Date.now()}`,
+    label: `标签${tabs.length + 1}`,
+    params: {},
+    children: [],
+    layout: { direction: 'column', gap: 8, wrap: false }
+  }
+  updateProp('tabs', [...tabs, newTab])
+}
+
+function updateTabLabel(index: number, label: string) {
+  const tabs = editableTabs.value.map((t, i) => i === index ? { ...t, label } : t)
   updateProp('tabs', tabs)
 }
 
-function updateTabTitle(index: number, title: string) {
-  const tabs = [...(props.selectedComponent?.props.tabs as string[] || [])]
-  tabs[index] = title
+function updateTabLayout(index: number, key: string, value: any) {
+  const tabs = editableTabs.value.map((t, i) => {
+    if (i !== index) return t
+    return { ...t, layout: { ...t.layout, [key]: value } }
+  })
   updateProp('tabs', tabs)
 }
 
 function removeTab(index: number) {
-  const tabs = [...(props.selectedComponent?.props.tabs as string[] || [])]
-  tabs.splice(index, 1)
+  const tabs = editableTabs.value.filter((_, i) => i !== index)
   updateProp('tabs', tabs)
   // 如果当前激活的 tab 被删除，调整 activeTab
-  const activeTab = props.selectedComponent?.props.activeTab as number
-  if (activeTab >= tabs.length) {
+  const activeTab = props.selectedComponent?.props.activeTab
+  if (activeTab !== undefined && typeof activeTab === 'string') {
+    const newActiveTab = tabs[Math.min(Number(activeTab.replace('tab_', '')), tabs.length - 1)]
+    if (newActiveTab) updateProp('activeTab', newActiveTab.id)
+  } else if (typeof activeTab === 'number' && activeTab >= tabs.length) {
     updateProp('activeTab', Math.max(0, tabs.length - 1))
   }
 }
