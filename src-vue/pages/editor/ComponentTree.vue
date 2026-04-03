@@ -33,11 +33,13 @@ import type { CanvasComponent } from './types'
 
 interface Props {
   components: CanvasComponent[]
-  selectedId: string | null
+  selectedId?: string | null
   showHeader?: boolean
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  selectedId: null
+})
 
 const emit = defineEmits<{
   select: [id: string]

@@ -121,10 +121,12 @@ import { isLegacyTabs } from './types'
 
 interface Props {
   components: CanvasComponent[]
-  selectedId: string | null
+  selectedId?: string | null
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  selectedId: null
+})
 
 const emit = defineEmits<{
   select: [id: string | null]
