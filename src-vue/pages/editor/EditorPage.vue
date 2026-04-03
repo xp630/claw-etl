@@ -544,6 +544,7 @@ function handleQuickAdd(comp: { type: string; label: string; defaultProps?: Reco
   const newComponent: CanvasComponent = {
     type: comp.type,
     label: comp.label,
+    componentId: `${comp.type}_${Date.now()}`,
     props: comp.defaultProps || {},
   }
   components.value = [...components.value, newComponent]
