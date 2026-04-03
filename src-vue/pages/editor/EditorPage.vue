@@ -804,7 +804,7 @@ function handleRemoveChildFromContainer(containerId: string, childId: string) {
         }))
         return {
           ...comp,
-          children: (comp.children || []).filter(c => String(c.id) !== String(childId)),
+          children: (comp.children || []).filter(c => String(c.id) !== String(childId) && c.componentId !== childCompId),
           props: { ...comp.props, tabs: newTabs }
         }
       }
@@ -815,13 +815,13 @@ function handleRemoveChildFromContainer(containerId: string, childId: string) {
       }
       return {
         ...comp,
-        children: (comp.children || []).filter(c => String(c.id) !== String(childId)),
+        children: (comp.children || []).filter(c => String(c.id) !== String(childId) && c.componentId !== childCompId),
         props: { ...comp.props, childrenMap },
       }
     }
     return {
       ...comp,
-      children: (comp.children || []).filter(c => String(c.id) !== String(childId)),
+      children: (comp.children || []).filter(c => String(c.id) !== String(childId) && c.componentId !== childCompId),
     }
   })
   if (String(selectedId.value) === String(childId)) {
@@ -907,7 +907,7 @@ function handleMoveChildToRoot(fromContainerId: string, childId: string, insertI
           if (idx !== -1) {
             childToMove = childComp ? { ...childComp, parentId: undefined } : null
             const filteredIds = ids.filter((_, i) => i !== idx)
-            const filteredChildren = (comp.children || []).filter(c => String(c.id) !== String(childId))
+            const filteredChildren = (comp.children || []).filter(c => String(c.id) !== String(childId) && c.componentId !== childCompId)
             return { ...comp, children: filteredChildren, props: { ...comp.props, childrenMap: { ...childrenMap, [key]: filteredIds } } }
           }
         }
