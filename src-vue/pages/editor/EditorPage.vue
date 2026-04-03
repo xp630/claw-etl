@@ -215,6 +215,7 @@ function migrateTabsComponents(comps: CanvasComponent[]): CanvasComponent[] {
     if (migrated.type === 'tabs' && migrated.props?.tabs) {
       const tabs = migrated.props.tabs as UnifiedTabs
       if (isLegacyTabs(tabs)) {
+        // 旧格式 string[] + childrenMap → 新格式 TabItem[]
         const childrenMap = (migrated.props.childrenMap as Record<string, (string | number)[]>) || {}
         const migratedTabs = tabs.map((label: string, index: number) => {
           const tabChildIds: (string | number)[] = childrenMap[String(index)] || []
@@ -226,8 +227,17 @@ function migrateTabsComponents(comps: CanvasComponent[]): CanvasComponent[] {
             layout: { direction: 'column' as const, gap: 8, wrap: false }
           }
         })
-        migrated.props = { ...migrated.props, tabs: migratedTabs }
-        delete (migrated.props as any).childrenMap
+        migrated.props = { ...migrated.props, tabs: migratedTabs, childrenMap: undefined }
+      } else if (Array.isArray(tabs)) {
+        // 新格式 TabItem[]：统一使用 tabId 字段，如果还是用的旧 id 字段则转换
+        const newTabs = (tabs as any[]).map((tab: any, index: number) => {
+          // 如果用的是旧 id 字段，转换为 tabId
+          if ('id' in tab && !('tabId' in tab)) {
+            return { ...tab, tabId: tab.id, id: undefined }
+          }
+          return tab
+        })
+        migrated.props = { ...migrated.props, tabs: newTabs, childrenMap: undefined }
       }
       // 无论新旧格式，activeTab 必须是 tab ID 字符串
       const rawActiveTab = migrated.props.activeTab
@@ -235,10 +245,6 @@ function migrateTabsComponents(comps: CanvasComponent[]): CanvasComponent[] {
         migrated.props = { ...migrated.props, activeTab: `tab_${rawActiveTab}` }
       } else if (rawActiveTab === undefined || rawActiveTab === null) {
         migrated.props = { ...migrated.props, activeTab: 'tab_0' }
-      }
-      // 新格式也删除 childrenMap（如果存在的话）
-      if (migrated.props.childrenMap) {
-        delete (migrated.props as any).childrenMap
       }
     }
     if (migrated.children && migrated.children.length > 0) {
