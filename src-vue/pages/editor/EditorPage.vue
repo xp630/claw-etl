@@ -379,6 +379,33 @@ function flattenComponentsWithParentId(comps: CanvasComponent[], parentId: strin
   for (const c of comps) {
     const { children, ...rest } = c
     const item: any = { ...rest }
+
+    // Tabs 组件：保存时将旧格式转换为新格式
+    if (item.type === 'tabs' && item.props?.tabs) {
+      const tabs = item.props.tabs
+      if (isLegacyTabs(tabs)) {
+        // 旧格式 string[] + childrenMap → 转换为新格式 TabItem[]（children 内联）
+        const childrenMap = (item.props.childrenMap as Record<string, (string | number)[]>) || {}
+        const migratedTabs = tabs.map((label: string, index: number) => {
+          const tabChildIds = childrenMap[String(index)] || []
+          // 从 comp.children 中找出属于这个 tab 的子组件（内联完整对象）
+          const tabChildren = (children || []).filter((child: CanvasComponent) =>
+            tabChildIds.includes(child.id as any) || tabChildIds.includes(child.componentId as any)
+          )
+          return {
+            id: `tab_${index}`,
+            label,
+            params: {},
+            children: tabChildren,
+            layout: { direction: 'column', gap: 8, wrap: false }
+          }
+        })
+        item.props = { ...item.props, tabs: migratedTabs }
+        // childrenMap 不再需要，清除
+        delete item.props.childrenMap
+      }
+    }
+
     if (parentId) {
       item.parentId = parentId
     }
