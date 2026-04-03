@@ -339,7 +339,8 @@ function findComponent(comps: CanvasComponent[], id: string | null): CanvasCompo
   if (!id) return null
   const idStr = String(id)
   for (const c of comps) {
-    if (String(c.id) === idStr) return c
+    // Match by id or componentId (parentId points to componentId)
+    if (String(c.id) === idStr || c.componentId === idStr) return c
     if (c.children && c.children.length > 0) {
       const found = findComponent(c.children, id)
       if (found) return found
@@ -350,11 +351,12 @@ function findComponent(comps: CanvasComponent[], id: string | null): CanvasCompo
 
 function findParentContainerId(comps: CanvasComponent[], childId: string, parentId: string | null = null): string | null {
   for (const c of comps) {
-    if (c.id === childId) {
+    // Match child by id or componentId
+    if (c.id === childId || c.componentId === childId) {
       return parentId
     }
     if (c.children && c.children.length > 0) {
-      const found = findParentContainerId(c.children, childId, c.id)
+      const found = findParentContainerId(c.children, childId, c.componentId || c.id)
       if (found !== null) return found
     }
   }
@@ -655,11 +657,12 @@ function handleQuickAdd(comp: { type: string; label: string; defaultProps?: Reco
 }
 
 // Recursively update parentId for all nested components (deep copy)
+// parentId 统一指向 componentId（稳定 ID）
 function updateParentIdDeep(comp: CanvasComponent, newParentId: string): CanvasComponent {
   return {
     ...comp,
     parentId: newParentId,
-    children: comp.children?.map(child => updateParentIdDeep(child, comp.componentId || comp.id))
+    children: comp.children?.map(child => updateParentIdDeep(child, comp.componentId))
   }
 }
 
@@ -694,8 +697,11 @@ function updateParentIdDeep(comp: CanvasComponent, newParentId: string): CanvasC
  */
 function handleAddChildToContainer(containerId: string, childComponent: CanvasComponent, tabIndex?: number) {
   console.log('[handleAddChildToContainer] called:', { containerId, childComponentType: childComponent.type, childComponentId: childComponent.id, tabIndex })
-  // Deep copy and update parentId for all nested components (grandchildren included)
-  const childWithParent = updateParentIdDeep(childComponent, containerId)
+  // Find the container component to get its componentId
+  const container = findComponent(components.value, containerId)
+  const containerComponentId = container?.componentId || containerId
+  // Deep copy and update parentId: parentId 统一指向 componentId（稳定 ID）
+  const childWithParent = updateParentIdDeep(childComponent, containerComponentId)
   const childKey = String(childWithParent.componentId || childWithParent.id)
 
   components.value = updateComponentInTree(components.value, containerId, (comp: CanvasComponent) => {
@@ -1082,7 +1088,9 @@ function updateComponentInTree(
   updater: (c: CanvasComponent) => CanvasComponent
 ): CanvasComponent[] {
   return components.map(c => {
-    if (c.id === id) {
+    // Match by id or componentId (containerId might be either)
+    const matchId = c.id === id || c.componentId === id
+    if (matchId) {
       return updater(c)
     }
     if (c.children && c.children.length > 0) {
@@ -1095,7 +1103,8 @@ function updateComponentInTree(
 // Helper to find and remove component recursively
 function removeComponentFromTree(components: CanvasComponent[], id: string): CanvasComponent[] {
   return components.flatMap(c => {
-    if (c.id === id) return []
+    const matchId = c.id === id || c.componentId === id
+    if (matchId) return []
     if (c.children && c.children.length > 0) {
       return [{ ...c, children: removeComponentFromTree(c.children, id) }]
     }
@@ -1106,7 +1115,8 @@ function removeComponentFromTree(components: CanvasComponent[], id: string): Can
 // Helper to update component props recursively
 function updateComponentProps(components: CanvasComponent[], id: string, newProps: Record<string, any>): CanvasComponent[] {
   return components.map(c => {
-    if (c.id === id) {
+    const matchId = c.id === id || c.componentId === id
+    if (matchId) {
       return { ...c, props: { ...c.props, ...newProps } }
     }
     if (c.children && c.children.length > 0) {
