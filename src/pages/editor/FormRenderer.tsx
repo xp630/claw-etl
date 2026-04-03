@@ -10,6 +10,7 @@ interface FormRendererProps {
   columns?: ColumnConfig[];
   showAdd?: boolean;
   showEdit?: boolean;
+  onSelect?: () => void;
 }
 
 interface FormField {
@@ -33,6 +34,7 @@ function FormRenderer({
   columns,
   showAdd = true,
   showEdit = true,
+  onSelect,
 }: FormRendererProps) {
   const [formColumns, setFormColumns] = useState<FormField[]>([]);
   const [formValues, setFormValues] = useState<Record<string, unknown>>({});

@@ -354,7 +354,7 @@
     <div
       v-else-if="component.type === 'card'"
       class="border border-[var(--border-light)] rounded-lg p-4 bg-[var(--bg-secondary)] shadow-sm cursor-pointer"
-      @click.stop="canvasMode && (console.log('[card click] canvasMode=', canvasMode, 'component.id=', (component as any).id), emit('select', (component as any).id))"
+      @click.stop="canvasMode && emit('select', (component as any).id)"
       @dblclick.stop="canvasMode && emit('open-props', (component as any).id)"
     >
       <div v-if="component.props.title" class="font-medium mb-2">
@@ -377,7 +377,7 @@
               🗑
             </button>
           </div>
-          <div @click.stop="canvasMode && (console.log('[card child click] canvasMode=', canvasMode, 'child.id=', child.id), emit('select', child.id))">
+          <div @click.stop="canvasMode && emit('select', child.id)">
             <ComponentRenderer :component="child" :editable="canvasMode" :canvas-mode="canvasMode" />
           </div>
         </div>

@@ -69,7 +69,7 @@ const componentCategories: ComponentCategory[] = [
     name: '布局组件',
     components: [
       { type: 'card', label: '卡片', icon: 'Menu', defaultProps: { title: '卡片标题' } },
-      { type: 'tabs', label: '标签页', icon: 'Menu', defaultProps: { tabs: ['标签页1', '标签页2'], activeTab: 0 } },
+      { type: 'tabs', label: '标签页', icon: 'Menu', defaultProps: { tabs: [{ id: 'tab_0', label: '标签页1', params: {}, children: [], layout: { direction: 'column', gap: 8, wrap: false } }, { id: 'tab_1', label: '标签页2', params: {}, children: [], layout: { direction: 'column', gap: 8, wrap: false } }], activeTab: 'tab_0' } },
       { type: 'collapse', label: '折叠面板', icon: 'Menu', defaultProps: { title: '折叠面板标题' } },
       { type: 'grid', label: '栅格', icon: 'Menu', defaultProps: { cols: 3, gap: 10 } },
       { type: 'divider', label: '分割线', icon: 'Minus', defaultProps: { direction: 'horizontal' } },

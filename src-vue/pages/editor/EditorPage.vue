@@ -574,9 +574,11 @@ function flattenComponents(comps: CanvasComponent[]): CanvasComponent[] {
 // ============ Computed ============
 // Force refresh selectedComponent by using a refresh trigger
 const refreshTrigger = ref(0)
+// 根据当前 components.value 实时构建树，再从中查找
 const selectedComponent = computed(() => {
   refreshTrigger.value // dependency
-  return findComponent(components.value, selectedId.value)
+  const tree = buildComponentTree(components.value)
+  return findComponent(tree, selectedId.value)
 })
 // Also track components.value to ensure selectedComponent updates when components change
 watch(components, () => {
@@ -595,9 +597,7 @@ function toggleLeftTab(tab: 'layer' | 'components') {
 }
 
 function handleSelectComponent(id: string) {
-  console.log('[handleSelectComponent] id:', id, 'selectedId before:', selectedId.value)
   selectedId.value = id
-  console.log('[handleSelectComponent] selectedId after:', selectedId.value, 'selectedComponent:', findComponent(components.value, id)?.label)
 }
 
 // 双击打开属性面板
@@ -637,13 +637,9 @@ function handleDrop(data: { fromPalette: boolean, type?: string, label?: string,
       componentId: `${data.type}_${timestamp}`,
       props: data.defaultProps || {},
     }
-    console.log('[handleDrop] new component:', newComponent.label, 'id:', newComponent.id, 'componentId:', newComponent.componentId)
     components.value = [...components.value, newComponent]
-    console.log('[handleDrop] selectedId before:', selectedId.value)
     selectedId.value = String(timestamp)
-    console.log('[handleDrop] selectedId after:', selectedId.value)
     refreshSelectedComponent()
-    console.log('[handleDrop] selectedComponent:', findComponent(components.value, selectedId.value)?.label)
   }
 }
 
