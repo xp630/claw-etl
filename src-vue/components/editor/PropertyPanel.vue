@@ -638,7 +638,9 @@ function handleDeleteComponent() {
 // 检查组件是否有某个属性
 function hasProp(prop: string): boolean {
   if (!props.selectedComponent) return false
-  return prop in props.selectedComponent.props
+  const has = prop in props.selectedComponent.props
+  console.log('[PropertyPanel] hasProp:', prop, has, 'props:', Object.keys(props.selectedComponent.props || {}))
+  return has
 }
 
 // 更新属性
