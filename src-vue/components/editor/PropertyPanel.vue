@@ -25,6 +25,17 @@
             @input="updateLabel(($event.target as HTMLInputElement).value)"
           />
         </div>
+
+        <div class="prop-item">
+          <label>组件ID</label>
+          <input
+            :value="selectedComponent.componentId || selectedComponent.id"
+            type="text"
+            class="prop-input bg-[var(--bg-secondary)]"
+            readonly
+            title="组件唯一标识，用于内部引用"
+          />
+        </div>
       </div>
 
       <!-- 表格属性 -->
