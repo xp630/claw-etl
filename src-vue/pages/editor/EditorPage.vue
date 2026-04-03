@@ -337,8 +337,9 @@ function generateId(): number {
 
 function findComponent(comps: CanvasComponent[], id: string | null): CanvasComponent | null {
   if (!id) return null
+  const idStr = String(id)
   for (const c of comps) {
-    if (c.id === id) return c
+    if (String(c.id) === idStr) return c
     if (c.children && c.children.length > 0) {
       const found = findComponent(c.children, id)
       if (found) return found

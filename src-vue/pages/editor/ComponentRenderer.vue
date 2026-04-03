@@ -527,6 +527,7 @@ const emit = defineEmits<{
   'remove-child': [containerId: string, childId: string]
   'drag-start-nested': [event: DragEvent, containerId: string, index: number]
   'select': [id: string]
+  'open-props': [id: string]
   'drop': [data: any]
   'drop-on-tab': [containerId: string, tabIndex: number, data: any]
 }>()
