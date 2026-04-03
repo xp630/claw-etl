@@ -368,7 +368,10 @@ function loadComponent(c: any): CanvasComponent {
   } catch {}
   return {
     id: String(c.id) || `comp_${Date.now()}`,
-    componentId: c.componentId || undefined,
+    // 确保 componentId 存在：如果数据库没有，或等于 id（说明之前存的是 db id），则生成一个新的稳定 ID
+    componentId: (c.componentId && c.componentId !== String(c.id))
+      ? String(c.componentId)
+      : `${c.type}_${c.id || Date.now()}`,
     parentId: c.parentId || undefined,
     type: c.type,
     label: c.label || '',

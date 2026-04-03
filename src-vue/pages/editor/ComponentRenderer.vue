@@ -90,7 +90,7 @@
     </div>
 
     <!-- Table component -->
-    <div v-else-if="component.type === 'table'" class="border border-[var(--border-light)] rounded overflow-x-auto">
+    <div v-else-if="component.type === 'table'" class="border border-[var(--border-light)] rounded overflow-x-auto" @dblclick.stop="canvasMode && emit('open-props', (component as any).id)">
       <!-- Table Header -->
       <div class="bg-[var(--bg-table-header)] px-3 py-2 border-b border-[var(--border-light)] flex items-center justify-between">
         <span class="text-sm font-medium">{{ component.props.title || '数据表' }}</span>
@@ -283,7 +283,7 @@
     </div>
 
     <!-- Form component -->
-    <div v-else-if="component.type === 'form'" class="border border-[var(--border-light)] rounded p-4 bg-[var(--bg-table-header)]">
+    <div v-else-if="component.type === 'form'" class="border border-[var(--border-light)] rounded p-4 bg-[var(--bg-table-header)]" @dblclick.stop="canvasMode && emit('open-props', (component as any).id)">
       <div class="text-sm text-[var(--text-secondary)]">
         📝 表单组件 - {{ component.props.title || '表单' }}
       </div>
@@ -311,18 +311,20 @@
         gridTemplateColumns: `repeat(${Number(component.props.cols) || 3}, 1fr)`,
         gap: `${Number(component.props.gap) || 10}px`
       }"
+      @dblclick.stop="canvasMode && emit('open-props', (component as any).id)"
     >
       <div class="text-xs text-[var(--text-muted)] text-center py-4">栅格布局</div>
     </div>
 
     <!-- Divider component -->
-    <hr v-else-if="component.type === 'divider'" class="border-[var(--border)] my-2" />
+    <hr v-else-if="component.type === 'divider'" class="border-[var(--border)] my-2" @dblclick.stop="canvasMode && emit('open-props', (component as any).id)" />
 
     <!-- Blank component -->
     <div
       v-else-if="component.type === 'blank'"
       class="bg-gradient-to-r from-gray-100 to-gray-50"
       :style="{ height: `${Number(component.props.height) || 50}px` }"
+      @dblclick.stop="canvasMode && emit('open-props', (component as any).id)"
     />
 
     <!-- Image component -->
@@ -331,6 +333,7 @@
       :src="String(component.props.src || 'https://via.placeholder.com/200x100')"
       :alt="String(component.props.alt || '图片')"
       class="max-w-full h-auto"
+      @dblclick.stop="canvasMode && emit('open-props', (component as any).id)"
     />
 
     <!-- Link component -->
@@ -338,6 +341,7 @@
       v-else-if="component.type === 'link'"
       :href="String(component.props.url || '#')"
       class="text-blue-500 hover:underline text-sm"
+      @dblclick.stop="canvasMode && emit('open-props', (component as any).id)"
     >
       {{ component.props.text || '链接' }}
     </a>
@@ -346,6 +350,7 @@
     <div
       v-else-if="component.type === 'card'"
       class="border border-[var(--border-light)] rounded-lg p-4 bg-[var(--bg-secondary)] shadow-sm"
+      @dblclick.stop="canvasMode && emit('open-props', (component as any).id)"
     >
       <div v-if="component.props.title" class="font-medium mb-2">
         {{ component.props.title }}
@@ -382,8 +387,7 @@
     </div>
 
     <!-- Tabs container -->
-    <!-- Tabs container -->
-    <div v-else-if="component.type === 'tabs'">
+    <div v-else-if="component.type === 'tabs'" @dblclick.stop="canvasMode && emit('open-props', (component as any).id)">
       <!-- DEBUG: print full tabs component structure -->
       <!-- Tab 标题显示 -->
       <div class="flex border-b border-[var(--border-light)] mb-2">
@@ -446,7 +450,7 @@
     </div>
 
     <!-- Collapse container -->
-    <div v-else-if="component.type === 'collapse'" class="border border-[var(--border-light)] rounded">
+    <div v-else-if="component.type === 'collapse'" class="border border-[var(--border-light)] rounded" @dblclick.stop="canvasMode && emit('open-props', (component as any).id)">
       <div
         class="p-3 bg-[var(--bg-table-header)] cursor-pointer flex justify-between items-center"
         @click="handleCollapseClick"
