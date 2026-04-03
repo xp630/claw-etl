@@ -578,7 +578,15 @@ const refreshTrigger = ref(0)
 const selectedComponent = computed(() => {
   refreshTrigger.value // dependency
   const tree = buildComponentTree(components.value)
-  return findComponent(tree, selectedId.value)
+  const comp = findComponent(tree, selectedId.value)
+  console.log('[EditorPage] selectedComponent computed:', {
+    selectedId: selectedId.value,
+    selectedIdType: typeof selectedId.value,
+    compFound: !!comp,
+    compType: comp?.type,
+    compProps: comp?.props ? Object.keys(comp.props) : 'NO PROPS'
+  })
+  return comp
 })
 // Also track components.value to ensure selectedComponent updates when components change
 watch(components, () => {
