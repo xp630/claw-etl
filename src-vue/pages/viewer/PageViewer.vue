@@ -108,6 +108,14 @@ onMounted(async () => {
       // 同时通过 id 和 componentId 存储，方便查找
       compMap.set(id, comp)
       compMap.set(componentId, comp)
+      // DEBUG: log table component to verify componentId
+      if (c.type === 'table') {
+        console.log('[PageViewer] Table component stored:', { 
+          cId: c.id, cComponentId: c.componentId, 
+          computedComponentId: componentId,
+          storedKeys: [id, componentId]
+        })
+      }
     })
 
     const containerTypes = ['card', 'tabs', 'collapse']
@@ -126,7 +134,7 @@ onMounted(async () => {
     })
 
     // 迁移 tabs 旧格式为新格式（支持 layout 布局参数）
-    components.value = migrateTabsComponents(rootComps)
+    components.value = migrateTabsComponents(rootComps, compMap)
     //console.log('[PageViewer] rootComps:', JSON.stringify(rootComps, null, 2))
   } catch (err) {
     //console.error('Failed to load page:', err)
