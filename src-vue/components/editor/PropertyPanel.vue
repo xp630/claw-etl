@@ -303,7 +303,50 @@
                     @change="updateTabLayout(index, 'wrap', ($event.target as HTMLInputElement).checked)"
                   />
                 </div>
-              </div>
+                <!-- tab 参数配置 -->
+                <div class="pt-1 border-t border-[var(--border-light)] mt-1">
+                  <div class="flex items-center gap-1 mb-1">
+                    <span class="shrink-0 text-[var(--text-muted)]">参数:</span>
+                    <button
+                      type="button"
+                      class="text-xs text-[var(--accent)] hover:underline"
+                      @click="addTabParam(index)"
+                    >
+                      + 添加参数
+                    </button>
+                  </div>
+                  <div
+                    v-for="(paramVal, paramKey) in (tab.params || {})"
+                    :key="paramKey"
+                    class="flex items-center gap-1 mb-0.5"
+                  >
+                    <input
+                      :value="paramKey"
+                      type="text"
+                      class="w-16 px-1 py-0.5 border border-[var(--border)] rounded text-xs"
+                      placeholder="key"
+                      @change="updateTabParamKey(index, String(paramKey), ($event.target as HTMLInputElement).value)"
+                    />
+                    <span>=</span>
+                    <input
+                      :value="paramVal"
+                      type="text"
+                      class="flex-1 px-1 py-0.5 border border-[var(--border)] rounded text-xs"
+                      placeholder="value"
+                      @input="updateTabParam(index, String(paramKey), ($event.target as HTMLInputElement).value)"
+                    />
+                    <button
+                      type="button"
+                      class="px-1 text-[var(--danger)] hover:text-red-400 text-xs"
+                      @click="removeTabParam(index, String(paramKey))"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div v-if="!tab.params || Object.keys(tab.params).length === 0" class="text-xs text-[var(--text-muted)] italic">
+                    暂无参数
+                  </div>
+                </div>
             </div>
           </div>
         </div>
@@ -529,6 +572,52 @@ function removeTab(index: number) {
   } else if (typeof activeTab === 'number' && activeTab >= tabs.length) {
     updateProp('activeTab', Math.max(0, tabs.length - 1))
   }
+}
+
+// 添加 tab 参数
+function addTabParam(index: number) {
+  const tabs = editableTabs.value.map((t, i) => {
+    if (i !== index) return t
+    return { ...t, params: { ...(t.params || {}), ['']: '' } }
+  })
+  updateProp('tabs', tabs)
+}
+
+// 更新 tab 参数的值
+function updateTabParam(index: number, key: string, value: string) {
+  const tabs = editableTabs.value.map((t, i) => {
+    if (i !== index) return t
+    return { ...t, params: { ...(t.params || {}), [key]: value } }
+  })
+  updateProp('tabs', tabs)
+}
+
+// 更新 tab 参数的 key（重新命名）
+function updateTabParamKey(index: number, oldKey: string, newKey: string) {
+  if (newKey === oldKey) return
+  const tabs = editableTabs.value.map((t, i) => {
+    if (i !== index) return t
+    const newParams: Record<string, unknown> = {}
+    for (const k in t.params || {}) {
+      if (k === oldKey) newParams[newKey] = t.params[k]
+      else newParams[k] = t.params[k]
+    }
+    return { ...t, params: newParams }
+  })
+  updateProp('tabs', tabs)
+}
+
+// 删除 tab 参数
+function removeTabParam(index: number, key: string) {
+  const tabs = editableTabs.value.map((t, i) => {
+    if (i !== index) return t
+    const newParams: Record<string, unknown> = {}
+    for (const k in t.params || {}) {
+      if (k !== key) newParams[k] = t.params[k]
+    }
+    return { ...t, params: newParams }
+  })
+  updateProp('tabs', tabs)
 }
 
 // 处理从容器移出
