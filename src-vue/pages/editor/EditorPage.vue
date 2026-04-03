@@ -698,7 +698,6 @@ function updateParentIdDeep(comp: CanvasComponent, newParentId: string): CanvasC
  *   旧格式: childrenMap[i].push(childId)
  */
 function handleAddChildToContainer(containerId: string, childComponent: CanvasComponent, tabIndex?: number) {
-  console.log('[handleAddChildToContainer] called:', { containerId, childComponentType: childComponent.type, childComponentId: childComponent.id, tabIndex })
   // Find the container component to get its componentId
   const container = findComponent(components.value, containerId)
   const containerComponentId = container?.componentId || containerId
@@ -706,53 +705,56 @@ function handleAddChildToContainer(containerId: string, childComponent: CanvasCo
   const childWithParent = updateParentIdDeep(childComponent, containerComponentId)
   const childKey = String(childWithParent.componentId || childWithParent.id)
 
-  components.value = updateComponentInTree(components.value, containerId, (comp: CanvasComponent) => {
-    if (comp.type === 'tabs') {
-      const tabs = comp.props.tabs as UnifiedTabs
-      if (tabs && !isLegacyTabs(tabs) && Array.isArray(tabs)) {
-        // 新格式 TabItem[]：子组件 ID 添加到对应 TabItem.children
-        const rawActiveTab = comp.props.activeTab
-        const activeId = rawActiveTab !== undefined ? String(rawActiveTab) : ''
-        const tabIdx = tabs.findIndex(t => t.id === activeId)
-        const targetIdx = (tabIndex !== undefined && tabIndex >= 0) ? tabIndex : (tabIdx >= 0 ? tabIdx : 0)
-        const newTabs = tabs.map((tab, i) => {
-          if (i !== targetIdx) return tab
-          return {
-            ...tab,
-            children: [...(tab.children || []), childKey]
-          }
-        })
-        return {
-          ...comp,
-          children: [...(comp.children || []), childWithParent],
-          props: { ...comp.props, tabs: newTabs }
+  // 从根数组中移除 child，同时更新容器的 children
+  // 避免 child 同时存在于根数组和容器 children 中导致 buildComponentTree 时 componentMap key 冲突
+  components.value = components.value
+    .filter(c => String(c.id) !== String(childWithParent.id) && c.componentId !== childKey)
+    .map(c => {
+      const matchId = c.id === containerId || c.componentId === containerId
+      if (!matchId) {
+        if (c.children?.length) {
+          const updatedChildren = c.children
+            .filter(child => String(child.id) !== String(childWithParent.id) && child.componentId !== childKey)
+            .map(child => {
+              const childMatch = child.id === containerId || child.componentId === containerId
+              if (child.id === containerId || child.componentId === containerId) {
+                return updateContainerChildren(child, tabIndex, childKey, childWithParent)
+              }
+              return child
+            })
+          return { ...c, children: updatedChildren }
         }
+        return c
       }
-      // 旧格式：使用 childrenMap
-      const rawActiveTab = comp.props.activeTab
-      const effectiveTabIndex = (tabIndex !== undefined && tabIndex >= 0) ? tabIndex : (typeof rawActiveTab === 'number' && rawActiveTab >= 0 ? rawActiveTab : 0)
-      const childrenMap = (comp.props.childrenMap as Record<string, (string | number)[]>) || {}
-      const tabKey = String(effectiveTabIndex)
-      const existingChildIds = childrenMap[tabKey] || []
-      return {
-        ...comp,
-        children: [...(comp.children || []), childWithParent],
-        props: {
-          ...comp.props,
-          childrenMap: {
-            ...childrenMap,
-            [tabKey]: [...existingChildIds, childKey],
-          },
-        },
-      }
-    }
-    return {
-      ...comp,
-      children: [...(comp.children || []), childWithParent],
-    }
-  })
+      return updateContainerChildren(c, tabIndex, childKey, childWithParent)
+    })
+
   selectedId.value = childWithParent.id
   refreshSelectedComponent()
+}
+
+// 更新容器的 children（处理 tabs 等嵌套结构）
+function updateContainerChildren(comp: CanvasComponent, tabIndex: number | undefined, childKey: string, childWithParent: CanvasComponent): CanvasComponent {
+  if (comp.type === 'tabs') {
+    const tabs = comp.props.tabs as UnifiedTabs
+    if (tabs && !isLegacyTabs(tabs) && Array.isArray(tabs)) {
+      const rawActiveTab = comp.props.activeTab
+      const activeId = rawActiveTab !== undefined ? String(rawActiveTab) : ''
+      const tabIdx = tabs.findIndex(t => t.id === activeId)
+      const targetIdx = (tabIndex !== undefined && tabIndex >= 0) ? tabIndex : (tabIdx >= 0 ? tabIdx : 0)
+      const newTabs = tabs.map((tab, i) => {
+        if (i !== targetIdx) return tab
+        return { ...tab, children: [...(tab.children || []), childKey] }
+      })
+      return { ...comp, children: [...(comp.children || []), childWithParent], props: { ...comp.props, tabs: newTabs } }
+    }
+    // 旧格式
+    const childrenMap = { ...(comp.props.childrenMap as Record<string, (string | number)[]>) }
+    const tabKey = String(tabIndex ?? 0)
+    childrenMap[tabKey] = [...(childrenMap[tabKey] || []), childKey]
+    return { ...comp, children: [...(comp.children || []), childWithParent], props: { ...comp.props, childrenMap } }
+  }
+  return { ...comp, children: [...(comp.children || []), childWithParent] }
 }
 
 /**
