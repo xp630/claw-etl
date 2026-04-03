@@ -861,6 +861,7 @@ function updateContainerChildren(comp: CanvasComponent, tabIndex: number | undef
  *   旧格式: childrenMap[key] = childrenMap[key].filter(id => id !== childCompId)
  */
 function handleRemoveChildFromContainer(containerId: string, childId: string) {
+  console.log('[DEBUG] handleRemoveChildFromContainer called:', containerId, childId)
   if (!confirm('确定要移除这个组件吗？')) return
 
   // 找到被移除组件的 componentId（用于从 tab.children 中移除）
