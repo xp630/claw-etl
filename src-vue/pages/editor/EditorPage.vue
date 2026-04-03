@@ -576,6 +576,10 @@ const selectedComponent = computed(() => {
   refreshTrigger.value // dependency
   return findComponent(components.value, selectedId.value)
 })
+// Also track components.value to ensure selectedComponent updates when components change
+watch(components, () => {
+  refreshTrigger.value++
+})
 
 function refreshSelectedComponent() {
   if (selectedId.value) {
@@ -633,16 +637,17 @@ function handleDrop(data: { fromPalette: boolean, type?: string, label?: string,
 
 function handleQuickAdd(comp: { type: string; label: string; defaultProps?: Record<string, any> }) {
   const timestamp = Date.now()
+  const id = String(timestamp)
   const newComponent: CanvasComponent = {
     type: comp.type,
     label: comp.label,
-    id: timestamp,
+    id: id,
     componentId: `${comp.type}_${timestamp}`,
     props: comp.defaultProps || {},
   }
   components.value = [...components.value, newComponent]
   activeLeftTab.value = ''
-  selectedId.value = String(timestamp)
+  selectedId.value = id
 }
 
 // Recursively update parentId for all nested components (deep copy)
