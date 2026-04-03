@@ -540,7 +540,7 @@ const editableTabs = computed<TabItem[]>(() => {
 function addTab() {
   const tabs = editableTabs.value
   const newTab: TabItem = {
-    id: `tab_${Date.now()}`,
+    id: `tab_${tabs.length}`,
     label: `标签${tabs.length + 1}`,
     params: {},
     children: [],

@@ -35,7 +35,7 @@
       <ComponentTreeNode
         v-for="(tab, tabKey) in unifiedTabs"
         :key="'tab-' + tabKey"
-        :comp="{ id: 'tab-' + comp.id + '-' + tab.id, type: 'tab', label: tab.label, children: tab.children || [] }"
+        :comp="{ id: 'tab-' + comp.id + '-' + tab.tabId, type: 'tab', label: tab.label, children: tab.children || [] }"
         :depth="depth + 1"
         :selected-id="selectedId"
         :expanded="expanded"

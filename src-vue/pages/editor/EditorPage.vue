@@ -300,7 +300,7 @@ function getContainerChildren(comp: CanvasComponent): CanvasComponent[] {
         tabIdx = Number(rawActiveTab) || 0
       } else {
         const idStr = String(rawActiveTab)
-        const idx = tabs.findIndex((t: any) => t.id === idStr)
+        const idx = tabs.findIndex((t: any) => t.tabId === idStr)
         tabIdx = idx >= 0 ? idx : 0
       }
     }
@@ -776,7 +776,7 @@ function updateContainerChildren(comp: CanvasComponent, tabIndex: number | undef
     if (tabs && !isLegacyTabs(tabs) && Array.isArray(tabs)) {
       const rawActiveTab = comp.props.activeTab
       const activeId = rawActiveTab !== undefined ? String(rawActiveTab) : ''
-      const tabIdx = tabs.findIndex(t => t.id === activeId)
+      const tabIdx = tabs.findIndex(t => t.tabId === activeId)
       const targetIdx = (tabIndex !== undefined && tabIndex >= 0) ? tabIndex : (tabIdx >= 0 ? tabIdx : 0)
       const newTabs = tabs.map((tab, i) => {
         if (i !== targetIdx) return tab

@@ -179,7 +179,7 @@ const getContainerChildren = (comp: CanvasComponent): CanvasComponent[] => {
         tabIdx = Number(rawActiveTab) || 0
       } else {
         const idStr = String(rawActiveTab)
-        const idx = tabs.findIndex(t => t.id === idStr)
+        const idx = tabs.findIndex(t => t.tabId === idStr)
         tabIdx = idx >= 0 ? idx : 0
       }
     }

@@ -11,7 +11,7 @@
 //
 // 【新格式 - TabsFormat (TabItem[])】:
 //   props.tabs: TabItem[]                   // 完整对象数组
-//     - TabItem.id: string                  // tab唯一标识 (如 "tab_0")
+//     - TabItem.tabId: string                  // tab唯一标识 (如 "tab_0")
 //     - TabItem.label: string               // tab显示名称
 //     - TabItem.params: Record              // 传递给子组件的参数
 //     - TabItem.children: (string|number)[] // 子组件ID数组
@@ -94,7 +94,7 @@ export interface LayoutProps {
  * @property layout - 该 Tab 下子组件的布局配置
  */
 export interface TabItem {
-  id: string                      // Tab unique ID (user customizable)
+  tabId: string                   // Tab unique ID (format: "tab_0", "tab_1", etc.)
   label: string                    // Tab display label
   params?: Record<string, unknown> // Parameters passed to children
   children?: (string | number)[]  // Child component IDs
@@ -122,8 +122,8 @@ export type LegacyTabsFormat = string[]
  * 
  * 格式示例:
  *   tabs: [
- *     { id: "tab_0", label: "标签1", params: {}, children: ["comp_1", "comp_2"], layout: { direction: "column" } },
- *     { id: "tab_1", label: "标签2", params: {}, children: ["comp_3"], layout: { direction: "column" } }
+ *     { tabId: "tab_0", label: "标签1", params: {}, children: ["comp_1", "comp_2"], layout: { direction: "column" } },
+ *     { tabId: "tab_1", label: "标签2", params: {}, children: ["comp_3"], layout: { direction: "column" } }
  *   ]
  *   activeTab: "tab_0"  // string 类型,表示 tab ID
  */
@@ -153,7 +153,7 @@ export type UnifiedTabs = LegacyTabsFormat | TabsFormat
  * 
  * @example
  *   isLegacyTabs(["标签1", "标签2"])  // true
- *   isLegacyTabs([{ id: "tab_0", label: "标签1", ... }])  // false
+ *   isLegacyTabs([{ tabId: "tab_0", label: "标签1", ... }])  // false
  */
 export function isLegacyTabs(tabs: UnifiedTabs): tabs is LegacyTabsFormat {
   return Array.isArray(tabs) && tabs.length > 0 && typeof tabs[0] === 'string'

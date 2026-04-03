@@ -405,7 +405,7 @@
               ? 'text-blue-500 border-b-2 border-blue-500'
               : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
           ]"
-          @click.stop="handleTabClick(unifiedTabs[index]?.id)"
+          @click.stop="handleTabClick(unifiedTabs[index]?.tabId)"
           @dragover.prevent="onTabDragOver($event, index)"
           @dragleave="onTabDragLeave($event)"
         >
@@ -573,7 +573,7 @@ const activeTabId = computed(() => {
 const activeTabIndex = computed(() => {
   const id = activeTabId.value
   const tabs = unifiedTabs.value
-  const idx = tabs.findIndex(t => t.id === id)
+  const idx = tabs.findIndex(t => t.tabId === id)
   return idx >= 0 ? idx : 0
 })
 
@@ -651,7 +651,7 @@ function getChildLayoutStyle(child: CanvasComponent): Record<string, string> {
 const currentTabIndex = ref(0)
 watch(() => props.component.props?.activeTab, (val) => {
   const id = val !== undefined && val !== null ? String(val) : ''
-  const idx = unifiedTabs.value.findIndex(t => t.id === id)
+  const idx = unifiedTabs.value.findIndex(t => t.tabId === id)
   currentTabIndex.value = idx >= 0 ? idx : 0
 }, { immediate: true })
 
