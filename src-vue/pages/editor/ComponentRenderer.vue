@@ -377,7 +377,7 @@
               🗑
             </button>
           </div>
-          <div @click.stop="canvasMode && emit('select', child.id)">
+          <div @click.stop="canvasMode && (console.log('[card child click] canvasMode=', canvasMode, 'child.id=', child.id), emit('select', child.id))">
             <ComponentRenderer :component="child" :editable="canvasMode" :canvas-mode="canvasMode" />
           </div>
         </div>
