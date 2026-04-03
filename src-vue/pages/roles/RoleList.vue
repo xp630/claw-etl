@@ -3,7 +3,7 @@
     <!-- 页面标题 -->
     <div class="flex items-center justify-between mb-6">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-blue-500/30">
+        <div class="w-10 h-10 rounded-xl bg-[var(--bg-tertiary)] flex items-center justify-center ">
           <el-icon size="20" color="var(--accent)"><UserFilled /></el-icon>
         </div>
         <div>

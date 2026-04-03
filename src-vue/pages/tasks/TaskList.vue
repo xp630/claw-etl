@@ -1,66 +1,89 @@
 <template>
-  <div class="p-6">
-    <!-- 标题 -->
-    <div class="flex justify-between items-center mb-6">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-blue-500/30">
-          <RefreshCw class="w-5 h-5 text-blue-500" />
-        </div>
-        <div>
-          <h1 class="text-xl font-bold text-[var(--text-primary)]">任务管理</h1>
-          <p class="text-xs text-[var(--text-muted)]">配置ETL同步任务</p>
+  <div class="task-list-page">
+    <!-- Page Header -->
+    <header class="page-header">
+      <div class="header-left">
+        <RefreshCw class="header-icon" />
+        <div class="header-text">
+          <h1>任务管理</h1>
+          <p>配置 ETL 同步任务</p>
         </div>
       </div>
       <el-button type="primary" @click="handleCreate">
-        <Plus class="w-4 h-4 mr-1" /> 新增
+        <Plus class="btn-icon" />新建任务
       </el-button>
-    </div>
+    </header>
 
-    <!-- 搜索筛选 -->
-    <div class="mb-4 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-light)] p-4">
-      <div class="flex gap-4 flex-wrap">
+    <!-- Search Bar -->
+    <div class="search-bar">
+      <div class="search-fields">
         <el-input
           v-model="searchTable"
-          placeholder="支持表名称查询"
+          placeholder="目标表名称"
           clearable
-          class="w-64"
+          class="search-input"
         />
         <el-input
           v-model="searchName"
-          placeholder="支持任务名称模糊查询"
+          placeholder="任务名称"
           clearable
-          class="w-64"
+          class="search-input"
         />
-        <el-button type="primary" @click="loadData">查询</el-button>
+      </div>
+      <div class="search-actions">
         <el-button @click="resetSearch">重置</el-button>
+        <el-button type="primary" @click="loadData">查询</el-button>
       </div>
     </div>
 
-    <!-- 任务列表 -->
-    <div class="bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-light)] overflow-hidden">
-      <el-table :data="filteredTasks" v-loading="loading" style="width: 100%">
-        <el-table-column prop="taskName" label="任务名称" min-width="150" />
-        <el-table-column prop="targetTable" label="目标表" min-width="120" />
-        <el-table-column label="同步频率" width="150">
+    <!-- Data Table -->
+    <div class="table-container">
+      <el-table
+        :data="filteredTasks"
+        v-loading="loading"
+        row-key="id"
+        :header-cell-style="{ background: 'var(--bg-tertiary)', color: 'var(--text-secondary)', fontWeight: 500, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }"
+        :row-style="{ cursor: 'pointer' }"
+        @row-click="(row) => handleEdit(row)"
+      >
+        <el-table-column prop="taskName" label="任务名称" min-width="180">
           <template #default="{ row }">
-            {{ row.taskCronTime }} {{ row.taskCronType === 'MINUTES' ? '分钟' : row.taskCronType === 'HOURS' ? '小时' : '天' }}
+            <span class="task-name">{{ row.taskName }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="状态" width="100">
+        <el-table-column prop="targetTable" label="目标表" min-width="140" />
+        <el-table-column label="同步频率" width="140">
           <template #default="{ row }">
-            <el-tag :type="row.status === 1 ? 'success' : 'info'" size="small">
+            <span class="cron-text">
+              {{ row.taskCronTime }} {{ row.taskCronType === 'MINUTES' ? '分钟' : row.taskCronType === 'HOURS' ? '小时' : '天' }}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column label="状态" width="100" align="center">
+          <template #default="{ row }">
+            <span class="status-badge" :class="row.status === 1 ? 'status-active' : 'status-disabled'">
               {{ row.status === 1 ? '启用' : '禁用' }}
-            </el-tag>
+            </span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" width="140" align="right" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleToggle(row)">
-              {{ row.status === 1 ? '禁用' : '启用' }}
-            </el-button>
-            <el-button link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
+            <div class="action-buttons" @click.stop>
+              <el-button link size="small" type="primary" @click="handleToggle(row)">
+                {{ row.status === 1 ? '禁用' : '启用' }}
+              </el-button>
+              <el-button link size="small" type="primary" @click="handleEdit(row)">编辑</el-button>
+            </div>
           </template>
         </el-table-column>
+
+        <!-- Empty slot -->
+        <template #empty>
+          <div class="table-empty">
+            <RefreshCw class="empty-icon" />
+            <p>暂无任务数据</p>
+          </div>
+        </template>
       </el-table>
     </div>
   </div>
@@ -69,8 +92,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Plus, RefreshCw } from 'lucide-vue-next'
 import { ElMessage } from 'element-plus'
+import { Plus, RefreshCw } from 'lucide-vue-next'
 import axios from 'axios'
 
 interface Task {
@@ -163,3 +186,164 @@ function resetSearch() {
   loadData()
 }
 </script>
+
+<style scoped>
+.task-list-page {
+  padding: 24px;
+  background: var(--bg-primary);
+  min-height: 100vh;
+}
+
+/* Header */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--accent);
+}
+
+.header-text h1 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.header-text p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 2px 0 0;
+}
+
+.btn-icon {
+  width: 14px;
+  height: 14px;
+  margin-right: 6px;
+}
+
+/* Search Bar */
+.search-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.search-fields {
+  display: flex;
+  gap: 12px;
+}
+
+.search-input {
+  width: 200px;
+}
+
+.search-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Table */
+.table-container {
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+:deep(.el-table) {
+  --el-table-border-color: var(--border-light);
+  --el-table-header-bg-color: var(--bg-tertiary);
+  --el-table-row-hover-bg-color: var(--bg-hover);
+  --el-table-bg-color: var(--bg-secondary);
+  --el-table-tr-bg-color: var(--bg-secondary);
+  --el-table-text-color: var(--text-primary);
+}
+
+:deep(.el-table th.el-table__cell) {
+  padding: 12px 16px;
+}
+
+:deep(.el-table td.el-table__cell) {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+:deep(.el-table__row:last-child td.el-table__cell) {
+  border-bottom: none;
+}
+
+.task-name {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.cron-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* Status Badge */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-active {
+  background: color-mix(in srgb, var(--success) 15%, transparent);
+  color: var(--success);
+}
+
+.status-disabled {
+  background: color-mix(in srgb, var(--text-muted) 15%, transparent);
+  color: var(--text-muted);
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+/* Empty State */
+.table-empty {
+  padding: 60px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.empty-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--text-muted);
+  opacity: 0.4;
+}
+
+.table-empty p {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0;
+}
+</style>

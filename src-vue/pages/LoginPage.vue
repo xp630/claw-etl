@@ -1,63 +1,99 @@
 <template>
-  <div class="login-container">
-    <div class="login-box">
-      <!-- Logo & Title -->
-      <div class="login-header">
-        <div class="logo-icon">
-          <el-icon><Edit /></el-icon>
+  <div class="login-wrapper">
+    <!-- Left brand panel -->
+    <div class="login-brand">
+      <div class="brand-content">
+        <svg class="brand-logo" width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <rect width="48" height="48" rx="12" fill="currentColor"/>
+          <path d="M14 34V14l10 10 10-10v20" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <h1 class="brand-name">claw-etl</h1>
+        <p class="brand-tagline">低代码数据编排平台</p>
+        
+        <div class="brand-features">
+          <div class="feature-item">
+            <span class="feature-dot"></span>
+            <span>可视化页面编辑</span>
+          </div>
+          <div class="feature-item">
+            <span class="feature-dot"></span>
+            <span>多数据源连接</span>
+          </div>
+          <div class="feature-item">
+            <span class="feature-dot"></span>
+            <span>任务调度编排</span>
+          </div>
         </div>
-        <h1 class="login-title">claw-etl</h1>
-        <p class="login-subtitle">低代码平台</p>
       </div>
+      <div class="brand-footer">
+        <span class="brand-version">v1.0.0</span>
+      </div>
+    </div>
 
-      <!-- Login Form -->
-      <el-form
-        ref="formRef"
-        :model="form"
-        :rules="rules"
-        class="login-form"
-        @submit.prevent="handleLogin"
-      >
-        <el-form-item prop="username">
-          <el-input
-            v-model="form.username"
-            placeholder="请输入用户名"
-            size="large"
-            prefix-icon="User"
-          />
-        </el-form-item>
-        <el-form-item prop="password">
-          <el-input
-            v-model="form.password"
-            type="password"
-            placeholder="请输入密码"
-            size="large"
-            prefix-icon="Lock"
-            show-password
-            @keyup.enter="handleLogin"
-          />
-        </el-form-item>
-        <div class="form-options">
-          <el-checkbox v-model="rememberMe">记住我</el-checkbox>
-          <a href="#" class="forgot-link">忘记密码？</a>
+    <!-- Right login form -->
+    <div class="login-main">
+      <div class="login-container">
+        <div class="login-header">
+          <h2>登录账号</h2>
+          <p>输入您的凭证以继续</p>
         </div>
-        <el-form-item>
-          <el-button
-            type="primary"
-            size="large"
-            style="width: 100%"
-            :loading="loading"
-            native-type="submit"
-          >
-            登录
-          </el-button>
-        </el-form-item>
-      </el-form>
 
-      <!-- Footer -->
-      <p class="login-footer">
-        登录即表示同意 <a href="#">使用条款</a> 和 <a href="#">隐私政策</a>
-      </p>
+        <el-form
+          ref="formRef"
+          :model="form"
+          :rules="rules"
+          class="login-form"
+          @submit.prevent="handleLogin"
+        >
+          <el-form-item prop="username" class="form-item-block">
+            <label class="form-label">用户名</label>
+            <el-input
+              v-model="form.username"
+              placeholder="请输入用户名"
+              size="large"
+              :prefix-icon="User"
+              class="form-input"
+            />
+          </el-form-item>
+
+          <el-form-item prop="password" class="form-item-block">
+            <div class="label-row">
+              <label class="form-label">密码</label>
+              <a href="#" class="forgot-link">忘记密码？</a>
+            </div>
+            <el-input
+              v-model="form.password"
+              type="password"
+              placeholder="请输入密码"
+              size="large"
+              :prefix-icon="Lock"
+              show-password
+              class="form-input"
+              @keyup.enter="handleLogin"
+            />
+          </el-form-item>
+
+          <div class="form-options">
+            <el-checkbox v-model="rememberMe">记住我</el-checkbox>
+          </div>
+
+          <el-form-item class="form-item-block">
+            <el-button
+              type="primary"
+              size="large"
+              :loading="loading"
+              class="login-button"
+              @click="handleLogin"
+            >
+              登录
+            </el-button>
+          </el-form-item>
+        </el-form>
+
+        <div class="login-footer">
+          <p>登录即表示同意 <a href="#">使用条款</a> 和 <a href="#">隐私政策</a></p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -67,6 +103,7 @@ import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { useAuthStore } from '@/stores/auth'
+import { User, Lock } from 'lucide-vue-next'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -114,88 +151,228 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-.login-container {
-  width: 100%;
-  height: 100vh;
+.login-wrapper {
+  min-height: 100vh;
+  display: flex;
+}
+
+/* Left brand panel */
+.login-brand {
+  flex: 1;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-brand::before {
+  content: '';
+  position: absolute;
+  top: -200px;
+  left: -200px;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, var(--accent-light) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.brand-content {
+  position: relative;
+  z-index: 1;
+}
+
+.brand-logo {
+  color: var(--accent);
+  margin-bottom: 24px;
+}
+
+.brand-name {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
+}
+
+.brand-tagline {
+  font-size: 16px;
+  color: var(--text-muted);
+  margin: 0 0 48px;
+}
+
+.brand-features {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.feature-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.brand-footer {
+  position: relative;
+  z-index: 1;
+}
+
+.brand-version {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: 'SF Mono', Monaco, monospace;
+}
+
+/* Right login form */
+.login-main {
+  width: 480px;
+  background: var(--bg-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 48px;
 }
 
-.login-box {
-  width: 420px;
-  padding: 40px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+.login-container {
+  width: 100%;
+  max-width: 360px;
 }
 
 .login-header {
-  text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 40px;
 }
 
-.logo-icon {
-  width: 64px;
-  height: 64px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 16px;
-  font-size: 32px;
-  color: white;
-}
-
-.login-title {
+.login-header h2 {
   font-size: 24px;
-  font-weight: bold;
-  color: #303133;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+  letter-spacing: -0.01em;
+}
+
+.login-header p {
+  font-size: 14px;
+  color: var(--text-muted);
   margin: 0;
 }
 
-.login-subtitle {
-  font-size: 14px;
-  color: #909399;
-  margin: 8px 0 0;
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.login-form {
-  margin-top: 0;
+.form-item-block {
+  margin-bottom: 0;
+}
+
+.form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+
+.label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.label-row .form-label {
+  margin-bottom: 0;
+}
+
+.forgot-link {
+  font-size: 13px;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+.form-input {
+  --el-input-bg-color: var(--input-bg);
+  --el-input-border-color: var(--input-border);
+  --el-input-hover-border-color: var(--accent);
+  --el-input-focus-border-color: var(--accent);
 }
 
 .form-options {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
 }
 
-.forgot-link {
-  font-size: 14px;
-  color: #409eff;
-  text-decoration: none;
+.login-button {
+  width: 100%;
+  height: 44px;
+  font-size: 15px;
+  font-weight: 500;
+  background: var(--accent);
+  border-color: var(--accent);
 }
 
-.forgot-link:hover {
-  color: #66b1ff;
+.login-button:hover {
+  background: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 
 .login-footer {
-  text-align: center;
-  font-size: 12px;
-  color: #909399;
   margin-top: 24px;
+  text-align: center;
+}
+
+.login-footer p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
 }
 
 .login-footer a {
-  color: #409eff;
+  color: var(--accent);
   text-decoration: none;
 }
 
 .login-footer a:hover {
-  color: #66b1ff;
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .login-wrapper {
+    flex-direction: column;
+  }
+  
+  .login-brand {
+    padding: 32px;
+    border-right: none;
+    border-bottom: 1px solid var(--border-light);
+  }
+  
+  .brand-features {
+    display: none;
+  }
+  
+  .login-main {
+    width: 100%;
+    padding: 32px;
+  }
 }
 </style>

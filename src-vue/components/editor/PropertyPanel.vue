@@ -382,7 +382,7 @@ const parentContainerId = computed(() => {
 const emit = defineEmits<{
   'update-props': [props: Record<string, unknown>]
   'update-label': [label: string]
-  'move-to-container': [containerId: string, componentId: string]
+  'move-to-container': [containerId: string, componentId: string, tabIndex?: number]
   'move-out-of-container': [containerId: string, componentId: string]
   'delete-component': [id: string]
   'select-component': [id: string | null]
@@ -393,7 +393,28 @@ function handleMoveToContainerAction(e: Event) {
   const containerId = (e.target as HTMLSelectElement).value
   console.log('[PropertyPanel] handleMoveToContainerAction:', containerId, props.selectedComponent?.id)
   if (containerId && props.selectedComponent) {
-    emit('move-to-container', containerId, props.selectedComponent.id)
+    const targetContainer = containerComponents.value.find(c => c.id === containerId)
+    // If target is tabs, ask user which tab to move to
+    if (targetContainer?.type === 'tabs') {
+      const tabs = targetContainer.props?.tabs as string[] || []
+      const tabCount = tabs.length
+      // Show tab selection prompt
+      const tabNames = tabs.map((t, i) => `${i + 1}: ${t}`).join('\n')
+      const input = window.prompt(`目标容器是 Tabs，共 ${tabCount} 个标签页。\n请输入要移动到的标签页序号（1-${tabCount}）：\n${tabNames}`)
+      if (!input) {
+        (e.target as HTMLSelectElement).value = ''
+        return
+      }
+      const tabIndex = parseInt(input, 10) - 1
+      if (isNaN(tabIndex) || tabIndex < 0 || tabIndex >= tabCount) {
+        window.alert('无效的标签页序号，操作已取消。')
+        ;(e.target as HTMLSelectElement).value = ''
+        return
+      }
+      emit('move-to-container', containerId, props.selectedComponent.id, tabIndex)
+    } else {
+      emit('move-to-container', containerId, props.selectedComponent.id)
+    }
     ;(e.target as HTMLSelectElement).value = ''
   }
 }

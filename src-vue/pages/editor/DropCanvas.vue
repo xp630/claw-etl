@@ -116,7 +116,8 @@
 import { ref, computed } from 'vue'
 import { ArrowUp, ArrowDown, Trash2, GripVertical } from 'lucide-vue-next'
 import ComponentRenderer from './ComponentRenderer.vue'
-import type { CanvasComponent } from './types'
+import type { CanvasComponent, UnifiedTabs } from './types'
+import { isLegacyTabs } from './types'
 
 interface Props {
   components: CanvasComponent[]
@@ -167,14 +168,31 @@ const getContainerChildren = (comp: CanvasComponent): CanvasComponent[] => {
   if (comp.type === 'tabs') {
     const childrenMap = comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
     if (childrenMap) {
-      const tabIndex = String(comp.props?.activeTab || 0)
-      const childIds = childrenMap[tabIndex] || []
+      // 兼容新旧 tabs 格式：activeTab 可能是 tab ID（新格式）或数字索引（旧格式）
+      const rawActiveTab = comp.props?.activeTab
+      const tabs = comp.props?.tabs as UnifiedTabs | undefined
+      let tabIdx = 0
+      if (rawActiveTab !== undefined && rawActiveTab !== null && tabs) {
+        if (isLegacyTabs(tabs)) {
+          // 旧格式：activeTab 本身就是数字索引
+          tabIdx = Number(rawActiveTab) || 0
+        } else {
+          // 新格式 TabItem[]：用 ID 找到对应的数字索引
+          const idStr = String(rawActiveTab)
+          const idx = tabs.findIndex(t => t.id === idStr)
+          tabIdx = idx >= 0 ? idx : 0
+        }
+      }
+      const tabKey = String(tabIdx)
+      const childIds = childrenMap[tabKey] || []
       const children = (comp.children || []).filter(c =>
         childIds.includes(c.componentId as any) || childIds.includes(c.id as any)
       )
       console.log('[DropCanvas] getContainerChildren tabs:', {
         compId: comp.id,
-        tabIndex,
+        rawActiveTab,
+        tabIdx,
+        tabKey,
         childIds,
         childrenIds: children.map(c => ({ id: c.id, componentId: c.componentId, type: c.type }))
       })

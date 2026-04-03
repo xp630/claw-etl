@@ -1089,8 +1089,8 @@ onUnmounted(() => {
 }
 
 .api-detail {
-  background: rgba(139, 92, 246, 0.1);
-  color: #8b5cf6;
+  background: var(--accent-light);
+  color: var(--accent);
 }
 
 .api-empty {

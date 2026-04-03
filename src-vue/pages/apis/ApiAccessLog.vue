@@ -3,8 +3,8 @@
     <!-- 标题 -->
     <div class="flex justify-between items-center mb-6">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500/20 to-blue-500/20 flex items-center justify-center border border-cyan-500/20">
-          <Eye class="w-5 h-5 text-cyan-400" />
+        <div class="w-10 h-10 rounded-xl bg-[var(--bg-tertiary)] flex items-center justify-center">
+          <Eye class="w-5 h-5 text-[var(--accent)]" />
         </div>
         <div>
           <h1 class="text-xl font-bold text-[var(--text-primary)]">API访问日志</h1>

@@ -31,9 +31,9 @@
   --border-light: rgba(255, 255, 255, 0.08);
   --input-bg: #1f2937;
   --input-border: #4b5563;
-  --accent: #8b5cf6;
-  --accent-hover: #7c3aed;
-  --accent-light: rgba(139, 92, 246, 0.15);
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+  --accent-light: rgba(59, 130, 246, 0.12);
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;

@@ -3,8 +3,8 @@
     <!-- 页面标题 -->
     <div class="flex items-center justify-between mb-6">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-blue-500/30">
-          <Layout class="w-5 h-5 text-blue-500" />
+        <div class="w-10 h-10 rounded-xl bg-[var(--bg-tertiary)] flex items-center justify-center ">
+          <Layout class="w-5 h-5 text-[var(--accent)]" />
         </div>
         <div>
           <h1 class="text-xl font-bold text-[var(--text-primary)]">功能管理</h1>
@@ -35,7 +35,7 @@
           >
             <template #default="{ node, data }">
               <div class="flex items-center gap-2 py-0.5">
-                <el-icon v-if="data.type === 'datasource'" class="text-blue-500"><Database /></el-icon>
+                <el-icon v-if="data.type === 'datasource'" class="text-[var(--accent)]"><Database /></el-icon>
                 <el-icon v-else-if="data.type === 'table'" class="text-green-500"><Grid /></el-icon>
                 <span class="text-sm">{{ node.label }}</span>
               </div>

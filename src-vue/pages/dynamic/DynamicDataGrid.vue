@@ -1,37 +1,37 @@
 <template>
-  <div class="p-6">
-    <!-- 页面标题 -->
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-[var(--text-primary)]">{{ feature?.name || '加载中...' }}</h1>
+  <div class="dynamic-grid-page">
+    <!-- Page Header -->
+    <header class="page-header">
+      <h1 class="page-title">{{ feature?.name || '加载中...' }}</h1>
+    </header>
+
+    <!-- Loading State -->
+    <div v-if="loading" class="loading-state">
+      <div class="loading-spinner"></div>
+      <p>加载中...</p>
     </div>
 
-    <!-- 加载状态 -->
-    <div v-if="loading" class="flex flex-col items-center justify-center h-64">
-      <div class="w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-      <div class="text-[var(--text-muted)]">加载中...</div>
+    <!-- Not Found -->
+    <div v-else-if="!feature" class="empty-state">
+      <p>功能不存在</p>
     </div>
 
-    <!-- 功能不存在 -->
-    <div v-else-if="!feature" class="flex items-center justify-center h-64">
-      <div class="text-[var(--text-muted)]">功能不存在</div>
-    </div>
-
-    <!-- 列表页面 -->
+    <!-- List Page -->
     <div v-else-if="feature.type === 'list'">
-      <!-- 搜索条件 -->
-      <form v-if="queryFields.length > 0" @submit.prevent="handleSearch" class="mb-4 bg-[var(--bg-table-header)]00 rounded-xl border border-[var(--border-light)]00 p-4">
-        <div class="flex gap-4 flex-wrap items-end">
-          <div class="flex gap-4 flex-wrap flex-1">
+      <!-- Search Form -->
+      <form v-if="queryFields.length > 0" @submit.prevent="handleSearch" class="search-form">
+        <div class="search-row">
+          <div class="search-fields">
             <div
               v-for="col in displayQueryFields"
               :key="col.fieldName"
-              class="w-[calc(33%-10px)] min-w-[200px] h-16 flex flex-col justify-between"
+              class="search-field"
             >
-              <label class="block text-sm text-[var(--text-muted)] truncate">{{ col.fieldLabel }}</label>
+              <label class="field-label">{{ col.fieldLabel }}</label>
               <select
                 v-if="col.fieldType === 'select'"
                 v-model="searchParams[col.fieldName]"
-                class="px-3 py-2 bg-[var(--input-bg)]00 border border-[var(--border-light)]00 rounded-lg text-[var(--text-primary)] text-sm w-full"
+                class="field-input"
               >
                 <option value="">请选择</option>
                 <option v-for="item in getDictItems(col.dataDictionary)" :key="item.itemValue" :value="item.itemValue">
@@ -42,54 +42,41 @@
                 v-else-if="col.fieldType === 'number'"
                 type="number"
                 v-model="searchParams[col.fieldName]"
-                class="px-3 py-2 bg-[var(--input-bg)]00 border border-[var(--border-light)]00 rounded-lg text-[var(--text-primary)] text-sm w-full"
+                class="field-input"
                 :placeholder="`请输入${col.fieldLabel}`"
               />
               <input
                 v-else
                 type="text"
                 v-model="searchParams[col.fieldName]"
-                class="px-3 py-2 bg-[var(--input-bg)]00 border border-[var(--border-light)]00 rounded-lg text-[var(--text-primary)] text-sm w-full"
+                class="field-input"
                 :placeholder="`请输入${col.fieldLabel}`"
               />
             </div>
           </div>
-          <div class="flex gap-2 items-center shrink-0">
-            <button
-              type="submit"
-              class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors flex items-center gap-2"
-            >
-              <Search class="w-4 h-4" />
-              搜索
+          <div class="search-actions">
+            <button type="submit" class="btn btn-primary">
+              <Search class="btn-icon" />搜索
             </button>
             <el-dropdown v-if="feature.createApiId" trigger="click">
-              <button
-                type="button"
-                @click="openCreateModal"
-                class="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors flex items-center gap-2"
-              >
-                <Plus class="w-4 h-4" />
-                新增
+              <button type="button" class="btn btn-primary">
+                <Plus class="btn-icon" />新增
               </button>
             </el-dropdown>
             <el-dropdown trigger="click">
-              <button class="px-4 py-2 bg-[var(--bg-tertiary)]00 hover:bg-[var(--bg-hover-light)]bg-hover:bg-gray-600 text-[var(--text-secondary)] rounded-lg transition-colors flex items-center gap-2">
-                <Download class="w-4 h-4" />
-                导出
+              <button type="button" class="btn btn-secondary">
+                <Download class="btn-icon" />导出
               </button>
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item @click="openColumnSelector">
-                    <Columns class="w-4 h-4 mr-2 inline" />
-                    列配置
+                    <Columns class="w-4 h-4 mr-2 inline" />列配置
                   </el-dropdown-item>
                   <el-dropdown-item @click="handleExport('current')">
-                    <Download class="w-4 h-4 mr-2 inline" />
-                    导出当前页
+                    <Download class="w-4 h-4 mr-2 inline" />导出当前页
                   </el-dropdown-item>
                   <el-dropdown-item @click="handleExport('all')">
-                    <Download class="w-4 h-4 mr-2 inline" />
-                    导出全部 ({{ total }} 条)
+                    <Download class="w-4 h-4 mr-2 inline" />导出全部 ({{ total }} 条)
                   </el-dropdown-item>
                 </el-dropdown-menu>
               </template>
@@ -98,25 +85,28 @@
               v-if="queryFields.length > 4"
               type="button"
               @click="showAdvanced = !showAdvanced"
-              class="px-3 py-2 bg-[var(--bg-tertiary)]00 hover:bg-[var(--bg-hover-light)]bg-hover:bg-gray-600 text-[var(--text-secondary)] rounded-lg transition-colors flex items-center"
+              class="btn btn-ghost"
               :title="showAdvanced ? '收起' : '展开'"
             >
-              <ChevronUp v-if="showAdvanced" class="w-4 h-4" />
-              <ChevronDown v-else class="w-4 h-4" />
+              <ChevronUp v-if="showAdvanced" class="btn-icon" />
+              <ChevronDown v-else class="btn-icon" />
             </button>
           </div>
         </div>
       </form>
 
-      <!-- 数据表格 -->
-      <div class="bg-[var(--bg-table-header)]00 rounded-xl border border-[var(--border-light)]00 overflow-hidden relative">
-        <div v-if="dataLoading" class="absolute inset-0 bg-[var(--bg-secondary)]00/80 flex items-center justify-center z-10">
-          <div class="flex flex-col items-center">
-            <div class="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mb-2"></div>
-            <div class="text-[var(--text-muted)] text-sm">加载中...</div>
-          </div>
+      <!-- Data Table -->
+      <div class="table-container">
+        <div v-if="dataLoading" class="table-loading">
+          <div class="loading-spinner"></div>
+          <p>加载中...</p>
         </div>
-        <el-table :data="data" v-loading="dataLoading" stripe style="width: 100%">
+        <el-table
+          :data="data"
+          v-loading="dataLoading"
+          row-key="id"
+          :header-cell-style="{ background: 'var(--bg-tertiary)', color: 'var(--text-secondary)', fontWeight: 500, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }"
+        >
           <el-table-column
             v-for="col in displayColumns"
             :key="col.fieldName"
@@ -132,54 +122,36 @@
           </el-table-column>
           <el-table-column label="操作" width="150" fixed="right" align="center">
             <template #default="{ row }">
-              <div class="flex items-center justify-center gap-1">
-                <el-button
-                  v-if="feature.detailApiId"
-                  link
-                  type="primary"
-                  size="small"
-                  @click="handleView(row)"
-                >
+              <div class="action-buttons">
+                <el-button v-if="feature.detailApiId" link size="small" type="primary" @click="handleView(row)">
                   <Eye class="w-4 h-4" />
                 </el-button>
-                <el-button
-                  v-if="feature.updateApiId"
-                  link
-                  type="primary"
-                  size="small"
-                  @click="handleEdit(row)"
-                >
+                <el-button v-if="feature.updateApiId" link size="small" type="primary" @click="handleEdit(row)">
                   <Edit2 class="w-4 h-4" />
                 </el-button>
-                <el-button
-                  v-if="feature.deleteApiId"
-                  link
-                  type="danger"
-                  size="small"
-                  @click="handleDelete(row)"
-                >
+                <el-button v-if="feature.deleteApiId" link size="small" type="danger" @click="handleDelete(row)">
                   <Trash2 class="w-4 h-4" />
                 </el-button>
               </div>
             </template>
           </el-table-column>
           <template #empty>
-            <div class="py-12 text-center text-[var(--text-muted)]">暂无数据</div>
+            <div class="table-empty">暂无数据</div>
           </template>
         </el-table>
       </div>
 
-      <!-- 分页 -->
-      <div v-if="total > 0" class="mt-4 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <span class="text-sm text-[var(--text-muted)]">每页</span>
+      <!-- Pagination -->
+      <div v-if="total > 0" class="pagination-bar">
+        <div class="pagination-info">
+          <span>每页</span>
           <el-select v-model="pageSize" @change="handlePageSizeChange" size="small" style="width: 80px">
             <el-option :value="5" label="5" />
             <el-option :value="10" label="10" />
             <el-option :value="20" label="20" />
             <el-option :value="50" label="50" />
           </el-select>
-          <span class="text-sm text-[var(--text-muted)]">条，共 {{ total }} 条记录</span>
+          <span>条，共 {{ total }} 条</span>
         </div>
         <el-pagination
           v-model:current-page="page"
@@ -191,15 +163,11 @@
       </div>
     </div>
 
-    <!-- 列选择弹窗 -->
+    <!-- Column Selector Dialog -->
     <el-dialog v-model="showColumnSelector" title="选择显示列" width="400px">
-      <div class="space-y-2 max-h-96 overflow-y-auto">
-        <div v-for="col in visibleColumns" :key="col.fieldName" class="flex items-center gap-2">
-          <el-checkbox
-            v-model="selectedColumns"
-            :label="col.fieldName"
-            @change="saveColumnConfig"
-          >
+      <div class="column-list">
+        <div v-for="col in visibleColumns" :key="col.fieldName" class="column-item">
+          <el-checkbox v-model="selectedColumns" :label="col.fieldName" @change="saveColumnConfig">
             {{ col.fieldLabel }}
           </el-checkbox>
         </div>
@@ -209,7 +177,7 @@
       </template>
     </el-dialog>
 
-    <!-- 新增/编辑弹窗 -->
+    <!-- Form Dialog -->
     <el-dialog
       v-model="showFormModal"
       :title="isEditMode ? '编辑' : '新增'"
@@ -221,13 +189,8 @@
           v-for="col in formColumns"
           :key="col.fieldName"
           :label="col.fieldLabel"
-          :class="col.span && col.span > 1 ? 'col-span-2' : ''"
         >
-          <select
-            v-if="col.fieldType === 'select'"
-            v-model="formData[col.fieldName]"
-            class="w-full px-3 py-2 bg-[var(--input-bg)]00 border border-[var(--border-light)]00 rounded-lg text-[var(--text-primary)] text-sm"
-          >
+          <select v-if="col.fieldType === 'select'" v-model="formData[col.fieldName]" class="w-full">
             <option value="">请选择</option>
             <option v-for="item in getDictItems(col.dataDictionary)" :key="item.itemValue" :value="item.itemValue">
               {{ item.itemLabel }}
@@ -241,16 +204,8 @@
             value-format="YYYY-MM-DD"
             class="w-full"
           />
-          <el-input
-            v-else-if="col.fieldType === 'number'"
-            v-model.number="formData[col.fieldName]"
-            type="number"
-          />
-          <el-input
-            v-else
-            v-model="formData[col.fieldName]"
-            :placeholder="`请输入${col.fieldLabel}`"
-          />
+          <el-input v-else-if="col.fieldType === 'number'" v-model.number="formData[col.fieldName]" type="number" />
+          <el-input v-else v-model="formData[col.fieldName]" :placeholder="`请输入${col.fieldLabel}`" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -259,7 +214,7 @@
       </template>
     </el-dialog>
 
-    <!-- 详情弹窗 -->
+    <!-- Detail Dialog -->
     <el-dialog v-model="showDetailModal" title="详情" width="600px">
       <el-descriptions :column="2" border>
         <el-descriptions-item
@@ -275,9 +230,9 @@
       </template>
     </el-dialog>
 
-    <!-- 删除确认 -->
+    <!-- Delete Confirm -->
     <el-dialog v-model="showDeleteConfirm" title="确认删除" width="400px">
-      <p class="text-gray-600">确定要删除该数据吗？此操作不可撤销。</p>
+      <p>确定要删除该数据吗？此操作不可撤销。</p>
       <template #footer>
         <el-button @click="showDeleteConfirm = false">取消</el-button>
         <el-button type="danger" :loading="deleteLoading" @click="confirmDelete">删除</el-button>
@@ -296,7 +251,7 @@ import { api, getFeatureByCode, getApiDetail, getAllDictItems, type Feature, typ
 
 const route = useRoute()
 
-// 状态
+// State
 const loading = ref(true)
 const dataLoading = ref(false)
 const feature = ref<Feature | null>(null)
@@ -318,7 +273,7 @@ const detailData = ref<any>({})
 const currentDeleteId = ref<any>(null)
 const formData = ref<Record<string, any>>({})
 
-// 计算属性
+// Computed
 const visibleColumns = computed(() => {
   return feature.value?.columns?.filter(col => col.visible !== false && col.fieldType !== 'action') || []
 })
@@ -345,22 +300,17 @@ const formColumns = computed(() => {
   return visibleColumns.value
 })
 
-// 获取选中的列（从 localStorage 恢复或使用默认值）
 const selectedColumns = ref<string[]>([])
 
-// 初始化选中的列
 function initSelectedColumns() {
   if (!feature.value?.columns) return
-  
   const defaultCols = visibleColumns.value.map(col => col.fieldName)
   const storageKey = `columns_${route.params.code}`
   const saved = localStorage.getItem(storageKey)
-  
   if (saved) {
     try {
       const savedColumns = JSON.parse(saved)
-      // 合并：保存的列中存在的才保留，同时保留所有默认列
-      const merged = defaultCols.filter(fieldName => 
+      const merged = defaultCols.filter(fieldName =>
         savedColumns.includes(fieldName) || defaultCols.includes(fieldName)
       )
       selectedColumns.value = merged.length > 0 ? merged : defaultCols
@@ -372,48 +322,33 @@ function initSelectedColumns() {
   }
 }
 
-// 保存列配置到 localStorage
 function saveColumnConfig() {
   const storageKey = `columns_${route.params.code}`
   localStorage.setItem(storageKey, JSON.stringify(selectedColumns.value))
 }
 
-// 获取数据字典项
 function getDictItems(dictCode?: string): DictItem[] {
   if (!dictCode) return []
   return dictItems.value[dictCode] || []
 }
 
-// 渲染单元格值
 function renderCellValue(value: any, col: FeatureColumn): string {
-  if (value === null || value === undefined) {
-    return '-'
-  }
-
-  // 数据字典翻译
+  if (value === null || value === undefined) return '-'
   if (col.dataDictionary && dictItems.value[col.dataDictionary]) {
     const dictItem = dictItems.value[col.dataDictionary].find(
       item => String(item.itemValue) === String(value)
     )
-    if (dictItem) {
-      return dictItem.itemLabel
-    }
+    if (dictItem) return dictItem.itemLabel
   }
-
-  // 日期格式化
   if (col.fieldType === 'date' && value) {
     return String(value).substring(0, 10)
   }
-
-  // 数字格式化
   if (col.fieldType === 'number') {
     return Number(value).toLocaleString()
   }
-
   return String(value)
 }
 
-// 加载功能配置
 async function loadFeature(featureCode: string) {
   loading.value = true
   try {
@@ -423,9 +358,7 @@ async function loadFeature(featureCode: string) {
       const allDictItems = await getAllDictItems()
       dictItems.value = allDictItems
       initSelectedColumns()
-      if (featureData.queryApiId) {
-        loadData()
-      }
+      if (featureData.queryApiId) loadData()
     }
   } catch (error) {
     console.error('Failed to load feature:', error)
@@ -434,53 +367,40 @@ async function loadFeature(featureCode: string) {
   }
 }
 
-// 加载数据
 async function loadData(params?: Record<string, any>) {
   if (!feature.value?.queryApiId) return
-
   dataLoading.value = true
   try {
     const apiDetail = await getApiDetail(feature.value.queryApiId)
-    if (!apiDetail) {
-      console.error('Failed to load API detail')
-      return
-    }
+    if (!apiDetail) return
 
-    const queryFields = feature.value.columns?.filter(col => col.queryCondition) || []
-
+    const queryFieldsList = feature.value.columns?.filter(col => col.queryCondition) || []
     const requestParams: Record<string, any> = {}
-    queryFields.forEach(field => {
+    queryFieldsList.forEach(field => {
       const value = params?.[field.fieldName] || searchParams.value[field.fieldName]
       if (value !== undefined && value !== '') {
         requestParams[field.fieldName] = value
       }
     })
-
     requestParams.page = params?.page ? parseInt(params.page as string) : page.value
     requestParams.pageSize = params?.pageSize ? parseInt(params.pageSize as string) : pageSize.value
 
     let apiPath = apiDetail.path || ''
-    if (apiPath.startsWith('/api/')) {
-      apiPath = apiPath.substring(4)
-    }
+    if (apiPath.startsWith('/api/')) apiPath = apiPath.substring(4)
     apiPath = `/api${apiPath}`
 
     let response: any
     if (apiDetail.method === 'GET') {
-      response = await api.get(apiPath, { params: requestParams })
-      response = response.data
+      response = (await api.get(apiPath, { params: requestParams })).data
     } else {
-      response = await api.post(apiPath, requestParams)
-      response = response.data
+      response = (await api.post(apiPath, requestParams)).data
     }
 
     let dataList: any[] = []
     let totalCount = 0
-
     if (response) {
-      if (Array.isArray(response)) {
-        dataList = response
-      } else if (response.list) {
+      if (Array.isArray(response)) dataList = response
+      else if (response.list) {
         dataList = response.list
         totalCount = response.total || response.count || dataList.length
       } else if (response.data && Array.isArray(response.data)) {
@@ -488,7 +408,6 @@ async function loadData(params?: Record<string, any>) {
         totalCount = response.total || response.count || dataList.length
       }
     }
-
     data.value = dataList
     total.value = totalCount
   } catch (error) {
@@ -498,13 +417,11 @@ async function loadData(params?: Record<string, any>) {
   }
 }
 
-// 搜索
 function handleSearch() {
   page.value = 1
   loadData({ ...searchParams.value, page: '1' })
 }
 
-// 分页
 function handlePageChange(newPage: number) {
   page.value = newPage
   loadData({ ...searchParams.value, page: newPage.toString() })
@@ -516,61 +433,46 @@ function handlePageSizeChange(newSize: number) {
   loadData({ ...searchParams.value, pageSize: newSize.toString(), page: '1' })
 }
 
-// 打开新增弹窗
 function openCreateModal() {
   isEditMode.value = false
   resetFormData()
   showFormModal.value = true
 }
 
-// 打开列配置弹窗
 function openColumnSelector() {
   showColumnSelector.value = true
 }
 
-// 查看详情
 async function handleView(row: any) {
   detailData.value = row
   showDetailModal.value = true
 }
 
-// 编辑
 function handleEdit(row: any) {
   isEditMode.value = true
   formData.value = { ...row }
   showFormModal.value = true
 }
 
-// 删除
 function handleDelete(row: any) {
   currentDeleteId.value = row.id || row
   showDeleteConfirm.value = true
 }
 
-// 确认删除
 async function confirmDelete() {
   if (!feature.value?.deleteApiId) {
     ElMessage.error('该功能不支持删除')
     return
   }
-
   deleteLoading.value = true
   try {
     const apiDetail = await getApiDetail(feature.value.deleteApiId)
-    if (!apiDetail) {
-      ElMessage.error('获取接口信息失败')
-      return
-    }
-
+    if (!apiDetail) { ElMessage.error('获取接口信息失败'); return }
     let apiPath = apiDetail.path || ''
-    if (apiPath.startsWith('/api/')) {
-      apiPath = apiPath.substring(4)
-    }
+    if (apiPath.startsWith('/api/')) apiPath = apiPath.substring(4)
     apiPath = `/api${apiPath}`
-
     const response = await api.post(apiPath, { id: currentDeleteId.value })
     const result = response.data
-
     if (result.code === 0 || result.code === 1 || result.success) {
       ElMessage.success('删除成功')
       showDeleteConfirm.value = false
@@ -585,33 +487,22 @@ async function confirmDelete() {
   }
 }
 
-// 提交表单（新增/编辑）
 async function handleSubmit() {
   if (!feature.value) return
-
   const apiId = isEditMode.value ? feature.value.updateApiId : feature.value.createApiId
   if (!apiId) {
     ElMessage.error(isEditMode.value ? '该功能不支持编辑' : '该功能不支持新增')
     return
   }
-
   formLoading.value = true
   try {
     const apiDetail = await getApiDetail(apiId)
-    if (!apiDetail) {
-      ElMessage.error('获取接口信息失败')
-      return
-    }
-
+    if (!apiDetail) { ElMessage.error('获取接口信息失败'); return }
     let apiPath = apiDetail.path || ''
-    if (apiPath.startsWith('/api/')) {
-      apiPath = apiPath.substring(4)
-    }
+    if (apiPath.startsWith('/api/')) apiPath = apiPath.substring(4)
     apiPath = `/api${apiPath}`
-
     const response = await api.post(apiPath, formData.value)
     const result = response.data
-
     if (result.code === 0 || result.code === 1 || result.success) {
       ElMessage.success(isEditMode.value ? '更新成功' : '新增成功')
       showFormModal.value = false
@@ -626,65 +517,39 @@ async function handleSubmit() {
   }
 }
 
-// 重置表单数据
 function resetFormData() {
   formData.value = {}
 }
 
-// 导出 Excel
 async function handleExport(type: 'current' | 'all') {
   let exportDataList: any[] = []
-
   if (type === 'current') {
-    if (data.value.length === 0) {
-      ElMessage.warning('暂无数据可导出')
-      return
-    }
+    if (data.value.length === 0) { ElMessage.warning('暂无数据可导出'); return }
     exportDataList = data.value
   } else {
-    if (!feature.value?.queryApiId) {
-      ElMessage.warning('该功能不支持导出全部')
-      return
-    }
-    
+    if (!feature.value?.queryApiId) { ElMessage.warning('该功能不支持导出全部'); return }
     try {
       const apiDetail = await getApiDetail(feature.value.queryApiId)
-      if (!apiDetail) {
-        ElMessage.error('获取接口信息失败')
-        return
-      }
-
-      const queryFields = feature.value.columns?.filter(col => col.queryCondition) || []
+      if (!apiDetail) { ElMessage.error('获取接口信息失败'); return }
+      const queryFieldsList = feature.value.columns?.filter(col => col.queryCondition) || []
       const requestParams: Record<string, any> = {}
-      queryFields.forEach(field => {
+      queryFieldsList.forEach(field => {
         const value = searchParams.value[field.fieldName]
-        if (value !== undefined && value !== '') {
-          requestParams[field.fieldName] = value
-        }
+        if (value !== undefined && value !== '') requestParams[field.fieldName] = value
       })
-
       let apiPath = apiDetail.path || ''
-      if (apiPath.startsWith('/api/')) {
-        apiPath = apiPath.substring(4)
-      }
+      if (apiPath.startsWith('/api/')) apiPath = apiPath.substring(4)
       apiPath = `/api${apiPath}`
-
       let response: any
       if (apiDetail.method === 'GET') {
-        response = await api.get(apiPath, { params: { ...requestParams, page: 1, pageSize: total.value } })
+        response = (await api.get(apiPath, { params: { ...requestParams, page: 1, pageSize: total.value } })).data
       } else {
-        response = await api.post(apiPath, { ...requestParams, page: 1, pageSize: total.value })
+        response = (await api.post(apiPath, { ...requestParams, page: 1, pageSize: total.value })).data
       }
-      response = response.data
-
       if (response) {
-        if (Array.isArray(response)) {
-          exportDataList = response
-        } else if (response.list) {
-          exportDataList = response.list
-        } else if (response.data && Array.isArray(response.data)) {
-          exportDataList = response.data
-        }
+        if (Array.isArray(response)) exportDataList = response
+        else if (response.list) exportDataList = response.list
+        else if (response.data && Array.isArray(response.data)) exportDataList = response.data
       }
     } catch (error) {
       console.error('导出失败:', error)
@@ -692,27 +557,19 @@ async function handleExport(type: 'current' | 'all') {
       return
     }
   }
-
-  if (exportDataList.length === 0) {
-    ElMessage.warning('暂无数据可导出')
-    return
-  }
+  if (exportDataList.length === 0) { ElMessage.warning('暂无数据可导出'); return }
 
   const exportData = exportDataList.map(row => {
     const obj: Record<string, any> = {}
     displayColumns.value.forEach(col => {
       let value = row[col.fieldName]
-      // 数据字典翻译
       if (col.dataDictionary && dictItems.value[col.dataDictionary]) {
         const dictItem = dictItems.value[col.dataDictionary].find(
           item => String(item.itemValue) === String(value)
         )
         if (dictItem) value = dictItem.itemLabel
       }
-      // 日期格式化
-      if (col.fieldType === 'date' && value) {
-        value = String(value).substring(0, 10)
-      }
+      if (col.fieldType === 'date' && value) value = String(value).substring(0, 10)
       obj[col.fieldLabel] = value ?? '-'
     })
     return obj
@@ -721,33 +578,249 @@ async function handleExport(type: 'current' | 'all') {
   const ws = XLSX.utils.json_to_sheet(exportData)
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, feature.value?.name || 'Sheet1')
-
-  // 设置列宽
-  const colWidths = displayColumns.value.map(col => ({
-    wch: Math.max(col.fieldLabel.length * 2, 15)
-  }))
+  const colWidths = displayColumns.value.map(col => ({ wch: Math.max(col.fieldLabel.length * 2, 15) }))
   ws['!cols'] = colWidths
-
   const suffix = type === 'current' ? '当前页' : '全部'
   XLSX.writeFile(wb, `${feature.value?.name}_${suffix}_${new Date().toLocaleDateString().replace(/\//g, '-')}.xlsx`)
   ElMessage.success('导出成功')
 }
 
-// 监听路由参数变化
-watch(
-  () => route.params.code,
-  (newCode) => {
-    if (newCode) {
-      loadFeature(newCode as string)
-    }
-  }
-)
+watch(() => route.params.code, (newCode) => {
+  if (newCode) loadFeature(newCode as string)
+})
 
-// 组件挂载时加载数据
 onMounted(() => {
   const code = route.params.code as string
-  if (code) {
-    loadFeature(code)
-  }
+  if (code) loadFeature(code)
 })
 </script>
+
+<style scoped>
+.dynamic-grid-page {
+  padding: 24px;
+  background: var(--bg-primary);
+  min-height: 100vh;
+}
+
+.page-header {
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Loading & Empty */
+.loading-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  color: var(--text-muted);
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Search Form */
+.search-form {
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+
+.search-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.search-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  flex: 1;
+}
+
+.search-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 180px;
+}
+
+.field-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.field-input {
+  padding: 8px 12px;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.field-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.search-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+}
+
+.btn-secondary {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-hover);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  padding: 8px;
+}
+
+.btn-ghost:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.btn-icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* Table */
+.table-container {
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.table-loading {
+  position: absolute;
+  inset: 0;
+  background: var(--bg-secondary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  opacity: 0.9;
+}
+
+.table-empty {
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+:deep(.el-table) {
+  --el-table-border-color: var(--border-light);
+  --el-table-header-bg-color: var(--bg-tertiary);
+  --el-table-row-hover-bg-color: var(--bg-hover);
+  --el-table-bg-color: var(--bg-secondary);
+  --el-table-tr-bg-color: var(--bg-secondary);
+  --el-table-text-color: var(--text-primary);
+}
+
+:deep(.el-table th.el-table__cell) {
+  padding: 12px 16px;
+}
+
+:deep(.el-table td.el-table__cell) {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+:deep(.el-table__row:last-child td.el-table__cell) {
+  border-bottom: none;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+}
+
+/* Pagination */
+.pagination-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+}
+
+.pagination-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* Column List */
+.column-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.column-item {
+  padding: 4px 0;
+}
+</style>

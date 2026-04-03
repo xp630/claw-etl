@@ -1,68 +1,112 @@
 <template>
-  <div class="api-page p-6 h-full flex flex-col">
+  <div class="api-list-page">
     <!-- Header -->
-    <div class="flex items-center justify-between mb-6">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-blue-500/30">
-          <Link class="w-5 h-5 text-blue-500" />
-        </div>
-        <div>
-          <h1 class="text-xl font-bold text-[var(--text-primary)]">API 管理</h1>
-          <p class="text-xs text-[var(--text-muted)]">管理系统 API 接口</p>
+    <header class="page-header">
+      <div class="header-left">
+        <Globe class="header-icon" />
+        <div class="header-text">
+          <h1>API 管理</h1>
+          <p>管理系统 API 接口</p>
         </div>
       </div>
-      <div class="flex gap-2">
-        <el-button type="info" @click="router.push('/apis/log')">访问日志</el-button>
-        <el-button type="primary" @click="router.push('/apis/new')">新增 API</el-button>
+      <div class="header-actions">
+        <el-button @click="router.push('/apis/log')">
+          <FileText class="btn-icon" />访问日志
+        </el-button>
+        <el-button type="primary" @click="router.push('/apis/new')">
+          <Plus class="btn-icon" />新增 API
+        </el-button>
       </div>
-    </div>
+    </header>
 
     <!-- Search -->
-    <div class="mb-4 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-light)] p-4">
-      <el-form :inline="true" :model="searchForm" class="flex flex-wrap gap-4 items-end">
-        <el-form-item label="API名称" class="flex-1 min-w-[200px]">
-          <el-input v-model="searchForm.name" placeholder="搜索API名称" clearable @keyup.enter="handleSearch" />
-        </el-form-item>
-        <el-form-item label="路径">
-          <el-input v-model="searchForm.path" placeholder="搜索路径" clearable @keyup.enter="handleSearch" />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="handleSearch">搜索</el-button>
-          <el-button @click="handleReset">重置</el-button>
-        </el-form-item>
-      </el-form>
+    <div class="search-bar">
+      <div class="search-fields">
+        <el-input
+          v-model="searchForm.name"
+          placeholder="API 名称"
+          clearable
+          class="search-input"
+          @keyup.enter="handleSearch"
+        />
+        <el-input
+          v-model="searchForm.path"
+          placeholder="请求路径"
+          clearable
+          class="search-input"
+          @keyup.enter="handleSearch"
+        />
+      </div>
+      <div class="search-actions">
+        <el-button @click="handleReset">重置</el-button>
+        <el-button type="primary" @click="handleSearch">搜索</el-button>
+      </div>
     </div>
 
     <!-- Table -->
-    <div class="bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-light)] overflow-hidden">
-      <el-table v-loading="loading" :data="filteredApis" style="width: 100%">
-        <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="name" label="API名称" min-width="150" />
-        <el-table-column prop="path" label="路径" min-width="180" />
-        <el-table-column prop="method" label="方法" width="80">
+    <div class="table-container">
+      <el-table
+        :data="filteredApis"
+        v-loading="loading"
+        row-key="id"
+        :header-cell-style="{ background: 'var(--bg-tertiary)', color: 'var(--text-secondary)', fontWeight: 500, fontSize: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }"
+      >
+        <el-table-column prop="id" label="ID" width="80" align="right" />
+        <el-table-column prop="name" label="API 名称" min-width="160">
           <template #default="{ row }">
-            <el-tag :type="getMethodType(row.method)" size="small">{{ row.method || 'POST' }}</el-tag>
+            <span class="api-name">{{ row.name }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="path" label="路径" min-width="180">
+          <template #default="{ row }">
+            <code class="api-path">{{ row.path }}</code>
+          </template>
+        </el-table-column>
+        <el-table-column prop="method" label="方法" width="90" align="center">
+          <template #default="{ row }">
+            <span class="method-badge" :class="`method-${(row.method || 'POST').toLowerCase()}`">
+              {{ row.method || 'POST' }}
+            </span>
           </template>
         </el-table-column>
         <el-table-column prop="datasourceName" label="数据源" width="120" />
         <el-table-column prop="tableName" label="表名" width="120" />
-        <el-table-column prop="description" label="描述" min-width="150" show-overflow-tooltip />
-        <el-table-column prop="status" label="状态" width="80">
+        <el-table-column prop="description" label="描述" min-width="150" show-overflow-tooltip>
           <template #default="{ row }">
-            <el-tag :type="row.status === 1 ? 'success' : 'danger'" size="small">
+            <span class="desc-text">{{ row.description || '—' }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="status" label="状态" width="90" align="center">
+          <template #default="{ row }">
+            <span class="status-badge" :class="row.status === 1 ? 'status-active' : 'status-disabled'">
               {{ row.status === 1 ? '启用' : '停用' }}
-            </el-tag>
+            </span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200" fixed="right">
+        <el-table-column label="操作" width="160" align="right" fixed="right">
           <template #default="{ row }">
-            <el-button size="small" text type="primary" @click="handleEdit(row)">编辑</el-button>
-            <el-button size="small" text type="primary" @click="handleTest(row)">测试</el-button>
-            <el-button size="small" text type="danger" @click="handleDelete(row.id)">删除</el-button>
+            <div class="action-buttons">
+              <el-button link size="small" type="primary" @click="handleEdit(row)">编辑</el-button>
+              <el-button link size="small" type="primary" @click="handleTest(row)">测试</el-button>
+              <el-popconfirm title="确定删除？" @confirm="handleDelete(row.id)">
+                <template #reference>
+                  <el-button link size="small" type="danger">删除</el-button>
+                </template>
+              </el-popconfirm>
+            </div>
           </template>
         </el-table-column>
+
+        <template #empty>
+          <div class="table-empty">
+            <Globe class="empty-icon" />
+            <p>暂无 API 数据</p>
+          </div>
+        </template>
       </el-table>
-      <div class="p-4 border-t border-[var(--border-light)] flex justify-end">
+
+      <!-- Pagination -->
+      <div class="pagination-bar">
         <el-pagination
           v-model:current-page="page"
           v-model:page-size="limit"
@@ -76,10 +120,10 @@
     </div>
 
     <!-- Edit Dialog -->
-    <el-dialog v-model="dialogVisible" :title="dialogMode === 'create' ? '新增API' : '编辑API'" width="600px">
+    <el-dialog v-model="dialogVisible" :title="dialogMode === 'create' ? '新增 API' : '编辑 API'" width="600px">
       <el-form :model="formData" label-width="100px">
-        <el-form-item label="API名称" required>
-          <el-input v-model="formData.name" placeholder="请输入API名称" />
+        <el-form-item label="API 名称" required>
+          <el-input v-model="formData.name" placeholder="请输入 API 名称" />
         </el-form-item>
         <el-form-item label="路径" required>
           <el-input v-model="formData.path" placeholder="/api/xxx" />
@@ -109,24 +153,24 @@
     </el-dialog>
 
     <!-- Test Dialog -->
-    <el-dialog v-model="testDialogVisible" title="测试API" width="700px">
-      <div v-if="testApi" class="mb-4">
-        <p class="text-sm text-[var(--text-secondary)] mb-2">
-          <strong>{{ testApi.name }}</strong> - {{ testApi.method }} {{ testApi.path }}
-        </p>
+    <el-dialog v-model="testDialogVisible" title="测试 API" width="700px">
+      <div v-if="testApiRow" class="test-header">
+        <strong>{{ testApiRow.name }}</strong>
+        <span class="method-badge" :class="`method-${(testApiRow.method || 'POST').toLowerCase()}`">{{ testApiRow.method }}</span>
+        <code class="api-path">{{ testApiRow.path }}</code>
       </div>
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <h4 class="text-sm font-medium mb-2">请求参数 (JSON)</h4>
+      <div class="test-grid">
+        <div class="test-panel">
+          <h4 class="panel-title">请求参数 (JSON)</h4>
           <el-input v-model="testParams" type="textarea" :rows="8" placeholder='{"key": "value"}' />
         </div>
-        <div>
-          <h4 class="text-sm font-medium mb-2">响应结果</h4>
-          <div v-if="testLoading" class="flex items-center justify-center h-32">
-            <el-icon class="is-loading text-xl"><Loading /></el-icon>
+        <div class="test-panel">
+          <h4 class="panel-title">响应结果</h4>
+          <div v-if="testLoading" class="panel-loading">
+            <div class="loading-spinner"></div>
           </div>
-          <pre v-else-if="testResult" class="bg-[var(--bg-tertiary)] p-3 rounded text-xs overflow-auto h-32">{{ testResult }}</pre>
-          <div v-else class="text-[var(--text-muted)] text-sm h-32 flex items-center justify-center">暂无结果</div>
+          <pre v-else-if="testResult" class="panel-result">{{ testResult }}</pre>
+          <div v-else class="panel-empty">暂无结果</div>
         </div>
       </div>
       <template #footer>
@@ -141,8 +185,7 @@
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-
-import { Loading, Link } from '@element-plus/icons-vue'
+import { Loading, Globe, Plus, FileText } from 'lucide-vue-next'
 import { getApiList, saveApi, deleteApi, testApi } from '@/lib/api'
 
 const router = useRouter()
@@ -172,7 +215,7 @@ const saving = ref(false)
 const formData = reactive<ApiItem>({ name: '', path: '', method: 'POST', description: '', status: 1 })
 
 const testDialogVisible = ref(false)
-const testApi = ref<ApiItem | null>(null)
+const testApiRow = ref<ApiItem | null>(null)
 const testParams = ref('{}')
 const testResult = ref('')
 const testLoading = ref(false)
@@ -192,16 +235,6 @@ function handleSizeChange() {
 
 function handlePageChange() {
   loadData()
-}
-
-function getMethodType(method: string) {
-  switch (method) {
-    case 'GET': return 'success'
-    case 'POST': return 'primary'
-    case 'PUT': return 'warning'
-    case 'DELETE': return 'danger'
-    default: return 'info'
-  }
 }
 
 async function loadData() {
@@ -230,9 +263,7 @@ function handleReset() {
 }
 
 function handleEdit(row: ApiItem) {
-  if (row.id) {
-    router.push(`/apis/${row.id}`)
-  }
+  if (row.id) router.push(`/apis/${row.id}`)
 }
 
 async function handleSave() {
@@ -255,32 +286,29 @@ async function handleSave() {
 
 async function handleDelete(id: number) {
   try {
-    await ElMessageBox.confirm('确定要删除该API吗？', '提示', { type: 'warning' })
     await deleteApi(id)
     ElMessage.success('删除成功')
     loadData()
   } catch (error: any) {
-    if (error !== 'cancel') {
-      ElMessage.error('删除失败')
-    }
+    ElMessage.error('删除失败')
   }
 }
 
 function handleTest(row: ApiItem) {
-  testApi.value = row
+  testApiRow.value = row
   testParams.value = '{}'
   testResult.value = ''
   testDialogVisible.value = true
 }
 
 async function executeTest() {
-  if (!testApi.value?.id) return
+  if (!testApiRow.value?.id) return
   testLoading.value = true
   testResult.value = ''
   try {
     let params = {}
     try { params = JSON.parse(testParams.value) } catch {}
-    const res = await testApi(testApi.value.id, params)
+    const res = await testApi(testApiRow.value.id, params)
     testResult.value = JSON.stringify(res, null, 2)
   } catch (error: any) {
     testResult.value = `Error: ${error.message}`
@@ -295,8 +323,284 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.api-page {
+.api-list-page {
+  padding: 24px;
   background: var(--bg-primary);
-  min-height: 100%;
+  min-height: 100vh;
+}
+
+/* Header */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--accent);
+}
+
+.header-text h1 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.header-text p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 2px 0 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-icon {
+  width: 14px;
+  height: 14px;
+  margin-right: 6px;
+}
+
+/* Search */
+.search-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.search-fields {
+  display: flex;
+  gap: 12px;
+}
+
+.search-input {
+  width: 200px;
+}
+
+.search-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Table */
+.table-container {
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+:deep(.el-table) {
+  --el-table-border-color: var(--border-light);
+  --el-table-header-bg-color: var(--bg-tertiary);
+  --el-table-row-hover-bg-color: var(--bg-hover);
+  --el-table-bg-color: var(--bg-secondary);
+  --el-table-tr-bg-color: var(--bg-secondary);
+  --el-table-text-color: var(--text-primary);
+}
+
+:deep(.el-table th.el-table__cell) {
+  padding: 12px 16px;
+}
+
+:deep(.el-table td.el-table__cell) {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+:deep(.el-table__row:last-child td.el-table__cell) {
+  border-bottom: none;
+}
+
+.api-name {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.api-path {
+  font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+  font-size: 12px;
+  padding: 2px 6px;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  color: var(--text-secondary);
+}
+
+.desc-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* Method Badge */
+.method-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: 'SF Mono', Monaco, monospace;
+}
+
+.method-get {
+  background: color-mix(in srgb, var(--success) 15%, transparent);
+  color: var(--success);
+}
+
+.method-post {
+  background: color-mix(in srgb, var(--info) 15%, transparent);
+  color: var(--info);
+}
+
+.method-put {
+  background: color-mix(in srgb, var(--warning) 15%, transparent);
+  color: var(--warning);
+}
+
+.method-delete {
+  background: color-mix(in srgb, var(--danger) 15%, transparent);
+  color: var(--danger);
+}
+
+/* Status Badge */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-active {
+  background: color-mix(in srgb, var(--success) 15%, transparent);
+  color: var(--success);
+}
+
+.status-disabled {
+  background: color-mix(in srgb, var(--text-muted) 15%, transparent);
+  color: var(--text-muted);
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+/* Pagination */
+.pagination-bar {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid var(--border-light);
+}
+
+/* Empty State */
+.table-empty {
+  padding: 60px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.empty-icon {
+  width: 32px;
+  height: 32px;
+  color: var(--text-muted);
+  opacity: 0.4;
+}
+
+.table-empty p {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Test Dialog */
+.test-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.test-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.test-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.panel-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.panel-loading,
+.panel-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-tertiary);
+  border-radius: 6px;
+  min-height: 160px;
+}
+
+.panel-empty {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.panel-result {
+  flex: 1;
+  padding: 12px;
+  background: var(--bg-tertiary);
+  border-radius: 6px;
+  font-size: 12px;
+  overflow: auto;
+  min-height: 160px;
+  color: var(--text-primary);
 }
 </style>
