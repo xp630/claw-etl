@@ -7,6 +7,28 @@
     </div>
     
     <div v-else class="component-props">
+      <!-- 面包屑导航 -->
+      <div class="prop-section">
+        <div class="breadcrumb">
+          <span
+            v-for="(item, index) in breadcrumbPath"
+            :key="item.componentId"
+            class="breadcrumb-item"
+          >
+            <span
+              v-if="index > 0"
+              class="breadcrumb-separator"
+            > › </span>
+            <span
+              :class="{ 'is-current': index === breadcrumbPath.length - 1 }"
+              @click="handleTreeSelect(item.componentId)"
+            >
+              {{ item.label || item.type }}
+            </span>
+          </span>
+        </div>
+      </div>
+
       <!-- 组件结构树 -->
       <div class="prop-section">
         <h4 class="prop-section-title flex items-center justify-between cursor-pointer" @click="toggleComponentTree">
@@ -534,6 +556,89 @@ function findComponentById(id: string): CanvasComponent | null {
   return find(props.components)
 }
 
+// 面包屑路径：从根到当前选中组件的路径
+interface BreadcrumbItem {
+  componentId: string
+  id: string
+  type: string
+  label: string
+}
+
+const breadcrumbPath = computed<BreadcrumbItem[]>(() => {
+  if (!props.selectedComponent) return []
+  
+  const path: BreadcrumbItem[] = []
+  const selectedId = props.selectedComponent.componentId || props.selectedComponent.id
+  
+  // 递归查找路径
+  const findPath = (comps: CanvasComponent[], targetId: string, currentPath: BreadcrumbItem[]): boolean => {
+    for (const c of comps) {
+      const cid = c.componentId || c.id
+      const newPath = [...currentPath, { componentId: cid, id: c.id, type: c.type, label: c.label || c.type }]
+      
+      if (cid === targetId) {
+        path.push(...newPath)
+        return true
+      }
+      
+      // 检查 tabs 子组件
+      if (c.type === 'tabs' && c.props?.tabs) {
+        const tabs = c.props.tabs as any[]
+        for (let i = 0; i < tabs.length; i++) {
+          const tab = tabs[i]
+          if (tab.children && Array.isArray(tab.children)) {
+            for (const childId of tab.children) {
+              const childComp = findComponentById(String(childId))
+              if (childComp) {
+                const tabPath = [...newPath, { componentId: `tab_${i}`, id: `tab_${i}`, type: 'tab', label: `标签${i + 1}` }]
+                const childCid = childComp.componentId || childComp.id
+                if (childCid === targetId) {
+                  path.push(...tabPath, { componentId: childCid, id: childComp.id, type: childComp.type, label: childComp.label || childComp.type })
+                  return true
+                }
+                // 继续在 childComp.children 中查找
+                const found = findPathInChildren([childComp], targetId, tabPath)
+                if (found) return true
+              }
+            }
+          }
+        }
+      }
+      
+      // 检查普通 children
+      if (c.children && c.children.length > 0) {
+        const found = findPathInChildren([c], targetId, newPath)
+        if (found) return true
+      }
+    }
+    return false
+  }
+  
+  const findPathInChildren = (parents: CanvasComponent[], targetId: string, currentPath: BreadcrumbItem[]): boolean => {
+    for (const p of parents) {
+      const children = p.children || []
+      for (const child of children) {
+        const childCid = child.componentId || child.id
+        const newPath = [...currentPath, { componentId: childCid, id: child.id, type: child.type, label: child.label || child.type }]
+        
+        if (childCid === targetId) {
+          path.push(...newPath)
+          return true
+        }
+        
+        if (child.children && child.children.length > 0) {
+          const found = findPathInChildren([child], targetId, newPath)
+          if (found) return true
+        }
+      }
+    }
+    return false
+  }
+  
+  findPath(props.components, selectedId, [])
+  return path
+})
+
 const componentTree = computed(() => buildComponentTree(props.components))
 
 function toggleComponentTree() {
@@ -877,6 +982,48 @@ function updateTableColumn(index: number, field: string, value: unknown) {
   margin: 0 0 12px 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  font-size: 12px;
+  padding: 4px 0;
+}
+
+.breadcrumb-item {
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumb-separator {
+  color: var(--text-muted, #909399);
+  margin: 0 2px;
+}
+
+.breadcrumb-item span:not(.breadcrumb-separator) {
+  color: var(--text-secondary, #606266);
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: all 0.15s;
+}
+
+.breadcrumb-item span:not(.breadcrumb-separator):hover {
+  background-color: var(--bg-hover, #f5f7fa);
+  color: var(--accent, #409eff);
+}
+
+.breadcrumb-item span.is-current {
+  color: var(--accent, #409eff);
+  font-weight: 500;
+  cursor: default;
+}
+
+.breadcrumb-item span.is-current:hover {
+  background-color: transparent;
 }
 
 .prop-item {
