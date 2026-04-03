@@ -108,6 +108,7 @@
               @move-out-of-container="handleMoveOutOfContainer"
               @delete-component="handleDelete"
               @select-component="handleSelectComponent"
+              @remove-tab="handleRemoveTab"
             />
           </div>
         </div>
@@ -672,6 +673,31 @@ function handleDelete(id: string) {
   components.value = removeComponentFromTree(components.value, id)
   if (selectedId.value === id) {
     selectedId.value = null
+  }
+}
+
+// 处理 PropertyPanel 发起的 tab 删除（包含嵌套组件删除）
+function handleRemoveTab(tabIndex: number, tabChildren: (string | number)[]) {
+  if (!selectedId.value) return
+  const tabs = selectedComponent.value?.props?.tabs
+  if (!tabs || !Array.isArray(tabs)) return
+  
+  // 从 tabs 数组中移除该 tab
+  const newTabs = tabs.filter((_: any, i: number) => i !== tabIndex)
+  components.value = updateComponentProps(components.value, selectedId.value, { tabs: newTabs })
+  
+  // 删除该 tab 中的嵌套组件
+  tabChildren.forEach((childId: string | number) => {
+    components.value = removeComponentFromTree(components.value, String(childId))
+  })
+  
+  // 如果删除的是当前激活的 tab，调整 activeTab
+  const activeTab = selectedComponent.value?.props?.activeTab
+  if (activeTab !== undefined && typeof activeTab === 'string') {
+    const newActiveTab = newTabs[Math.min(Number(activeTab.replace('tab_', '')), newTabs.length - 1)]
+    if (newActiveTab) {
+      components.value = updateComponentProps(components.value, selectedId.value, { activeTab: newActiveTab.tabId })
+    }
   }
 }
 

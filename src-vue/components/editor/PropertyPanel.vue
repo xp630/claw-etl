@@ -487,6 +487,7 @@ const emit = defineEmits<{
   'move-out-of-container': [containerId: string, componentId: string]
   'delete-component': [id: string]
   'select-component': [id: string | null]
+  'remove-tab': [tabIndex: number, tabChildren: (string | number)[]]
 }>()
 
 // 处理移动到容器（select change事件）
@@ -563,13 +564,27 @@ function updateTabLayout(index: number, key: string, value: any) {
 }
 
 function removeTab(index: number) {
+  const tab = editableTabs.value[index]
+  if (!tab) return
+  
+  // 检查该 tab 是否包含嵌套组件
+  const tabChildren = tab.children || []
+  if (tabChildren.length > 0) {
+    if (!confirm(`该标签页中包含 ${tabChildren.length} 个嵌套组件，删除标签页将一并删除这些组件。\n\n确定要删除吗？`)) {
+      return
+    }
+    // 通知父组件删除 tab 及其嵌套组件
+    emit('remove-tab', index, tabChildren)
+    return
+  }
+  
   const tabs = editableTabs.value.filter((_, i) => i !== index)
   updateProp('tabs', tabs)
   // 如果当前激活的 tab 被删除，调整 activeTab
   const activeTab = props.selectedComponent?.props.activeTab
   if (activeTab !== undefined && typeof activeTab === 'string') {
     const newActiveTab = tabs[Math.min(Number(activeTab.replace('tab_', '')), tabs.length - 1)]
-    if (newActiveTab) updateProp('activeTab', newActiveTab.id)
+    if (newActiveTab) updateProp('activeTab', newActiveTab.tabId)
   } else if (typeof activeTab === 'number' && activeTab >= tabs.length) {
     updateProp('activeTab', Math.max(0, tabs.length - 1))
   }
