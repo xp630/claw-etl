@@ -464,6 +464,8 @@ function flattenComponentsWithParentId(comps: CanvasComponent[], parentId: strin
   for (const c of comps) {
     const { children, ...rest } = c
     const item: any = { ...rest }
+    // 新格式 tabs 不递归（子组件已内联在 tab.children）
+    let skipRecursion = false
 
     // Tabs 组件：保存时将旧格式转换为新格式
     if (item.type === 'tabs' && item.props?.tabs) {
@@ -496,14 +498,15 @@ function flattenComponentsWithParentId(comps: CanvasComponent[], parentId: strin
         item.props = { ...item.props, activeTab: 'tab_0' }
       }
       // 新格式：子组件已内联到 tab.children，清空 root children 避免重复存储
-      children = []
+      skipRecursion = true
     }
 
     if (parentId) {
       item.parentId = parentId
     }
     result.push(item)
-    if (children && children.length > 0) {
+    // skipRecursion 为 true 时不递归（子组件已内联在 tab.children）
+    if (!skipRecursion && children && children.length > 0) {
       result.push(...flattenComponentsWithParentId(children, c.id))
     }
   }
