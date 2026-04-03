@@ -729,7 +729,7 @@ function handleAddChildToContainer(containerId: string, childComponent: CanvasCo
       return updateContainerChildren(c, tabIndex, childKey, childWithParent)
     })
 
-  selectedId.value = childWithParent.id
+  selectedId.value = childKey  // selectedId 统一存 componentId
   refreshSelectedComponent()
 }
 
