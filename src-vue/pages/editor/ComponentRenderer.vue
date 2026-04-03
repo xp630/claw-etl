@@ -325,6 +325,7 @@
       v-else-if="component.type === 'blank'"
       class="bg-gradient-to-r from-gray-100 to-gray-50"
       :style="{ height: `${Number(component.props.height) || 50}px` }"
+      @click.stop="canvasMode && emit('select', (component as any).id)"
       @dblclick.stop="canvasMode && emit('open-props', (component as any).id)"
     />
 
@@ -333,7 +334,8 @@
       v-else-if="component.type === 'image'"
       :src="String(component.props.src || 'https://via.placeholder.com/200x100')"
       :alt="String(component.props.alt || '图片')"
-      class="max-w-full h-auto"
+      class="max-w-full h-auto cursor-pointer"
+      @click.stop="canvasMode && emit('select', (component as any).id)"
       @dblclick.stop="canvasMode && emit('open-props', (component as any).id)"
     />
 
@@ -341,7 +343,8 @@
     <a
       v-else-if="component.type === 'link'"
       :href="String(component.props.url || '#')"
-      class="text-blue-500 hover:underline text-sm"
+      class="text-blue-500 hover:underline text-sm cursor-pointer"
+      @click.stop="canvasMode && emit('select', (component as any).id)"
       @dblclick.stop="canvasMode && emit('open-props', (component as any).id)"
     >
       {{ component.props.text || '链接' }}
@@ -350,7 +353,8 @@
     <!-- Card container -->
     <div
       v-else-if="component.type === 'card'"
-      class="border border-[var(--border-light)] rounded-lg p-4 bg-[var(--bg-secondary)] shadow-sm"
+      class="border border-[var(--border-light)] rounded-lg p-4 bg-[var(--bg-secondary)] shadow-sm cursor-pointer"
+      @click.stop="canvasMode && emit('select', (component as any).id)"
       @dblclick.stop="canvasMode && emit('open-props', (component as any).id)"
     >
       <div v-if="component.props.title" class="font-medium mb-2">

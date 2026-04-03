@@ -595,7 +595,9 @@ function toggleLeftTab(tab: 'layer' | 'components') {
 }
 
 function handleSelectComponent(id: string) {
+  console.log('[handleSelectComponent] id:', id, 'selectedId before:', selectedId.value)
   selectedId.value = id
+  console.log('[handleSelectComponent] selectedId after:', selectedId.value, 'selectedComponent:', findComponent(components.value, id)?.label)
 }
 
 // 双击打开属性面板
@@ -635,9 +637,13 @@ function handleDrop(data: { fromPalette: boolean, type?: string, label?: string,
       componentId: `${data.type}_${timestamp}`,
       props: data.defaultProps || {},
     }
+    console.log('[handleDrop] new component:', newComponent.label, 'id:', newComponent.id, 'componentId:', newComponent.componentId)
     components.value = [...components.value, newComponent]
+    console.log('[handleDrop] selectedId before:', selectedId.value)
     selectedId.value = String(timestamp)
+    console.log('[handleDrop] selectedId after:', selectedId.value)
     refreshSelectedComponent()
+    console.log('[handleDrop] selectedComponent:', findComponent(components.value, selectedId.value)?.label)
   }
 }
 
