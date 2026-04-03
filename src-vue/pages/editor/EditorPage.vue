@@ -861,7 +861,8 @@ function handleMoveChildToRoot(fromContainerId: string, childId: string, insertI
   // 先找到要移动的组件（用于获取 componentId）
   const findChildComp = (comps: CanvasComponent[]): CanvasComponent | null => {
     for (const c of comps) {
-      if (String(c.id) === String(childId)) return c
+      // Match by id OR componentId (stable ID)
+      if (String(c.id) === String(childId) || c.componentId === String(childId)) return c
       if (c.children) {
         const found = findChildComp(c.children)
         if (found) return found
