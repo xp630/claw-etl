@@ -601,7 +601,10 @@ function handleSelectComponent(id: string) {
 }
 
 // 双击打开属性面板
-function openPropsPanel() {
+function openPropsPanel(id?: string) {
+  if (id) {
+    selectedId.value = id
+  }
   if (selectedId.value) {
     showPropsPanel.value = true
   }
