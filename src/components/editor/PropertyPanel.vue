@@ -163,7 +163,7 @@
               @input="updateProp('content', ($event.target as HTMLTextAreaElement).value)"
             />
           </div>
-        </template>
+        </div>
       </div>
       
       <!-- tabs 配置 (tabs) - 扁平化重构 -->
