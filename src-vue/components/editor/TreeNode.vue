@@ -1,194 +1,124 @@
-<template>
-  <div class="tree-node">
-    <div
-      class="tree-node-content"
-      :class="{ 'is-selected': node.componentId === selectedId }"
-      :style="{ paddingLeft: `${depth * 12}px` }"
-      @click="$emit('select', node.componentId)"
-    >
-      <!-- 展开/折叠按钮 -->
-      <span
-        v-if="hasChildren"
-        class="tree-toggle"
-        @click.stop="$emit('toggle')"
-      >
-        {{ isExpanded ? '▼' : '▶' }}
-      </span>
-      <span v-else class="tree-toggle-placeholder"></span>
-      
-      <!-- 图标 -->
-      <span class="tree-icon">{{ getIcon(node.type) }}</span>
-      
-      <!-- 标签 -->
-      <span class="tree-label">{{ node.label }}</span>
-      
-      <!-- 类型标签 -->
-      <span class="tree-type">{{ node.type }}</span>
-    </div>
-    
-    <!-- Tabs 子组件 -->
-    <div v-if="node.tabChildren && isExpanded" class="tree-tab-children">
-      <div
-        v-for="(tabGroup, tabIndex) in node.tabChildren"
-        :key="tabIndex"
-        class="tree-tab-group"
-      >
-        <div
-          class="tree-tab-label"
-          :style="{ paddingLeft: `${(depth + 1) * 12 + 16}px` }"
-        >
-          {{ `标签${tabIndex + 1}` }}
-        </div>
-        <TreeNode
-          v-for="child in tabGroup"
-          :key="child.componentId"
-          :node="child"
-          :selected-id="selectedId"
-          :depth="depth + 2"
-          @select="$emit('select', $event)"
-          @toggle="$emit('toggle')"
-        />
-      </div>
-    </div>
-    
-    <!-- 普通子组件 -->
-    <div v-if="node.children && isExpanded" class="tree-children">
-      <TreeNode
-        v-for="child in node.children"
-        :key="child.componentId"
-        :node="child"
-        :selected-id="selectedId"
-        :depth="depth + 1"
-        @select="$emit('select', $event)"
-        @toggle="$emit('toggle')"
-      />
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref, computed } from 'vue'
+import type { CanvasComponent } from '@/pages/editor/types'
 
-interface TreeNodeData {
-  componentId: string
-  id: string
-  type: string
-  label: string
-  children?: TreeNodeData[]
-  tabChildren?: TreeNodeData[][]
-  isExpanded?: boolean
-}
-
-const props = withDefaults(defineProps<{
-  node: TreeNodeData
-  selectedId?: string | null
+interface Props {
+  comp: CanvasComponent
   depth?: number
-}>(), {
-  selectedId: null,
-  depth: 0
-})
-
-const emit = defineEmits<{
-  select: [componentId: string]
-  toggle: []
-}>()
-
-const isExpanded = ref(true)
-
-const hasChildren = computed(() => {
-  return (props.node.children && props.node.children.length > 0) ||
-         (props.node.tabChildren && props.node.tabChildren.length > 0)
-})
-
-function getIcon(type: string): string {
-  const icons: Record<string, string> = {
-    tabs: '📑',
-    card: '📦',
-    collapse: '📁',
-    table: '📊',
-    form: '📝',
-    input: '✏️',
-    button: '🔘',
-    text: '📄',
-    image: '🖼️',
-    divider: '➖',
-    chart: '📈',
-    default: '📌'
-  }
-  return icons[type] || icons.default
+  selectedId?: string | null
 }
 
-// 当 props.isExpanded 变化时同步
-if (props.node.isExpanded !== undefined) {
-  isExpanded.value = props.node.isExpanded
+const props = withDefaults(defineProps<Props>(), {
+  depth: 0,
+  selectedId: null
+})
+
+const emit = defineEmits<{ select: [id: string] }>()
+
+const expanded = ref(props.depth < 2)
+
+const typeIcons: Record<string, string> = {
+  card: '📦',
+  tabs: '📑',
+  collapse: '📂',
+  table: '📊',
+  form: '📝',
+  button: '🔘',
+  input: '✏️',
+  text: '🔤',
+  image: '🖼️',
+  chart: '📈',
+  default: '📄'
+}
+
+const icon = computed(() => typeIcons[props.comp.type] || typeIcons.default)
+const isSelected = computed(() => props.selectedId === props.comp.id)
+const hasChildren = computed(() => 
+  (props.comp.children?.length ?? 0) > 0 || (props.comp.props?.tabs?.length ?? 0) > 0
+)
+const label = computed(() => 
+  props.comp.props?.label 
+  || props.comp.props?.title 
+  || props.comp.props?.name
+  || props.comp.label 
+  || props.comp.type
+)
+const tabCount = computed(() => props.comp.props?.tabs?.length ?? 0)
+const childCount = computed(() => props.comp.children?.length ?? 0)
+
+function toggle() {
+  expanded.value = !expanded.value
+}
+
+function select() {
+  emit('select', props.comp.id)
 }
 </script>
 
-<style scoped>
-.tree-node {
-  font-size: 12px;
-}
+<template>
+  <div class="tree-node">
+    <!-- Self -->
+    <div
+      class="flex items-center gap-2 py-1.5 px-2 rounded cursor-pointer transition-colors text-xs"
+      :class="isSelected ? 'bg-blue-500/20 text-blue-400' : 'hover:bg-[var(--bg-tertiary)] text-[var(--text-secondary)]'"
+      :style="{ paddingLeft: `${depth * 16 + 8}px` }"
+      @click="select"
+    >
+      <!-- Expand/collapse -->
+      <button
+        v-if="hasChildren"
+        class="w-4 h-4 flex items-center justify-center text-[10px] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+        @click.stop="toggle"
+      >
+        {{ expanded ? '▼' : '▶' }}
+      </button>
+      <span v-else class="w-4" />
 
-.tree-node-content {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.15s;
-}
+      <!-- Icon -->
+      <span class="text-sm">{{ icon }}</span>
 
-.tree-node-content:hover {
-  background-color: var(--bg-hover, #f5f7fa);
-}
+      <!-- Type badge -->
+      <span class="px-1.5 py-0.5 rounded text-[10px] bg-[var(--bg-tertiary)] text-[var(--text-muted)]">
+        {{ comp.type }}
+      </span>
 
-.tree-node-content.is-selected {
-  background-color: var(--accent-light, #ecf5ff);
-  color: var(--accent, #409eff);
-}
+      <!-- Label -->
+      <span class="flex-1 truncate">{{ label }}</span>
 
-.tree-toggle {
-  width: 12px;
-  font-size: 10px;
-  color: var(--text-muted, #909399);
-  cursor: pointer;
-  flex-shrink: 0;
-}
+      <!-- Count badges -->
+      <span v-if="tabCount > 0" class="text-[10px] text-[var(--text-muted)]">
+        {{ tabCount }} tabs
+      </span>
+      <span v-if="childCount > 0" class="text-[10px] text-[var(--text-muted)]">
+        {{ childCount }} children
+      </span>
+    </div>
 
-.tree-toggle-placeholder {
-  width: 12px;
-  flex-shrink: 0;
-}
+    <!-- Children (tabs) -->
+    <template v-if="hasChildren && expanded">
+      <div
+        v-for="tab in (comp.props?.tabs || [])"
+        :key="tab.id"
+        class="flex items-center gap-2 py-1 px-2 text-[var(--text-muted)]"
+        :style="{ paddingLeft: `${(depth + 1) * 16 + 8}px` }"
+      >
+        <span class="w-4" />
+        <span class="text-sm">📑</span>
+        <span class="text-[var(--text-secondary)]">{{ tab.label || 'Tab' }}</span>
+        <span v-if="tab.children?.length" class="text-[10px]">
+          ({{ tab.children.length }})
+        </span>
+      </div>
 
-.tree-icon {
-  font-size: 12px;
-  flex-shrink: 0;
-}
-
-.tree-label {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.tree-type {
-  font-size: 10px;
-  color: var(--text-muted, #909399);
-  padding: 1px 4px;
-  background-color: var(--bg-secondary, #f5f7fa);
-  border-radius: 2px;
-  flex-shrink: 0;
-}
-
-.tree-tab-label {
-  font-size: 11px;
-  color: var(--text-muted, #909399);
-  padding: 2px 0;
-}
-
-.tree-tab-group {
-  margin-left: 4px;
-}
-</style>
+      <!-- Child components -->
+      <TreeNode
+        v-for="child in (comp.children || [])"
+        :key="child.id"
+        :comp="child"
+        :depth="depth + 1"
+        :selected-id="selectedId"
+        @select="emit('select', $event)"
+      />
+    </template>
+  </div>
+</template>
