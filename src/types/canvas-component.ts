@@ -1,25 +1,11 @@
-// Editor component types - Vue version
-
-export interface ComponentItem {
+export interface CanvasComponent {
+  id: string
+  componentId?: string
+  parentId?: string
   type: string
   label: string
-  icon: string
-  defaultProps?: Record<string, unknown>
-}
-
-export interface ComponentCategory {
-  name: string
-  components: ComponentItem[]
-}
-
-export interface CanvasComponent {
-  id: string              // Canvas unique ID
-  componentId?: string     // Component type ID (table, form, input, etc.)
-  parentId?: string       // Parent component ID for hierarchy
-  type: string            // Component type
-  label: string           // Component label
   props: Record<string, unknown>
-  children?: CanvasComponent[]  // Child components
+  children?: CanvasComponent[]
 }
 
 export interface ColumnConfig {

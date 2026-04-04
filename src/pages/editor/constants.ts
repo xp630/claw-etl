@@ -1,35 +1,40 @@
-import React from 'react';
-import { 
-  Type, MousePointer, Image, Link as LinkIcon,
-  Box, Calendar, ToggleLeft, Sliders,
-  Grid3X3, Minus, View, ChevronDown,
-  BarChart3, TrendingUp, PieChart as PieChartIcon
-} from 'lucide-react';
-import { ComponentCategory } from './types';
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
-// Icon mapping
-export const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  Text: Type,
-  Button: MousePointer,
-  Picture: Image,
-  Link: LinkIcon,
-  Edit: Box,
-  Document: Box,
-  Calendar,
-  Open: ToggleLeft,
-  DCaret: Sliders,
-  Grid: Grid3X3,
-  Minus,
-  View,
-  Histogram: BarChart3,
-  DataLine: TrendingUp,
-  PieChart: PieChartIcon,
-  ChevronDown,
-  Menu: Grid3X3,
-  Box,
-};
+// Icon mapping - Element Plus icons for Vue
+export const iconMap: Record<string, any> = {
+  Text: 'Text',
+  Button: 'Mouse',
+  Picture: 'Picture',
+  Link: 'Link',
+  Edit: 'Edit',
+  Document: 'Document',
+  Calendar: 'Calendar',
+  Open: 'Switch',
+  DCaret: 'DCaret',
+  Grid: 'Grid',
+  Minus: 'Minus',
+  View: 'View',
+  Histogram: 'Histogram',
+  DataLine: 'DataLine',
+  PieChart: 'PieChart',
+  ChevronDown: 'ChevronDown',
+  Menu: 'Menu',
+  Box: 'Box',
+}
 
 // Component categories
+export interface ComponentDefinition {
+  type: string
+  label: string
+  icon: string
+  defaultProps: Record<string, any>
+}
+
+export interface ComponentCategory {
+  name: string
+  components: ComponentDefinition[]
+}
+
 export const componentCategories: ComponentCategory[] = [
   {
     name: '基础组件',
@@ -53,7 +58,7 @@ export const componentCategories: ComponentCategory[] = [
   {
     name: '数据组件',
     components: [
-      { type: 'table', label: '表格', icon: 'Grid', defaultProps: { apiId: undefined, queryApiId: undefined, createApiId: undefined, updateApiId: undefined, deleteApiId: undefined, detailApiId: undefined, columns: [{ key: 'id', label: 'ID', width: 80 }, { key: 'name', label: '名称' }, { key: 'status', label: '状态' }], data: [{ id: 1, name: '示例数据', status: '启用' }, { id: 2, name: '示例数据2', status: '禁用' }], bordered: true, striped: true, pagination: true, pageSize: 10, showSearch: true, showAdd: true, showExport: true, showDetail: true, showEdit: true, showDelete: true, showPagination: true } },
+      { type: 'table', label: '表格', icon: 'Grid', defaultProps: { apiId: undefined, queryApiId: undefined, createApiId: undefined, updateApiId: undefined, deleteApiId: undefined, detailApiId: undefined, columns: [{ key: 'id', label: 'ID', width: 80 }, { key: 'name', label: '名称' }, { key: 'status', label: '状态' }], data: [{ id: 1, name: '示例数据', status: '启用' }], bordered: true, striped: true, pagination: true, pageSize: 10, showSearch: true, showAdd: true, showExport: true, showDetail: true, showEdit: true, showDelete: true, showPagination: true } },
       { type: 'form', label: '表单', icon: 'Edit', defaultProps: { datasourceId: undefined, tableName: undefined, featureId: undefined, columns: [], showAdd: true, showEdit: true } },
       { type: 'lineChart', label: '折线图', icon: 'DataLine', defaultProps: { title: '折线图', data: [12, 34, 56, 78, 90] } },
       { type: 'barChart', label: '柱状图', icon: 'Histogram', defaultProps: { title: '柱状图', data: [30, 50, 20, 60, 40] } },
@@ -76,7 +81,7 @@ export const componentCategories: ComponentCategory[] = [
       { type: 'collapse', label: '折叠面板', icon: 'ChevronDown', defaultProps: { panels: [{ title: '面板1', content: '' }], accordion: false } },
     ],
   },
-];
+]
 
 // Property labels
 export const propLabels: Record<string, string> = {
@@ -123,4 +128,33 @@ export const propLabels: Record<string, string> = {
   disabled: '禁用',
   readOnly: '只读',
   formType: '表单类型',
-};
+}
+
+// Type labels for component tree
+export const typeLabels: Record<string, string> = {
+  card: '卡片',
+  tabs: '标签页',
+  table: '表格',
+  form: '表单',
+  text: '文本',
+  button: '按钮',
+  input: '输入框',
+  select: '下拉框',
+  date: '日期',
+  switch: '开关',
+  slider: '滑块',
+  lineChart: '折线图',
+  barChart: '柱状图',
+  pieChart: '饼图',
+  grid: '栅格',
+  divider: '分割线',
+  blank: '空白',
+  image: '图片',
+  link: '链接',
+  collapse: '折叠面板',
+}
+
+// Check if type is a container
+export function isContainerType(type: string): boolean {
+  return ['card', 'tabs', 'collapse', 'grid'].includes(type)
+}
