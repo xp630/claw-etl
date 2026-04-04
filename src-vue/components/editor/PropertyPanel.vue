@@ -44,6 +44,7 @@
             :value="selectedComponent.label"
             type="text"
             class="prop-input"
+            :class="{ 'is-highlighted': highlightedField === 'label' }"
             @input="updateLabel(($event.target as HTMLInputElement).value)"
           />
         </div>
@@ -67,193 +68,92 @@
         :update-prop="updateProp"
       />
 
-      <!-- 通用属性 -->
+      <!-- 通用属性 - Schema 驱动 -->
       <div class="prop-section">
         <h4 class="prop-section-title">通用属性</h4>
         
-        <!-- placeholder (input/select) -->
-        <div v-if="hasProp('placeholder')" class="prop-item">
-          <label>占位符</label>
-          <input
-            :value="selectedComponent.props.placeholder"
-            type="text"
-            class="prop-input"
-            @input="updateProp('placeholder', ($event.target as HTMLInputElement).value)"
-          />
-        </div>
+        <DynamicPropEditor
+          v-if="componentSchema"
+          :schema="componentSchema"
+          :props="selectedComponent.props"
+          @update="handleDynamicUpdate"
+        />
         
-        <!-- options (select) -->
-        <div v-if="hasProp('options')" class="prop-item">
-          <label>选项（逗号分隔）</label>
-          <input
-            :value="(selectedComponent.props.options as string[])?.join(', ')"
-            type="text"
-            class="prop-input"
-            @input="handleOptionsInput($event)"
-          />
-        </div>
-        
-        <!-- v-model / value (input/switch/slider) -->
-        <div v-if="hasProp('value')" class="prop-item">
-          <label>默认值</label>
-          <input
-            v-if="selectedComponent.type === 'slider'"
-            :value="Number(selectedComponent.props.value)"
-            type="range"
-            min="0"
-            max="100"
-            class="prop-range"
-            @input="updateProp('value', Number(($event.target as HTMLInputElement).value))"
-          />
-          <input
-            v-else-if="selectedComponent.type === 'switch'"
-            :value="selectedComponent.props.value"
-            type="checkbox"
-            class="prop-checkbox"
-            @change="updateProp('value', ($event.target as HTMLInputElement).checked)"
-          />
-          <input
-            v-else
-            :value="selectedComponent.props.value"
-            type="text"
-            class="prop-input"
-            @input="updateProp('value', ($event.target as HTMLInputElement).value)"
-          />
-        </div>
-        
-        <!-- min/max (slider) -->
-        <div v-if="hasProp('min')" class="prop-item inline-item">
-          <label>最小值</label>
-          <input
-            :value="selectedComponent.props.min"
-            type="number"
-            class="prop-input w-24"
-            @input="updateProp('min', Number(($event.target as HTMLInputElement).value))"
-          />
-          <label>最大值</label>
-          <input
-            :value="selectedComponent.props.max"
-            type="number"
-            class="prop-input w-24"
-            @input="updateProp('max', Number(($event.target as HTMLInputElement).value))"
-          />
-        </div>
-        
-        <!-- content (text) -->
-        <div v-if="hasProp('content')" class="prop-item">
-          <label>文本内容</label>
-          <textarea
-            :value="selectedComponent.props.content"
-            class="prop-textarea"
-            rows="3"
-            @input="updateProp('content', ($event.target as HTMLTextAreaElement).value)"
-          />
-        </div>
-        
-        <!-- text (button/link) -->
-        <div v-if="hasProp('text')" class="prop-item">
-          <label>显示文本</label>
-          <input
-            :value="selectedComponent.props.text"
-            type="text"
-            class="prop-input"
-            @input="updateProp('text', ($event.target as HTMLInputElement).value)"
-          />
-        </div>
-        
-        <!-- url (link) / src (image) -->
-        <div v-if="hasProp('url')" class="prop-item">
-          <label>{{ selectedComponent.type === 'image' ? '图片地址' : '链接地址' }}</label>
-          <input
-            :value="selectedComponent.props.url || selectedComponent.props.src"
-            type="text"
-            class="prop-input"
-            @input="updateProp(selectedComponent.type === 'image' ? 'src' : 'url', ($event.target as HTMLInputElement).value)"
-          />
-        </div>
-        
-        <!-- alt (image) -->
-        <div v-if="hasProp('alt')" class="prop-item">
-          <label>图片描述</label>
-          <input
-            :value="selectedComponent.props.alt"
-            type="text"
-            class="prop-input"
-            @input="updateProp('alt', ($event.target as HTMLInputElement).value)"
-          />
-        </div>
-        
-        <!-- height (blank) -->
-        <div v-if="hasProp('height')" class="prop-item">
-          <label>高度 (px)</label>
-          <input
-            :value="selectedComponent.props.height"
-            type="number"
-            class="prop-input"
-            @input="updateProp('height', Number(($event.target as HTMLInputElement).value))"
-          />
-        </div>
-        
-        <!-- cols/gap (grid) -->
-        <div v-if="hasProp('cols')" class="prop-item inline-item">
-          <label>列数</label>
-          <input
-            :value="selectedComponent.props.cols"
-            type="number"
-            min="1"
-            max="12"
-            class="prop-input w-20"
-            @input="updateProp('cols', Number(($event.target as HTMLInputElement).value))"
-          />
-          <label>间距</label>
-          <input
-            :value="selectedComponent.props.gap"
-            type="number"
-            min="0"
-            class="prop-input w-20"
-            @input="updateProp('gap', Number(($event.target as HTMLInputElement).value))"
-          />
-        </div>
-        
-        <!-- title (card/table/form) -->
-        <div v-if="hasProp('title')" class="prop-item">
-          <label>标题</label>
-          <input
-            :value="selectedComponent.props.title"
-            type="text"
-            class="prop-input"
-            @input="updateProp('title', ($event.target as HTMLInputElement).value)"
-          />
-        </div>
-        
-        <!-- apiId / queryApiId (table/form) -->
-        <div v-if="hasProp('apiId')" class="prop-item">
-          <label>API ID / 数据源ID</label>
-          <input
-            :value="selectedComponent.props.apiId || selectedComponent.props.queryApiId || selectedComponent.props.datasourceId"
-            type="text"
-            class="prop-input"
-            placeholder="输入数据源ID"
-            @input="handleApiIdUpdate(($event.target as HTMLInputElement).value)"
-          />
-        </div>
-        
-        <!-- dataDictionary (input/select) -->
-        <div v-if="hasProp('dataDictionary')" class="prop-item">
-          <label>数据字典</label>
-          <input
-            :value="selectedComponent.props.dataDictionary"
-            type="text"
-            class="prop-input"
-            placeholder="输入数据字典ID"
-            @input="updateProp('dataDictionary', ($event.target as HTMLInputElement).value)"
-          />
-        </div>
-        
-        <!-- tabs 配置 (tabs) -->
-        <div v-if="hasProp('tabs')" class="prop-item">
-          <div class="flex items-center justify-between mb-2">
-            <label class="text-xs text-[var(--text-muted)]">标签页</label>
+        <!-- Fallback: 如果没有 Schema，显示基于 hasProp 的旧方式 -->
+        <template v-else>
+          <div v-if="hasProp('placeholder')" class="prop-item">
+            <label>占位符</label>
+            <input
+              :value="selectedComponent.props.placeholder"
+              type="text"
+              class="prop-input"
+              @input="updateProp('placeholder', ($event.target as HTMLInputElement).value)"
+            />
+          </div>
+          
+          <div v-if="hasProp('options')" class="prop-item">
+            <label>选项（逗号分隔）</label>
+            <input
+              :value="(selectedComponent.props.options as string[])?.join(', ')"
+              type="text"
+              class="prop-input"
+              @input="handleOptionsInput($event)"
+            />
+          </div>
+          
+          <div v-if="hasProp('value')" class="prop-item">
+            <label>默认值</label>
+            <input
+              v-if="selectedComponent.type === 'slider'"
+              :value="Number(selectedComponent.props.value)"
+              type="range"
+              min="0"
+              max="100"
+              class="prop-range"
+              @input="updateProp('value', Number(($event.target as HTMLInputElement).value))"
+            />
+            <input
+              v-else-if="selectedComponent.type === 'switch'"
+              :value="selectedComponent.props.value"
+              type="checkbox"
+              class="prop-checkbox"
+              @change="updateProp('value', ($event.target as HTMLInputElement).checked)"
+            />
+            <input
+              v-else
+              :value="selectedComponent.props.value"
+              type="text"
+              class="prop-input"
+              @input="updateProp('value', ($event.target as HTMLInputElement).value)"
+            />
+          </div>
+          
+          <div v-if="hasProp('text')" class="prop-item">
+            <label>显示文本</label>
+            <input
+              :value="selectedComponent.props.text"
+              type="text"
+              class="prop-input"
+              @input="updateProp('text', ($event.target as HTMLInputElement).value)"
+            />
+          </div>
+          
+          <div v-if="hasProp('content')" class="prop-item">
+            <label>文本内容</label>
+            <textarea
+              :value="selectedComponent.props.content"
+              class="prop-textarea"
+              rows="3"
+              @input="updateProp('content', ($event.target as HTMLTextAreaElement).value)"
+            />
+          </div>
+        </template>
+      </div>
+      
+      <!-- tabs 配置 (tabs) - 保持独立 -->
+      <div v-if="hasProp('tabs')" class="prop-section">
+        <div class="flex items-center justify-between mb-2">
+          <h4 class="prop-section-title mb-0">标签页</h4>
             <button
               type="button"
               class="text-xs text-[var(--accent)] hover:underline"
@@ -450,6 +350,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { ElMessage } from 'element-plus'
 import type { CanvasComponent, TabItem } from '@/pages/editor/types'
 import TablePropsPanel from './TablePropsPanel.vue'
 import TreeNode from './TreeNode.vue'
@@ -463,6 +364,9 @@ const props = defineProps<Props>()
 
 // 组件结构树
 const componentTreeExpanded = ref(true)
+
+// 字段高亮状态（修改时闪烁高亮）
+const highlightedField = ref<string | null>(null)
 
 // 递归构建组件树节点
 interface TreeNodeData {
@@ -544,6 +448,19 @@ interface BreadcrumbItem {
   id: string
   type: string
   label: string
+}
+
+// Dynamic schema for component
+import { componentSchemas, getComponentSchema } from '@/pages/editor/component-schema'
+import DynamicPropEditor from './DynamicPropEditor.vue'
+
+const componentSchema = computed(() => {
+  if (!props.selectedComponent) return null
+  return getComponentSchema(props.selectedComponent.type)
+})
+
+function handleDynamicUpdate(propName: string, value: unknown) {
+  updateProp(propName, value)
 }
 
 const breadcrumbPath = computed<BreadcrumbItem[]>(() => {
@@ -668,29 +585,43 @@ const emit = defineEmits<{
 }>()
 
 // 处理移动到容器（select change事件）
-function handleMoveToContainerAction(e: Event) {
+async function handleMoveToContainerAction(e: Event) {
   const containerId = (e.target as HTMLSelectElement).value
   console.log('[PropertyPanel] handleMoveToContainerAction:', containerId, props.selectedComponent?.id)
   if (containerId && props.selectedComponent) {
     const targetContainer = containerComponents.value.find(c => c.id === containerId)
     // If target is tabs, ask user which tab to move to
     if (targetContainer?.type === 'tabs') {
-      const tabs = targetContainer.props?.tabs as string[] || []
+      const tabs = targetContainer.props?.tabs as TabItem[] || []
       const tabCount = tabs.length
-      // Show tab selection prompt
-      const tabNames = tabs.map((t, i) => `${i + 1}: ${t}`).join('\n')
-      const input = window.prompt(`目标容器是 Tabs，共 ${tabCount} 个标签页。\n请输入要移动到的标签页序号（1-${tabCount}）：\n${tabNames}`)
-      if (!input) {
-        (e.target as HTMLSelectElement).value = ''
-        return
+      const tabOptionsHtml = tabs.map((t, i) =>
+        `<option value="${i}">${t.label || `标签${i + 1}`}</option>`
+      ).join('')
+      const { ElMessageBox } = await import('element-plus')
+      try {
+        await ElMessageBox.confirm(
+          `<p style="margin:0 0 12px 0;font-size:13px;color:var(--text-secondary)">目标容器是 <strong>${targetContainer.label || targetContainer.type}</strong>，共 ${tabCount} 个标签页，请选择目标标签页：</p>
+          <select id="tab-select-target" style="width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;background:var(--input-bg)">
+            ${tabOptionsHtml}
+          </select>`,
+          '移动到标签页容器',
+          {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            dangerouslyUseHTMLString: true,
+            type: 'info',
+          }
+        )
+        const selectEl = document.getElementById('tab-select-target')
+        const tabIndex = selectEl ? parseInt((selectEl as HTMLSelectElement).value, 10) : 0
+        if (isNaN(tabIndex) || tabIndex < 0 || tabIndex >= tabCount) {
+          ElMessage.error('无效的标签页，操作已取消。')
+          return
+        }
+        emit('move-to-container', containerId, props.selectedComponent.id, tabIndex)
+      } catch {
+        // 用户取消
       }
-      const tabIndex = parseInt(input, 10) - 1
-      if (isNaN(tabIndex) || tabIndex < 0 || tabIndex >= tabCount) {
-        window.alert('无效的标签页序号，操作已取消。')
-        ;(e.target as HTMLSelectElement).value = ''
-        return
-      }
-      emit('move-to-container', containerId, props.selectedComponent.id, tabIndex)
     } else {
       emit('move-to-container', containerId, props.selectedComponent.id)
     }
@@ -830,12 +761,21 @@ function updateProp(key: string, value: unknown) {
   if (props.selectedComponent) {
     const newProps = { ...props.selectedComponent.props, [key]: value }
     emit('update-props', newProps)
+    // 高亮反馈
+    highlightedField.value = key
+    setTimeout(() => {
+      highlightedField.value = null
+    }, 800)
+    ElMessage({ message: '属性已更新', type: 'success', duration: 1000 })
   }
 }
 
 // 更新标签
 function updateLabel(label: string) {
   emit('update-label', label)
+  highlightedField.value = 'label'
+  setTimeout(() => { highlightedField.value = null }, 800)
+  ElMessage({ message: '标签已更新', type: 'success', duration: 1000 })
 }
 
 // 处理 options 输入（逗号分隔转数组）
@@ -1035,6 +975,17 @@ function updateTableColumn(index: number, field: string, value: unknown) {
   outline: none;
   border-color: var(--accent, #409eff);
   box-shadow: 0 0 0 2px var(--accent-light, #ecf5ff);
+}
+
+.prop-input.is-highlighted {
+  border-color: var(--el-color-primary) !important;
+  box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+  animation: field-flash 0.8s ease-out;
+}
+
+@keyframes field-flash {
+  0% { background-color: rgba(64, 158, 255, 0.15); }
+  100% { background-color: transparent; }
 }
 
 .prop-textarea {

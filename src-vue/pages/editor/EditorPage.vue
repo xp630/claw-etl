@@ -78,14 +78,17 @@
         />
       </div>
 
-      <!-- 属性配置弹窗 (双击组件时显示) -->
-      <div 
-        v-if="showPropsPanel && selectedComponent"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-        :class="{ 'pointer-events-none': isDraggingCanvas }"
-        @click.self="closePropsPanel"
+      <!-- 属性配置抽屉 (双击组件时显示) -->
+      <el-drawer
+        v-model="showPropsPanel"
+        title=""
+        direction="rtl"
+        size="380px"
+        :show-close="true"
+        :with-header="false"
+        class="property-drawer"
       >
-        <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-[900px] max-h-[85vh] flex flex-col">
+        <div class="property-drawer-inner" v-if="selectedComponent">
           <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--border-light)]">
             <h3 class="font-medium text-[var(--text-primary)]">
               属性配置 - {{ selectedComponent.label }}
@@ -108,7 +111,7 @@
             />
           </div>
         </div>
-      </div>
+      </el-drawer>
 
       <!-- Canvas -->
       <!-- Preview Mode -->
@@ -1045,3 +1048,14 @@ function isInputFocused(): boolean {
          active instanceof HTMLSelectElement
 }
 </script>
+
+<style scoped>
+.drawer-enter-active,
+.drawer-leave-active {
+  transition: transform 0.2s ease;
+}
+.drawer-enter-from,
+.drawer-leave-to {
+  transform: translateX(100%);
+}
+</style>
