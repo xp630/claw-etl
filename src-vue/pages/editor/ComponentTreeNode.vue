@@ -98,8 +98,7 @@ import {
   Minus,
   Square
 } from 'lucide-vue-next'
-import type { CanvasComponent, TabItem, UnifiedTabs } from './types'
-import { isLegacyTabs } from './types'
+import type { CanvasComponent, TabItem } from './types'
 
 const props = defineProps<{
   comp: CanvasComponent
@@ -120,22 +119,10 @@ const isExpanded = computed(() => {
   return props.expanded.includes(String(props.comp.id))
 })
 
-// Unified tabs (supports both legacy string[] and new TabItem[] format)
+// Tabs (new format TabItem[])
 const unifiedTabs = computed((): TabItem[] => {
-  const rawTabs = props.comp.props?.tabs as UnifiedTabs | undefined
-  if (!rawTabs || (Array.isArray(rawTabs) && rawTabs.length === 0)) return []
-  
-  if (isLegacyTabs(rawTabs)) {
-    // Legacy: convert to new format using childrenMap
-    const childrenMap = props.comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
-    return rawTabs.map((label, index) => ({
-      id: `tab_${index}`,
-      label,
-      params: {},
-      children: childrenMap?.[String(index)] || []
-    }))
-  }
-  
+  const rawTabs = props.comp.props?.tabs as TabItem[] | undefined
+  if (!rawTabs || !Array.isArray(rawTabs)) return []
   return rawTabs
 })
 

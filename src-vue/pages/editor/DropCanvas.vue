@@ -116,8 +116,7 @@
 import { ref, computed } from 'vue'
 import { ArrowUp, ArrowDown, Trash2, GripVertical } from 'lucide-vue-next'
 import ComponentRenderer from './ComponentRenderer.vue'
-import type { CanvasComponent, UnifiedTabs } from './types'
-import { isLegacyTabs } from './types'
+import type { CanvasComponent, TabItem } from './types'
 
 interface Props {
   components: CanvasComponent[]
@@ -168,54 +167,18 @@ const isNested = (comp: CanvasComponent) => false // Root level only
 // Get children for a container component
 const getContainerChildren = (comp: CanvasComponent): CanvasComponent[] => {
   if (comp.type === 'tabs') {
-    const tabs = comp.props?.tabs as UnifiedTabs | undefined
-    const childrenMap = comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
+    const tabs = comp.props?.tabs as TabItem[] | undefined
+    const activeTabId = comp.props?.activeTab as string || 'tab_0'
 
-    // 确定当前 tab 的索引
-    const rawActiveTab = comp.props?.activeTab
-    let tabIdx = 0
-    if (rawActiveTab !== undefined && rawActiveTab !== null && tabs) {
-      if (isLegacyTabs(tabs)) {
-        tabIdx = Number(rawActiveTab) || 0
-      } else {
-        const idStr = String(rawActiveTab)
-        const idx = tabs.findIndex(t => t.tabId === idStr || t.id === idStr)
-        tabIdx = idx >= 0 ? idx : 0
-      }
-    }
+    if (!tabs || !Array.isArray(tabs)) return comp.children || []
 
-    // 旧格式：使用 childrenMap
-    if (childrenMap && isLegacyTabs(tabs || [])) {
-      const tabKey = String(tabIdx)
-      const childIds = childrenMap[tabKey] || []
-      const children = (comp.children || []).filter(c =>
-        childIds.includes(c.componentId as any) || childIds.includes(c.id as any)
-      )
-      console.log('[DropCanvas] getContainerChildren tabs (legacy):', {
-        compId: comp.id, tabIdx, childIds,
-        childrenIds: children.map(c => ({ id: c.id, componentId: c.componentId }))
-      })
-      return children
-    }
+    const currentTab = tabs.find(t => t.id === activeTabId || t.tabId === activeTabId)
+    if (!currentTab || !currentTab.children) return []
 
-    // 新格式 TabItem[]：tab.children 存的是 componentId 数组
-    if (tabs && !isLegacyTabs(tabs) && Array.isArray(tabs)) {
-      const tabItem = tabs[tabIdx]
-      if (tabItem?.children) {
-        const childIds = (tabItem.children as (string | number)[]).map(id => String(id))
-        const children = (comp.children || []).filter(c =>
-          childIds.includes(String(c.componentId)) || childIds.includes(String(c.id))
-        )
-        console.log('[DropCanvas] getContainerChildren tabs (new):', {
-          compId: comp.id, tabIdx, childIds,
-          childrenIds: children.map(c => ({ id: c.id, componentId: c.componentId }))
-        })
-        return children
-      }
-      return []
-    }
-
-    return comp.children || []
+    const childIds = (currentTab.children as (string | number)[]).map(id => String(id))
+    return (comp.children || []).filter(c =>
+      childIds.includes(String(c.componentId)) || childIds.includes(String(c.id))
+    )
   }
   return comp.children || []
 }

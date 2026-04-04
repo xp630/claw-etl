@@ -451,7 +451,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import type { CanvasComponent, TabItem } from '@/pages/editor/types'
-import { isLegacyTabs } from '@/pages/editor/types'
 import TablePropsPanel from './TablePropsPanel.vue'
 import TreeNode from './TreeNode.vue'
 
@@ -699,20 +698,10 @@ function handleMoveToContainerAction(e: Event) {
   }
 }
 
-// Tabs 操作 - 兼容新旧格式
+// Tabs 操作 - 新格式
 const editableTabs = computed<TabItem[]>(() => {
   const tabs = props.selectedComponent?.props?.tabs
   if (!tabs) return []
-  if (isLegacyTabs(tabs as any)) {
-    // 旧格式 string[]，转换为 TabItem[]
-    return (tabs as string[]).map((label, i) => ({
-      id: `tab_${i}`,
-      label,
-      params: {},
-      children: [],
-      layout: { direction: 'column' as const, gap: 8, wrap: false }
-    }))
-  }
   return tabs as TabItem[]
 })
 

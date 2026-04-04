@@ -508,15 +508,12 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted } from 'vue'
 import { api, getAllDictItems } from '@/lib/api'
-import type { CanvasComponent, TabItem, UnifiedTabs, LayoutProps } from './types'
-import { isLegacyTabs } from './types'
+import type { CanvasComponent, TabItem, LayoutProps } from './types'
 
 interface Props {
   component: CanvasComponent
   editable?: boolean
-  // canvas mode: true = canvas editing (no children rendering), false = preview/runtime (render children)
   canvasMode?: boolean
-  // For canvas mode: pass children to render inside container
   showChildren?: CanvasComponent[]
   containerId?: string
   selectedId?: string | null
@@ -538,27 +535,12 @@ const emit = defineEmits<{
 }>()
 
 // ============ State ============
-
-// Tabs: track which tab is being dragged over for drop targeting
 const dragOverTabIndex = ref<number | null>(null)
 
-// Tabs: get unified tabs (supports both legacy string[] and new TabItem[] format)
+// Tabs: new format TabItem[]
 const unifiedTabs = computed((): TabItem[] => {
-  const rawTabs = props.component.props?.tabs as UnifiedTabs | undefined
-  if (!rawTabs || (Array.isArray(rawTabs) && rawTabs.length === 0)) return []
-  
-  if (isLegacyTabs(rawTabs)) {
-    // Legacy format: convert to new format
-    const childrenMap = props.component.props?.childrenMap as Record<string, (string | number)[]> | undefined
-    return rawTabs.map((label, index) => ({
-      id: `tab_${index}`,
-      label,
-      params: {},
-      children: childrenMap?.[String(index)] || []
-    }))
-  }
-  
-  // New format: TabItem[]
+  const rawTabs = props.component.props?.tabs as TabItem[] | undefined
+  if (!rawTabs || !Array.isArray(rawTabs)) return []
   return rawTabs
 })
 

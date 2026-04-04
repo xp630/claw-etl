@@ -8,9 +8,9 @@
     <!-- Tabs -->
     <div v-else-if="type === 'tabs'" class="w-full bg-[var(--bg-secondary)] border border-[var(--border-light)] rounded-lg flex flex-col">
       <div class="flex border-b border-[var(--border-light)] px-4 mb-3 -mx-4">
-        <div v-for="(tab, i) in tabs" :key="i" class="px-4 py-2 text-sm cursor-pointer transition-colors border-b-2 -mb-px"
-          :class="i === activeTab ? 'text-blue-500 border-blue-500 font-medium' : 'text-[var(--text-muted)] border-transparent hover:text-[var(--text-secondary)]'"
-          @click="activeTab = i">{{ tab }}</div>
+        <div v-for="tab in tabs" :key="tab.id" class="px-4 py-2 text-sm cursor-pointer transition-colors border-b-2 -mb-px"
+          :class="activeTabId === tab.id ? 'text-blue-500 border-blue-500 font-medium' : 'text-[var(--text-muted)] border-transparent hover:text-[var(--text-secondary)]'"
+          @click="activeTabId = tab.id">{{ tab.label }}</div>
       </div>
       <div class="flex-1 min-h-0 overflow-hidden">
         <template v-for="(child, idx) in tabChildren" :key="child.id || idx">
@@ -33,30 +33,39 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import ElementRenderer from './ElementRenderer.vue'
 import ContainerRenderer from './ContainerRenderer.vue'
 
+interface TabItem {
+  id: string
+  label: string
+  children?: (string | number)[]
+  [key: string]: any
+}
+
 const props = defineProps<{ type: string; props: Record<string, unknown>; children?: any[] }>()
-const activeTab = ref(Number(props.props.activeTab) || 0)
-watch(() => props.props.activeTab, (v) => { activeTab.value = Number(v) || 0 })
+
+// activeTab is string ID like "tab_0"
+const activeTabId = ref(props.props.activeTab as string || '')
+watch(() => props.props.activeTab, (v) => { activeTabId.value = (v as string) || '' })
+
 const containerStyle = computed(() => ({ width: (props.props.width as number | string) ?? '100%', minWidth: 0, flex: 1, borderRadius: '8px', padding: '16px' }))
-const tabs = computed(() => (props.props.tabs as string[]) || [])
+
+// New format: tabs is TabItem[]
+const tabs = computed<TabItem[]>(() => (props.props.tabs as TabItem[]) || [])
 const panels = computed(() => (props.props.panels as Array<{ title: string; content: string }>) || [])
 const bordered = computed(() => props.props.bordered)
 
 const isContainer = (type: string) => ['card', 'tabs', 'collapse'].includes(type)
 
-// For tabs: get children of the active tab
+// For tabs: get children of the active tab (new format uses tab.children)
 const tabChildren = computed(() => {
   if (!props.children || props.children.length === 0) return []
-  const childrenMap = props.props.childrenMap as Record<string, (string | number)[]> | undefined
-  if (childrenMap) {
-    const tabKey = String(activeTab.value)
-    const childIds = (childrenMap[tabKey] || []) as (string | number)[]
-    const childIdStrs = childIds.map(id => String(id))
-    return props.children.filter(c => childIdStrs.includes(String(c.componentId)) || childIdStrs.includes(String(c.id)))
-  }
-  return props.children
+  const currentTab = tabs.value.find(t => t.id === activeTabId.value)
+  if (!currentTab) return []
+  const childIds = (currentTab.children || []) as (string | number)[]
+  const childIdStrs = childIds.map(id => String(id))
+  return props.children.filter(c => childIdStrs.includes(String(c.componentId)) || childIdStrs.includes(String(c.id)))
 })
 </script>
