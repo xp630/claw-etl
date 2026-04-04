@@ -22,13 +22,6 @@
           <LayoutGrid class="w-4 h-4 mr-1" />组件库
         </el-button>
         <el-button
-          :type="activeLeftTab === 'layer' ? 'primary' : 'default'"
-          size="small"
-          @click="toggleLeftTab('layer')"
-        >
-          <Layers class="w-4 h-4 mr-1" />组件层
-        </el-button>
-        <el-button
           v-if="selectedId"
           size="small"
           @click="openPropsPanel"
@@ -494,8 +487,8 @@ function refreshSelectedComponent() {
 }
 
 // ============ Actions ============
-function toggleLeftTab(tab: 'layer' | 'components') {
-  activeLeftTab.value = activeLeftTab.value === tab ? '' : tab
+function toggleLeftTab() {
+  activeLeftTab.value = activeLeftTab.value === 'components' ? '' : 'components'
 }
 
 function handleSelectComponent(id: string) {
