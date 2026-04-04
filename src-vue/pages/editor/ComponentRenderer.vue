@@ -560,18 +560,9 @@ const activeTabIndex = computed(() => {
 })
 
 // Tabs: computed children for current tab
+// In new flat design, showChildren is already filtered by tabId in DropCanvas.getContainerChildren
 const tabChildren = computed(() => {
-  const tabs = unifiedTabs.value
-  const idx = activeTabIndex.value
-  if (idx < 0 || idx >= tabs.length) return []
-  
-  const tab = tabs[idx]
-  const childIds = (tab.children || []).map(id => String(id))
-  const componentChildren = props.component.children
-  const showChildren = props.showChildren
-  const children = componentChildren || showChildren || []
-  
-  return children.filter(c => childIds.includes(String(c.componentId)) || childIds.includes(String(c.id)))
+  return props.showChildren || props.component.children || []
 })
 
 // Tabs: get layout config for current tab (used for flex layout)

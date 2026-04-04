@@ -167,18 +167,9 @@ const isNested = (comp: CanvasComponent) => false // Root level only
 // Get children for a container component
 const getContainerChildren = (comp: CanvasComponent): CanvasComponent[] => {
   if (comp.type === 'tabs') {
-    const tabs = comp.props?.tabs as TabItem[] | undefined
     const activeTabId = comp.props?.activeTab as string || 'tab_0'
-
-    if (!tabs || !Array.isArray(tabs)) return comp.children || []
-
-    const currentTab = tabs.find(t => t.id === activeTabId || t.tabId === activeTabId)
-    if (!currentTab || !currentTab.children) return []
-
-    const childIds = (currentTab.children as (string | number)[]).map(id => String(id))
-    return (comp.children || []).filter(c =>
-      childIds.includes(String(c.componentId)) || childIds.includes(String(c.id))
-    )
+    // Filter children by tabId (new flat design: child.tabId indicates which tab it belongs to)
+    return (comp.children || []).filter(c => (c as any).tabId === activeTabId)
   }
   return comp.children || []
 }

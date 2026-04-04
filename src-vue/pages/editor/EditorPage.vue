@@ -225,18 +225,13 @@ function isContainerType(type: string): boolean {
 }
 
 function getContainerChildren(comp: CanvasComponent): CanvasComponent[] {
+  // In new flat design, comp.children is pre-populated by buildComponentTree
+  // based on parentComponentId + tabId matching
   if (comp.type === 'tabs') {
-    const tabs = comp.props?.tabs as TabItem[] | undefined
     const activeTabId = comp.props?.activeTab as string || 'tab_0'
-
-    if (!tabs || !Array.isArray(tabs)) return comp.children || []
-
-    const currentTab = tabs.find(t => t.id === activeTabId || t.tabId === activeTabId)
-    if (!currentTab || !currentTab.children) return []
-
-    const childIds = (currentTab.children as (string | number)[]).map(id => String(id))
-    return (comp.children || []).filter(c =>
-      childIds.includes(String(c.componentId)) || childIds.includes(String(c.id))
+    // Return children that belong to the active tab
+    return (comp.children || []).filter(c => 
+      (c as any).tabId === activeTabId
     )
   }
   return comp.children || []
@@ -302,12 +297,12 @@ function loadComponent(c: any): CanvasComponent {
   }
   return {
     id: String(c.id) || `comp_${Date.now()}`,
-    // 优先使用保存时的 componentId，保持与 tab.children 里存储的 ID 一致
-    // 如果数据库没有 componentId，则生成新的
+    // 优先使用保存时的 componentId
     componentId: c.componentId 
       ? String(c.componentId)
       : `${c.type}_${c.id || Date.now()}`,
-    parentId: c.parentId || undefined,
+    parentComponentId: c.parentComponentId || undefined,
+    tabId: c.tabId || undefined,
     type: c.type,
     label: c.label || '',
     props,
@@ -315,87 +310,67 @@ function loadComponent(c: any): CanvasComponent {
   }
 }
 
-// Build tree structure from flat list with parentId
+// Build tree structure from flat list using parentComponentId + tabId
 function buildComponentTree(flatComponents: any[]): CanvasComponent[] {
-  const componentMap = new Map<string | number, CanvasComponent>()
+  const componentMap = new Map<string, CanvasComponent>()
   const rootComponents: CanvasComponent[] = []
 
-  // First create all components
+  // First create all components and store by componentId
   flatComponents.forEach(c => {
     const comp = loadComponent(c)
-    // Store with both id and componentId keys for lookup
-    componentMap.set(comp.id, comp)
-    if (typeof comp.id === 'string') {
-      componentMap.set(Number(comp.id), comp)
-    }
-    // Also store by componentId for stable linking
     if (comp.componentId) {
       componentMap.set(comp.componentId, comp)
     }
+    if (comp.id) {
+      componentMap.set(String(comp.id), comp)
+    }
   })
 
-  // Then build parent-child relationships using componentId for linking
-  const addedToChildren = new Set<string | number>()
+  // Group children by parentComponentId (for regular containers)
+  const childrenByParent = new Map<string, CanvasComponent[]>()
+  // Group children by parentComponentId + tabId (for tabs)
+  const childrenByTab = new Map<string, CanvasComponent[]>()
+
   flatComponents.forEach(c => {
-    const comp = componentMap.get(c.id) || componentMap.get(String(c.id)) || componentMap.get(c.componentId)
+    const comp = componentMap.get(c.componentId || String(c.id))
     if (!comp) return
-    const parentId = c.parentId
-    if (parentId) {
-      // Try multiple ways to find parent: by parentId directly, by String(parentId), by componentId
-      const parent = componentMap.get(parentId) 
-        || componentMap.get(String(parentId)) 
-        || componentMap.get(Number(parentId))
-        || componentMap.get(c.componentId)
-      if (parent) {
-        parent.children = parent.children || []
-        if (!addedToChildren.has(comp.id)) {
-          parent.children.push(comp)
-          addedToChildren.add(comp.id)
+
+    if (c.parentComponentId) {
+      const key = c.tabId 
+        ? `${c.parentComponentId}:${c.tabId}` 
+        : c.parentComponentId
+      
+      if (c.tabId) {
+        const tabKey = `${c.parentComponentId}:${c.tabId}`
+        if (!childrenByTab.has(tabKey)) {
+          childrenByTab.set(tabKey, [])
         }
+        childrenByTab.get(tabKey)!.push(comp)
       } else {
-        rootComponents.push(comp)
+        if (!childrenByParent.has(c.parentComponentId)) {
+          childrenByParent.set(c.parentComponentId, [])
+        }
+        childrenByParent.get(c.parentComponentId)!.push(comp)
       }
     } else {
       rootComponents.push(comp)
     }
   })
 
-  // Fix childrenMap: resolve childrenMap IDs to actual component objects
-  // Note: Tabs with new format use TabItem.children instead, skip childrenMap handling for tabs
-  componentMap.forEach(comp => {
-    if (comp.type === 'tabs') return // Skip tabs (new format uses TabItem.children)
-    
-    const childrenMap = comp.props?.childrenMap as Record<string, (string | number)[]> | undefined
-    
-    // If childrenMap is empty or undefined but children exists, rebuild childrenMap from children
-    if (!childrenMap || Object.keys(childrenMap).length === 0) {
-      if (comp.children && comp.children.length > 0) {
-        // Rebuild childrenMap from children array using componentId (stable)
-        comp.props.childrenMap = { '0': comp.children.map(c => c.componentId || c.id) }
-      }
-    } else if (childrenMap && typeof childrenMap === 'object') {
-      // Existing logic: resolve childrenMap IDs to actual component objects
-      const allChildIds: (string | number)[] = []
-      Object.values(childrenMap).forEach(ids => {
-        if (Array.isArray(ids)) {
-          allChildIds.push(...ids)
-        }
+  // Assign children to components
+  // For tabs: store all children (they'll be filtered by tabId in getContainerChildren)
+  // For other containers: direct assignment
+  componentMap.forEach((comp, key) => {
+    if (comp.type === 'tabs') {
+      // Tabs: store all children, filtered by tabId at runtime
+      const allTabChildren: CanvasComponent[] = []
+      childrenByTab.forEach((children) => {
+        allTabChildren.push(...children)
       })
-      
-      // Resolve children by componentId (stable) or id
-      const resolvedChildren = allChildIds
-        .map(id => componentMap.get(id) || componentMap.get(String(id)) || componentMap.get(String(id)))
-        .filter((c): c is CanvasComponent => c !== undefined)
-
-      if (resolvedChildren.length > 0) {
-        const existingIds = new Set(comp.children?.map(c => c.id) || [])
-        resolvedChildren.forEach(child => {
-          if (!existingIds.has(child.id)) {
-            comp.children = comp.children || []
-            comp.children.push(child)
-          }
-        })
-      }
+      comp.children = allTabChildren
+    } else {
+      const parentKey = comp.componentId || String(comp.id)
+      comp.children = childrenByParent.get(parentKey) || []
     }
   })
 
@@ -403,64 +378,68 @@ function buildComponentTree(flatComponents: any[]): CanvasComponent[] {
 }
 
 /**
- * 保存时扁平化组件树并转换格式
+ * 扁平化组件树用于保存
  * 
- * 【函数作用】将树形结构的组件转换为扁平的 parentId 层级列表,同时处理 tabs 格式转换
- * 
- * 【参数】
- *   - comps: CanvasComponent[] - 树形组件数组
- *   - parentId: string | null - 当前组件的父组件 ID(用于建立父子关系)
- * 
- * 【返回值】any[] - 扁平化后的组件数组,每个元素包含 parentId 字段表示父子关系
- * 
-/**
- * 扁平化组件树，用于保存到数据库
- * 新格式：tabs=[{id, label, children: [componentIds]}], activeTab="tab_0"
+ * 完全扁平：每个组件一条记录，通过 parentComponentId + tabId 关联
+ * - parentComponentId: 父容器组件的 componentId
+ * - tabId: 属于哪个 tab（仅 tabs 容器内的组件）
+ * - tabs 的 props.tabs 不再包含 children
  */
-function flattenComponentsWithParentId(comps: CanvasComponent[], parentId: string | null = null): any[] {
+function flattenComponentsWithParentId(comps: CanvasComponent[], parentComponentId: string | null = null, tabId: string | null = null): any[] {
   const result: any[] = []
   for (const c of comps) {
-    const { children, ...rest } = c
-    const item: any = { ...rest }
+    const { children, props, ...rest } = c
+    
+    // Clean props: remove childrenMap
+    const cleanProps = { ...props }
+    delete cleanProps.childrenMap
+    delete cleanProps.children
+    
+    // For tabs, remove children from tab items (children now via parentComponentId + tabId)
+    if (cleanProps.tabs) {
+      cleanProps.tabs = (cleanProps.tabs as TabItem[]).map(({ children, ...tabRest }) => tabRest)
+    }
 
+    const item: any = {
+      ...rest,
+      componentId: c.componentId,
+      parentComponentId: parentComponentId || undefined,
+      tabId: tabId || undefined,
+      props: cleanProps
+    }
+
+    // Ensure tabs have activeTab as string
     if (item.type === 'tabs' && item.props?.tabs) {
-      // 新格式 tabs: activeTab 必须是字符串 ID
       const rawActiveTab = item.props.activeTab
       if (typeof rawActiveTab === 'number') {
-        item.props = { ...item.props, activeTab: `tab_${rawActiveTab}` }
+        item.props.activeTab = `tab_${rawActiveTab}`
       } else if (!rawActiveTab) {
-        item.props = { ...item.props, activeTab: 'tab_0' }
+        item.props.activeTab = 'tab_0'
       }
     }
 
-    if (parentId) {
-      item.parentId = parentId
-    }
     result.push(item)
+    
+    // Recursively flatten children
     if (children && children.length > 0) {
-      // Use componentId for stable parent linking
-      const childParentId = c.componentId || c.id
-      result.push(...flattenComponentsWithParentId(children, childParentId))
+      children.forEach((child: CanvasComponent) => {
+        // For tabs: child's tabId comes from the child's own property
+        // For regular containers: tabId is null
+        const childTabId = c.type === 'tabs' ? (child.tabId || null) : null
+        result.push(...flattenComponentsWithParentId(
+          [child], 
+          c.componentId || String(c.id), 
+          childTabId
+        ))
+      })
     }
   }
   return result
 }
 
-// Flatten all nested containers
+// Legacy function - kept for compatibility but not used in new flow
 function flattenComponents(comps: CanvasComponent[]): CanvasComponent[] {
-  const result: CanvasComponent[] = []
-  for (const comp of comps) {
-    const isContainer = comp.type === 'tabs' || comp.type === 'card' || comp.type === 'collapse'
-    result.push({ 
-      ...comp, 
-      children: undefined,
-      props: isContainer ? { ...comp.props, childrenMap: {} } : comp.props
-    })
-    if (comp.children && comp.children.length > 0) {
-      result.push(...flattenComponents(comp.children))
-    }
-  }
-  return result
+  return flattenComponentsWithParentId(comps)
 }
 
 // ============ Computed ============
@@ -630,59 +609,45 @@ function updateParentIdDeep(comp: CanvasComponent, newParentId: string): CanvasC
  *   新格式: tabs[i].children.push(childId)
  *   旧格式: childrenMap[i].push(childId)
  */
+// Add child to container - new flat design
 function handleAddChildToContainer(containerId: string, childComponent: CanvasComponent, tabIndex?: number) {
-  // Find the container component to get its componentId
+  // Find the container component
   const container = findComponent(components.value, containerId)
   const containerComponentId = container?.componentId || containerId
-  // Deep copy and update parentId: parentId 统一指向 componentId（稳定 ID）
-  const childWithParent = updateParentIdDeep(childComponent, containerComponentId)
-  const childKey = String(childWithParent.componentId || childWithParent.id)
-
-  // 从根数组中移除 child，同时更新容器的 children
-  // 避免 child 同时存在于根数组和容器 children 中导致 buildComponentTree 时 componentMap key 冲突
-  components.value = components.value
-    .filter(c => String(c.id) !== String(childWithParent.id) && c.componentId !== childKey)
-    .map(c => {
-      const matchId = c.id === containerId || c.componentId === containerId
-      if (!matchId) {
-        if (c.children?.length) {
-          const updatedChildren = c.children
-            .filter(child => String(child.id) !== String(childWithParent.id) && child.componentId !== childKey)
-            .map(child => {
-              const childMatch = child.id === containerId || child.componentId === containerId
-              if (child.id === containerId || child.componentId === containerId) {
-                return updateContainerChildren(child, tabIndex, childKey, childWithParent)
-              }
-              return child
-            })
-          return { ...c, children: updatedChildren }
-        }
-        return c
-      }
-      return updateContainerChildren(c, tabIndex, childKey, childWithParent)
-    })
-
-  selectedId.value = childKey  // selectedId 统一存 componentId
-  refreshSelectedComponent()
-}
-
-// 更新容器的 children（处理 tabs 等嵌套结构）
-function updateContainerChildren(comp: CanvasComponent, tabIndex: number | undefined, childKey: string, childWithParent: CanvasComponent): CanvasComponent {
-  if (comp.type === 'tabs') {
-    const tabs = comp.props.tabs as TabItem[]
-    if (tabs && Array.isArray(tabs)) {
-      const rawActiveTab = comp.props.activeTab
-      const activeId = rawActiveTab !== undefined ? String(rawActiveTab) : ''
-      const tabIdx = tabs.findIndex(t => t.id === activeId || t.tabId === activeId)
-      const targetIdx = (tabIndex !== undefined && tabIndex >= 0) ? tabIndex : (tabIdx >= 0 ? tabIdx : 0)
-      const newTabs = tabs.map((tab, i) => {
-        if (i !== targetIdx) return tab
-        return { ...tab, children: [...(tab.children || []), childKey] }
-      })
-      return { ...comp, children: [...(comp.children || []), childWithParent], props: { ...comp.props, tabs: newTabs } }
+  
+  // Determine which tab the child belongs to (for tabs)
+  let tabId: string | null = null
+  if (container?.type === 'tabs') {
+    const tabs = container.props?.tabs as TabItem[] || []
+    if (tabIndex !== undefined && tabIndex >= 0 && tabs[tabIndex]) {
+      tabId = tabs[tabIndex].tabId
+    } else {
+      // Use active tab
+      const activeTabId = container.props?.activeTab as string || 'tab_0'
+      tabId = activeTabId
     }
   }
-  return { ...comp, children: [...(comp.children || []), childWithParent] }
+  
+  // Create child with parent reference
+  const childKey = String(childComponent.componentId || childComponent.id)
+  const childWithParent: CanvasComponent = {
+    ...childComponent,
+    parentComponentId: containerComponentId,
+    tabId: tabId || undefined
+  }
+
+  // In flat design: remove from root (if present), add to container's children
+  components.value = components.value
+    .filter(c => String(c.id) !== String(childComponent.id) && c.componentId !== childKey)
+    .map(c => {
+      if (c.id === containerId || c.componentId === containerId) {
+        return { ...c, children: [...(c.children || []), childWithParent] }
+      }
+      return c
+    })
+
+  selectedId.value = childKey
+  refreshSelectedComponent()
 }
 
 /**
@@ -698,36 +663,24 @@ function updateContainerChildren(comp: CanvasComponent, tabIndex: number | undef
 /**
  * 从容器中移除子组件（解除父子关系，但不删除组件本身）
  */
+// Remove child from container - new flat design
 function handleRemoveChildFromContainer(containerId: string, childId: string) {
   if (!confirm('确定要移除这个组件吗？')) return
 
-  const childComp = findComponent(components.value, childId)
-  const childCompId = childComp?.componentId ? String(childComp.componentId) : String(childId)
-
+  // Simply remove from container's children array
+  // In new design, child's tabId indicates which tab it belongs to
   components.value = updateComponentInTree(components.value, containerId, (comp: CanvasComponent) => {
-    if (comp.type === 'tabs') {
-      const tabs = comp.props.tabs as TabItem[]
-      if (tabs && Array.isArray(tabs)) {
-        const newTabs = tabs.map(tab => ({
-          ...tab,
-          children: (tab.children || []).filter((cid: any) => String(cid) !== childCompId)
-        }))
-        return {
-          ...comp,
-          children: (comp.children || []).filter(c => String(c.id) !== String(childId) && c.componentId !== childCompId),
-          props: { ...comp.props, tabs: newTabs }
-        }
-      }
-    }
     return {
       ...comp,
-      children: (comp.children || []).filter(c => String(c.id) !== String(childId) && c.componentId !== childCompId),
+      children: (comp.children || []).filter(c => 
+        String(c.id) !== String(childId) && c.componentId !== childId
+      ),
     }
   })
+  
   if (String(selectedId.value) === String(childId)) {
     selectedId.value = null
   } else {
-    // Refresh panel in case a nested child was removed from a selected container
     refreshSelectedComponent()
   }
 }
@@ -799,9 +752,17 @@ function handleMoveChildToRoot(fromContainerId: string, childId: string, insertI
         }
       }
       const children = comp.children || []
-      const idx = children.findIndex(c => String(c.id) === String(childId))
+      // Move child to root (remove from container)
+function handleMoveChildToRoot(fromContainerId: string, childId: string, insertIndex: number, tabIndex?: number) {
+  let childToMove: CanvasComponent | null = null
+
+  // Extract child from container
+  const extractFromContainer = (comp: CanvasComponent): CanvasComponent | null => {
+    if (comp.id === fromContainerId || comp.componentId === fromContainerId) {
+      const children = comp.children || []
+      const idx = children.findIndex(c => String(c.id) === String(childId) || c.componentId === childId)
       if (idx !== -1) {
-        childToMove = { ...children[idx], parentId: undefined }
+        childToMove = { ...children[idx], parentComponentId: undefined, tabId: undefined }
         return { ...comp, children: children.filter((_, i) => i !== idx) }
       }
     }
@@ -828,43 +789,17 @@ function handleMoveChildToRoot(fromContainerId: string, childId: string, insertI
 
   if (!childToMove) return
 
-  // Prevent dropping a container into itself or its descendant
-  // isDescendant(target, ancestor) returns true if target is a descendant of ancestor
-  // Check if target container (fromContainerId) is inside the component being moved (childToMove)
-  // If true, dropping would create a cycle: parent -> ... -> child -> parent
-  // Check if container's componentId matches child's id or componentId
-  const wouldCreateCycle = isDescendant(fromContainerId, childToMove.id) || isDescendant(fromContainerId, childToMove.componentId) || fromContainerId === childToMove.id || fromContainerId === childToMove.componentId
-  if (isContainerType(childToMove.type) && wouldCreateCycle) {
-    console.warn('[EditorPage] Cannot drop container into itself or its descendant')
-    return
+  // Add to root level
+  if (insertIndex < 0 || insertIndex >= updated.length) {
+    updated = [...updated, childToMove]
+  } else {
+    updated.splice(insertIndex, 0, childToMove)
   }
 
-  // If tabIndex is provided, add to the target container's specific tab instead of root
-  if (tabIndex !== undefined && tabIndex >= 0) {
-    updated = updateComponentInTree(updated, fromContainerId, (comp: CanvasComponent) => {
-      if (comp.type === 'tabs') {
-        const tabs = comp.props.tabs as TabItem[]
-        if (tabs && Array.isArray(tabs)) {
-          const childKey = childToMove!.componentId || childToMove!.id
-          const newTabs = tabs.map((tab, i) => {
-            if (i !== tabIndex) return tab
-            return { ...tab, children: [...(tab.children || []), childKey] }
-          })
-          return {
-            ...comp,
-            children: [...(comp.children || []), childToMove!],
-            props: { ...comp.props, tabs: newTabs },
-          }
-        }
-      }
-      return comp
-    })
-  } else {
-    // Add to root level
-    if (insertIndex < 0 || insertIndex >= updated.length) {
-      updated = [...updated, childToMove]
-    } else {
-      updated.splice(insertIndex, 0, childToMove)
+  components.value = updated
+  selectedId.value = String(childToMove.id || childToMove.componentId)
+  refreshSelectedComponent()
+}
     }
   }
 
@@ -953,13 +888,13 @@ async function handleSave() {
 
   saving.value = true
   try {
-    // 扁平化组件树，保存 parentId 层级关系
+    // 扁平化组件树，保存 parentComponentId + tabId 层级关系
     const flatComponents = flattenComponentsWithParentId(components.value)
     console.log('[EditorPage] saving flatComponents:', flatComponents.map(c => ({
       id: c.id,
       type: c.type,
-      parentId: c.parentId,
-      children: c.children?.length
+      parentComponentId: c.parentComponentId,
+      tabId: c.tabId
     })))
     
     const result = await savePageConfig({

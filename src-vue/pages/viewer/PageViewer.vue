@@ -66,18 +66,38 @@ onMounted(async () => {
       compMap.set(componentId, comp)
     })
 
+    // Group children by parentComponentId
+    const childrenByParent = new Map<string, any[]>()
+    const childrenByTab = new Map<string, any[]>()
+    
     flatComps.forEach((c: any) => {
-      const comp = compMap.get(String(c.id))
-      const parentId = c.parentId
-      if (parentId != null && parentId !== undefined) {
-        const parent = compMap.get(String(parentId))
-        if (parent) {
-          parent.children = parent.children || []
-          parent.children.push(comp)
+      if (c.parentComponentId) {
+        const key = c.tabId 
+          ? `${c.parentComponentId}:${c.tabId}` 
+          : c.parentComponentId
+        if (c.tabId) {
+          if (!childrenByTab.has(key)) childrenByTab.set(key, [])
+          childrenByTab.get(key)!.push(c)
         } else {
-          rootComps.push(comp)
+          if (!childrenByParent.has(c.parentComponentId)) childrenByParent.set(c.parentComponentId, [])
+          childrenByParent.get(c.parentComponentId)!.push(c)
         }
-      } else rootComps.push(comp)
+      } else {
+        rootComps.push(compMap.get(String(c.id)) || compMap.get(c.componentId))
+      }
+    })
+    
+    // Assign children to components
+    compMap.forEach((comp: any) => {
+      const key = comp.componentId || String(comp.id)
+      if (comp.type === 'tabs') {
+        // For tabs: collect all children for all tabs
+        const allTabChildren: any[] = []
+        childrenByTab.forEach((children) => allTabChildren.push(...children))
+        comp.children = allTabChildren
+      } else {
+        comp.children = childrenByParent.get(key) || []
+      }
     })
 
     components.value = rootComps

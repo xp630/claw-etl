@@ -60,19 +60,10 @@ const bordered = computed(() => props.props.bordered)
 const isContainer = (type: string) => ['card', 'tabs', 'collapse'].includes(type)
 
 // For tabs: get children of the active tab (new format uses tab.children)
+// Filter children by tabId (new flat design)
 const tabChildren = computed(() => {
   if (!props.children || props.children.length === 0) return []
-  const currentTab = tabs.value.find(t => t.id === activeTabId.value)
-  if (!currentTab) return []
-  const childIds = (currentTab.children || []) as (string | number)[]
-  const childIdStrs = childIds.map(id => String(id))
-  const filtered = props.children.filter(c => childIdStrs.includes(String(c.componentId)) || childIdStrs.includes(String(c.id)))
-  console.log('[ContainerRenderer] tabChildren debug:', {
-    activeTabId: activeTabId.value,
-    tabChildrenIds: childIdStrs,
-    propsChildrenIds: props.children.map(c => ({ id: c.id, componentId: c.componentId })),
-    matched: filtered.map(c => c.id)
-  })
-  return filtered
+  // Filter children that belong to the active tab via tabId
+  return props.children.filter(c => (c as any).tabId === activeTabId.value)
 })
 </script>
