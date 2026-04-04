@@ -3,9 +3,9 @@ import { ref, onMounted, onUnmounted, watch, shallowRef } from 'vue'
 import { EditorState } from '@codemirror/state'
 import { EditorView, keymap, lineNumbers, highlightActiveLineGutter, highlightSpecialChars, drawSelection, highlightActiveLine, lineWrapping } from '@codemirror/view'
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
-import { json } from '@codemirror/lang-json'
-import { syntaxHighlighting, defaultHighlightStyle, foldGutter, foldKeymap, indentOnInput } from '@codemirror/language'
-import { linter, setDiagnostics } from '@codemirror/lint'
+import { json, jsonParseLinter } from '@codemirror/lang-json'
+import { syntaxHighlighting, defaultHighlightStyle, foldGutter, foldKeymap, indentOnInput, fold } from '@codemirror/language'
+import { linter } from '@codemirror/lint'
 import { searchKeymap, highlightSelectionMatches } from '@codemirror/search'
 import { autocompletion, completionKeymap } from '@codemirror/autocomplete'
 import { bracketMatching, foldRange, foldState } from '@codemirror/language'
@@ -29,38 +29,8 @@ const editorRef = ref<HTMLDivElement | null>(null)
 const editorView = shallowRef<EditorView | null>(null)
 const error = ref<string | null>(null)
 
-// JSON linter
-const jsonLinter = linter((view) => {
-  const content = view.state.doc.toString()
-  if (!content.trim()) return []
-  
-  try {
-    JSON.parse(content)
-    error.value = null
-    emit('error', null)
-    return []
-  } catch (e: any) {
-    error.value = e.message
-    emit('error', e.message)
-    
-    const match = e.message.match(/position (\d+)/)
-    if (match) {
-      const pos = parseInt(match[1])
-      return [{
-        from: Math.max(0, pos - 1),
-        to: Math.min(content.length, pos + 1),
-        severity: 'error',
-        message: e.message
-      }]
-    }
-    return [{
-      from: 0,
-      to: content.length,
-      severity: 'error',
-      message: e.message
-    }]
-  }
-})
+// JSON linter using built-in jsonParseLinter
+const jsonLinter = jsonParseLinter()
 
 // Custom dark theme with better fold styling
 const darkTheme = EditorView.theme({
@@ -142,16 +112,8 @@ function createEditor() {
       highlightActiveLineGutter(),
       highlightSpecialChars(),
       history(),
-      foldGutter({
-        markerDOM(open) {
-          const el = document.createElement('span')
-          el.textContent = open ? '▼' : '▶'
-          el.style.fontSize = '8px'
-          el.style.cursor = 'pointer'
-          el.style.userSelect = 'none'
-          return el
-        }
-      }),
+      fold(),
+      foldGutter(),
       drawSelection(),
       EditorState.allowMultipleSelections.of(true),
       indentOnInput(),
