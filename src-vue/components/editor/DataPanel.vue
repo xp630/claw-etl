@@ -252,21 +252,22 @@ function findCollapseEnd(startLine: number): number {
 }
 
 function syntaxHighlightLine(line: string): string {
-  return line
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, (match) => {
-      let cls = 'json-number'
-      if (/^"/.test(match)) {
-        if (/:$/.test(match)) {
-          cls = 'json-key'
-          match = match.replace(/:$/, '')
-          return `<span class="${cls}">${match}</span>:`
-        } else {
-          cls = 'json-string'
-        }
-      }
-      return `<span class="${cls}">${match}</span>`
-    })
+  // Escape HTML first
+  let result = line
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+  
+  // Simple JSON syntax highlighting
+  // Match strings (keys or values)
+  result = result.replace(/"([^"\\]*(?:\\.[^"\\]*)*)"\s*:/g, '<span class="json-key">"$1"</span>:')
+  result = result.replace(/:(\s*)"([^"\\]*(?:\\.[^"\\]*)*)"/g, ':$1<span class="json-string">"$2"</span>')
+  // Numbers
+  result = result.replace(/\b(\d+\.?\d*)\b/g, '<span class="json-number">$1</span>')
+  // Booleans and null
+  result = result.replace(/\b(true|false|null)\b/g, '<span class="json-number">$1</span>')
+  
+  return result
 }
 
 function handleJsonClick(e: MouseEvent) {
