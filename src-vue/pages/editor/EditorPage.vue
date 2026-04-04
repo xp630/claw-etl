@@ -79,19 +79,25 @@
       </div>
 
       <!-- 属性配置抽屉 (与 DataPanel 风格一致) -->
-      <PropertyPanel
-        :visible="showPropsPanel && !!selectedComponent"
-        :selected-component="selectedComponent"
-        :components="components"
-        @close="closePropsPanel"
-        @update-props="handleUpdateProps"
-        @update-component="handleUpdateComponent"
-        @move-to-container="handleMoveToContainer"
-        @move-out-of-container="handleMoveOutOfContainer"
-        @delete-component="handleDelete"
-        @select-component="handleSelectComponent"
-        @remove-tab="handleRemoveTab"
-      />
+      <el-drawer
+        v-model="showPropsPanel"
+        direction="rtl"
+        :size="400"
+        :with-header="false"
+      >
+        <PropertyPanel
+          v-if="selectedComponent"
+          :selected-component="selectedComponent"
+          :components="components"
+          @update-props="handleUpdateProps"
+          @update-component="handleUpdateComponent"
+          @move-to-container="handleMoveToContainer"
+          @move-out-of-container="handleMoveOutOfContainer"
+          @delete-component="handleDelete"
+          @select-component="handleSelectComponent"
+          @remove-tab="handleRemoveTab"
+        />
+      </el-drawer>
 
       <!-- Canvas -->
       <!-- Preview Mode -->
@@ -149,7 +155,7 @@
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { LayoutGrid, Layers, Settings2, X } from 'lucide-vue-next'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElDrawer } from 'element-plus'
 import ComponentPanel from '@/components/editor/ComponentPanel.vue'
 import ComponentTree from './ComponentTree.vue'
 import DropCanvas from './DropCanvas.vue'

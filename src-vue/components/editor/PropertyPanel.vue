@@ -1,28 +1,23 @@
 <template>
-  <!-- 抽屉容器 - 与 DataPanel 风格一致 -->
-  <transition name="drawer">
-    <div
-      v-if="visible"
-      class="property-drawer fixed right-0 top-14 bottom-0 w-[420px] bg-[var(--bg-secondary)] border-l border-[var(--border-light)] shadow-2xl z-50 flex flex-col"
-    >
-      <!-- Header -->
-      <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--border-light)] bg-[var(--bg-tertiary)]">
-        <div class="flex items-center gap-2">
-          <span class="text-sm font-medium text-[var(--text-primary)]">属性配置</span>
-          <span v-if="selectedComponent" class="text-xs text-[var(--text-muted)]">
-            — {{ selectedComponent.label || selectedComponent.type }}
-          </span>
-        </div>
-        <button
-          class="text-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
-          @click="$emit('close')"
-        >
-          ×
-        </button>
+  <div class="property-panel-container h-full flex flex-col">
+    <!-- Header - 匹配 DataPanel 风格 -->
+    <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--border-light)] bg-[var(--bg-tertiary)] shrink-0">
+      <div class="flex items-center gap-2">
+        <span class="text-sm font-medium text-[var(--text-primary)]">属性配置</span>
+        <span v-if="selectedComponent" class="text-xs text-[var(--text-muted)]">
+          — {{ selectedComponent.label || selectedComponent.type }}
+        </span>
       </div>
+      <button
+        class="text-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+        @click="handleClose"
+      >
+        ×
+      </button>
+    </div>
 
-      <!-- Content -->
-      <div class="flex-1 overflow-y-auto">
+    <!-- Content -->
+    <div class="flex-1 overflow-y-auto">
         <div v-if="!selectedComponent" class="empty-state">
           <p>点击组件进行配置</p>
         </div>
@@ -171,106 +166,130 @@
         </template>
       </div>
       
-      <!-- tabs 配置 (tabs) - 保持独立 -->
+      <!-- tabs 配置 (tabs) - 扁平化重构 -->
       <div v-if="hasProp('tabs')" class="prop-section">
         <div class="flex items-center justify-between mb-2">
           <h4 class="prop-section-title mb-0">标签页</h4>
-            <button
-              type="button"
-              class="text-xs text-[var(--accent)] hover:underline"
-              @click="addTab"
-            >
-              + 添加
-            </button>
-          </div>
-          <div class="space-y-1">
-            <div
-              v-for="(tab, index) in editableTabs"
-              :key="index"
-              class="border border-[var(--border)] rounded p-2 space-y-1"
-            >
-              <div class="flex items-center gap-1">
+          <button
+            type="button"
+            class="text-xs text-[var(--accent)] hover:underline"
+            @click="addTab"
+          >
+            + 添加
+          </button>
+        </div>
+        
+        <!-- el-tabs 可视化切换 -->
+        <el-tabs
+          v-if="editableTabs.length > 0"
+          v-model="activeTabIndex"
+          type="card"
+          class="tabs-flat-tabs"
+        >
+          <el-tab-pane
+            v-for="(tab, index) in editableTabs"
+            :key="index"
+            :label="tab.label || `标签${index + 1}`"
+            :name="index"
+          >
+            <div class="tab-config-content">
+              <!-- Tab 标签名 -->
+              <div class="flex items-center gap-2 mb-3">
+                <span class="text-xs text-[var(--text-muted)] shrink-0">标签名:</span>
                 <input
                   :value="tab.label"
                   type="text"
                   class="flex-1 px-2 py-1 border border-[var(--border)] rounded text-xs"
-                  placeholder="标签名"
+                  placeholder="输入标签名"
                   @input="updateTabLabel(index, ($event.target as HTMLInputElement).value)"
                 />
                 <button
                   type="button"
-                  class="px-1 text-[var(--danger)] hover:text-red-400 text-xs"
+                  class="px-2 py-1 text-xs text-[var(--danger)] hover:bg-red-50 rounded"
                   @click="removeTab(index)"
                 >
-                  ✕
+                  删除
                 </button>
               </div>
-              <!-- tab 布局配置 -->
-              <div class="pl-2 text-xs text-[var(--text-muted)] space-y-1">
-                <div class="flex items-center gap-1">
-                  <span class="shrink-0">方向:</span>
-                  <select
-                    :value="tab.layout?.direction || 'column'"
-                    class="px-1 py-0.5 border border-[var(--border)] rounded text-xs"
-                    @change="updateTabLayout(index, 'direction', ($event.target as HTMLSelectElement).value as 'row' | 'column')"
-                  >
-                    <option value="column">纵向</option>
-                    <option value="row">横向</option>
-                  </select>
-                  <span class="shrink-0">间距:</span>
-                  <input
-                    :value="tab.layout?.gap ?? 8"
-                    type="number"
-                    class="w-12 px-1 py-0.5 border border-[var(--border)] rounded text-xs"
-                    min="0"
-                    @input="updateTabLayout(index, 'gap', Number(($event.target as HTMLInputElement).value))"
-                  />
-                </div>
-                <div class="flex items-center gap-1">
-                  <span class="shrink-0">对齐:</span>
-                  <select
-                    :value="tab.layout?.alignItems || 'stretch'"
-                    class="px-1 py-0.5 border border-[var(--border)] rounded text-xs"
-                    @change="updateTabLayout(index, 'alignItems', ($event.target as HTMLSelectElement).value)"
-                  >
-                    <option value="start">起始</option>
-                    <option value="center">居中</option>
-                    <option value="end">末尾</option>
-                    <option value="stretch">拉伸</option>
-                  </select>
-                  <span class="shrink-0">换行:</span>
-                  <input
-                    type="checkbox"
-                    :checked="tab.layout?.wrap || false"
-                    class="w-3 h-3"
-                    @change="updateTabLayout(index, 'wrap', ($event.target as HTMLInputElement).checked)"
-                  />
-                </div>
-                <!-- tab 参数配置 -->
-                <div class="pt-1 border-t border-[var(--border-light)] mt-1">
-                  <div class="flex items-center gap-1 mb-1">
-                    <span class="shrink-0 text-[var(--text-muted)]">参数:</span>
-                    <button
-                      type="button"
-                      class="text-xs text-[var(--accent)] hover:underline"
-                      @click="addTabParam(index)"
+              
+              <!-- 布局配置 - 合并为一行 -->
+              <div class="bg-[var(--bg-hover-light)] rounded p-2 mb-3">
+                <div class="text-xs text-[var(--text-muted)] mb-2 font-medium">布局设置</div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <div class="flex items-center gap-1">
+                    <span class="text-xs text-[var(--text-muted)]">方向:</span>
+                    <select
+                      :value="tab.layout?.direction || 'column'"
+                      class="px-1 py-0.5 border border-[var(--border)] rounded text-xs"
+                      @change="updateTabLayout(index, 'direction', ($event.target as HTMLSelectElement).value as 'row' | 'column')"
                     >
-                      + 添加参数
-                    </button>
+                      <option value="column">纵向</option>
+                      <option value="row">横向</option>
+                    </select>
                   </div>
+                  <div class="flex items-center gap-1">
+                    <span class="text-xs text-[var(--text-muted)]">间距:</span>
+                    <input
+                      :value="tab.layout?.gap ?? 8"
+                      type="number"
+                      class="w-14 px-1 py-0.5 border border-[var(--border)] rounded text-xs"
+                      min="0"
+                      @input="updateTabLayout(index, 'gap', Number(($event.target as HTMLInputElement).value))"
+                    />
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <span class="text-xs text-[var(--text-muted)]">对齐:</span>
+                    <select
+                      :value="tab.layout?.alignItems || 'stretch'"
+                      class="px-1 py-0.5 border border-[var(--border)] rounded text-xs"
+                      @change="updateTabLayout(index, 'alignItems', ($event.target as HTMLSelectElement).value)"
+                    >
+                      <option value="start">起始</option>
+                      <option value="center">居中</option>
+                      <option value="end">末尾</option>
+                      <option value="stretch">拉伸</option>
+                    </select>
+                  </div>
+                  <div class="flex items-center gap-1">
+                    <span class="text-xs text-[var(--text-muted)]">换行:</span>
+                    <input
+                      type="checkbox"
+                      :checked="tab.layout?.wrap || false"
+                      class="w-3 h-3"
+                      @change="updateTabLayout(index, 'wrap', ($event.target as HTMLInputElement).checked)"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <!-- 参数配置 - key-value 列表 -->
+              <div class="bg-[var(--bg-hover-light)] rounded p-2">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs text-[var(--text-muted)] font-medium">参数 (Key-Value)</span>
+                  <button
+                    type="button"
+                    class="text-xs text-[var(--accent)] hover:underline"
+                    @click="addTabParam(index)"
+                  >
+                    + 添加参数
+                  </button>
+                </div>
+                
+                <!-- 参数列表 -->
+                <div class="space-y-1">
                   <div
                     v-for="(paramVal, paramKey) in (tab.params || {})"
                     :key="paramKey"
-                    class="flex items-center gap-1 mb-0.5"
+                    class="flex items-center gap-1"
                   >
                     <input
                       :value="paramKey"
                       type="text"
-                      class="w-16 px-1 py-0.5 border border-[var(--border)] rounded text-xs"
+                      class="w-20 px-1 py-0.5 border border-[var(--border)] rounded text-xs"
                       placeholder="key"
                       @change="updateTabParamKey(index, String(paramKey), ($event.target as HTMLInputElement).value)"
                     />
-                    <span>=</span>
+                    <span class="text-xs text-[var(--text-muted)]">=</span>
                     <input
                       :value="paramVal"
                       type="text"
@@ -286,13 +305,20 @@
                       ✕
                     </button>
                   </div>
-                  <div v-if="!tab.params || Object.keys(tab.params).length === 0" class="text-xs text-[var(--text-muted)] italic">
-                    暂无参数
-                  </div>
+                </div>
+                
+                <!-- 空状态 -->
+                <div v-if="!tab.params || Object.keys(tab.params).length === 0" class="text-xs text-[var(--text-muted)] italic py-1">
+                  暂无参数，点击上方添加
                 </div>
               </div>
             </div>
-          </div>
+          </el-tab-pane>
+        </el-tabs>
+        
+        <!-- 无标签页时 -->
+        <div v-else class="text-xs text-[var(--text-muted)] text-center py-4">
+          暂无标签页，点击上方添加
         </div>
       </div>
 
@@ -365,7 +391,7 @@
         </div>
       </div>
     </div>
-  </transition>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -376,7 +402,7 @@ import TablePropsPanel from './TablePropsPanel.vue'
 import TreeNode from './TreeNode.vue'
 
 interface Props {
-  visible: boolean
+  modelValue: boolean
   selectedComponent: CanvasComponent | null
   components: CanvasComponent[]
 }
@@ -384,7 +410,7 @@ interface Props {
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-  close: []
+  'update:modelValue': [visible: boolean]
   'update-props': [props: Record<string, unknown>]
   'update-label': [label: string]
   'move-to-container': [containerId: string, componentId: string, tabIndex?: number]
@@ -393,6 +419,11 @@ const emit = defineEmits<{
   'select-component': [id: string | null]
   'remove-tab': [tabIndex: number, tabChildren: (string | number)[]]
 }>()
+
+// 关闭抽屉
+function handleClose() {
+  emit('update:modelValue', false)
+}
 
 // 组件结构树
 const componentTreeExpanded = ref(true)
@@ -606,16 +637,6 @@ const parentContainerId = computed(() => {
   return parent ? parent.id : null
 })
 
-const emit = defineEmits<{
-  'update-props': [props: Record<string, unknown>]
-  'update-label': [label: string]
-  'move-to-container': [containerId: string, componentId: string, tabIndex?: number]
-  'move-out-of-container': [containerId: string, componentId: string]
-  'delete-component': [id: string]
-  'select-component': [id: string | null]
-  'remove-tab': [tabIndex: number, tabChildren: (string | number)[]]
-}>()
-
 // 处理移动到容器（select change事件）
 async function handleMoveToContainerAction(e: Event) {
   const containerId = (e.target as HTMLSelectElement).value
@@ -693,14 +714,25 @@ function updateTabLayout(index: number, key: string, value: any) {
   updateProp('tabs', tabs)
 }
 
-function removeTab(index: number) {
+async function removeTab(index: number) {
   const tab = editableTabs.value[index]
   if (!tab) return
   
   // 检查该 tab 是否包含嵌套组件
   const tabChildren = tab.children || []
   if (tabChildren.length > 0) {
-    if (!confirm(`该标签页中包含 ${tabChildren.length} 个嵌套组件，删除标签页将一并删除这些组件。\n\n确定要删除吗？`)) {
+    const { ElMessageBox } = await import('element-plus')
+    try {
+      await ElMessageBox.confirm(
+        `该标签页中包含 ${tabChildren.length} 个嵌套组件，删除标签页将一并删除这些组件。\n\n确定要删除吗？`,
+        '确认删除',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }
+      )
+    } catch {
       return
     }
     // 通知父组件删除 tab 及其嵌套组件
@@ -1018,27 +1050,6 @@ function updateTableColumn(index: number, field: string, value: unknown) {
 @keyframes field-flash {
   0% { background-color: rgba(64, 158, 255, 0.15); }
   100% { background-color: transparent; }
-}
-
-/* Drawer transition - 与 DataPanel 一致 */
-.drawer-enter-active,
-.drawer-leave-active {
-  transition: transform 0.3s ease;
-}
-
-.drawer-enter-from,
-.drawer-leave-to {
-  transform: translateX(100%);
-}
-
-.drawer-enter-to,
-.drawer-leave-from {
-  transform: translateX(0);
-}
-
-/* Property drawer specific */
-.property-drawer {
-  animation: none;
 }
 
 .prop-textarea {
