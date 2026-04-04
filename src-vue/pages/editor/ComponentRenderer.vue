@@ -405,7 +405,7 @@
               ? 'text-blue-500 border-b-2 border-blue-500'
               : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'
           ]"
-          @click.stop="handleTabClick(unifiedTabs[index]?.tabId)"
+          @click.stop="handleTabClick(unifiedTabs[index]?.id || unifiedTabs[index]?.tabId)"
           @dragover.prevent="onTabDragOver($event, index)"
           @dragleave="onTabDragLeave($event)"
         >
@@ -544,18 +544,18 @@ const unifiedTabs = computed((): TabItem[] => {
   return rawTabs
 })
 
-// Tabs: get active tab id
+// Tabs: get active tab id (support both id and tabId fields)
 const activeTabId = computed(() => {
   const rawActiveTab = props.component.props?.activeTab
   if (rawActiveTab === undefined || rawActiveTab === null) return ''
   return String(rawActiveTab)
 })
 
-// Tabs: get active tab index
+// Tabs: get active tab index (check both id and tabId fields)
 const activeTabIndex = computed(() => {
   const id = activeTabId.value
   const tabs = unifiedTabs.value
-  const idx = tabs.findIndex(t => t.tabId === id)
+  const idx = tabs.findIndex(t => t.id === id || t.tabId === id)
   return idx >= 0 ? idx : 0
 })
 
