@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch, shallowRef } from 'vue'
 import { EditorState } from '@codemirror/state'
-import { EditorView, keymap, lineNumbers, highlightActiveLineGutter, highlightSpecialChars, drawSelection, highlightActiveLine } from '@codemirror/view'
+import { EditorView, keymap, lineNumbers, highlightActiveLineGutter, highlightSpecialChars, drawSelection, highlightActiveLine, lineWrapping } from '@codemirror/view'
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 import { json } from '@codemirror/lang-json'
-import { syntaxHighlighting, defaultHighlightStyle, foldGutter, foldKeymap } from '@codemirror/language'
-import { lintGutter, linter } from '@codemirror/lint'
+import { syntaxHighlighting, defaultHighlightStyle, foldGutter, foldKeymap, indentOnInput } from '@codemirror/language'
+import { linter, setDiagnostics } from '@codemirror/lint'
 import { searchKeymap, highlightSelectionMatches } from '@codemirror/search'
 import { autocompletion, completionKeymap } from '@codemirror/autocomplete'
-import { bracketMatching } from '@codemirror/language'
+import { bracketMatching, foldRange, foldState } from '@codemirror/language'
 
 interface Props {
   modelValue: string
@@ -43,7 +43,6 @@ const jsonLinter = linter((view) => {
     error.value = e.message
     emit('error', e.message)
     
-    // Try to find the error position
     const match = e.message.match(/position (\d+)/)
     if (match) {
       const pos = parseInt(match[1])
@@ -63,12 +62,12 @@ const jsonLinter = linter((view) => {
   }
 })
 
-// Dark theme
+// Custom dark theme with better fold styling
 const darkTheme = EditorView.theme({
   '&': {
     height: '100%',
     fontSize: '12px',
-    backgroundColor: 'var(--bg-tertiary, #1e1e1e)'
+    backgroundColor: '#1e1e1e'
   },
   '.cm-content': {
     fontFamily: 'Menlo, Monaco, Consolas, monospace',
@@ -79,19 +78,30 @@ const darkTheme = EditorView.theme({
     borderLeftColor: '#fff'
   },
   '.cm-gutters': {
-    backgroundColor: 'var(--bg-secondary, #252526)',
+    backgroundColor: '#252526',
     color: '#6e7681',
     border: 'none',
     paddingRight: '8px'
   },
   '.cm-activeLineGutter': {
-    backgroundColor: 'var(--bg-tertiary, #2d2d2d)'
+    backgroundColor: '#2d2d2d'
   },
   '.cm-activeLine': {
     backgroundColor: 'rgba(255,255,255,0.05)'
   },
   '.cm-foldGutter': {
-    width: '12px'
+    width: '16px'
+  },
+  '.cm-foldGutter .cm-gutterElement': {
+    cursor: 'pointer',
+    color: '#6e7681',
+    transition: 'color 0.1s'
+  },
+  '.cm-foldGutter .cm-gutterElement:hover': {
+    color: '#fff'
+  },
+  '.cm-foldGutter .cm-gutterElement .cm-foldIndicator': {
+    fontSize: '10px'
   },
   '.cm-scroller': {
     overflow: 'auto'
@@ -107,6 +117,10 @@ const darkTheme = EditorView.theme({
   '.cm-lintRange-error': {
     backgroundImage: 'none',
     backgroundColor: 'rgba(255,80,80,0.1)'
+  },
+  '.cm-tooltip': {
+    backgroundColor: '#252526',
+    border: '1px solid #3c3c3c'
   }
 }, { dark: true })
 
@@ -128,9 +142,19 @@ function createEditor() {
       highlightActiveLineGutter(),
       highlightSpecialChars(),
       history(),
-      foldGutter(),
+      foldGutter({
+        markerDOM(open) {
+          const el = document.createElement('span')
+          el.textContent = open ? '▼' : '▶'
+          el.style.fontSize = '8px'
+          el.style.cursor = 'pointer'
+          el.style.userSelect = 'none'
+          return el
+        }
+      }),
       drawSelection(),
       EditorState.allowMultipleSelections.of(true),
+      indentOnInput(),
       bracketMatching(),
       autocompletion(),
       highlightActiveLine(),
@@ -144,11 +168,10 @@ function createEditor() {
       ]),
       json(),
       jsonLinter,
-      lintGutter(),
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
       darkTheme,
       updateListener,
-      EditorView.lineWrapping,
+      lineWrapping,
       ...(props.readonly ? [EditorState.readOnly.of(true)] : [])
     ]
   })
@@ -166,7 +189,6 @@ function destroyEditor() {
   }
 }
 
-// Watch for external changes
 watch(() => props.modelValue, (newVal) => {
   if (editorView.value) {
     const current = editorView.value.state.doc.toString()
@@ -190,7 +212,6 @@ onUnmounted(() => {
   destroyEditor()
 })
 
-// Expose methods
 function format() {
   if (!editorView.value) return
   const content = editorView.value.state.doc.toString()
@@ -225,7 +246,7 @@ defineExpose({ format, getValue })
 
 <style scoped>
 .json-editor {
-  background: var(--bg-tertiary, #1e1e1e);
+  background: #1e1e1e;
 }
 
 .json-editor :deep(.cm-editor) {
@@ -234,5 +255,11 @@ defineExpose({ format, getValue })
 
 .json-editor :deep(.cm-scroller) {
   font-family: Menlo, Monaco, Consolas, monospace;
+}
+
+.json-editor :deep(.cm-foldGutter .cm-gutterElement) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
