@@ -70,11 +70,11 @@
               spellcheck="false"
               @input="onJsonInput"
             />
-            <!-- Highlighted view (read-only) -->
-            <div v-else ref="jsonContainerRef" class="w-full h-full overflow-auto p-4">
+            <!-- Highlighted view with collapsible regions -->
+            <div v-else ref="jsonContainerRef" class="w-full h-full overflow-auto p-4" @click="handleJsonClick">
               <pre
                 ref="jsonPreRef"
-                class="font-mono text-xs leading-5 text-[var(--text-primary)]"
+                class="font-mono text-xs leading-5 text-[var(--text-primary)] cursor-pointer"
                 v-html="highlightedJson"
               />
             </div>
@@ -113,6 +113,24 @@ const jsonPreRef = ref<HTMLPreElement | null>(null)
 const jsonContainerRef = ref<HTMLDivElement | null>(null)
 const jsonTextareaRef = ref<HTMLTextAreaElement | null>(null)
 const isEditable = ref(false)
+const collapsedItems = ref<Set<number>>(new Set())
+
+// Parse JSON and build lines with collapse info
+interface JsonLine {
+  text: string
+  indent: number
+  lineNum: number
+  startChar: number
+  endChar: number
+  isObject: boolean
+  isArray: boolean
+  key?: string
+  value?: string
+  toggleable: boolean
+  path: string
+}
+
+let parsedJsonLines: JsonLine[] = []
 
 // Current JSON text (for editing)
 const jsonText = ref('')
@@ -127,63 +145,161 @@ watch(() => props.components, (newComps) => {
   }
 }, { immediate: true, deep: true })
 
-// Highlighted JSON with selected component highlighted
+// Highlighted JSON with collapsible regions and selection highlighting
 const highlightedJson = computed(() => {
   try {
     const obj = JSON.parse(jsonText.value)
-    const json = JSON.stringify(obj, null, 2)
+    parsedJsonLines = []
     
-    if (!selectedId.value) {
-      return syntaxHighlight(json)
-    }
-
-    // Find the selected component in JSON and highlight it
-    const lines = json.split('\n')
+    // Build structured JSON lines
+    const lines = jsonText.value.split('\n')
+    let charIndex = 0
+    let lineIndex = 0
+    
+    lines.forEach((line, idx) => {
+      const trimmed = line.replace(/^(\s+)/, '')
+      const indent = line.length - trimmed.length
+      const keyMatch = trimmed.match(/^"([^"]+)":/)
+      const isObject = trimmed.includes('{"')
+      const isArray = trimmed.includes('[') && trimmed.includes(']')
+      const toggleable = (isObject || (trimmed.includes('[') && !trimmed.includes(']'))) && trimmed.endsWith('{')
+      
+      parsedJsonLines.push({
+        text: line,
+        indent,
+        lineNum: idx,
+        startChar: charIndex,
+        endChar: charIndex + line.length,
+        isObject,
+        isArray,
+        key: keyMatch ? keyMatch[1] : undefined,
+        toggleable,
+        path: ''
+      })
+      
+      charIndex += line.length + 1
+      lineIndex++
+    })
+    
+    // Build result with collapse and highlight
     const result: string[] = []
-    let inSelected = false
-    let braceCount = 0
-    let selectedStartLine = -1
-    let selectedEndLine = -1
-    let currentLine = 0
-
-    // Simple approach: highlight lines containing the selected ID
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i]
-      const idPattern = `"id":\\s*"${selectedId.value}"`
-      const hasId = new RegExp(idPattern).test(line)
+    let i = 0
+    
+    while (i < parsedJsonLines.length) {
+      const line = parsedJsonLines[i]
+      const isCollapsed = collapsedItems.value.has(i)
       
-      if (hasId) {
-        inSelected = true
-        selectedStartLine = i
-        // Find matching closing brace
-        let bCount = 0
-        for (let j = i; j < lines.length; j++) {
-          bCount += (lines[j].match(/"/g) || []).length
-          braceCount += (lines[j].match(/{/g) || []).length
-          braceCount -= (lines[j].match(/}/g) || []).length
-          if (braceCount === 0 && j > i) {
-            selectedEndLine = j
-            break
-          }
-        }
-      }
+      // Check if this line should be highlighted (selected component)
+      const isHighlighted = selectedId.value && line.text.includes(`"id": "${selectedId.value}"`)
       
-      if (inSelected && i >= selectedStartLine && i <= selectedEndLine) {
-        result.push(`<span class="bg-blue-500/30 text-blue-300">${escapeHtml(line)}</span>`)
+      // Build toggle button for collapsible items
+      let toggleBtn = ''
+      if (line.toggleable) {
+        const collapsed = collapsedItems.value.has(i)
+        toggleBtn = `<span class="collapse-btn" data-line="${i}">${collapsed ? '▶' : '▼'}</span> `
       } else {
-        result.push(`<span class="json-default">${escapeHtml(line)}</span>`)
+        toggleBtn = '<span class="w-4 inline-block"></span> '
       }
       
-      if (inSelected && i === selectedEndLine) {
-        inSelected = false
+      if (isCollapsed) {
+        // Show collapsed line with count
+        const endLine = findCollapseEnd(i)
+        const itemCount = endLine - i
+        result.push(`<div class="json-line collapsed" data-start="${i}" data-end="${endLine}">${toggleBtn}<span class="json-key">"${line.key || 'object'}"</span>: <span class="json-comment">${itemCount} items...</span> <span class="json-hover" data-line="${i}">...</span></div>`)
+        i = endLine + 1
+        continue
       }
+      
+      // Normal highlight
+      const highlighted = isHighlighted 
+        ? `<span class="bg-blue-500/30 text-blue-300">${escapeHtml(line.text)}</span>`
+        : syntaxHighlightLine(line.text)
+      
+      result.push(`<div class="json-line" data-line="${i}">${toggleBtn}${highlighted}</div>`)
+      i++
     }
-
-    return result.join('\n')
+    
+    return result.join('')
   } catch {
     return syntaxHighlight(jsonText.value)
   }
 })
+
+function findCollapseEnd(startLine: number): number {
+  let braceCount = 0
+  let inString = false
+  const text = parsedJsonLines.slice(startLine).map(l => l.text).join('\n')
+  
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i]
+    if (char === '"' && text[i-1] !== '\\') inString = !inString
+    if (!inString) {
+      if (char === '{') braceCount++
+      if (char === '}') {
+        braceCount--
+        if (braceCount === 0) {
+          // Find which line this is
+          let lineCount = 0
+          for (let j = 0; j < i; j++) {
+            if (text[j] === '\n') lineCount++
+          }
+          return startLine + lineCount
+        }
+      }
+    }
+  }
+  return startLine
+}
+
+function syntaxHighlightLine(line: string): string {
+  return line
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, (match) => {
+      let cls = 'json-number'
+      if (/^"/.test(match)) {
+        if (/:$/.test(match)) {
+          cls = 'json-key'
+          match = match.replace(/:$/, '')
+          return `<span class="${cls}">${match}</span>:`
+        } else {
+          cls = 'json-string'
+        }
+      }
+      return `<span class="${cls}">${match}</span>`
+    })
+}
+
+function handleJsonClick(e: MouseEvent) {
+  const target = e.target as HTMLElement
+  
+  // Handle collapse button click
+  if (target.classList.contains('collapse-btn') || target.classList.contains('json-hover')) {
+    const line = target.dataset.line || target.closest('.json-line')?.getAttribute('data-line')
+    if (line !== null) {
+      const lineNum = parseInt(line)
+      if (collapsedItems.value.has(lineNum)) {
+        collapsedItems.value.delete(lineNum)
+      } else {
+        const endLine = findCollapseEnd(lineNum)
+        // Mark all lines in range as collapsed
+        for (let i = lineNum; i <= endLine; i++) {
+          collapsedItems.value.add(i)
+        }
+      }
+    }
+    return
+  }
+  
+  // Handle expand click (on collapsed items)
+  const collapsedDiv = target.closest('.collapsed')
+  if (collapsedDiv) {
+    const start = parseInt(collapsedDiv.getAttribute('data-start') || '0')
+    const end = parseInt(collapsedDiv.getAttribute('data-end') || '0')
+    for (let i = start; i <= end; i++) {
+      collapsedItems.value.delete(i)
+    }
+  }
+}
 
 function escapeHtml(str: string): string {
   return str
