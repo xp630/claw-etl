@@ -66,6 +66,13 @@ const tabChildren = computed(() => {
   if (!currentTab) return []
   const childIds = (currentTab.children || []) as (string | number)[]
   const childIdStrs = childIds.map(id => String(id))
-  return props.children.filter(c => childIdStrs.includes(String(c.componentId)) || childIdStrs.includes(String(c.id)))
+  const filtered = props.children.filter(c => childIdStrs.includes(String(c.componentId)) || childIdStrs.includes(String(c.id)))
+  console.log('[ContainerRenderer] tabChildren debug:', {
+    activeTabId: activeTabId.value,
+    tabChildrenIds: childIdStrs,
+    propsChildrenIds: props.children.map(c => ({ id: c.id, componentId: c.componentId })),
+    matched: filtered.map(c => c.id)
+  })
+  return filtered
 })
 </script>

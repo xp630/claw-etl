@@ -309,8 +309,9 @@ function loadComponent(c: any): CanvasComponent {
   }
   return {
     id: String(c.id) || `comp_${Date.now()}`,
-    // 确保 componentId 存在：如果数据库没有，或等于 id（说明之前存的是 db id），则生成一个新的稳定 ID
-    componentId: (c.componentId && c.componentId !== String(c.id))
+    // 优先使用保存时的 componentId，保持与 tab.children 里存储的 ID 一致
+    // 如果数据库没有 componentId，则生成新的
+    componentId: c.componentId 
       ? String(c.componentId)
       : `${c.type}_${c.id || Date.now()}`,
     parentId: c.parentId || undefined,
@@ -956,6 +957,12 @@ async function handleSave() {
   try {
     // 扁平化组件树，保存 parentId 层级关系
     const flatComponents = flattenComponentsWithParentId(components.value)
+    console.log('[EditorPage] saving flatComponents:', flatComponents.map(c => ({
+      id: c.id,
+      type: c.type,
+      parentId: c.parentId,
+      children: c.children?.length
+    })))
     
     const result = await savePageConfig({
       id: pageId.value || undefined,
