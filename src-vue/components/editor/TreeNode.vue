@@ -33,9 +33,19 @@ const typeIcons: Record<string, string> = {
 
 const icon = computed(() => typeIcons[props.comp.type] || typeIcons.default)
 const isSelected = computed(() => props.selectedId === props.comp.id)
-const hasChildren = computed(() => 
-  (props.comp.children?.length ?? 0) > 0 || (props.comp.props?.tabs?.length ?? 0) > 0
-)
+
+// For tabs: actual children are in comp.children (resolved from parentId relationship)
+// NOT in tabs.props.tabs - those are just tab metadata
+const actualChildren = computed(() => {
+  if (props.comp.type === 'tabs') {
+    // Tabs: show comp.children as the actual child components
+    return props.comp.children || []
+  }
+  return props.comp.children || []
+})
+
+const hasChildren = computed(() => actualChildren.value.length > 0)
+
 const label = computed(() => 
   props.comp.props?.label 
   || props.comp.props?.title 
@@ -43,8 +53,6 @@ const label = computed(() =>
   || props.comp.label 
   || props.comp.type
 )
-const tabCount = computed(() => props.comp.props?.tabs?.length ?? 0)
-const childCount = computed(() => props.comp.children?.length ?? 0)
 
 function toggle() {
   expanded.value = !expanded.value
@@ -85,19 +93,19 @@ function select() {
       <!-- Label -->
       <span class="flex-1 truncate">{{ label }}</span>
 
-      <!-- Count badges -->
-      <span v-if="tabCount > 0" class="text-[10px] text-[var(--text-muted)]">
-        {{ tabCount }} tabs
-      </span>
-      <span v-if="childCount > 0" class="text-[10px] text-[var(--text-muted)]">
-        {{ childCount }} children
+      <!-- ID -->
+      <span class="text-[10px] text-[var(--text-muted)]">{{ comp.id }}</span>
+
+      <!-- Children count (only for non-tabs, tabs show their actual children) -->
+      <span v-if="comp.type !== 'tabs' && actualChildren.length > 0" class="text-[10px] text-[var(--text-muted)]">
+        {{ actualChildren.length }}
       </span>
     </div>
 
-    <!-- Children (tabs) -->
-    <template v-if="hasChildren && expanded">
+    <!-- Tabs metadata (only show tab names, not as children) -->
+    <template v-if="comp.type === 'tabs' && comp.props?.tabs?.length">
       <div
-        v-for="tab in (comp.props?.tabs || [])"
+        v-for="tab in comp.props.tabs"
         :key="tab.id"
         class="flex items-center gap-2 py-1 px-2 text-[var(--text-muted)]"
         :style="{ paddingLeft: `${(depth + 1) * 16 + 8}px` }"
@@ -105,17 +113,17 @@ function select() {
         <span class="w-4" />
         <span class="text-sm">📑</span>
         <span class="text-[var(--text-secondary)]">{{ tab.label || 'Tab' }}</span>
-        <span v-if="tab.children?.length" class="text-[10px]">
-          ({{ tab.children.length }})
-        </span>
+        <span v-if="tab.children?.length" class="text-[10px]">({{ tab.children.length }})</span>
       </div>
+    </template>
 
-      <!-- Child components -->
+    <!-- Actual Children (for tabs: comp.children; for others: comp.children) -->
+    <template v-if="hasChildren && expanded">
       <TreeNode
-        v-for="child in (comp.children || [])"
+        v-for="child in actualChildren"
         :key="child.id"
         :comp="child"
-        :depth="depth + 1"
+        :depth="comp.type === 'tabs' ? depth + 1 : depth + 1"
         :selected-id="selectedId"
         @select="emit('select', $event)"
       />
