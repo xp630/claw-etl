@@ -4,11 +4,11 @@ import { EditorState } from '@codemirror/state'
 import { EditorView, keymap, lineNumbers, highlightActiveLineGutter, highlightSpecialChars, drawSelection, highlightActiveLine, lineWrapping } from '@codemirror/view'
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 import { json, jsonParseLinter } from '@codemirror/lang-json'
-import { syntaxHighlighting, defaultHighlightStyle, foldGutter, foldKeymap, indentOnInput, fold } from '@codemirror/language'
+import { syntaxHighlighting, defaultHighlightStyle, foldGutter, foldKeymap, indentOnInput } from '@codemirror/language'
 import { linter } from '@codemirror/lint'
 import { searchKeymap, highlightSelectionMatches } from '@codemirror/search'
 import { autocompletion, completionKeymap } from '@codemirror/autocomplete'
-import { bracketMatching, foldRange, foldState } from '@codemirror/language'
+import { bracketMatching } from '@codemirror/language'
 
 interface Props {
   modelValue: string
@@ -112,7 +112,6 @@ function createEditor() {
       highlightActiveLineGutter(),
       highlightSpecialChars(),
       history(),
-      fold(),
       foldGutter(),
       drawSelection(),
       EditorState.allowMultipleSelections.of(true),
