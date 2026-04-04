@@ -341,10 +341,13 @@ function buildComponentTree(flatComponents: any[]): CanvasComponent[] {
     if (!comp) return
     const parentId = c.parentId
     if (parentId) {
-      const parent = componentMap.get(parentId) || componentMap.get(String(parentId)) || componentMap.get(c.componentId)
+      // Try multiple ways to find parent: by parentId directly, by String(parentId), by componentId
+      const parent = componentMap.get(parentId) 
+        || componentMap.get(String(parentId)) 
+        || componentMap.get(Number(parentId))
+        || componentMap.get(c.componentId)
       if (parent) {
         parent.children = parent.children || []
-        // Avoid double-adding same component to children (might already be added via componentId link)
         if (!addedToChildren.has(comp.id)) {
           parent.children.push(comp)
           addedToChildren.add(comp.id)
@@ -435,7 +438,9 @@ function flattenComponentsWithParentId(comps: CanvasComponent[], parentId: strin
     }
     result.push(item)
     if (children && children.length > 0) {
-      result.push(...flattenComponentsWithParentId(children, c.id))
+      // Use componentId for stable parent linking
+      const childParentId = c.componentId || c.id
+      result.push(...flattenComponentsWithParentId(children, childParentId))
     }
   }
   return result
