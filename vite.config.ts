@@ -11,6 +11,9 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    hmr: {
+      overlay: false,
+    },
     proxy: {
       '/etl-admin': {
         target: 'http://localhost:8090',
