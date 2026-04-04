@@ -156,246 +156,80 @@
     <!-- 分隔线 -->
     <div class="border-t border-[var(--border-light)] my-3"></div>
 
-    <!-- 列配置 -->
+    <!-- 列配置 - 内联编辑 -->
     <div class="prop-item">
       <div class="flex items-center justify-between mb-2">
         <label class="text-xs text-[var(--text-muted)]">列配置 ({{ selectedComponent.props.columns?.length || 0 }})</label>
         <button
           type="button"
           class="text-xs text-[var(--accent)] hover:underline"
-          @click="showColumnsList = !showColumnsList"
+          @click="toggleColumnsList"
         >
-          {{ showColumnsList ? '折叠' : '展开' }}
-        </button>
-        <button
-          type="button"
-          class="text-xs text-[var(--accent)] hover:underline"
-          @click="openColumnsEditor"
-        >
-          编辑列
+          {{ showColumnsList ? '收起' : '展开' }}
         </button>
       </div>
-      <div v-if="showColumnsList && selectedComponent.props.columns?.length" class="space-y-1 max-h-[240px] overflow-y-auto pr-1">
+      
+      <!-- 列列表 - 可内联展开编辑 -->
+      <div v-if="showColumnsList && selectedComponent.props.columns?.length" class="space-y-2 max-h-[400px] overflow-y-auto pr-1">
         <div
           v-for="(col, index) in (selectedComponent.props.columns || [])"
           :key="index"
-          class="flex items-center gap-2 text-xs bg-[var(--bg-hover-light)] rounded px-2 py-1"
+          class="bg-[var(--bg-hover-light)] rounded"
         >
-          <span class="flex-1 truncate">{{ col.label }}</span>
-          <span class="text-[var(--text-muted)]">{{ col.fieldType }}</span>
-          <button
-            type="button"
-            class="text-xs text-[var(--accent)] hover:underline"
-            @click="openColumnEditor(index)"
-          >
-            编辑
-          </button>
-          <button
-            type="button"
-            class="text-xs text-red-500 hover:underline"
-            @click="removeColumnDirect(index)"
-          >
-            删除
-          </button>
-        </div>
-      </div>
-      <div v-else-if="!showColumnsList && selectedComponent.props.columns?.length" class="text-xs text-[var(--text-muted)] text-center py-2">
-        已折叠，点击展开查看
-      </div>
-      <div v-else class="text-xs text-[var(--text-muted)] text-center py-2">
-        暂无列配置
-      </div>
-    </div>
-
-    <!-- 列配置编辑弹窗 -->
-    <Teleport to="body">
-      <div
-        v-if="showColumnsEditorModal"
-        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 overflow-auto"
-        @click.self="showColumnsEditorModal = false"
-      >
-        <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-[900px] max-h-[90vh] overflow-auto m-4">
-          <div class="flex items-center justify-between p-4 border-b border-[var(--border-light)]">
-            <h3 class="font-medium">编辑列配置</h3>
+          <!-- 列基本信息行（可点击展开） -->
+          <div class="flex items-center gap-2 px-3 py-2">
+            <span class="w-6 text-xs text-[var(--text-muted)]">{{ index + 1 }}.</span>
+            <input
+              :value="col.label"
+              type="text"
+              class="flex-1 px-2 py-1 border border-[var(--border)] rounded text-xs bg-[var(--bg-primary)]"
+              placeholder="列名"
+              @input="updateColumnInline(index, 'label', ($event.target as HTMLInputElement).value)"
+            />
+            <span class="text-xs text-[var(--text-muted)] px-2">{{ col.fieldType }}</span>
+            <label class="flex items-center gap-1 text-xs">
+              <input
+                type="checkbox"
+                :checked="col.visible"
+                @change="updateColumnInline(index, 'visible', ($event.target as HTMLInputElement).checked)"
+                class="w-3 h-3"
+              />
+              显示
+            </label>
             <button
-              @click="showColumnsEditorModal = false"
-              class="p-1 hover:bg-[var(--bg-hover)] rounded"
+              type="button"
+              class="text-xs px-2 py-1 rounded text-[var(--accent)] hover:bg-blue-50"
+              @click="openColumnEditor(index)"
             >
-              ✕
-            </button>
-          </div>
-          <div class="p-4">
-            <div class="space-y-3">
-              <div
-                v-for="(col, index) in editingColumn"
-                :key="index"
-                class="bg-[var(--bg-hover-light)] rounded p-3"
-              >
-                <div class="flex items-center justify-between mb-2">
-                  <span class="font-medium text-sm">列 {{ index + 1 }}</span>
-                  <button
-                    type="button"
-                    class="text-[var(--danger)] hover:underline text-xs"
-                    @click="removeColumn(index)"
-                  >
-                    删除
-                  </button>
-                </div>
-                <div class="grid grid-cols-4 gap-2 text-xs">
-                  <div>
-                    <label class="block text-[var(--text-muted)] mb-1">字段名</label>
-                    <input
-                      :value="col.key"
-                      type="text"
-                      class="w-full px-2 py-1 border border-[var(--border)] rounded"
-                      @input="updateColumn(index, 'key', ($event.target as HTMLInputElement).value)"
-                    />
-                  </div>
-                  <div>
-                    <label class="block text-[var(--text-muted)] mb-1">显示名</label>
-                    <input
-                      :value="col.label"
-                      type="text"
-                      class="w-full px-2 py-1 border border-[var(--border)] rounded"
-                      @input="updateColumn(index, 'label', ($event.target as HTMLInputElement).value)"
-                    />
-                  </div>
-                  <div>
-                    <label class="block text-[var(--text-muted)] mb-1">类型</label>
-                    <select
-                      :value="col.fieldType"
-                      class="w-full px-2 py-1 border border-[var(--border)] rounded"
-                      @change="updateColumn(index, 'fieldType', ($event.target as HTMLSelectElement).value)"
-                    >
-                      <option value="text">文本</option>
-                      <option value="number">数字</option>
-                      <option value="date">日期</option>
-                      <option value="datetime">日期时间</option>
-                      <option value="select">下拉</option>
-                      <option value="image">图片</option>
-                      <option value="custom">自定义函数</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label class="block text-[var(--text-muted)] mb-1">宽度(colspan)</label>
-                    <input
-                      :value="col.colspan || 1"
-                      type="number"
-                      min="1"
-                      max="12"
-                      class="w-full px-2 py-1 border border-[var(--border)] rounded"
-                      @input="updateColumn(index, 'colspan', Number(($event.target as HTMLInputElement).value))"
-                    />
-                  </div>
-                </div>
-                <div class="flex items-center gap-4 mt-2 text-xs">
-                  <label class="flex items-center gap-1">
-                    <input
-                      type="checkbox"
-                      :checked="col.visible"
-                      @change="updateColumn(index, 'visible', ($event.target as HTMLInputElement).checked)"
-                      class="w-3 h-3"
-                    />
-                    显示
-                  </label>
-                  <label class="flex items-center gap-1">
-                    <input
-                      type="checkbox"
-                      :checked="col.sortable"
-                      @change="updateColumn(index, 'sortable', ($event.target as HTMLInputElement).checked)"
-                      class="w-3 h-3"
-                    />
-                    排序
-                  </label>
-                  <label class="flex items-center gap-1">
-                    <input
-                      type="checkbox"
-                      :checked="col.queryCondition"
-                      @change="updateColumn(index, 'queryCondition', ($event.target as HTMLInputElement).checked)"
-                      class="w-3 h-3"
-                    />
-                    查询
-                  </label>
-                  <label class="flex items-center gap-1">
-                    <input
-                      type="checkbox"
-                      :checked="col.frozen"
-                      @change="updateColumn(index, 'frozen', ($event.target as HTMLInputElement).checked)"
-                      class="w-3 h-3"
-                    />
-                    冻结
-                  </label>
-                </div>
-              </div>
-              <button
-                type="button"
-                class="w-full py-2 border border-dashed border-[var(--border)] rounded text-sm text-[var(--accent)] hover:bg-[var(--bg-hover)]"
-                @click="addColumn"
-              >
-                + 添加列
-              </button>
-            </div>
-          </div>
-          <div class="flex justify-end gap-3 p-4 border-t border-[var(--border-light)]">
-            <button
-              @click="showColumnsEditorModal = false"
-              class="px-4 py-2 text-sm border border-[var(--border-light)] rounded-lg hover:bg-[var(--bg-hover)]"
-            >
-              取消
+              编辑
             </button>
             <button
-              @click="handleSaveColumns"
-              class="px-4 py-2 text-sm bg-[var(--accent)] text-white rounded-lg hover:opacity-90"
+              type="button"
+              class="text-xs text-red-500 hover:bg-red-50 px-2 py-1 rounded"
+              @click="removeColumnDirect(index)"
             >
-              保存
+              删除
             </button>
           </div>
-        </div>
-      </div>
-    </Teleport>
-
-    <!-- 单列编辑弹窗 -->
-    <Teleport to="body">
-      <div
-        v-if="showSingleColumnEditor"
-        class="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-        @click.self="showSingleColumnEditor = false"
-      >
-        <div class="bg-[var(--bg-secondary)] rounded-lg shadow-xl w-[500px]">
-          <div class="flex items-center justify-between p-4 border-b border-[var(--border-light)]">
-            <h3 class="font-medium">编辑列 - {{ editingSingleColumn.label }}</h3>
-            <button
-              @click="showSingleColumnEditor = false"
-              class="p-1 hover:bg-[var(--bg-hover)] rounded"
-            >
-              ✕
-            </button>
-          </div>
-          <div class="p-4 space-y-3 text-sm">
-            <div class="grid grid-cols-2 gap-3">
+          
+          <!-- 内联编辑区域（展开后） -->
+          <div v-if="editingColumnIndex === index" class="px-3 pb-3 border-t border-[var(--border-light)] pt-2">
+            <div class="grid grid-cols-4 gap-2 text-xs">
               <div>
                 <label class="block text-[var(--text-muted)] mb-1">字段名</label>
                 <input
-                  v-model="editingSingleColumn.key"
+                  :value="col.key"
                   type="text"
-                  class="w-full px-3 py-2 border border-[var(--border-light)] rounded bg-[var(--bg-hover-light)]"
+                  class="w-full px-2 py-1 border border-[var(--border)] rounded text-xs bg-[var(--bg-primary)]"
+                  @input="updateColumnInline(index, 'key', ($event.target as HTMLInputElement).value)"
                 />
               </div>
-              <div>
-                <label class="block text-[var(--text-muted)] mb-1">显示名</label>
-                <input
-                  v-model="editingSingleColumn.label"
-                  type="text"
-                  class="w-full px-3 py-2 border border-[var(--border-light)] rounded bg-[var(--bg-hover-light)]"
-                />
-              </div>
-            </div>
-            <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block text-[var(--text-muted)] mb-1">类型</label>
                 <select
-                  v-model="editingSingleColumn.fieldType"
-                  class="w-full px-3 py-2 border border-[var(--border-light)] rounded bg-[var(--bg-hover-light)]"
+                  :value="col.fieldType"
+                  class="w-full px-2 py-1 border border-[var(--border)] rounded text-xs bg-[var(--bg-primary)]"
+                  @change="updateColumnInline(index, 'fieldType', ($event.target as HTMLSelectElement).value)"
                 >
                   <option value="text">文本</option>
                   <option value="number">数字</option>
@@ -409,21 +243,35 @@
               <div>
                 <label class="block text-[var(--text-muted)] mb-1">宽度(colspan)</label>
                 <input
-                  v-model.number="editingSingleColumn.colspan"
+                  :value="col.colspan || 1"
                   type="number"
                   min="1"
                   max="12"
-                  class="w-full px-3 py-2 border border-[var(--border-light)] rounded bg-[var(--bg-hover-light)]"
+                  class="w-full px-2 py-1 border border-[var(--border)] rounded text-xs bg-[var(--bg-primary)]"
+                  @input="updateColumnInline(index, 'colspan', Number(($event.target as HTMLInputElement).value))"
                 />
+              </div>
+              <div>
+                <label class="block text-[var(--text-muted)] mb-1">对齐</label>
+                <select
+                  :value="col.align || 'left'"
+                  class="w-full px-2 py-1 border border-[var(--border)] rounded text-xs bg-[var(--bg-primary)]"
+                  @change="updateColumnInline(index, 'align', ($event.target as HTMLSelectElement).value)"
+                >
+                  <option value="left">左对齐</option>
+                  <option value="center">居中</option>
+                  <option value="right">右对齐</option>
+                </select>
               </div>
             </div>
             
             <!-- 下拉选项（仅 select 类型显示） -->
-            <div v-if="editingSingleColumn.fieldType === 'select'">
-              <label class="block text-[var(--text-muted)] mb-1">下拉来源</label>
+            <div v-if="col.fieldType === 'select'" class="mt-2">
+              <label class="block text-[var(--text-muted)] mb-1 text-xs">下拉来源</label>
               <select
-                v-model="editingSingleColumn.selectSource"
-                class="w-full px-3 py-2 border border-[var(--border-light)] rounded bg-[var(--bg-hover-light)]"
+                :value="col.selectSource || 'dict'"
+                class="w-full px-2 py-1 border border-[var(--border)] rounded text-xs bg-[var(--bg-primary)]"
+                @change="updateColumnInline(index, 'selectSource', ($event.target as HTMLSelectElement).value)"
               >
                 <option value="dict">数据字典</option>
                 <option value="fixed">固定值</option>
@@ -431,11 +279,12 @@
             </div>
             
             <!-- 数据字典选项 -->
-            <div v-if="editingSingleColumn.fieldType === 'select' && editingSingleColumn.selectSource === 'dict'">
-              <label class="block text-[var(--text-muted)] mb-1">选择字典</label>
+            <div v-if="col.fieldType === 'select' && (col.selectSource || 'dict') === 'dict'" class="mt-2">
+              <label class="block text-[var(--text-muted)] mb-1 text-xs">选择字典</label>
               <select
-                v-model="editingSingleColumn.dataDictionary"
-                class="w-full px-3 py-2 border border-[var(--border-light)] rounded bg-[var(--bg-hover-light)]"
+                :value="col.dataDictionary || ''"
+                class="w-full px-2 py-1 border border-[var(--border)] rounded text-xs bg-[var(--bg-primary)]"
+                @change="updateColumnInline(index, 'dataDictionary', ($event.target as HTMLSelectElement).value)"
               >
                 <option value="">请选择字典</option>
                 <option v-for="dict in dictList" :key="dict.id" :value="dict.code">
@@ -445,72 +294,345 @@
             </div>
             
             <!-- 固定值选项 -->
-            <div v-if="editingSingleColumn.fieldType === 'select' && editingSingleColumn.selectSource === 'fixed'">
-              <label class="block text-[var(--text-muted)] mb-1">固定选项 (JSON格式)</label>
+            <div v-if="col.fieldType === 'select' && col.selectSource === 'fixed'" class="mt-2">
+              <label class="block text-[var(--text-muted)] mb-1 text-xs">固定选项 (JSON)</label>
               <textarea
-                v-model="editingSingleColumn.fixedValues"
-                rows="4"
+                :value="col.fixedValues || '[]'"
+                rows="3"
                 placeholder='[{"label":"是","value":"1"},{"label":"否","value":"0"}]'
-                class="w-full px-3 py-2 border border-[var(--border-light)] rounded bg-[var(--bg-hover-light)] font-mono text-xs"
+                class="w-full px-2 py-1 border border-[var(--border)] rounded text-xs bg-[var(--bg-primary)] font-mono"
+                @input="updateColumnInline(index, 'fixedValues', ($event.target as HTMLTextAreaElement).value)"
               ></textarea>
-              <p class="text-xs text-[var(--text-muted)] mt-1">格式: [{"label":"显示文本","value":"实际值"}]</p>
             </div>
             
-            <!-- 自定义函数（仅 custom 类型显示） -->
-            <div v-if="editingSingleColumn.fieldType === 'custom'">
-              <label class="block text-[var(--text-muted)] mb-1">自定义函数 (JS)</label>
+            <!-- 自定义函数 -->
+            <div v-if="col.fieldType === 'custom'" class="mt-2">
+              <label class="block text-[var(--text-muted)] mb-1 text-xs">自定义函数 (JS)</label>
               <textarea
-                v-model="editingSingleColumn.customFunction"
-                rows="4"
-                placeholder="例如: (value, row) => value ? '是' : '否'"
-                class="w-full px-3 py-2 border border-[var(--border-light)] rounded bg-[var(--bg-hover-light)] font-mono text-xs"
+                :value="col.customFunction || ''"
+                rows="3"
+                placeholder="(value, row) => value ? '是' : '否'"
+                class="w-full px-2 py-1 border border-[var(--border)] rounded text-xs bg-[var(--bg-primary)] font-mono"
+                @input="updateColumnInline(index, 'customFunction', ($event.target as HTMLTextAreaElement).value)"
               ></textarea>
             </div>
             
-            <div>
-              <label class="block text-[var(--text-muted)] mb-1">对齐</label>
-              <select
-                v-model="editingSingleColumn.align"
-                class="w-full px-3 py-2 border border-[var(--border-light)] rounded bg-[var(--bg-hover-light)]"
-              >
-                <option value="left">左对齐</option>
-                <option value="center">居中</option>
-                <option value="right">右对齐</option>
-              </select>
-            </div>
-            <div class="flex flex-wrap gap-4">
-              <label class="flex items-center gap-1">
-                <input type="checkbox" v-model="editingSingleColumn.visible" class="w-4 h-4" />
-                显示
-              </label>
-              <label class="flex items-center gap-1">
-                <input type="checkbox" v-model="editingSingleColumn.sortable" class="w-4 h-4" />
+            <!-- 复选框选项 -->
+            <div class="flex flex-wrap gap-4 mt-2">
+              <label class="flex items-center gap-1 text-xs">
+                <input
+                  type="checkbox"
+                  :checked="col.sortable"
+                  @change="updateColumnInline(index, 'sortable', ($event.target as HTMLInputElement).checked)"
+                  class="w-3 h-3"
+                />
                 排序
               </label>
-              <label class="flex items-center gap-1">
-                <input type="checkbox" v-model="editingSingleColumn.queryCondition" class="w-4 h-4" />
+              <label class="flex items-center gap-1 text-xs">
+                <input
+                  type="checkbox"
+                  :checked="col.queryCondition"
+                  @change="updateColumnInline(index, 'queryCondition', ($event.target as HTMLInputElement).checked)"
+                  class="w-3 h-3"
+                />
                 查询
               </label>
-              <label class="flex items-center gap-1">
-                <input type="checkbox" v-model="editingSingleColumn.frozen" class="w-4 h-4" />
+              <label class="flex items-center gap-1 text-xs">
+                <input
+                  type="checkbox"
+                  :checked="col.frozen"
+                  @change="updateColumnInline(index, 'frozen', ($event.target as HTMLInputElement).checked)"
+                  class="w-3 h-3"
+                />
                 冻结
               </label>
             </div>
           </div>
-          <div class="flex justify-end gap-3 p-4 border-t border-[var(--border-light)]">
-            <button
-              @click="showSingleColumnEditor = false"
-              class="px-4 py-2 text-sm border border-[var(--border-light)] rounded-lg hover:bg-[var(--bg-hover)]"
+        </div>
+        
+        <!-- 添加列按钮 -->
+        <button
+          type="button"
+          class="w-full py-2 border border-dashed border-[var(--border)] rounded text-sm text-[var(--accent)] hover:bg-[var(--bg-hover)]"
+          @click="addColumnInline"
+        >
+          + 添加列
+        </button>
+      </div>
+      <div v-else-if="!showColumnsList && selectedComponent.props.columns?.length" class="text-xs text-[var(--text-muted)] text-center py-2">
+        已折叠，点击展开查看
+      </div>
+      <div v-else class="text-xs text-[var(--text-muted)] text-center py-2">
+        暂无列配置
+      </div>
+    </div>
+
+    <!-- 列配置侧边抽屉 (替代嵌套弹窗) -->
+    <Teleport to="body">
+      <div
+        v-if="showColumnsDrawer"
+        class="fixed inset-0 bg-black/30 z-40"
+        @click.self="showColumnsDrawer = false"
+      ></div>
+      <div
+        v-if="showColumnsDrawer"
+        class="fixed right-0 top-0 h-full w-[420px] bg-[var(--bg-secondary)] shadow-2xl z-50 flex flex-col animate-slide-in"
+      >
+        <!-- 抽屉头部 -->
+        <div class="flex items-center justify-between p-4 border-b border-[var(--border-light)] shrink-0">
+          <h3 class="font-medium">{{ drawerMode === 'single' ? `编辑列 - ${drawerColumn.label}` : '批量编辑列' }}</h3>
+          <button
+            @click="showColumnsDrawer = false"
+            class="p-1 hover:bg-[var(--bg-hover)] rounded"
+          >
+            ✕
+          </button>
+        </div>
+        
+        <!-- 批量编辑模式 -->
+        <div v-if="drawerMode === 'batch'" class="flex-1 overflow-y-auto p-4">
+          <div class="space-y-3">
+            <div
+              v-for="(col, index) in editingColumn"
+              :key="index"
+              class="bg-[var(--bg-hover-light)] rounded p-3"
             >
-              取消
-            </button>
+              <div class="flex items-center justify-between mb-2">
+                <span class="font-medium text-sm">列 {{ index + 1 }}</span>
+                <button
+                  type="button"
+                  class="text-[var(--danger)] hover:underline text-xs"
+                  @click="removeColumn(index)"
+                >
+                  删除
+                </button>
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <label class="block text-[var(--text-muted)] mb-1">字段名</label>
+                  <input
+                    :value="col.key"
+                    type="text"
+                    class="w-full px-2 py-1 border border-[var(--border)] rounded"
+                    @input="updateColumn(index, 'key', ($event.target as HTMLInputElement).value)"
+                  />
+                </div>
+                <div>
+                  <label class="block text-[var(--text-muted)] mb-1">显示名</label>
+                  <input
+                    :value="col.label"
+                    type="text"
+                    class="w-full px-2 py-1 border border-[var(--border)] rounded"
+                    @input="updateColumn(index, 'label', ($event.target as HTMLInputElement).value)"
+                  />
+                </div>
+                <div>
+                  <label class="block text-[var(--text-muted)] mb-1">类型</label>
+                  <select
+                    :value="col.fieldType"
+                    class="w-full px-2 py-1 border border-[var(--border)] rounded"
+                    @change="updateColumn(index, 'fieldType', ($event.target as HTMLSelectElement).value)"
+                  >
+                    <option value="text">文本</option>
+                    <option value="number">数字</option>
+                    <option value="date">日期</option>
+                    <option value="datetime">日期时间</option>
+                    <option value="select">下拉</option>
+                    <option value="image">图片</option>
+                    <option value="custom">自定义函数</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[var(--text-muted)] mb-1">宽度</label>
+                  <input
+                    :value="col.colspan || 1"
+                    type="number"
+                    min="1"
+                    max="12"
+                    class="w-full px-2 py-1 border border-[var(--border)] rounded"
+                    @input="updateColumn(index, 'colspan', Number(($event.target as HTMLInputElement).value))"
+                  />
+                </div>
+              </div>
+              <div class="flex items-center gap-3 mt-2 text-xs flex-wrap">
+                <label class="flex items-center gap-1">
+                  <input type="checkbox" :checked="col.visible" @change="updateColumn(index, 'visible', ($event.target as HTMLInputElement).checked)" class="w-3 h-3" />
+                  显示
+                </label>
+                <label class="flex items-center gap-1">
+                  <input type="checkbox" :checked="col.sortable" @change="updateColumn(index, 'sortable', ($event.target as HTMLInputElement).checked)" class="w-3 h-3" />
+                  排序
+                </label>
+                <label class="flex items-center gap-1">
+                  <input type="checkbox" :checked="col.queryCondition" @change="updateColumn(index, 'queryCondition', ($event.target as HTMLInputElement).checked)" class="w-3 h-3" />
+                  查询
+                </label>
+                <label class="flex items-center gap-1">
+                  <input type="checkbox" :checked="col.frozen" @change="updateColumn(index, 'frozen', ($event.target as HTMLInputElement).checked)" class="w-3 h-3" />
+                  冻结
+                </label>
+              </div>
+            </div>
             <button
-              @click="handleSaveSingleColumn"
-              class="px-4 py-2 text-sm bg-[var(--accent)] text-white rounded-lg hover:opacity-90"
+              type="button"
+              class="w-full py-2 border border-dashed border-[var(--border)] rounded text-sm text-[var(--accent)] hover:bg-[var(--bg-hover)]"
+              @click="addColumn"
             >
-              保存
+              + 添加列
             </button>
           </div>
+        </div>
+        
+        <!-- 单列编辑模式 -->
+        <div v-else-if="drawerMode === 'single'" class="flex-1 overflow-y-auto p-4 space-y-3 text-sm">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[var(--text-muted)] mb-1">字段名</label>
+              <input
+                v-model="drawerColumn.key"
+                type="text"
+                class="w-full px-3 py-2 border border-[var(--border-light)] rounded bg-[var(--bg-hover-light)]"
+              />
+            </div>
+            <div>
+              <label class="block text-[var(--text-muted)] mb-1">显示名</label>
+              <input
+                v-model="drawerColumn.label"
+                type="text"
+                class="w-full px-3 py-2 border border-[var(--border-light)] rounded bg-[var(--bg-hover-light)]"
+              />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[var(--text-muted)] mb-1">类型</label>
+              <select
+                v-model="drawerColumn.fieldType"
+                class="w-full px-3 py-2 border border-[var(--border-light)] rounded bg-[var(--bg-hover-light)]"
+              >
+                <option value="text">文本</option>
+                <option value="number">数字</option>
+                <option value="date">日期</option>
+                <option value="datetime">日期时间</option>
+                <option value="select">下拉</option>
+                <option value="image">图片</option>
+                <option value="custom">自定义函数</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-[var(--text-muted)] mb-1">宽度(colspan)</label>
+              <input
+                v-model.number="drawerColumn.colspan"
+                type="number"
+                min="1"
+                max="12"
+                class="w-full px-3 py-2 border border-[var(--border-light)] rounded bg-[var(--bg-hover-light)]"
+              />
+            </div>
+          </div>
+          
+          <!-- 下拉选项（仅 select 类型显示） -->
+          <div v-if="drawerColumn.fieldType === 'select'">
+            <label class="block text-[var(--text-muted)] mb-1">下拉来源</label>
+            <select
+              v-model="drawerColumn.selectSource"
+              class="w-full px-3 py-2 border border-[var(--border-light)] rounded bg-[var(--bg-hover-light)]"
+            >
+              <option value="dict">数据字典</option>
+              <option value="fixed">固定值</option>
+            </select>
+          </div>
+          
+          <!-- 数据字典选项 -->
+          <div v-if="drawerColumn.fieldType === 'select' && drawerColumn.selectSource === 'dict'">
+            <label class="block text-[var(--text-muted)] mb-1">选择字典</label>
+            <select
+              v-model="drawerColumn.dataDictionary"
+              class="w-full px-3 py-2 border border-[var(--border-light)] rounded bg-[var(--bg-hover-light)]"
+            >
+              <option value="">请选择字典</option>
+              <option v-for="dict in dictList" :key="dict.id" :value="dict.code">
+                {{ dict.name }} ({{ dict.code }})
+              </option>
+            </select>
+          </div>
+          
+          <!-- 固定值选项 -->
+          <div v-if="drawerColumn.fieldType === 'select' && drawerColumn.selectSource === 'fixed'">
+            <label class="block text-[var(--text-muted)] mb-1">固定选项 (JSON格式)</label>
+            <textarea
+              v-model="drawerColumn.fixedValues"
+              rows="3"
+              placeholder='[{"label":"是","value":"1"},{"label":"否","value":"0"}]'
+              class="w-full px-3 py-2 border border-[var(--border-light)] rounded bg-[var(--bg-hover-light)] font-mono text-xs"
+            ></textarea>
+            <p class="text-xs text-[var(--text-muted)] mt-1">格式: [{"label":"显示文本","value":"实际值"}]</p>
+          </div>
+          
+          <!-- 自定义函数（仅 custom 类型显示） -->
+          <div v-if="drawerColumn.fieldType === 'custom'">
+            <label class="block text-[var(--text-muted)] mb-1">自定义函数 (JS)</label>
+            <textarea
+              v-model="drawerColumn.customFunction"
+              rows="3"
+              placeholder="例如: (value, row) => value ? '是' : '否'"
+              class="w-full px-3 py-2 border border-[var(--border-light)] rounded bg-[var(--bg-hover-light)] font-mono text-xs"
+            ></textarea>
+          </div>
+          
+          <div>
+            <label class="block text-[var(--text-muted)] mb-1">对齐</label>
+            <select
+              v-model="drawerColumn.align"
+              class="w-full px-3 py-2 border border-[var(--border-light)] rounded bg-[var(--bg-hover-light)]"
+            >
+              <option value="left">左对齐</option>
+              <option value="center">居中</option>
+              <option value="right">右对齐</option>
+            </select>
+          </div>
+          <div class="flex flex-wrap gap-4">
+            <label class="flex items-center gap-1">
+              <input type="checkbox" v-model="drawerColumn.visible" class="w-4 h-4" />
+              显示
+            </label>
+            <label class="flex items-center gap-1">
+              <input type="checkbox" v-model="drawerColumn.sortable" class="w-4 h-4" />
+              排序
+            </label>
+            <label class="flex items-center gap-1">
+              <input type="checkbox" v-model="drawerColumn.queryCondition" class="w-4 h-4" />
+              查询
+            </label>
+            <label class="flex items-center gap-1">
+              <input type="checkbox" v-model="drawerColumn.frozen" class="w-4 h-4" />
+              冻结
+            </label>
+          </div>
+        </div>
+        
+        <!-- 抽屉底部 -->
+        <div class="flex justify-end gap-3 p-4 border-t border-[var(--border-light)] shrink-0">
+          <button
+            @click="showColumnsDrawer = false"
+            class="px-4 py-2 text-sm border border-[var(--border-light)] rounded-lg hover:bg-[var(--bg-hover)]"
+          >
+            取消
+          </button>
+          <button
+            v-if="drawerMode === 'batch'"
+            @click="handleSaveColumns"
+            class="px-4 py-2 text-sm bg-[var(--accent)] text-white rounded-lg hover:opacity-90"
+          >
+            保存
+          </button>
+          <button
+            v-else
+            @click="handleSaveDrawerColumn"
+            class="px-4 py-2 text-sm bg-[var(--accent)] text-white rounded-lg hover:opacity-90"
+          >
+            保存
+          </button>
         </div>
       </div>
     </Teleport>
@@ -660,16 +782,14 @@ const loadingFeatures = ref(false)
 const currentDatasourceId = ref<number | undefined>(undefined)  // 本地维护当前选中的 datasourceId
 const dictList = ref<any[]>([])  // 数据字典列表
 
-// 列配置编辑弹窗
-const showColumnsEditorModal = ref(false)
+// 列配置抽屉（替代弹窗）
+const showColumnsDrawer = ref(false)
+const drawerMode = ref<'batch' | 'single'>('batch')
 const showColumnsList = ref(false)  // 列配置列表默认折叠
 const editingColumn = ref<any[]>([])
 const isUserEditingColumns = ref(false)  // 用户正在编辑列，阻止 watch 覆盖
-
-// 单列编辑弹窗
-const showSingleColumnEditor = ref(false)
-const editingColumnIndex = ref<number>(-1)
-const editingSingleColumn = ref<any>({})
+const drawerColumnIndex = ref<number>(-1)
+const drawerColumn = ref<any>({})
 
 // 新建 Feature 弹窗
 const showCreateFeatureModal = ref(false)
@@ -972,31 +1092,33 @@ async function handleCreateFeature() {
   }
 }
 
-// 打开列配置编辑器
+// 打开列配置抽屉（批量编辑）
 function openColumnsEditor() {
   isUserEditingColumns.value = true
+  drawerMode.value = 'batch'
   const cols = props.selectedComponent?.props?.columns || []
   editingColumn.value = JSON.parse(JSON.stringify(cols))
-  showColumnsEditorModal.value = true
+  showColumnsDrawer.value = true
 }
 
-// 打开单列编辑器
+// 打开单列编辑器抽屉
 function openColumnEditor(index: number) {
-  editingColumnIndex.value = index
-  editingSingleColumn.value = { ...props.selectedComponent?.props.columns?.[index] }
+  drawerMode.value = 'single'
+  drawerColumnIndex.value = index
+  drawerColumn.value = { ...props.selectedComponent?.props.columns?.[index] }
   // 如果还没加载字典，先加载
   if (dictList.value.length === 0) {
     loadDicts()
   }
-  showSingleColumnEditor.value = true
+  showColumnsDrawer.value = true
 }
 
-// 保存单列编辑
-function handleSaveSingleColumn() {
+// 保存抽屉中的单列编辑
+function handleSaveDrawerColumn() {
   const columns = [...(props.selectedComponent?.props.columns || [])]
-  columns[editingColumnIndex.value] = editingSingleColumn.value
+  columns[drawerColumnIndex.value] = { ...drawerColumn.value }
   props.updateProp('columns', columns)
-  showSingleColumnEditor.value = false
+  showColumnsDrawer.value = false
 }
 
 // 更新编辑中的列
@@ -1040,8 +1162,61 @@ function removeColumnDirect(index: number) {
 function handleSaveColumns() {
   const columnsCopy = JSON.parse(JSON.stringify(editingColumn.value))
   props.updateProp('columns', columnsCopy)
-  showColumnsEditorModal.value = false
+  showColumnsDrawer.value = false
   isUserEditingColumns.value = false
+}
+
+// 内联编辑：切换列列表展开/折叠
+function toggleColumnsList() {
+  showColumnsList.value = !showColumnsList.value
+  // 折叠时重置编辑状态
+  if (!showColumnsList.value) {
+    editingColumnIndex.value = -1
+  }
+}
+
+// 内联编辑：切换单列展开/折叠
+function toggleColumnEditor(index: number) {
+  if (editingColumnIndex.value === index) {
+    editingColumnIndex.value = -1
+  } else {
+    editingColumnIndex.value = index
+    // 确保字典列表已加载
+    if (dictList.value.length === 0) {
+      loadDicts()
+    }
+  }
+}
+
+// 内联编辑：实时更新列属性
+function updateColumnInline(index: number, field: string, value: any) {
+  const columns = [...(props.selectedComponent?.props?.columns || [])]
+  columns[index] = { ...columns[index], [field]: value }
+  props.updateProp('columns', columns)
+}
+
+// 内联编辑：添加列
+function addColumnInline() {
+  const columns = [...(props.selectedComponent?.props?.columns || [])]
+  columns.push({
+    key: '',
+    label: '',
+    fieldType: 'text',
+    colspan: 1,
+    visible: true,
+    sortable: false,
+    align: 'left',
+    frozen: false,
+    ellipsis: true,
+    tooltip: false,
+    required: false,
+    placeholder: '',
+    queryCondition: false,
+    dataDictionary: ''
+  })
+  props.updateProp('columns', columns)
+  // 自动展开新添加的列
+  editingColumnIndex.value = columns.length - 1
 }
 
 // 初始化监听
