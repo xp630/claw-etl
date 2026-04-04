@@ -79,17 +79,13 @@
       </div>
 
       <!-- 属性配置抽屉 (双击组件时显示) -->
-      <el-drawer
-        v-model="showPropsPanel"
-        title=""
-        direction="rtl"
-        size="380px"
-        :show-close="true"
-        :with-header="false"
-        class="property-drawer"
-      >
-        <div class="property-drawer-inner" v-if="selectedComponent">
-          <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--border-light)]">
+      <transition name="drawer">
+        <div
+          v-if="showPropsPanel && selectedComponent"
+          class="fixed right-0 top-14 bottom-0 w-[700px] bg-[var(--bg-secondary)] border-l border-[var(--border-light)] shadow-2xl z-50 flex flex-col"
+          :class="{ 'pointer-events-none': isDraggingCanvas }"
+        >
+          <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--border-light)] bg-[var(--bg-tertiary)]">
             <h3 class="font-medium text-[var(--text-primary)]">
               属性配置 - {{ selectedComponent.label }}
             </h3>
@@ -111,7 +107,7 @@
             />
           </div>
         </div>
-      </el-drawer>
+      </transition>
 
       <!-- Canvas -->
       <!-- Preview Mode -->
