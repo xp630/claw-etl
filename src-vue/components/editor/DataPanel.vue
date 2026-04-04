@@ -1,91 +1,87 @@
 <template>
-  <div v-if="visible" class="data-panel border-t border-[var(--border-light)] bg-[var(--bg-secondary)]" :style="{ height: `${height}px` }">
-    <!-- Header -->
-    <div class="flex items-center justify-between px-4 py-2 border-b border-[var(--border-light)] bg-[var(--bg-tertiary)]">
-      <div class="flex items-center gap-4">
-        <span class="text-sm font-medium text-[var(--text-primary)]">数据面板</span>
-        <div class="flex gap-1">
+  <transition name="drawer">
+    <div v-if="visible" class="data-panel fixed right-0 top-14 bottom-0 w-[500px] bg-[var(--bg-secondary)] border-l border-[var(--border-light)] shadow-2xl z-50 flex flex-col">
+      <!-- Header -->
+      <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--border-light)] bg-[var(--bg-tertiary)]">
+        <div class="flex items-center gap-4">
+          <span class="text-sm font-medium text-[var(--text-primary)]">数据面板</span>
+          <div class="flex gap-1">
+            <button
+              v-for="tab in ['Tree', 'JSON']"
+              :key="tab"
+              class="px-3 py-1 text-xs rounded transition-colors"
+              :class="activeTab === tab ? 'bg-blue-500 text-white' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'"
+              @click="activeTab = tab"
+            >
+              {{ tab }}
+            </button>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
           <button
-            v-for="tab in ['Tree', 'JSON']"
-            :key="tab"
-            class="px-3 py-1 text-xs rounded transition-colors"
-            :class="activeTab === tab ? 'bg-blue-500 text-white' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'"
-            @click="activeTab = tab"
+            class="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+            @click="formatJson"
           >
-            {{ tab }}
+            格式化
+          </button>
+          <button
+            class="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+            @click="copyJson"
+          >
+            复制
+          </button>
+          <button
+            class="text-xs px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+            @click="applyJson"
+          >
+            应用
+          </button>
+          <span class="text-xs text-green-500" v-if="applySuccess">✓ 已应用</span>
+          <button
+            class="text-lg text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+            @click="$emit('close')"
+          >
+            ×
           </button>
         </div>
       </div>
-      <div class="flex items-center gap-2">
-        <button
-          class="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-          @click="formatJson"
-          title="格式化"
-        >
-          格式化
-        </button>
-        <button
-          class="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-          @click="copyJson"
-          title="复制"
-        >
-          复制
-        </button>
-        <button
-          class="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-          @click="applyJson"
-          title="应用到画布"
-        >
-          应用
-        </button>
-        <span class="text-xs text-green-500" v-if="applySuccess">已应用!</span>
-        <button
-          class="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-          @click="$emit('close')"
-        >
-          ✕
-        </button>
-      </div>
-    </div>
 
-    <!-- Content -->
-    <div class="overflow-auto" :style="{ height: `${height - 45}px` }">
-      <!-- Tree View -->
-      <div v-if="activeTab === 'Tree'" class="p-4">
-        <TreeView :data="components" @select="handleSelect" />
-      </div>
+      <!-- Content -->
+      <div class="flex-1 overflow-hidden flex flex-col">
+        <!-- Tree View -->
+        <div v-if="activeTab === 'Tree'" class="flex-1 overflow-auto p-4">
+          <TreeView :data="components" @select="handleSelect" />
+        </div>
 
-      <!-- JSON View -->
-      <div v-else class="relative">
-        <textarea
-          ref="jsonTextarea"
-          v-model="jsonText"
-          class="w-full h-full p-4 font-mono text-xs bg-[var(--bg-tertiary)] text-[var(--text-primary)] border-none resize-none focus:outline-none"
-          spellcheck="false"
-          @input="onJsonInput"
-        />
-        <div v-if="jsonError" class="absolute bottom-2 left-2 right-2 text-xs text-red-500 bg-[var(--bg-secondary)] p-2 rounded">
-          {{ jsonError }}
+        <!-- JSON View -->
+        <div v-else class="flex-1 relative">
+          <textarea
+            ref="jsonTextarea"
+            v-model="jsonText"
+            class="w-full h-full p-4 font-mono text-xs leading-5 bg-[var(--bg-tertiary)] text-[var(--text-primary)] border-none resize-none focus:outline-none"
+            spellcheck="false"
+            @input="onJsonInput"
+          />
+          <div v-if="jsonError" class="absolute top-2 left-2 right-2 text-xs text-red-500 bg-red-500/10 border border-red-500/30 p-2 rounded">
+            {{ jsonError }}
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </transition>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { ref, watch } from 'vue'
 import type { CanvasComponent } from '@/pages/editor/types'
 import TreeView from './TreeView.vue'
 
 interface Props {
   visible: boolean
   components: CanvasComponent[]
-  height?: number
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  height: 300
-})
+const props = defineProps<Props>()
 
 const emit = defineEmits<{
   close: []
@@ -99,12 +95,11 @@ const jsonError = ref('')
 const applySuccess = ref(false)
 const jsonTextarea = ref<HTMLTextAreaElement | null>(null)
 
-// Sync components to JSON
 watch(() => props.components, (newComps) => {
   try {
     jsonText.value = JSON.stringify(newComps, null, 2)
     jsonError.value = ''
-  } catch (e) {
+  } catch {
     jsonError.value = '序列化失败'
   }
 }, { immediate: true, deep: true })
@@ -114,7 +109,7 @@ function formatJson() {
     const parsed = JSON.parse(jsonText.value)
     jsonText.value = JSON.stringify(parsed, null, 2)
     jsonError.value = ''
-  } catch (e) {
+  } catch {
     jsonError.value = '无效的 JSON'
   }
 }
@@ -122,8 +117,7 @@ function formatJson() {
 async function copyJson() {
   try {
     await navigator.clipboard.writeText(jsonText.value)
-  } catch (e) {
-    // Fallback
+  } catch {
     jsonTextarea.value?.select()
     document.execCommand('copy')
   }
@@ -140,7 +134,7 @@ function applyJson() {
     jsonError.value = ''
     applySuccess.value = true
     setTimeout(() => applySuccess.value = false, 2000)
-  } catch (e) {
+  } catch {
     jsonError.value = '无效的 JSON'
   }
 }
@@ -149,7 +143,7 @@ function onJsonInput() {
   try {
     JSON.parse(jsonText.value)
     jsonError.value = ''
-  } catch (e) {
+  } catch {
     jsonError.value = 'JSON 格式错误'
   }
 }
@@ -159,62 +153,13 @@ function handleSelect(id: string) {
 }
 </script>
 
-<!-- TreeView Component -->
-<script lang="ts">
-import { defineComponent, h } from 'vue'
-
-const TreeView = defineComponent({
-  name: 'TreeView',
-  props: {
-    data: { type: Array, required: true },
-    depth: { type: Number, default: 0 }
-  },
-  emits: ['select'],
-  setup(props, { emit }) {
-    const toggleMap = ref<Record<string, boolean>>({})
-
-    function toggle(id: string) {
-      toggleMap.value[id] = !toggleMap.value[id]
-    }
-
-    function renderNode(comp: any, depth: number): any {
-      const hasChildren = comp.children?.length > 0 || comp.props?.tabs?.length > 0
-      const isOpen = toggleMap.value[comp.id] ?? depth < 2
-      const indent = depth * 16
-
-      return [
-        h('div', {
-          class: 'flex items-center gap-1 py-1 px-2 hover:bg-[var(--bg-tertiary)] cursor-pointer rounded text-xs',
-          style: { paddingLeft: `${indent + 8}px` },
-          onClick: () => emit('select', comp.id)
-        }, [
-          hasChildren ? h('button', {
-            class: 'w-4 h-4 flex items-center justify-center text-[var(--text-muted)]',
-            onClick: (e: Event) => { e.stopPropagation(); toggle(comp.id) }
-          }, [isOpen ? '▼' : '▶']) : h('span', { class: 'w-4' }),
-          h('span', { class: 'px-1 rounded bg-blue-500/20 text-blue-500 text-[10px]' }, comp.type),
-          h('span', { class: 'text-[var(--text-secondary)]' }, comp.label || comp.id),
-          comp.props?.label ? h('span', { class: 'text-[var(--text-muted)] ml-1' }, `(${comp.props.label})`) : null
-        ]),
-        ...(hasChildren && isOpen ? [
-          ...(comp.children || []).map((child: any) => renderNode(child, depth + 1)),
-          ...(comp.props?.tabs || []).map((tab: any) => 
-            h('div', {
-              class: 'flex items-center gap-1 py-1 px-2 text-[var(--text-muted)] text-xs',
-              style: { paddingLeft: `${indent + 28}px` }
-            }, [
-              h('span', { class: 'text-[10px]' }, `📑 ${tab.label}`),
-              tab.children?.length ? h('span', { class: 'ml-1' }, `(${tab.children.length})`) : null
-            ])
-          )
-        ] : [])
-      ]
-    }
-
-    return () => {
-      const nodes = (props.data as any[]).flatMap(comp => renderNode(comp, 0))
-      return h('div', { class: 'tree-view font-mono' }, nodes)
-    }
-  }
-})
-</script>
+<style scoped>
+.drawer-enter-active,
+.drawer-leave-active {
+  transition: transform 0.2s ease;
+}
+.drawer-enter-from,
+.drawer-leave-to {
+  transform: translateX(100%);
+}
+</style>
