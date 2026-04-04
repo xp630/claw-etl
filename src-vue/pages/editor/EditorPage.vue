@@ -78,36 +78,20 @@
         />
       </div>
 
-      <!-- 属性配置抽屉 (双击组件时显示) -->
-      <transition name="drawer">
-        <div
-          v-if="showPropsPanel && selectedComponent"
-          class="fixed right-0 top-14 bottom-0 w-[700px] bg-[var(--bg-secondary)] border-l border-[var(--border-light)] shadow-2xl z-50 flex flex-col"
-          :class="{ 'pointer-events-none': isDraggingCanvas }"
-        >
-          <div class="flex items-center justify-between px-4 py-3 border-b border-[var(--border-light)] bg-[var(--bg-tertiary)]">
-            <h3 class="font-medium text-[var(--text-primary)]">
-              属性配置 - {{ selectedComponent.label }}
-            </h3>
-            <el-button text @click="closePropsPanel">
-              ✕
-            </el-button>
-          </div>
-          <div class="flex-1 overflow-y-auto p-4">
-            <PropertyPanel
-              :selected-component="selectedComponent"
-              :components="components"
-              @update-props="handleUpdateProps"
-              @update-component="handleUpdateComponent"
-              @move-to-container="handleMoveToContainer"
-              @move-out-of-container="handleMoveOutOfContainer"
-              @delete-component="handleDelete"
-              @select-component="handleSelectComponent"
-              @remove-tab="handleRemoveTab"
-            />
-          </div>
-        </div>
-      </transition>
+      <!-- 属性配置抽屉 (与 DataPanel 风格一致) -->
+      <PropertyPanel
+        :visible="showPropsPanel && !!selectedComponent"
+        :selected-component="selectedComponent"
+        :components="components"
+        @close="closePropsPanel"
+        @update-props="handleUpdateProps"
+        @update-component="handleUpdateComponent"
+        @move-to-container="handleMoveToContainer"
+        @move-out-of-container="handleMoveOutOfContainer"
+        @delete-component="handleDelete"
+        @select-component="handleSelectComponent"
+        @remove-tab="handleRemoveTab"
+      />
 
       <!-- Canvas -->
       <!-- Preview Mode -->
