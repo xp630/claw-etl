@@ -55,6 +55,9 @@
           <el-button type="warning" size="small" @click="handleFlattenComponents">
             拆散
           </el-button>
+          <el-button type="info" size="small" @click="showDataPanel = !showDataPanel">
+            数据
+          </el-button>
         </template>
         <el-button size="small" @click="goToList">
           返回列表
@@ -153,6 +156,15 @@
         @drag-end="isDraggingCanvas = false"
         @open-props="openPropsPanel"
       />
+
+      <!-- Data Panel (数据预览) -->
+      <DataPanel
+        v-model:visible="showDataPanel"
+        :components="components"
+        @update:components="handleDataPanelUpdate"
+        @select="handleSelectComponent"
+        @close="showDataPanel = false"
+      />
     </div>
   </div>
 </template>
@@ -167,6 +179,7 @@ import ComponentTree from './ComponentTree.vue'
 import DropCanvas from './DropCanvas.vue'
 import PropertyPanel from '@/components/editor/PropertyPanel.vue'
 import ComponentRenderer from './ComponentRenderer.vue'
+import DataPanel from '@/components/editor/DataPanel.vue'
 import type { CanvasComponent, TabItem } from './types'
 import axios from 'axios'
 
@@ -185,6 +198,7 @@ const pageId = ref<number | null>(null)
 const saving = ref(false)
 const isNewPage = ref(false)
 const activeLeftTab = ref<'layer' | 'components' | ''>('')
+const showDataPanel = ref(false)
 
 // ============ API ============
 const API_BASE = '/etl-admin'
@@ -916,6 +930,11 @@ function handleClear() {
     components.value = []
     selectedId.value = null
   }
+}
+
+function handleDataPanelUpdate(newComponents: CanvasComponent[]) {
+  components.value = newComponents
+  selectedId.value = null
 }
 
 function goToList() {
