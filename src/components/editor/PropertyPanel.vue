@@ -96,7 +96,7 @@
         />
         
         <!-- Fallback: 如果没有 Schema，显示基于 hasProp 的旧方式 -->
-        <template v-else>
+        <div v-else>
           <div v-if="hasProp('placeholder')" class="prop-item">
             <label>占位符</label>
             <input
