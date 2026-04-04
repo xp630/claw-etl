@@ -46,18 +46,40 @@
         </div>
 
         <!-- Right: JSON View -->
-        <div class="flex-1 relative overflow-hidden">
-          <div class="absolute top-2 left-2 text-xs text-[var(--text-muted)] z-10">
-            {{ selectedId ? `已选中: ${selectedId}` : '点击左侧节点高亮 JSON' }}
+        <div class="flex-1 relative overflow-hidden flex flex-col">
+          <div class="flex items-center justify-between px-4 py-2 border-b border-[var(--border-light)] bg-[var(--bg-tertiary)]">
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-[var(--text-muted)]">
+                {{ selectedId ? `已选中: ${selectedId}` : '点击左侧节点高亮 JSON' }}
+              </span>
+            </div>
+            <div class="flex items-center gap-2">
+              <label class="flex items-center gap-1 text-xs text-[var(--text-muted)]">
+                <input type="checkbox" v-model="isEditable" class="w-3 h-3" />
+                可编辑
+              </label>
+            </div>
           </div>
-          <div ref="jsonContainerRef" class="w-full h-full overflow-auto p-4 pt-8">
-            <pre
-              ref="jsonPreRef"
-              class="font-mono text-xs leading-5 bg-[var(--bg-tertiary)] text-[var(--text-primary)] p-4 rounded"
-              v-html="highlightedJson"
+          <div class="flex-1 overflow-hidden">
+            <!-- Editable textarea -->
+            <textarea
+              v-if="isEditable"
+              ref="jsonTextareaRef"
+              v-model="jsonText"
+              class="w-full h-full p-4 font-mono text-xs leading-5 bg-[var(--bg-tertiary)] text-[var(--text-primary)] border-none resize-none focus:outline-none"
+              spellcheck="false"
+              @input="onJsonInput"
             />
+            <!-- Highlighted view (read-only) -->
+            <div v-else ref="jsonContainerRef" class="w-full h-full overflow-auto p-4">
+              <pre
+                ref="jsonPreRef"
+                class="font-mono text-xs leading-5 text-[var(--text-primary)]"
+                v-html="highlightedJson"
+              />
+            </div>
           </div>
-          <div v-if="jsonError" class="absolute top-12 left-2 right-2 text-xs text-red-500 bg-red-500/10 border border-red-500/30 p-2 rounded">
+          <div v-if="jsonError" class="absolute bottom-16 left-2 right-2 text-xs text-red-500 bg-red-500/10 border border-red-500/30 p-2 rounded mx-2 mb-2">
             {{ jsonError }}
           </div>
         </div>
@@ -89,6 +111,8 @@ const jsonError = ref('')
 const applySuccess = ref(false)
 const jsonPreRef = ref<HTMLPreElement | null>(null)
 const jsonContainerRef = ref<HTMLDivElement | null>(null)
+const jsonTextareaRef = ref<HTMLTextAreaElement | null>(null)
+const isEditable = ref(false)
 
 // Current JSON text (for editing)
 const jsonText = ref('')
