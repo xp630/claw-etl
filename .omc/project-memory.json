@@ -1,7 +1,30 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1774535960751,
+  "lastScanned": 1775786416000,
+  "lastGitSync": "2026-05-30T10:30:00+08:00",
   "projectRoot": "/Users/xp630/work/workspace/openclaw/claw-etl",
+  "gitProgress": {
+    "branch": "feature/vue-migration",
+    "lastCommit": "e91d79e chore(vite): disable HMR error overlay for cleaner dev experience",
+    "recentCommits": [
+      "e91d79e chore(vite): disable HMR error overlay for cleaner dev experience",
+      "e81ff2f fix(JsonEditor): remove invalid fold import from @codemirror/language",
+      "9b0c9f3 fix(ComponentRenderer): remove debug text from tabs canvas placeholder",
+      "1bcc678 fix(PropertyPanel): 修复模板标签不匹配问题",
+      "a9269d0 fix: PropertyPanel.vue 修复错误标签 (</template> → </div>)",
+      "19eea77 refactor: 优化属性面板 - Tabs配置扁平化和表格列内联编辑"
+    ],
+    "activeFiles": [
+      "src/components/editor/ComponentPanel.vue",
+      "src/components/editor/JsonEditor.vue",
+      "src/components/editor/PropertyPanel.vue",
+      "src/pages/editor/ComponentRenderer.vue",
+      "src/pages/editor/DropCanvas.vue",
+      "src/pages/editor/EditorPage.vue",
+      "src/pages/viewer/PageViewer.vue"
+    ],
+    "buildStatus": "HMR优化已完成，最近5天无新的build error"
+  },
   "techStack": {
     "languages": [
       {
@@ -23,23 +46,18 @@
     ],
     "frameworks": [
       {
-        "name": "react",
-        "version": "19.2.0",
-        "category": "frontend"
-      },
-      {
-        "name": "react-dom",
-        "version": "19.2.0",
+        "name": "vue",
+        "version": "3.4.0",
         "category": "frontend"
       },
       {
         "name": "vite",
-        "version": "7.3.1",
+        "version": "5.2.0",
         "category": "build"
       },
       {
         "name": "vitest",
-        "version": "2.0.0",
+        "version": "1.0.0",
         "category": "testing"
       }
     ],
@@ -48,16 +66,13 @@
   },
   "build": {
     "buildCommand": "pnpm build",
-    "testCommand": "pnpm test",
-    "lintCommand": "pnpm lint",
+    "testCommand": null,
+    "lintCommand": null,
     "devCommand": "pnpm dev",
     "scripts": {
       "dev": "vite",
-      "build": "tsc -b && vite build",
-      "lint": "eslint .",
-      "preview": "vite preview",
-      "test": "vitest",
-      "test:run": "vitest run"
+      "build": "vue-tsc && vite build",
+      "preview": "vite preview"
     }
   },
   "conventions": {
@@ -85,7 +100,7 @@
       "path": "dist",
       "purpose": "Distribution/build output",
       "fileCount": 2,
-      "lastAccessed": 1774535960724,
+      "lastAccessed": 1775712880300,
       "keyFiles": [
         "index.html",
         "vite.svg"
@@ -94,21 +109,21 @@
     "docs": {
       "path": "docs",
       "purpose": "Documentation",
-      "fileCount": 7,
-      "lastAccessed": 1774535960725,
+      "fileCount": 14,
+      "lastAccessed": 1775712880303,
       "keyFiles": [
         "API管理模块设计文档.md",
-        "deployment.md",
-        "design.md",
-        "page_config.sql",
-        "任务分解.md"
+        "CLAW-ETL-页面编辑器操作手册.md",
+        "Vue页面编辑器迁移技术方案.md",
+        "Vue页面编辑器迁移方案.md",
+        "deployment.md"
       ]
     },
     "prototypes": {
       "path": "prototypes",
       "purpose": null,
       "fileCount": 7,
-      "lastAccessed": 1774535960730,
+      "lastAccessed": 1775712880303,
       "keyFiles": [
         "dashboard.html",
         "datasource.html",
@@ -121,7 +136,7 @@
       "path": "public",
       "purpose": "Public files",
       "fileCount": 1,
-      "lastAccessed": 1774535960731,
+      "lastAccessed": 1775712880304,
       "keyFiles": [
         "vite.svg"
       ]
@@ -130,7 +145,7 @@
       "path": "sql",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1774535960731,
+      "lastAccessed": 1775712880304,
       "keyFiles": [
         "t_api_config.sql"
       ]
@@ -138,77 +153,231 @@
     "src": {
       "path": "src",
       "purpose": "Source code",
-      "fileCount": 4,
-      "lastAccessed": 1774535960731,
+      "fileCount": 10,
+      "lastAccessed": 1775712880304,
       "keyFiles": [
-        "App.css",
-        "App.tsx",
-        "index.css",
-        "main.tsx"
+        "App.vue",
+        "index.html",
+        "main.ts",
+        "package.json",
+        "pnpm-lock.yaml"
       ]
     },
     "dist/assets": {
       "path": "dist/assets",
       "purpose": "Static assets",
       "fileCount": 2,
-      "lastAccessed": 1774535960733,
+      "lastAccessed": 1775712880305,
       "keyFiles": [
-        "index-D-GAPcps.js",
-        "index-DCtlBtVg.css"
-      ]
-    },
-    "src/assets": {
-      "path": "src/assets",
-      "purpose": "Static assets",
-      "fileCount": 1,
-      "lastAccessed": 1774535960734,
-      "keyFiles": [
-        "react.svg"
+        "index-CkO9-tQ-.css",
+        "index-rpilo9IZ.js"
       ]
     },
     "src/components": {
       "path": "src/components",
       "purpose": "UI components",
-      "fileCount": 5,
-      "lastAccessed": 1774535960736,
-      "keyFiles": [
-        "ChangePasswordModal.tsx",
-        "Layout.tsx",
-        "PageRenderer.tsx"
-      ]
-    },
-    "src/config": {
-      "path": "src/config",
-      "purpose": "Configuration files",
       "fileCount": 1,
-      "lastAccessed": 1774535960737,
+      "lastAccessed": 1775712880306,
       "keyFiles": [
-        "menu.ts"
+        "MenuTreeItem.vue"
       ]
     },
     "src/lib": {
       "path": "src/lib",
       "purpose": "Library code",
-      "fileCount": 3,
-      "lastAccessed": 1774535960737,
+      "fileCount": 2,
+      "lastAccessed": 1775712880306,
       "keyFiles": [
-        "DataBridge.ts",
         "api.ts",
         "crypto.ts"
+      ]
+    },
+    "src/node_modules": {
+      "path": "src/node_modules",
+      "purpose": "Dependencies",
+      "fileCount": 1,
+      "lastAccessed": 1775712880306,
+      "keyFiles": []
+    },
+    "src/pages": {
+      "path": "src/pages",
+      "purpose": "Page components",
+      "fileCount": 8,
+      "lastAccessed": 1775712880306,
+      "keyFiles": [
+        "DatasourceForm.vue",
+        "DatasourceList.vue",
+        "Home.vue"
       ]
     }
   },
   "hotPaths": [
     {
-      "path": "src/pages/PageEditor.tsx",
-      "accessCount": 41,
-      "lastAccessed": 1774537341161,
+      "path": "src/pages/editor/EditorPage.vue",
+      "accessCount": 105,
+      "lastAccessed": 1775729678889,
       "type": "file"
     },
     {
+      "path": "src/components/editor/PropertyPanel.vue",
+      "accessCount": 46,
+      "lastAccessed": 1775730598966,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/editor/DropCanvas.vue",
+      "accessCount": 45,
+      "lastAccessed": 1775729669984,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/editor/ComponentRenderer.vue",
+      "accessCount": 44,
+      "lastAccessed": 1775731541262,
+      "type": "file"
+    },
+    {
+      "path": "src/components/editor/ComponentPanel.vue",
+      "accessCount": 21,
+      "lastAccessed": 1775723241207,
+      "type": "file"
+    },
+    {
+      "path": "src/components/editor/JsonEditor.vue",
+      "accessCount": 19,
+      "lastAccessed": 1775720944861,
+      "type": "file"
+    },
+    {
+      "path": "src/components/editor/TabsPropsPanel.vue",
+      "accessCount": 16,
+      "lastAccessed": 1775731303617,
+      "type": "file"
+    },
+    {
+      "path": "src/components/editor/DataPanel.vue",
+      "accessCount": 9,
+      "lastAccessed": 1775720964293,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/viewer/PageViewer.vue",
+      "accessCount": 6,
+      "lastAccessed": 1775729694814,
+      "type": "directory"
+    },
+    {
+      "path": "src/pages/editor/components/DraggableComponentList.vue",
+      "accessCount": 5,
+      "lastAccessed": 1775727352315,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/editor/types.ts",
+      "accessCount": 3,
+      "lastAccessed": 1775721867485,
+      "type": "directory"
+    },
+    {
+      "path": "src/components/editor/TablePropsPanel.vue",
+      "accessCount": 3,
+      "lastAccessed": 1775724889771,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/editor",
+      "accessCount": 3,
+      "lastAccessed": 1775727346689,
+      "type": "directory"
+    },
+    {
       "path": "src",
+      "accessCount": 2,
+      "lastAccessed": 1775721861049,
+      "type": "directory"
+    },
+    {
+      "path": "src/components/editor",
+      "accessCount": 2,
+      "lastAccessed": 1775722053048,
+      "type": "directory"
+    },
+    {
+      "path": "src/pages/editor/composables/useEditorState.ts",
+      "accessCount": 2,
+      "lastAccessed": 1775722725090,
+      "type": "file"
+    },
+    {
+      "path": "src/App.vue",
       "accessCount": 1,
-      "lastAccessed": 1774535991528,
+      "lastAccessed": 1775716222322,
+      "type": "file"
+    },
+    {
+      "path": "src/stores/theme.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775716224839,
+      "type": "file"
+    },
+    {
+      "path": "src/components/editor/TreeView.vue",
+      "accessCount": 1,
+      "lastAccessed": 1775720927303,
+      "type": "file"
+    },
+    {
+      "path": "src/components/editor/TreeNode.vue",
+      "accessCount": 1,
+      "lastAccessed": 1775720930893,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/editor/ComponentRenderer.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775721493814,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/editor/DropCanvas.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775721493865,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/editor/PropertyPanel.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775721494322,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/editor/ContainerRenderer.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1775721504248,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/editor/component-registry.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775721903296,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/editor/chart-components/ChartRenderer.vue",
+      "accessCount": 1,
+      "lastAccessed": 1775722355265,
+      "type": "file"
+    },
+    {
+      "path": "src/pages/editor/utils/component-utils.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775722648320,
+      "type": "file"
+    },
+    {
+      "path": "src/router/index.ts",
+      "accessCount": 1,
+      "lastAccessed": 1775729428914,
       "type": "directory"
     }
   ],

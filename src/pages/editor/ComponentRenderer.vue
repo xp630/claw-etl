@@ -211,9 +211,11 @@
                   <img
                     v-if="col.fieldType === 'image' && getCellValue(row, col)"
                     :src="getCellValue(row, col)"
-                    class="h-8 w-auto object-cover rounded"
+                    class="h-5 w-auto object-cover rounded cursor-pointer hover:opacity-80"
+                    @click.stop="openImagePreview(getCellValue(row, col))"
                     @error="(e) => (e.target as HTMLImageElement).style.display = 'none'"
                   />
+                  <span v-else-if="col.fieldType === 'image' && !getCellValue(row, col)">-</span>
                   <span v-else>{{ getCellValue(row, col) }}</span>
                 </td>
                 <td v-if="component.props.showEdit || component.props.showDelete || component.props.showDetail" class="px-3 py-2 text-center border-l border-[var(--border-light)] overflow-hidden" style="minWidth: 120px;">
@@ -293,14 +295,11 @@
     </div>
 
     <!-- Chart components -->
-    <div
+    <ChartRenderer
       v-else-if="['lineChart', 'barChart', 'pieChart'].includes(component.type)"
-      class="border border-[var(--border-light)] rounded p-4 bg-[var(--bg-table-header)] text-center"
-    >
-      <div class="text-sm text-[var(--text-secondary)]">
-        {{ chartIcon }} {{ component.props.title || component.type }}
-      </div>
-    </div>
+      :component-type="component.type"
+      :title="component.props.title as string"
+    />
 
     <!-- Grid component -->
     <div
@@ -503,12 +502,21 @@
       未知组件: {{ component.type }}
     </div>
   </div>
+
+  <!-- 图片预览弹窗 -->
+  <Teleport to="body">
+    <div v-if="imagePreviewUrl" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60" @click="imagePreviewUrl = null">
+      <img :src="imagePreviewUrl" class="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-2xl" @click.stop />
+      <button class="absolute top-4 right-4 w-10 h-10 flex items-center justify-center bg-white/20 hover:bg-white/30 rounded-full text-white text-2xl font-bold transition-colors" @click="imagePreviewUrl = null">×</button>
+    </div>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch, onMounted } from 'vue'
 import { api, getAllDictItems } from '@/lib/api'
 import type { CanvasComponent, TabItem, LayoutProps } from './types'
+import ChartRenderer from './chart-components/ChartRenderer.vue'
 
 interface Props {
   component: CanvasComponent
@@ -536,6 +544,11 @@ const emit = defineEmits<{
 
 // ============ State ============
 const dragOverTabIndex = ref<number | null>(null)
+const imagePreviewUrl = ref<string | null>(null)
+
+function openImagePreview(url: string) {
+  imagePreviewUrl.value = url
+}
 
 // Tabs: new format TabItem[]
 const unifiedTabs = computed((): TabItem[] => {
@@ -815,16 +828,6 @@ async function loadDictForColumns() {
 // Tabs titles from tabs array prop
 const tabTitles = computed(() => {
   return unifiedTabs.value.map(t => t.label)
-})
-
-// Chart icon
-const chartIcon = computed(() => {
-  switch (props.component.type) {
-    case 'lineChart': return '📈'
-    case 'barChart': return '📊'
-    case 'pieChart': return '🥧'
-    default: return '📊'
-  }
 })
 
 // Button class

@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch, shallowRef } from 'vue'
 import { EditorState } from '@codemirror/state'
-import { EditorView, keymap, lineNumbers, highlightActiveLineGutter, highlightSpecialChars, drawSelection, highlightActiveLine, lineWrapping } from '@codemirror/view'
+import { EditorView, keymap, lineNumbers, highlightActiveLineGutter, highlightSpecialChars, drawSelection, highlightActiveLine } from '@codemirror/view'
 import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
-import { json, jsonParseLinter } from '@codemirror/lang-json'
+import { json } from '@codemirror/lang-json'
 import { syntaxHighlighting, defaultHighlightStyle, foldGutter, foldKeymap, indentOnInput } from '@codemirror/language'
-import { linter } from '@codemirror/lint'
 import { searchKeymap, highlightSelectionMatches } from '@codemirror/search'
 import { autocompletion, completionKeymap } from '@codemirror/autocomplete'
 import { bracketMatching } from '@codemirror/language'
@@ -28,9 +27,6 @@ const emit = defineEmits<{
 const editorRef = ref<HTMLDivElement | null>(null)
 const editorView = shallowRef<EditorView | null>(null)
 const error = ref<string | null>(null)
-
-// JSON linter using built-in jsonParseLinter
-const jsonLinter = jsonParseLinter()
 
 // Custom dark theme with better fold styling
 const darkTheme = EditorView.theme({
@@ -128,11 +124,9 @@ function createEditor() {
         ...completionKeymap
       ]),
       json(),
-      jsonLinter,
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
       darkTheme,
       updateListener,
-      lineWrapping,
       ...(props.readonly ? [EditorState.readOnly.of(true)] : [])
     ]
   })

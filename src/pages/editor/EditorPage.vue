@@ -164,6 +164,17 @@ import ComponentRenderer from './ComponentRenderer.vue'
 import DataPanel from '@/components/editor/DataPanel.vue'
 import type { CanvasComponent, TabItem } from './types'
 import axios from 'axios'
+import {
+  buildComponentTree,
+  flattenComponentsWithParentId,
+  flattenComponents,
+  findComponent,
+  findParentContainerId,
+  updateComponentInTree,
+  removeComponentFromTree,
+  updateComponentProps,
+  getContainerChildren,
+} from './utils/component-utils'
 
 const route = useRoute()
 const router = useRouter()
@@ -274,24 +285,15 @@ function loadComponent(c: any): CanvasComponent {
       props = c.props
     }
   }
-  // 调试日志
-  if (c.type === 'tabs') {
-    console.log('[EditorPage] loadComponent tabs:', {
-      id: c.id,
-      rawProps: c.props,
-      parsedProps: props,
-      hasTabs: 'tabs' in props,
-      tabsValue: props.tabs
-    })
-  }
   return {
     id: String(c.id) || `comp_${Date.now()}`,
     // 优先使用保存时的 componentId
-    componentId: c.componentId 
+    componentId: c.componentId
       ? String(c.componentId)
       : `${c.type}_${c.id || Date.now()}`,
-    parentComponentId: c.parentComponentId || undefined,
-    tabId: c.tabId || undefined,
+    // parentComponentId and tabId are stored in props
+    parentComponentId: (props && props.parentComponentId) ? String(props.parentComponentId) : undefined,
+    tabId: (props && props.tabId) ? String(props.tabId) : undefined,
     type: c.type,
     label: c.label || '',
     props,
@@ -324,22 +326,27 @@ function buildComponentTree(flatComponents: any[]): CanvasComponent[] {
     const comp = componentMap.get(c.componentId || String(c.id))
     if (!comp) return
 
-    if (c.parentComponentId) {
-      const key = c.tabId 
-        ? `${c.parentComponentId}:${c.tabId}` 
-        : c.parentComponentId
-      
-      if (c.tabId) {
-        const tabKey = `${c.parentComponentId}:${c.tabId}`
+    // parentComponentId and tabId are now stored in props
+    // c.props is JSON string, comp.props is parsed object
+    const parentComponentId = comp.props?.parentComponentId
+    const tabId = comp.props?.tabId
+
+    if (parentComponentId) {
+      const key = tabId
+        ? `${parentComponentId}:${tabId}`
+        : parentComponentId
+
+      if (tabId) {
+        const tabKey = `${parentComponentId}:${tabId}`
         if (!childrenByTab.has(tabKey)) {
           childrenByTab.set(tabKey, [])
         }
         childrenByTab.get(tabKey)!.push(comp)
       } else {
-        if (!childrenByParent.has(c.parentComponentId)) {
-          childrenByParent.set(c.parentComponentId, [])
+        if (!childrenByParent.has(parentComponentId)) {
+          childrenByParent.set(parentComponentId, [])
         }
-        childrenByParent.get(c.parentComponentId)!.push(comp)
+        childrenByParent.get(parentComponentId)!.push(comp)
       }
     } else {
       rootComponents.push(comp)
@@ -392,9 +399,11 @@ function flattenComponentsWithParentId(comps: CanvasComponent[], parentComponent
     const item: any = {
       ...rest,
       componentId: c.componentId,
-      parentComponentId: parentComponentId || undefined,
-      tabId: tabId || undefined,
-      props: cleanProps
+      props: {
+        ...cleanProps,
+        parentComponentId: parentComponentId || undefined,
+        tabId: tabId || undefined,
+      }
     }
 
     // Ensure tabs have activeTab as string
@@ -460,16 +469,15 @@ function refreshSelectedComponent() {
 }
 
 // ============ Actions ============
-function toggleLeftTab() {
-  activeLeftTab.value = activeLeftTab.value === 'components' ? '' : 'components'
+function toggleLeftTab(tab?: 'layer' | 'components') {
+  if (tab) {
+    activeLeftTab.value = activeLeftTab.value === tab ? '' : tab
+  } else {
+    activeLeftTab.value = activeLeftTab.value ? '' : 'components'
+  }
 }
 
-function handleSelectComponent(id: string) {
-  // 防御：如果收到了非字符串（比如 MouseEvent），忽略
-  if (typeof id !== 'string') {
-    console.warn('[EditorPage] handleSelectComponent received non-string id:', id)
-    return
-  }
+function handleSelectComponent(id: string | null) {
   selectedId.value = id
 }
 
@@ -652,60 +660,16 @@ function handleAddChildToContainer(containerId: string, childComponent: CanvasCo
 /**
  * 从容器中移除子组件（解除父子关系，但不删除组件本身）
  */
-// Remove child from container - new flat design
+// Remove child from container - move to root level (not delete)
 function handleRemoveChildFromContainer(containerId: string, childId: string) {
-  if (!confirm('确定要移除这个组件吗？')) return
-
-  // Simply remove from container's children array
-  // In new design, child's tabId indicates which tab it belongs to
-  components.value = updateComponentInTree(components.value, containerId, (comp: CanvasComponent) => {
-    return {
-      ...comp,
-      children: (comp.children || []).filter(c => 
-        String(c.id) !== String(childId) && c.componentId !== childId
-      ),
-    }
-  })
-  
-  if (String(selectedId.value) === String(childId)) {
-    selectedId.value = null
-  } else {
-    refreshSelectedComponent()
-  }
+    // Move to root level instead of deleting
+  handleMoveChildToRoot(containerId, childId, -1)
 }
 
 function handleMoveChildToRoot(fromContainerId: string, childId: string, insertIndex: number, tabIndex?: number) {
-  // Prevent dropping a container into itself or its descendant
-  const isDescendant = (targetId: string, ancestorId: string): boolean => {
-    if (targetId === ancestorId) return true
-    const findComp = (comps: CanvasComponent[], id: string): CanvasComponent | null => {
-      for (const c of comps) {
-        // Match by id or componentId (stable ID)
-        if (c.id === id || c.componentId === id) return c
-        if (c.children?.length) {
-          const found = findComp(c.children, id)
-          if (found) return found
-        }
-      }
-      return null
-    }
-    const ancestor = findComp(components.value, ancestorId)
-    if (!ancestor) return false
-    const checkDescendants = (comp: CanvasComponent): boolean => {
-      // Match by id or componentId
-      if (comp.id === targetId || comp.componentId === targetId) return true
-      return comp.children?.some(checkDescendants) || false
-    }
-    return checkDescendants(ancestor)
-  }
-
-  // Find and extract child
-  let childToMove: CanvasComponent | null = null
-
-  // 先找到要移动的组件（用于获取 componentId）
+  // Find the child component to move
   const findChildComp = (comps: CanvasComponent[]): CanvasComponent | null => {
     for (const c of comps) {
-      // Match by id OR componentId (stable ID)
       if (String(c.id) === String(childId) || c.componentId === String(childId)) return c
       if (c.children) {
         const found = findChildComp(c.children)
@@ -716,9 +680,13 @@ function handleMoveChildToRoot(fromContainerId: string, childId: string, insertI
   }
   const childComp = findChildComp(components.value)
   const childCompId = childComp?.componentId ? String(childComp.componentId) : String(childId)
-  
+
+  let childToMove: CanvasComponent | null = null
+
+  // Extract child from container (handles both tabs and regular containers)
   const extractFromContainer = (comp: CanvasComponent): CanvasComponent | null => {
     if (comp.id === fromContainerId || comp.componentId === fromContainerId) {
+      // Handle tabs container
       if (comp.type === 'tabs') {
         const tabs = comp.props.tabs as TabItem[]
         if (tabs && Array.isArray(tabs)) {
@@ -740,14 +708,7 @@ function handleMoveChildToRoot(fromContainerId: string, childId: string, insertI
           return null
         }
       }
-      const children = comp.children || []
-      // Move child to root (remove from container)
-function handleMoveChildToRoot(fromContainerId: string, childId: string, insertIndex: number, tabIndex?: number) {
-  let childToMove: CanvasComponent | null = null
-
-  // Extract child from container
-  const extractFromContainer = (comp: CanvasComponent): CanvasComponent | null => {
-    if (comp.id === fromContainerId || comp.componentId === fromContainerId) {
+      // Handle regular container
       const children = comp.children || []
       const idx = children.findIndex(c => String(c.id) === String(childId) || c.componentId === childId)
       if (idx !== -1) {
@@ -761,8 +722,9 @@ function handleMoveChildToRoot(fromContainerId: string, childId: string, insertI
   let updated = components.value.map(comp => {
     const result = extractFromContainer(comp)
     if (result) return result
+    // Check nested containers
     if (comp.children && comp.children.length > 0) {
-      const childIdx = comp.children.findIndex(c => c.id === fromContainerId)
+      const childIdx = comp.children.findIndex(c => c.id === fromContainerId || c.componentId === fromContainerId)
       if (childIdx !== -1) {
         const container = comp.children[childIdx]
         const extracted = extractFromContainer(container)
@@ -787,13 +749,6 @@ function handleMoveChildToRoot(fromContainerId: string, childId: string, insertI
 
   components.value = updated
   selectedId.value = String(childToMove.id || childToMove.componentId)
-  refreshSelectedComponent()
-}
-    }
-  }
-
-  components.value = updated
-  selectedId.value = childId
   refreshSelectedComponent()
 }
 

@@ -69,21 +69,26 @@ onMounted(async () => {
     // Group children by parentComponentId
     const childrenByParent = new Map<string, any[]>()
     const childrenByTab = new Map<string, any[]>()
-    
+
     flatComps.forEach((c: any) => {
-      if (c.parentComponentId) {
-        const key = c.tabId 
-          ? `${c.parentComponentId}:${c.tabId}` 
-          : c.parentComponentId
-        if (c.tabId) {
+      const comp = compMap.get(String(c.id)) || compMap.get(c.componentId)
+      if (!comp) return
+      // parentComponentId and tabId are now stored in props
+      const parentComponentId = comp.props?.parentComponentId
+      const tabId = comp.props?.tabId
+      if (parentComponentId) {
+        const key = tabId
+          ? `${parentComponentId}:${tabId}`
+          : parentComponentId
+        if (tabId) {
           if (!childrenByTab.has(key)) childrenByTab.set(key, [])
-          childrenByTab.get(key)!.push(c)
+          childrenByTab.get(key)!.push(comp)
         } else {
-          if (!childrenByParent.has(c.parentComponentId)) childrenByParent.set(c.parentComponentId, [])
-          childrenByParent.get(c.parentComponentId)!.push(c)
+          if (!childrenByParent.has(parentComponentId)) childrenByParent.set(parentComponentId, [])
+          childrenByParent.get(parentComponentId)!.push(comp)
         }
       } else {
-        rootComps.push(compMap.get(String(c.id)) || compMap.get(c.componentId))
+        rootComps.push(comp)
       }
     })
     

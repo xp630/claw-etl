@@ -66,7 +66,12 @@
             <Trash2 class="w-3 h-3" />
           </button>
           <!-- Drag handle -->
-          <div class="p-1 border border-[var(--border)] rounded text-[var(--text-muted)] cursor-grab" title="拖拽">
+          <div
+            class="p-1 border border-[var(--border)] rounded text-[var(--text-muted)] cursor-grab"
+            title="拖拽"
+            draggable="true"
+            @dragstart="(e) => onRootDragStart(e, index)"
+          >
             <GripVertical class="w-3 h-3" />
           </div>
         </div>
@@ -243,10 +248,19 @@ const onDrop = (e: DragEvent) => {
 }
 
 const onCanvasClick = () => {
+  // If a component was just clicked, don't deselect
+  if (justSelectedId.value) {
+    justSelectedId.value = null
+    return
+  }
   emit('select', null)
 }
 
+const justSelectedId = ref<string | null>(null)
+
 const onComponentClick = (id: string) => {
+  console.log('[DropCanvas] onComponentClick:', id)
+  justSelectedId.value = id
   emit('select', id)
 }
 
